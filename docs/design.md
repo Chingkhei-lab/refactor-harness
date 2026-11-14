@@ -145,3 +145,26 @@ RETURNING ...;
 - SIGTERM: finish the current job, then exit.
 - Delivery is **at-least-once**; handlers must be idempotent (Phase 2 adds
   side-effect deduplication and a `NonRetryableError` that skips retries).
+
+## Known pitfalls (observed) and operational notes
+
+- **Splitting the claim broke exactly-once claiming.** Replacing the single
+  claim statement with a plain `SELECT` + `UPDATE` (two autocommit statements)
+  let 8 workers claim 1,000 jobs **4,129 times** — every worker re-claimed rows
+  it had already seen because no lock survives between the two statements. The
+  single statement with `FOR UPDATE SKIP LOCKED` is load-bearing.
+- **Full jitter can land near zero.** A claim issued immediately after `fail()`
+  can see `run_at` a few microseconds in the future (CI caught this flake).
+  Workers must poll until `run_at` passes instead of assuming instant
+  re-eligibility; the retry tests use the same polling.
+- **The claim plan depends on fresh statistics.** On a freshly loaded table
+  (10k queued + 100k succeeded) with no stats, the planner chose a bitmap scan
+  + sort (~21 ms); after `ANALYZE jobs` it returned to an index scan
+  (~0.54 ms). Run `ANALYZE` after bulk loads.
+- **The `type = ANY(...)` claim filter skips past unreadable head-of-queue
+  jobs.** If one worker's types sit behind many other types, the index scan
+  walks those rows every claim. If that becomes a measurable problem, add
+  `CREATE INDEX ... ON jobs (type, run_at, id) WHERE state = 'queued'`.
+- **Queue tables bloat.** `jobs` is updated constantly; future work: tune
+  autovacuum for `jobs`, and add a retention job that deletes old `succeeded`
+  rows.

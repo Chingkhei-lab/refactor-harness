@@ -7,6 +7,12 @@
 -- concurrent workers never queue behind each other's row locks. The outer
 -- UPDATE flips it to running and sets the lease in the same statement;
 -- attempts increments here, which is what makes it the fencing token.
+--
+-- The WHERE uses a scalar subquery (= SELECT ... LIMIT 1), which is evaluated
+-- once. IN (SELECT ... LIMIT 1) is a known pitfall: the planner may execute
+-- the subquery more than once (for example on the inner side of a nested
+-- loop), and with SKIP LOCKED each re-run can lock a different row, so one
+-- statement could claim more than one job.
 UPDATE jobs
 SET state = 'running',
     locked_by = %(locked_by)s,

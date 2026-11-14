@@ -120,6 +120,42 @@ def test_stale_complete_fails_and_result_belongs_to_new_attempt(clean_db: Settin
     assert row["attempts"] == 2
 
 
+def test_stale_fail_raises_lease_lost_and_cannot_requeue_a_finished_job(
+    clean_db: Settings,
+) -> None:
+    conn = db.connect(clean_db)
+    jobs.enqueue(conn, job_type="demo", payload={})
+    a = _claim(conn, "worker-a", clean_db)
+    assert a is not None and a.attempts == 1
+
+    _requeue_like_a_reaper(conn, a.id)
+    b = _claim(conn, "worker-b", clean_db)
+    assert b is not None and b.attempts == 2
+
+    finished = jobs.complete(
+        conn, job_id=b.id, locked_by="worker-b", attempts=b.attempts, result={"who": "b"}
+    )
+    assert finished.state == "succeeded"
+
+    with pytest.raises(jobs.LeaseLost):
+        jobs.fail(
+            conn,
+            job_id=a.id,
+            locked_by="worker-a",
+            attempts=a.attempts,
+            backoff_seconds=0.5,
+            last_error="stale fail",
+        )
+
+    row = conn.execute(
+        "SELECT state, result, attempts FROM jobs WHERE id = %(id)s", {"id": a.id}
+    ).fetchone()
+    assert row is not None
+    assert row["state"] == "succeeded", "a stale fail must not requeue a finished job"
+    assert row["result"] == {"who": "b"}
+    assert row["attempts"] == 2
+
+
 def test_retries_show_growing_run_at_delays(
     clean_db: Settings, monkeypatch: pytest.MonkeyPatch
 ) -> None:
