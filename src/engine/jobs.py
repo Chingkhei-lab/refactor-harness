@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import random
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -23,12 +24,19 @@ def _load_sql(name: str) -> str:
 
 _ENQUEUE_SQL = _load_sql("enqueue.sql")
 _CLAIM_SQL = _load_sql("claim.sql")
+_HEARTBEAT_SQL = _load_sql("heartbeat.sql")
+_COMPLETE_SQL = _load_sql("complete.sql")
+_FAIL_SQL = _load_sql("fail.sql")
 
-_COLUMNS = (
+_RETURNING_COLUMNS = (
     "id, type, payload, state, attempts, max_attempts, run_at, locked_by, "
     "lease_expires_at, last_heartbeat_at, result, last_error, dedupe_key, "
     "created_at, updated_at"
 )
+
+
+class LeaseLost(Exception):
+    """A fenced write matched zero rows: the lease is gone. Never swallow it."""
 
 
 @dataclass(frozen=True)
@@ -70,6 +78,17 @@ def _to_job(row: Row) -> Job:
     )
 
 
+def _fenced_write(
+    conn: psycopg.Connection[Row],
+    sql: str,
+    params: dict[str, Any],
+) -> Job:
+    row = conn.execute(sql, params).fetchone()
+    if row is None:
+        raise LeaseLost("fenced write matched zero rows: the lease was lost")
+    return _to_job(row)
+
+
 def enqueue(
     conn: psycopg.Connection[Row],
     *,
@@ -102,16 +121,97 @@ def claim(
     *,
     locked_by: str,
     lease_seconds: float,
+    types: list[str],
 ) -> Job | None:
-    """Claim the next eligible job, or return None when the queue is empty.
+    """Claim the next eligible job, or return None when nothing is eligible.
 
     Single statement on an autocommit connection: select with SKIP LOCKED and
     flip to running in one shot, so nothing is held while a handler runs.
+    `types` limits claims to job types this worker has handlers for.
     """
     row = conn.execute(
         _CLAIM_SQL,
-        {"locked_by": locked_by, "lease_seconds": lease_seconds},
+        {"locked_by": locked_by, "lease_seconds": lease_seconds, "types": types},
     ).fetchone()
     if row is None:
         return None
     return _to_job(row)
+
+
+def heartbeat(
+    conn: psycopg.Connection[Row],
+    *,
+    job_id: UUID,
+    locked_by: str,
+    attempts: int,
+    lease_seconds: float,
+) -> Job:
+    """Extend the lease, fenced by the full claim token."""
+    return _fenced_write(
+        conn,
+        _HEARTBEAT_SQL,
+        {
+            "job_id": job_id,
+            "locked_by": locked_by,
+            "attempts": attempts,
+            "lease_seconds": lease_seconds,
+        },
+    )
+
+
+def complete(
+    conn: psycopg.Connection[Row],
+    *,
+    job_id: UUID,
+    locked_by: str,
+    attempts: int,
+    result: dict[str, Any] | None,
+) -> Job:
+    """Mark succeeded and store the result, fenced by the full claim token."""
+    return _fenced_write(
+        conn,
+        _COMPLETE_SQL,
+        {
+            "job_id": job_id,
+            "locked_by": locked_by,
+            "attempts": attempts,
+            "result": Json(result) if result is not None else None,
+        },
+    )
+
+
+def fail(
+    conn: psycopg.Connection[Row],
+    *,
+    job_id: UUID,
+    locked_by: str,
+    attempts: int,
+    backoff_seconds: float,
+    last_error: str,
+) -> Job:
+    """Requeue with backoff, or go dead at max_attempts, fenced by the token."""
+    return _fenced_write(
+        conn,
+        _FAIL_SQL,
+        {
+            "job_id": job_id,
+            "locked_by": locked_by,
+            "attempts": attempts,
+            "backoff_seconds": backoff_seconds,
+            "last_error": last_error,
+        },
+    )
+
+
+def backoff_bound_seconds(attempts: int, settings: Settings) -> float:
+    """Upper bound of the full-jitter backoff: min(cap, base * 2^attempts)."""
+    delay: float = settings.backoff_base_seconds * (2**attempts)
+    if delay > settings.backoff_cap_seconds:
+        return settings.backoff_cap_seconds
+    return delay
+
+
+def jittered_backoff_seconds(attempts: int, settings: Settings) -> float:
+    """Full jitter: uniform random between 0 and the backoff bound."""
+    bound = backoff_bound_seconds(attempts, settings)
+    return float(random.uniform(0.0, bound))

@@ -52,16 +52,20 @@ database's `now()`, never a worker's clock.
 Transitions:
 
 - `queued → running`: worker claims the job with
-  `SELECT ... FOR UPDATE SKIP LOCKED`; sets `locked_by`,
-  `lease_expires_at = now() + lease`, `last_heartbeat_at = now()`, and
-  increments `attempts`.
+  `SELECT ... FOR UPDATE SKIP LOCKED`, filtered to job types the worker has
+  handlers for (`type = ANY(...)`) so an unknown type never burns an attempt;
+  sets `locked_by`, `lease_expires_at = now() + lease`, `last_heartbeat_at =
+  now()`, and increments `attempts`.
 - `running → succeeded`: handler returns without error; stores `result`. The
-  write is guarded by `id`, `locked_by`, and `attempts`.
+  write is guarded by `id`, `locked_by`, and `attempts`, and clears the lease
+  columns.
 - `running → queued`: a handler failure while `attempts < max_attempts`, or a
   lease expiry while `attempts < max_attempts`; `run_at` is set to
-  `now() + backoff` (exponential with full jitter).
+  `now() + backoff` (exponential with full jitter). Leaving `running` clears
+  `locked_by`, `lease_expires_at`, and `last_heartbeat_at`.
 - `running → dead`: a handler failure or lease expiry when
-  `attempts >= max_attempts`; stores `last_error`.
+  `attempts >= max_attempts`; stores `last_error`. A dead job keeps its old
+  `run_at` — no new `run_at` is computed for `dead`.
 - `dead` is terminal; re-enqueue creates a new job (or resets via explicit replay).
 
 **Lease expiry follows the attempts rule.** A job that crashes workers every
@@ -76,6 +80,12 @@ instead of looping forever.
   heartbeat and completion writes fail the
   `WHERE id = ? AND locked_by = ? AND attempts = ?` guard. This prevents a
   delayed worker from overwriting a newer claim's result.
+
+**Lease loss is loud.** `heartbeat`, `complete`, and `fail` all carry the same
+`WHERE id AND locked_by AND attempts AND state = 'running'` guard; a write that
+matches zero rows raises `LeaseLost`, which callers must not swallow. The
+heartbeat thread runs every `lease / 3` on its own connection, sets a flag, and
+exits when it loses the lease.
 
 ## Failure model
 
@@ -95,6 +105,13 @@ instead of looping forever.
 Decision: **enqueueing the same `dedupe_key` returns the existing job for as
 long as that row exists (no expiry window).** Re-running requires a new key or
 an explicit replay/reset.
+
+Two documented behaviors of this design, both accepted:
+
+- The no-op `DO UPDATE` writes a new row version on every duplicate enqueue — a
+  small, bounded cost that keeps enqueue a single statement.
+- A duplicate enqueue ignores a different payload: the **first payload wins**.
+  Callers that need different payloads must use a new key.
 
 Implementation: partial unique index, and `ON CONFLICT` must repeat the index
 predicate:

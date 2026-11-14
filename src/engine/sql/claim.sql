@@ -1,8 +1,9 @@
 -- claim: one short statement, safe to run on an autocommit connection so no
 -- transaction can be left open around the handler.
 --
--- The subquery picks the next eligible job (queued, run_at <= now(), database
--- clock only), ordered by (run_at, id), and takes FOR UPDATE SKIP LOCKED so
+-- The subquery picks the next eligible job (queued, run_at <= now(), and a
+-- type this worker can actually run, so an unknown type never burns an
+-- attempt), ordered by (run_at, id), and takes FOR UPDATE SKIP LOCKED so
 -- concurrent workers never queue behind each other's row locks. The outer
 -- UPDATE flips it to running and sets the lease in the same statement;
 -- attempts increments here, which is what makes it the fencing token.
@@ -18,6 +19,7 @@ WHERE id = (
     FROM jobs
     WHERE state = 'queued'
       AND run_at <= now()
+      AND type = ANY(%(types)s)
     ORDER BY run_at, id
     LIMIT 1
     FOR UPDATE SKIP LOCKED

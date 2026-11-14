@@ -47,6 +47,7 @@ def settings() -> Settings:
         load_settings(),
         database_url=url,
         lease_seconds=2.0,
+        heartbeat_interval_seconds=2.0 / 3,
         statement_timeout_ms=30000,
     )
 
