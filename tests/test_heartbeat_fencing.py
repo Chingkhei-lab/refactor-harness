@@ -164,7 +164,7 @@ def test_job_goes_dead_at_max_attempts(clean_db: Settings) -> None:
     run_at_before_final_fail: Any = None
     failed: jobs.Job | None = None
     for attempt in range(1, 4):
-        job = _claim(conn, "worker-a", settings)
+        job = _claim_when_ready(conn, "worker-a", settings)
         assert job is not None and job.attempts == attempt
         failed = jobs.fail(
             conn,
