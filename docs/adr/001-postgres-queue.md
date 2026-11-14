@@ -15,7 +15,7 @@ complexity low for the initial version.
 
 Use PostgreSQL itself as the queue backend: jobs are rows in a `jobs` table,
 claimed with `SELECT ... FOR UPDATE SKIP LOCKED`, and scheduled via a
-`run_after` column. No separate broker or worker framework is introduced.
+`run_at` column. No separate broker or worker framework is introduced.
 
 ## Options considered
 

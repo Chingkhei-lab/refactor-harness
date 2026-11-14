@@ -3,7 +3,10 @@ name = "refactor-harness"
 version = "0.1.0"
 description = "Refactor harness"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = ["psycopg[binary]>=3.2"]
+
+[project.optional-dependencies]
+dev = ["alembic>=1.13", "pytest>=8", "ruff>=0.5", "mypy>=1.10"]
 
 [build-system]
 requires = ["hatchling"]
