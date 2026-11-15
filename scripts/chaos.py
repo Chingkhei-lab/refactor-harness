@@ -252,6 +252,14 @@ def main() -> int:
             "violations": violations,
             "missing_side_effects": missing_effects,
         },
+        "notes": {
+            "throughput": (
+                "jobs_per_second is an end-to-end pipeline number for THIS "
+                "environment (cpus, ram and platform above; Docker bridge to "
+                "Postgres; handler sleeps; kill/restart cycles included). It "
+                "measures the pipeline, not Postgres: not a database benchmark."
+            )
+        },
         "gate": gate,
     }
 

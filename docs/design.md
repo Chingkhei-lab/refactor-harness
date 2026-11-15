@@ -87,6 +87,12 @@ matches zero rows raises `LeaseLost`, which callers must not swallow. The
 heartbeat thread runs every `lease / 3` on its own connection, sets a flag, and
 exits when it loses the lease.
 
+**Expiry is not revocation.** A lease that has expired but not yet been reaped
+does not stop the original worker from completing its job: the row guard
+(`locked_by`, `attempts`) decides, not the clock. The reaper reclaims; it does
+not forbid late completion. If a new attempt claims the row first, the same
+guard rejects the late write.
+
 ## Failure model
 
 | Scenario | Detection | Recovery | Residual risk |
@@ -153,7 +159,14 @@ RETURNING ...;
   `last_error = 'lease expired'`, and clears the lease columns. Backoff
   decision: **requeue at `now()`** — the expired lease already acted as the
   delay, so SQL `random()` would only duplicate the Python full-jitter logic;
-  dead jobs keep their old `run_at`, consistent with `fail()`.
+  dead jobs keep their old `run_at`, consistent with `fail()`. Accepted
+  trade-off: a job that hard-crashes its worker (a poison job) never reaches
+  `fail()`, so it burns one worker process per attempt, up to `max_attempts`,
+  paced only by the lease duration — no jittered backoff ever slows it down.
+  That is bounded (`max_attempts` caps the blast radius, each cycle still pays
+  ~lease) and rare, while infra kills — the common case — recover with zero
+  extra delay; everything that reaches `fail()` (handler exception,
+  non-serializable or jsonb-rejected result) still gets full-jitter backoff.
 - `fail()` requeues with `run_at = now() + backoff` while
   `attempts < max_attempts`, otherwise marks the job `dead`. Backoff is
   exponential with full jitter: uniform random between `0` and

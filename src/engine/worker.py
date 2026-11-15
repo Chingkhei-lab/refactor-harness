@@ -239,6 +239,18 @@ class Worker:
                 job.id,
                 job.attempts,
             )
+        except psycopg.DataError as exc:
+            # Postgres jsonb rejects values json.dumps accepts (NaN, Infinity,
+            # \u0000 in strings, over-deep nesting). That must fail the JOB,
+            # not crash the worker: autocommit means the failed complete left
+            # the row and token untouched, so fail() carries the same token.
+            logger.warning(
+                "job %s attempt %s: database rejected the result: %s",
+                job.id,
+                job.attempts,
+                _truncate(repr(exc)),
+            )
+            self._finish_fail(job, _truncate(f"invalid result: {exc!r}"))
         except psycopg.OperationalError as exc:
             logger.warning(
                 "job %s attempt %s: database error during complete: %s",
@@ -265,6 +277,18 @@ class Worker:
                 "job %s attempt %s: lease lost before fail; error dropped",
                 job.id,
                 job.attempts,
+            )
+        except psycopg.DataError as exc:
+            # Same class of rejection, on the fail path: e.g. a last_error
+            # containing a NUL. The job stays 'running' with an expired-lease
+            # future; the reaper cycles it (claim increments attempts) until
+            # it goes dead at max_attempts. Never crash the worker over it.
+            logger.warning(
+                "job %s attempt %s: database rejected the failure record: %s;"
+                " leaving the job to the reaper",
+                job.id,
+                job.attempts,
+                _truncate(repr(exc)),
             )
         except psycopg.OperationalError as exc:
             logger.warning(
@@ -317,7 +341,10 @@ class Worker:
             return
 
         try:
-            json.dumps(result)
+            # allow_nan=False matches what jsonb accepts: NaN/Infinity are not
+            # valid JSON and Postgres rejects them; without this, the rejection
+            # would only surface later as a DataError from the database.
+            json.dumps(result, allow_nan=False)
         except (TypeError, ValueError) as exc:
             self._finish_fail(
                 job, _truncate(f"non-serializable result: {exc!r}")

@@ -40,6 +40,9 @@
     "violations": 0,
     "missing_side_effects": 0
   },
+  "notes": {
+    "throughput": "72.9 jobs/s is an end-to-end pipeline number for THIS environment (4 CPUs, 3.8 GB RAM, WSL2, Docker bridge to Postgres on the Windows host, handler sleeps 5-30 ms, 26 kill/restart cycles included). It measures the pipeline, not Postgres: not a database benchmark."
+  },
   "gate": {
     "all_terminal": true,
     "violations_empty": true,

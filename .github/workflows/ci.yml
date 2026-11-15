@@ -39,4 +39,4 @@ jobs:
       - name: Type check
         run: mypy
       - name: Test
-        run: pytest
+        run: pytest -v

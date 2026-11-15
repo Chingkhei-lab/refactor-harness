@@ -186,6 +186,63 @@ def test_worker_survives_a_terminated_backend(clean_db: Settings) -> None:
         _stop(worker, thread)
 
 
+def test_invalid_results_fail_the_job_not_the_worker(clean_db: Settings) -> None:
+    """jsonb-hostile results fail the job; the worker must survive both paths.
+
+    NaN is caught client-side (json.dumps with allow_nan=False raises
+    ValueError -> 'non-serializable result'); \\u0000 passes json.dumps and is
+    rejected by the database (psycopg.DataError -> 'invalid result'). Both
+    land in fail(), and a good job enqueued afterwards still succeeds.
+    """
+    settings = replace(
+        clean_db, idle_sleep_min_seconds=0.02, idle_sleep_max_seconds=0.05
+    )
+    conn = db.connect(settings)
+
+    def nan_result(payload: dict[str, Any], ctx: HandlerContext) -> dict[str, Any]:
+        return {"x": float("nan")}
+
+    def nul_result(payload: dict[str, Any], ctx: HandlerContext) -> dict[str, Any]:
+        return {"s": "bad\u0000nul"}
+
+    jobs.enqueue(conn, job_type="nan", payload={}, max_attempts=1)
+    jobs.enqueue(conn, job_type="nul", payload={}, max_attempts=1)
+    worker, thread = _run_worker(
+        settings,
+        {
+            "nan": nan_result,
+            "nul": nul_result,
+            "ok": lambda payload, ctx: {"ok": True},
+        },
+        "engine-worker-test",
+    )
+    try:
+        _wait_until(
+            lambda: _row(
+                conn,
+                "SELECT count(*) AS n FROM jobs WHERE state = 'dead'",
+            )["n"]
+            == 2
+        )
+        jobs.enqueue(conn, job_type="ok", payload={})
+        _wait_until(
+            lambda: _row(
+                conn,
+                "SELECT count(*) AS n FROM jobs WHERE state = 'succeeded'",
+            )["n"]
+            == 1
+        )
+        assert thread.is_alive(), "a rejected result must not crash the worker"
+        rows = conn.execute(
+            "SELECT type, last_error FROM jobs WHERE state = 'dead'"
+        ).fetchall()
+        errors = {str(row["type"]): str(row["last_error"]) for row in rows}
+        assert "non-serializable" in errors["nan"]
+        assert "invalid result" in errors["nul"]
+    finally:
+        _stop(worker, thread)
+
+
 @pytest.mark.skipif(
     sys.platform == "win32",
     reason="Windows has no reliable SIGTERM; this test runs on Linux (CI/WSL/Docker)",

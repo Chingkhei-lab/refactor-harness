@@ -7,6 +7,7 @@ from collections.abc import Callable
 from dataclasses import replace
 from typing import Any
 
+import psycopg
 import pytest
 
 from engine import db, jobs
@@ -317,3 +318,49 @@ def _lease_of(conn: Any, job_id: Any) -> Any:
     ).fetchone()
     assert row is not None
     return row["lease_expires_at"]
+
+
+def test_complete_rejects_jsonb_hostile_values(clean_db: Settings) -> None:
+    """Postgres jsonb rejects NaN and \\u0000; complete must raise DataError.
+
+    json.dumps accepts both by default, so only the database catches them —
+    the worker's catch depends on the rejection being a DataError (SQLSTATE
+    class 22), which this pins. Under autocommit the failed statement leaves
+    the job running with its token intact and the connection usable.
+    """
+    conn = db.connect(clean_db)
+    jobs.enqueue(conn, job_type="demo", payload={})
+    job = jobs.claim(conn, locked_by="worker-a", lease_seconds=30.0, types=["demo"])
+    assert job is not None
+
+    with pytest.raises(psycopg.DataError):  # NaN: invalid json token
+        jobs.complete(
+            conn,
+            job_id=job.id,
+            locked_by="worker-a",
+            attempts=job.attempts,
+            result={"x": float("nan")},
+        )
+    with pytest.raises(psycopg.DataError):  # \u0000: untranslatable escape
+        jobs.complete(
+            conn,
+            job_id=job.id,
+            locked_by="worker-a",
+            attempts=job.attempts,
+            result={"s": "bad\u0000nul"},
+        )
+
+    row = conn.execute(
+        "SELECT state FROM jobs WHERE id = %(id)s", {"id": job.id}
+    ).fetchone()
+    assert row is not None and row["state"] == "running"
+    # the connection survived both rejections (autocommit discards only the
+    # failed statement) — the worker may keep using it to record the failure.
+    finished = jobs.complete(
+        conn,
+        job_id=job.id,
+        locked_by="worker-a",
+        attempts=job.attempts,
+        result={"ok": True},
+    )
+    assert finished.state == "succeeded"
