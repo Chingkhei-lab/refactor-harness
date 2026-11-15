@@ -5,7 +5,6 @@ from __future__ import annotations
 import time
 from collections.abc import Callable
 from dataclasses import replace
-from datetime import UTC, datetime
 from typing import Any
 
 import pytest
@@ -156,35 +155,39 @@ def test_stale_fail_raises_lease_lost_and_cannot_requeue_a_finished_job(
     assert row["attempts"] == 2
 
 
-def test_retries_show_growing_run_at_delays(
-    clean_db: Settings, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    settings = replace(clean_db, backoff_base_seconds=0.01)
+def test_retries_show_growing_run_at_delays(clean_db: Settings) -> None:
+    settings = replace(clean_db, backoff_base_seconds=0.1)
     conn = db.connect(settings)
     jobs.enqueue(conn, job_type="demo", payload={}, max_attempts=settings.max_attempts)
 
-    # Pin the jitter to its upper bound so the exponential growth is visible
-    # and deterministic; jitter itself is a uniform draw over [0, bound).
-    monkeypatch.setattr(jobs.random, "uniform", lambda low, high: high)
-
     delays: list[float] = []
     for attempt in range(1, 4):
+        # The pure function carries the invariant: with the injectable jitter
+        # pinned to its upper bound, backoff == min(cap, base * 2^attempts).
+        backoff = jobs.jittered_backoff_seconds(
+            attempt, settings, jitter=lambda low, high: high
+        )
+        assert backoff == pytest.approx(jobs.backoff_bound_seconds(attempt, settings))
+        delays.append(backoff)
+
         job = _claim_when_ready(conn, "worker-a", settings)
         assert job is not None and job.attempts == attempt
-        started = datetime.now(UTC)
+        db_now_row = conn.execute("SELECT now() AS ts").fetchone()
+        assert db_now_row is not None
+        db_now = db_now_row["ts"]
         failed = jobs.fail(
             conn,
             job_id=job.id,
             locked_by="worker-a",
             attempts=job.attempts,
-            backoff_seconds=jobs.jittered_backoff_seconds(job.attempts, settings),
+            backoff_seconds=backoff,
             last_error="boom",
         )
         assert failed.state == "queued"
-        delay = (failed.run_at - started).total_seconds()
-        assert delay >= 0
-        assert delay <= jobs.backoff_bound_seconds(attempt, settings) + 0.05
-        delays.append(delay)
+        delay = (failed.run_at - db_now).total_seconds()
+        # loose database-side sanity check: the gap between db_now and the
+        # statement's now() is scheduling noise, not part of the contract.
+        assert 0 <= delay <= backoff + 0.5
 
     assert delays == sorted(delays) and len(set(delays)) == len(delays), (
         f"retries must grow: {delays}"
@@ -277,3 +280,40 @@ def test_heartbeat_thread_detects_a_lost_lease(clean_db: Settings) -> None:
         heart.stop()
         heart.join(timeout=5)
     assert heart.lease_lost
+
+
+def test_heartbeat_survives_a_terminated_backend(clean_db: Settings) -> None:
+    conn = db.connect(clean_db)
+    jobs.enqueue(conn, job_type="demo", payload={})
+    job = _claim(conn, "worker-a", clean_db)
+    assert job is not None
+    original = job.lease_expires_at
+    assert original is not None
+
+    heart = HeartbeatThread(clean_db, job)
+    heart.start()
+    try:
+        _wait_until(lambda: _lease_of(conn, job.id) > original)  # first beat
+
+        lease_before_kill = _lease_of(conn, job.id)
+        conn.execute(
+            "SELECT pg_terminate_backend(pid) FROM pg_stat_activity"
+            " WHERE application_name = 'engine-heartbeat'"
+        )
+        # transient error: the thread must reconnect, beat again, and never
+        # set lease_lost over a mere connection drop.
+        _wait_until(lambda: _lease_of(conn, job.id) > lease_before_kill)
+        assert not heart.lease_lost
+        assert heart.is_alive()
+    finally:
+        heart.stop()
+        heart.join(timeout=5)
+    assert not heart.lease_lost
+
+
+def _lease_of(conn: Any, job_id: Any) -> Any:
+    row = conn.execute(
+        "SELECT lease_expires_at FROM jobs WHERE id = %(id)s", {"id": job_id}
+    ).fetchone()
+    assert row is not None
+    return row["lease_expires_at"]

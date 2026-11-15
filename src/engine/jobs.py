@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import random
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -27,6 +28,7 @@ _CLAIM_SQL = _load_sql("claim.sql")
 _HEARTBEAT_SQL = _load_sql("heartbeat.sql")
 _COMPLETE_SQL = _load_sql("complete.sql")
 _FAIL_SQL = _load_sql("fail.sql")
+_REAPER_SQL = _load_sql("reaper.sql")
 
 _RETURNING_COLUMNS = (
     "id, type, payload, state, attempts, max_attempts, run_at, locked_by, "
@@ -203,6 +205,20 @@ def fail(
     )
 
 
+def reaper(
+    conn: psycopg.Connection[Row],
+    *,
+    batch: int,
+) -> list[Job]:
+    """Reclaim expired leases: requeue or dead, never increment attempts.
+
+    Single statement, safe on an autocommit connection. Returns the affected
+    rows so callers can count them.
+    """
+    rows = conn.execute(_REAPER_SQL, {"batch": batch}).fetchall()
+    return [_to_job(row) for row in rows]
+
+
 def backoff_bound_seconds(attempts: int, settings: Settings) -> float:
     """Upper bound of the full-jitter backoff: min(cap, base * 2^attempts)."""
     delay: float = settings.backoff_base_seconds * (2**attempts)
@@ -211,7 +227,16 @@ def backoff_bound_seconds(attempts: int, settings: Settings) -> float:
     return delay
 
 
-def jittered_backoff_seconds(attempts: int, settings: Settings) -> float:
-    """Full jitter: uniform random between 0 and the backoff bound."""
+def jittered_backoff_seconds(
+    attempts: int,
+    settings: Settings,
+    jitter: Callable[[float, float], float] | None = None,
+) -> float:
+    """Full jitter: uniform random between 0 and the backoff bound.
+
+    `jitter` is injectable so tests can pin it without monkeypatching the
+    global random module; the default is random.uniform.
+    """
     bound = backoff_bound_seconds(attempts, settings)
-    return float(random.uniform(0.0, bound))
+    uniform = jitter if jitter is not None else random.uniform
+    return float(uniform(0.0, bound))

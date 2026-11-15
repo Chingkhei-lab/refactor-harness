@@ -129,20 +129,37 @@ RETURNING ...;
 
 ## Worker model (Phase 1)
 
-- Worker loop: claim → run the handler from a registry (`dict[type, callable]`)
-  → complete or fail. Idle workers sleep with jitter.
-- Heartbeat runs in a separate thread every `lease / 3` on its **own
-  connection**; a fenced update returning 0 rows means the lease is lost and the
-  worker must stop without writing a result.
-- A reaper runs from each worker every few seconds, reclaiming expired leases
-  with `SKIP LOCKED`; it applies the same requeue-or-dead rule as `fail()` and
-  sets `last_error = 'lease expired'`. It does **not** increment `attempts`
-  (already counted at claim time).
+- Worker loop: reap if due → claim with `types = registry keys` → idle-wait on
+  the stop event with jitter. `worker_id` is generated once per process:
+  `hostname + pid + random suffix`.
+- Handler contract: `handler(payload, ctx)`; `ctx` carries `job_id`, `attempt`,
+  and a `lease_lost` event the handler can poll to cooperate with cancellation.
+- One **long-lived heartbeat thread per worker** owns a single connection and
+  beats the current job's token every `lease / 3` — beats land at `L/3`,
+  `2L/3` and `L`, so **two** missed beats are tolerated (with interval `= L`,
+  a single hiccup would expire the lease). Transient `OperationalError`s are
+  retried after a reconnect: they are not lease loss. The thread tracks
+  `last_successful_beat + lease` on the monotonic clock and only sets the
+  lease-lost event when that deadline passes, because by then the reaper may
+  legitimately have taken the job. Per job, the worker clears the token (and
+  waits out any in-flight beat) **before** calling `complete`/`fail`, so no
+  late beat can hit the cleared row.
+- A reaper runs from each worker every few seconds. One statement: a CTE
+  selects up to `batch` expired running jobs (`FOR UPDATE SKIP LOCKED`) and
+  the outer `UPDATE ... FROM` applies the same requeue-or-dead CASE as
+  `fail()`, repeating `state = 'running' AND lease_expires_at < now()` as a
+  second guard (READ COMMITTED re-checks it when the row changed while the
+  statement waited). It does **not** increment `attempts`, sets
+  `last_error = 'lease expired'`, and clears the lease columns. Backoff
+  decision: **requeue at `now()`** — the expired lease already acted as the
+  delay, so SQL `random()` would only duplicate the Python full-jitter logic;
+  dead jobs keep their old `run_at`, consistent with `fail()`.
 - `fail()` requeues with `run_at = now() + backoff` while
   `attempts < max_attempts`, otherwise marks the job `dead`. Backoff is
   exponential with full jitter: uniform random between `0` and
   `min(cap, base * 2^attempts)`.
-- SIGTERM: finish the current job, then exit.
+- SIGTERM: set the stop event only; the current job finishes, then the worker
+  exits 0. The signal handler is registered in the main thread.
 - Delivery is **at-least-once**; handlers must be idempotent (Phase 2 adds
   side-effect deduplication and a `NonRetryableError` that skips retries).
 

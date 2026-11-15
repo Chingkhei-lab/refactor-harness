@@ -20,24 +20,34 @@ Row = dict[str, Any]
 _local = threading.local()
 
 
-def connect(settings: Settings | None = None) -> psycopg.Connection[Row]:
+def connect(
+    settings: Settings | None = None,
+    *,
+    application_name: str | None = None,
+) -> psycopg.Connection[Row]:
     """Open a new autocommit connection with row-level guards configured."""
     settings = settings or load_settings()
+    kwargs: dict[str, Any] = {}
+    if application_name is not None:
+        kwargs["application_name"] = application_name
     return psycopg.connect(
         settings.database_url,
         autocommit=True,
         row_factory=dict_row,
         connect_timeout=settings.connect_timeout_seconds,
         options=f"-c statement_timeout={settings.statement_timeout_ms}",
+        **kwargs,
     )
 
 
 def get_thread_connection(
     settings: Settings | None = None,
+    *,
+    application_name: str | None = None,
 ) -> psycopg.Connection[Row]:
     """Return this thread's connection, opening one on first use."""
     conn: psycopg.Connection[Row] | None = getattr(_local, "conn", None)
     if conn is None or conn.closed:
-        conn = connect(settings)
+        conn = connect(settings, application_name=application_name)
         _local.conn = conn
     return conn
