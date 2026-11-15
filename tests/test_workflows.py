@@ -334,7 +334,7 @@ def test_stale_worker_output_is_discarded(clean_db: Settings) -> None:
                 result={"stale": True},
             )
             workflows._advance_after_complete(
-                conn_a, workflow=workflow_row, definition=definition,
+                conn_a, workflow=workflow_row,
                 steps=steps, position=0, output={"stale": True},
             )
 
@@ -356,7 +356,7 @@ def test_stale_worker_output_is_discarded(clean_db: Settings) -> None:
         )
         assert completed.state == "succeeded"
         workflows._advance_after_complete(
-            conn_b, workflow=workflow_row, definition=definition,
+            conn_b, workflow=workflow_row,
             steps=steps, position=0, output={"a": 1},
         )
 
@@ -376,3 +376,224 @@ def test_stale_worker_output_is_discarded(clean_db: Settings) -> None:
     assert next_job["state"] == "queued"
     assert next_job["attempts"] == 0
     assert _workflow_state(conn_admin, wf.id) == "running"
+
+
+def _job_state(conn: Any, wf: Workflow, position: int) -> Any:
+    return _row(
+        conn,
+        "SELECT state FROM jobs WHERE dedupe_key = %(k)s",
+        {"k": workflows.step_job_dedupe_key(wf.id, position)},
+    )["state"]
+
+
+def test_callback_exception_rolls_back_complete_and_job_goes_dead(
+    clean_db: Settings,
+) -> None:
+    settings = _worker_settings(clean_db)
+    conn = db.connect(settings)
+    calls: dict[str, int] = {}
+
+    def a(ctx: StepContext, prior: dict[str, Any]) -> dict[str, Any]:
+        _bump(calls, "a")
+        return {"a": 1}
+
+    def b(ctx: StepContext, prior: dict[str, Any]) -> dict[str, Any]:
+        _bump(calls, "b")
+        return {"b": 2}
+
+    definition = WorkflowDef(
+        type="boomer",
+        steps=(StepDef("a", a, max_attempts=2), StepDef("b", b)),
+    )
+    wf = workflows.start_workflow(
+        conn, wf_type="boomer", definition=definition, dedupe_key="boom-1"
+    )
+
+    base = workflows.make_workflow_handlers(
+        {"boomer": definition}, settings=settings
+    )["workflow_step"]
+
+    def boomed_advance(_conn: Any) -> None:
+        raise RuntimeError("boom inside advance")
+
+    def flaky(payload: dict[str, Any], ctx: Any) -> dict[str, Any] | None:
+        result = base(payload, ctx)  # registers the real advance callback
+        ctx.after_complete(boomed_advance)  # then a broken one
+        return result
+
+    worker = Worker(
+        settings, {"workflow_step": flaky}, application_name="engine-worker-test"
+    )
+    thread = threading.Thread(target=worker.run, daemon=True)
+    thread.start()
+    try:
+        _wait_until(lambda: _job_state(conn, wf, 0) == "dead")
+        job = _row(
+            conn,
+            "SELECT state, attempts, last_error FROM jobs"
+            " WHERE dedupe_key = %(k)s",
+            {"k": workflows.step_job_dedupe_key(wf.id, 0)},
+        )
+        assert job["state"] == "dead"
+        assert job["attempts"] == 2, "dead at the step's own budget"
+        assert "workflow advance failed" in job["last_error"]
+        assert "boom inside advance" in job["last_error"]
+
+        # every attempt's advance transaction rolled back: the step output
+        # never landed and no next job leaked
+        step0 = _row(
+            conn,
+            "SELECT state, output FROM workflow_steps"
+            " WHERE workflow_id = %(id)s AND position = 0",
+            {"id": wf.id},
+        )
+        assert step0["state"] == "pending"
+        assert step0["output"] is None
+        assert _count(conn, "jobs") == 1
+        assert calls == {"a": 2}
+        assert _workflow_state(conn, wf.id) == "running"
+    finally:
+        _stop(worker, thread)
+
+
+def test_single_step_workflow_starts_and_finishes(clean_db: Settings) -> None:
+    settings = _worker_settings(clean_db)
+    conn = db.connect(settings)
+    calls: dict[str, int] = {}
+
+    def only(ctx: StepContext, prior: dict[str, Any]) -> dict[str, Any]:
+        _bump(calls, "only")
+        assert prior == {}
+        return {"n": 7}
+
+    definition = WorkflowDef(type="solo", steps=(StepDef("only", only),))
+    wf = workflows.start_workflow(conn, wf_type="solo", definition=definition)
+    worker, thread = _run_worker(
+        settings, workflows.make_workflow_handlers({"solo": definition}, settings=settings)
+    )
+    try:
+        _wait_until(lambda: _workflow_state(conn, wf.id) == "succeeded")
+        assert calls == {"only": 1}
+        assert _count(conn, "workflows") == 1
+        assert _count(conn, "workflow_steps") == 1
+        assert _count(conn, "jobs") == 1
+        step = _row(
+            conn,
+            "SELECT state, output FROM workflow_steps WHERE workflow_id = %(id)s",
+            {"id": wf.id},
+        )
+        assert step["state"] == "succeeded"
+        assert step["output"] == {"n": 7}
+    finally:
+        _stop(worker, thread)
+
+
+def test_connection_kill_mid_advance_leaves_workflow_consistent(
+    clean_db: Settings,
+) -> None:
+    settings = replace(
+        _worker_settings(clean_db),
+        lease_seconds=1.0,
+        heartbeat_interval_seconds=0.3,
+        reaper_interval_seconds=0.2,
+    )
+    conn = db.connect(settings)
+    calls: dict[str, int] = {}
+    order: list[str] = []
+    definition = _chain(calls, order)
+    wf = workflows.start_workflow(conn, wf_type="chain", definition=definition)
+
+    base = workflows.make_workflow_handlers(
+        {"chain": definition}, settings=settings
+    )["workflow_step"]
+    armed = {"kill": True}
+
+    def kill_self(conn_to_kill: Any) -> None:
+        conn_to_kill.execute("SELECT pg_terminate_backend(pg_backend_pid())")
+
+    def killing_handler(
+        payload: dict[str, Any], ctx: Any
+    ) -> dict[str, Any] | None:
+        result = base(payload, ctx)
+        if armed["kill"]:
+            armed["kill"] = False
+            # the drop lands INSIDE the advance transaction: the server
+            # aborts the uncommitted transaction with the session
+            ctx.after_complete(kill_self)
+        return result
+
+    worker = Worker(
+        settings,
+        {"workflow_step": killing_handler},
+        application_name="engine-worker-test",
+    )
+    thread = threading.Thread(target=worker.run, daemon=True)
+    thread.start()
+    try:
+        _wait_until(
+            lambda: _workflow_state(conn, wf.id) == "succeeded", timeout=60
+        )
+        # the killed attempt rolled back, so the reaper requeued the job and
+        # the second attempt re-ran the step (at-least-once): everything
+        # downstream sees a consistent workflow
+        assert calls == {"a": 2, "b": 1, "c": 1}
+        assert order == ["a", "a", "b", "c"]
+        job_a = _row(
+            conn,
+            "SELECT attempts FROM jobs WHERE dedupe_key = %(k)s",
+            {"k": workflows.step_job_dedupe_key(wf.id, 0)},
+        )
+        assert job_a["attempts"] == 2
+        assert _step_outputs(conn, wf.id) == [{"a": 1}, {"b": 2}, {"c": 4}]
+        assert _count(conn, "jobs") == 3
+    finally:
+        _stop(worker, thread)
+
+
+def test_durable_timer_survives_worker_restart(clean_db: Settings) -> None:
+    settings = _worker_settings(clean_db)
+    conn = db.connect(settings)
+    calls: dict[str, int] = {}
+
+    def a(ctx: StepContext, prior: dict[str, Any]) -> dict[str, Any]:
+        _bump(calls, "a")
+        return {"a": 1}
+
+    def b(ctx: StepContext, prior: dict[str, Any]) -> dict[str, Any]:
+        _bump(calls, "b")
+        assert prior["a"]["a"] == 1
+        return {"b": 2}
+
+    definition = WorkflowDef(
+        type="timed",
+        steps=(StepDef("a", a), StepDef("b", b, delay_seconds=2.0)),
+    )
+    wf = workflows.start_workflow(conn, wf_type="timed", definition=definition)
+    handlers = workflows.make_workflow_handlers(
+        {"timed": definition}, settings=settings
+    )
+
+    worker1, thread1 = _run_worker(settings, handlers)
+    try:
+        _wait_until(lambda: calls.get("a") == 1, timeout=30)
+        job_b = _row(
+            conn,
+            "SELECT state, run_at FROM jobs WHERE dedupe_key = %(k)s",
+            {"k": workflows.step_job_dedupe_key(wf.id, 1)},
+        )
+        assert job_b["state"] == "queued"
+        gap = (job_b["run_at"] - _row(conn, "SELECT now() AS t")["t"]).total_seconds()
+        assert 0 < gap < 2.5, f"b scheduled at now()+delay (gap={gap}s)"
+        time.sleep(max(gap * 0.5, 0.2))
+        assert calls.get("b") is None, "b must not run while run_at is future"
+    finally:
+        _stop(worker1, thread1)
+
+    # every worker dies mid-delay: the delay is database state, not memory
+    time.sleep(max(gap, 0.4) + 0.2)  # now safely past run_at
+    worker2, thread2 = _run_worker(settings, handlers)
+    try:
+        _wait_until(lambda: _workflow_state(conn, wf.id) == "succeeded", timeout=30)
+        assert calls == {"a": 1, "b": 1}
+    finally:
+        _stop(worker2, thread2)

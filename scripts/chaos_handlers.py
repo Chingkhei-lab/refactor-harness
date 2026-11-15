@@ -16,6 +16,7 @@ for _path in (str(_REPO_ROOT / "src"),):
         sys.path.insert(0, _path)
 
 from engine import db  # noqa: E402
+from engine.config import load_settings  # noqa: E402
 from engine.worker import HandlerContext  # noqa: E402
 
 _SIDE_EFFECT_SQL = """
@@ -32,7 +33,7 @@ VALUES (%(job_id)s, %(attempt)s, %(worker)s, %(detail)s)
 
 
 def _connection() -> Any:
-    return db.get_thread_connection()
+    return db.get_thread_connection(load_settings())
 
 
 def _worker_label() -> str:

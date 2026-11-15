@@ -55,8 +55,53 @@ job is failed.
 
 Every multi-row writer takes row locks in one global order: **the job row,
 then the step row, then the workflow row** (the next-job INSERT last). The
-advance transaction, the reconciler, and replay all follow it; `DeadlockDetected`
-is caught and retried once.
+advance transaction, the reconciler, and replay all follow it.
+
+**Exception — `start_workflow` inserts in reverse order** (workflow row, then
+the step rows, then step 0's job). It is safe because those rows do not exist
+for any other transaction until commit: no other writer can hold or await
+them, and lock ordering only matters between transactions that touch
+*existing* rows. A concurrent `start_workflow` with the same dedupe key
+serializes on the unique index wait and lands on the conflict path. Write it
+down, or a reviewer will flag it — which is this paragraph.
+
+The reconciler implements the order as **separate statements inside one
+transaction** (lock the dead jobs, then update steps, then update workflows)
+rather than one multi-CTE statement, because PostgreSQL does not document the
+execution order of data-modifying CTEs; statement order in a transaction is
+guaranteed and row locks are held until commit.
+
+`DeadlockDetected` is caught: the reconciler skips the rule (the next cycle
+retries it from scratch), replay retries the whole transaction exactly once.
+A test runs replay against the reconciler on the same workflow and asserts
+the final state is always one of the two legal whole-outcomes.
+
+### Workflow-failure marking: reconciler only
+
+A workflow goes `failed` when its current step's job goes `dead` — and the
+**only** writer of that transition is the reconciler, on its maintenance
+cadence. The worker does not mark the workflow inside `fail()` even though
+it usually has the context, because the reaper can kill a job without any
+worker involved; one repair path owns the transition. The cost is latency:
+at most one reconciler cycle — the interval defaults to 5 s — plus the
+cycle's own statement time. Chaos v2 (checkpoint 6) measures the observed
+delay; if it ever matters in practice, a synchronous mark can be added as an
+optimization without changing who owns the invariant. `NonRetryableError`
+flows through the same path (it is just `force_dead` in `fail.sql`, which
+makes the job dead immediately — the reconciler picks it up on its next
+cycle).
+
+### Workflow changes while running: snapshot BOTH delay and budget
+
+The step list is snapshotted per instance in `workflow_steps` — names,
+positions, `delay_seconds` AND `max_attempts` (migration 0004). The advance
+transaction reads both from the snapshot, so a deploy changes neither the
+timers nor the retry budgets of an in-flight workflow; only new instances
+pick them up. Step *functions* are still resolved by name from the registry
+at run time: renaming or removing a step a running instance has not reached
+yet fails loudly when that step's job runs (registry lookup → job fails →
+retries → `dead` → reconciler fails the workflow → DLQ replay after the fix),
+never a silent skip. The advance transaction itself is registry-independent.
 
 ### Resume
 
@@ -93,8 +138,9 @@ uncompleted.
 
 - Steps are strictly sequential (no fan-out/parallel steps in v1).
 - Step functions must be idempotent (at-least-once) and JSON-only outputs.
-- Workflow definitions are snapshotted per instance; changing a running
-  workflow's step list requires replay or a new instance.
+- Workflow definitions are snapshotted per instance — delays AND retry
+  budgets; changing either for a running workflow requires DLQ replay or a
+  new instance.
 - Every workflow state change costs queue row updates (bloat managed as in
   Phase 1: autovacuum tuning, retention).
 

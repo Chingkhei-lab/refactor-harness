@@ -77,6 +77,17 @@ class WorkflowDef:
         names = [step.name for step in self.steps]
         if len(set(names)) != len(names):
             raise ValueError(f"workflow {self.type!r} has duplicate step names")
+        for step in self.steps:
+            if step.delay_seconds < 0:
+                raise ValueError(
+                    f"workflow {self.type!r} step {step.name!r} has negative "
+                    f"delay_seconds {step.delay_seconds}"
+                )
+            if step.max_attempts < 1:
+                raise ValueError(
+                    f"workflow {self.type!r} step {step.name!r} has "
+                    f"max_attempts {step.max_attempts} < 1"
+                )
 
     def step_by_name(self, name: str) -> StepDef:
         for step in self.steps:
@@ -143,6 +154,7 @@ class WorkflowStep:
     state: str
     output: dict[str, Any] | None
     delay_seconds: float
+    max_attempts: int
 
 
 def _to_workflow(row: Row) -> Workflow:
@@ -167,6 +179,7 @@ def _to_step(row: Row) -> WorkflowStep:
         state=row["state"],
         output=row["output"],
         delay_seconds=row["delay_seconds"],
+        max_attempts=row["max_attempts"],
     )
 
 
@@ -207,6 +220,7 @@ def start_workflow(
                 "positions": list(range(len(definition.steps))),
                 "names": [step.name for step in definition.steps],
                 "delays": [step.delay_seconds for step in definition.steps],
+                "budgets": [step.max_attempts for step in definition.steps],
             },
         )
         first = definition.steps[0]
@@ -242,7 +256,6 @@ def _advance_after_complete(
     conn: psycopg.Connection[Row],
     *,
     workflow: Workflow,
-    definition: WorkflowDef,
     steps: list[WorkflowStep],
     position: int,
     output: dict[str, Any],
@@ -251,7 +264,9 @@ def _advance_after_complete(
 
     Lock order: the job row is already locked by the fenced complete; the step
     row is next, the workflow row last, and the next job's INSERT is final.
-    Any exception here rolls back the complete as well.
+    Any exception here rolls back the complete as well. Everything comes from
+    the per-instance snapshot — delays AND retry budgets — so a deploy cannot
+    change either for an in-flight workflow.
     """
     conn.execute(
         _COMPLETE_STEP_SQL,
@@ -264,14 +279,13 @@ def _advance_after_complete(
     next_position = position + 1
     if next_position < len(steps):
         next_row = steps[next_position]
-        next_def = definition.step_by_name(next_row.name)  # KeyError = loud fail
         jobs.enqueue(
             conn,
             job_type=WORKFLOW_JOB_TYPE,
             payload={"workflow_id": str(workflow.id), "position": next_position},
             dedupe_key=step_job_dedupe_key(workflow.id, next_position),
             delay_seconds=next_row.delay_seconds,  # the snapshot's delay
-            max_attempts=next_def.max_attempts,
+            max_attempts=next_row.max_attempts,  # the snapshot's budget
         )
     else:
         conn.execute(_SUCCEED_WORKFLOW_SQL, {"workflow_id": workflow.id})
@@ -281,7 +295,6 @@ def _ensure_advanced_after_complete(
     conn: psycopg.Connection[Row],
     *,
     workflow: Workflow,
-    definition: WorkflowDef,
     steps: list[WorkflowStep],
     position: int,
 ) -> None:
@@ -294,14 +307,13 @@ def _ensure_advanced_after_complete(
     next_position = position + 1
     if next_position < len(steps):
         next_row = steps[next_position]
-        next_def = definition.step_by_name(next_row.name)
         jobs.enqueue(
             conn,
             job_type=WORKFLOW_JOB_TYPE,
             payload={"workflow_id": str(workflow.id), "position": next_position},
             dedupe_key=step_job_dedupe_key(workflow.id, next_position),
             delay_seconds=next_row.delay_seconds,
-            max_attempts=next_def.max_attempts,
+            max_attempts=next_row.max_attempts,
         )
     else:
         conn.execute(_SUCCEED_WORKFLOW_SQL, {"workflow_id": workflow.id})
@@ -310,12 +322,13 @@ def _ensure_advanced_after_complete(
 def make_workflow_handlers(
     workflows: dict[str, WorkflowDef],
     *,
-    settings: Settings | None = None,
+    settings: Settings,
 ) -> dict[str, Handler]:
     """Handler registry entry: one generic handler dispatches every workflow.
 
-    `settings` pins the database the handler reads from; None means the
-    environment default (load_settings), which is what scripts rely on.
+    `settings` is required on purpose — the handler's own connection must
+    target the worker's database, not whatever the environment happens to
+    say (the default bit us once already).
     """
 
     def workflow_step_handler(
@@ -330,7 +343,7 @@ def _run_workflow_step(
     payload: dict[str, Any],
     ctx: HandlerContext,
     workflows: dict[str, WorkflowDef],
-    settings: Settings | None,
+    settings: Settings,
 ) -> dict[str, Any] | None:
     workflow_id = UUID(str(payload["workflow_id"]))
     position = int(payload["position"])
@@ -364,7 +377,6 @@ def _run_workflow_step(
             lambda conn: _ensure_advanced_after_complete(
                 conn,
                 workflow=workflow,
-                definition=definition,
                 steps=steps,
                 position=position,
             )
@@ -387,7 +399,6 @@ def _run_workflow_step(
         lambda conn: _advance_after_complete(
             conn,
             workflow=workflow,
-            definition=definition,
             steps=steps,
             position=position,
             output=output_dict,

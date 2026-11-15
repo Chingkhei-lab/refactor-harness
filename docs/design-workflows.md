@@ -24,7 +24,8 @@ in [`design.md`](design.md); the architecture decision is in
 ```sql
 workflows        id, type, input, state, dedupe_key, failed_step,
                  last_error, created_at, updated_at
-workflow_steps   (workflow_id, position) PK, name, state, output, delay_seconds
+workflow_steps   (workflow_id, position) PK, name, state, output,
+                 delay_seconds, max_attempts
 ```
 
 - `workflows.state`: `running | succeeded | failed` (terminal: succeeded/failed).
@@ -36,8 +37,9 @@ workflow_steps   (workflow_id, position) PK, name, state, output, delay_seconds
   (duplicate enqueue returns the existing job forever) guarantees **exactly one
   job row per step** — the reconciler and resume paths lean on this.
 - **The `workflow_steps` rows are the snapshot** (see "Workflow changes while
-  running" below): names, positions and `delay_seconds` are frozen at
-  `start_workflow`.
+  running" below): names, positions, `delay_seconds` AND `max_attempts` are
+  frozen at `start_workflow` — a deploy changes neither the delays nor the
+  retry budgets of an in-flight workflow.
 
 ## start_workflow (atomic)
 
@@ -47,7 +49,7 @@ One transaction on the (autocommit) connection via `with conn.transaction():`:
    same pattern as `jobs.enqueue`; `xmax = 0` in `RETURNING` distinguishes a
    fresh insert from the duplicate path.
 2. On a fresh insert: bulk-insert one `workflow_steps` row per step
-   (pending, `delay_seconds` from the definition).
+   (pending, `delay_seconds` and `max_attempts` from the definition).
 3. Enqueue step 0's job with `run_at = now() + steps[0].delay_seconds` and
    `max_attempts = steps[0].max_attempts` (per-step retry budget).
 
@@ -76,7 +78,7 @@ registered callbacks in `with conn.transaction():`. Inside, in this order:
 2. `UPDATE workflow_steps SET state = 'succeeded', output = ...` for this
    step. (Lock order: **job → step → workflow** — see below.)
 3. Either enqueue the next step's job
-   (`run_at = now() + next.delay_seconds`, `max_attempts` from the registry,
+   (`run_at = now() + next.delay_seconds`, `max_attempts` from the snapshot,
    dedupe key makes it idempotent) or, after the last step,
    `UPDATE workflows SET state = 'succeeded'`.
 
@@ -107,17 +109,114 @@ job and ensures the next step's job exists (dedupe makes this idempotent) or
 marks the workflow succeeded. Skipping the function alone would leave a
 redelivered job uncompleted and the workflow stalled.
 
+## Crash windows (the three review questions)
+
+**Q1 — the connection drops during COMMIT of the advance transaction, so the
+worker cannot tell whether it committed.** The database is in one of two
+states, and both are safe:
+
+1. *Rolled back.* The transaction was still uncommitted when the session died;
+   Postgres aborts it. The job is still `running` (its lease belongs to the
+   dead session and expires untouched), the step is still `pending`, the
+   output is lost, and no next job was enqueued. Safe because the lease
+   expiry makes the reaper requeue the job and the next attempt re-runs the
+   step — at-least-once, the whole design assumption.
+2. *Committed.* The commit hit the WAL and only the acknowledgement was lost.
+   The job is `succeeded` with its result, the step is `succeeded` with its
+   output, and the next job was enqueued — exactly the intended end state,
+   atomically. Nothing to repair.
+
+What the worker does in both cases: the same thing — nothing clever. The
+`OperationalError` is caught, the connection is discarded
+(`Worker._reconnect`), and the loop continues. It deliberately does NOT retry
+the transaction blind (the next interaction with the database reveals
+reality: state 1 comes back as a redelivered job after the lease expires;
+state 2 simply never comes back). The claim token plus `(locked_by,
+attempts)` fencing keep a reconnecting worker from racing whatever the reaper
+did meanwhile.
+
+**Q2 — what if the next job were enqueued AFTER the commit instead of
+inside it?** Crash between COMMIT and the enqueue leaves: job `succeeded`,
+step `succeeded`, output stored — but step k+1's job never exists, so the
+workflow sits `running` forever with no work in flight. Which component
+repairs it: **reconciler rule 2** (running workflow, current step pending,
+NO job row for the dedupe key → re-enqueue). That rule exists precisely as
+the safety net that would make the after-commit design survivable; with the
+enqueue inside the transaction the window does not exist at all, and rule 2
+covers manual damage in the same state shape.
+
+**Q3 — a reconciler marks a workflow failed while an operator replays its
+dead job.** No deadlock is possible because both sides take locks in the one
+global order **job → step → workflow**: rule 1's first statement locks the
+dead job rows (`FOR UPDATE ... SKIP LOCKED`), replay's first statement locks
+the same row (`FOR UPDATE`, no skip — a single replay prefers to wait).
+Same order, so at worst one waits for the other; a cycle needs someone to
+hold a later lock while wanting an earlier one. Legal final states (both
+operators complete, replay's one deadlock retry included):
+
+- **replay applied** (first, or after the reconciler committed): workflow
+  `running`, step `pending`, job `queued` — the reconciler's SKIP LOCKED
+  simply means it saw nothing that cycle;
+- **reconciler applied and replay gave up** (deadlocked twice): workflow
+  `failed`, step `failed`, job `dead`.
+
+Corrupt mixtures (a queued job on a failed workflow, a failed step on a
+running one) would mean one side's transaction was torn — impossible, since
+each side is one transaction. The race test (`test_replay_races_reconciler_
+final_state_is_legal`) asserts exactly this tuple membership over 30 rounds.
+
 ## Failure policy
 
 - Step failures reuse the Phase 1 path: `fail()` with full-jitter backoff,
-  `dead` at the **step's** `max_attempts`. A retry re-runs the step function
-  (its effect deduplication is the step author's job, via `effect_key`).
-- `NonRetryableError` (checkpoint 5) will send the job straight to `dead` via a
-  `force_dead` parameter in `fail.sql`.
+  `dead` at the **step's** `max_attempts` (from the snapshot). A retry re-runs
+  the step function (its effect deduplication is the step author's job, via
+  `effect_key`).
+- `NonRetryableError` (raised by a handler) sends the job straight to `dead`
+  via a `force_dead` flag in `fail.sql` — `CASE WHEN force_dead OR
+  attempts >= max_attempts THEN 'dead'`. Only the SQL decides the state; the
+  worker passes the flag. The step's job is dead on the same attempt, with no
+  backoff.
 - A workflow goes `failed` when its **current** step's job is `dead`: the
-  reconciler (checkpoint 5) records `failed_step` and `last_error`, and marks
-  the step row `failed` in the same statement order.
-- A dead step job is replayable through the DLQ (below).
+  reconciler records `failed_step` and `last_error` (the job's own error) and
+  marks the step row `failed`. **The worker does not mark the workflow on
+  fail** — the reaper can kill a job with no worker involved, so one repair
+  path owns the transition. The cost is latency: at most the reconciler
+  cadence (`ENGINE_RECONCILER_INTERVAL_SECONDS`, default 5 s) plus the cycle
+  time; chaos v2 (checkpoint 6) reports the observed delay. Recorded as the
+  decision in ADR 002.- A dead step job is replayable through the DLQ (below).
+
+## Reconciler (implemented)
+
+A repair loop next to the reaper (each worker's maintenance cycle, on a
+cadence and batch size from settings). Three rules, each a separate
+transaction of separate statements, every statement taking row locks in the
+global order **job → step → workflow**, each selection `SKIP LOCKED`:
+
+1. **Dead current step → step + workflow failed.** Statement 1 locks the dead
+   `workflow_step` jobs whose step is the workflow's current (first
+   non-succeeded) step of a running workflow; statement 2 marks the steps
+   `failed`; statement 3 marks the workflows `failed` with `failed_step` and
+   the job's `last_error`. Separate statements instead of one
+   multi-CTE UPDATE because PostgreSQL does not document the execution order
+   of data-modifying CTEs; statements in one transaction have a guaranteed
+   order and hold their locks until commit.
+2. **Missing job → re-enqueue.** If the current step is pending and has **no
+   job row at all** (not "no live job"), enqueue it with the snapshot's
+   `delay_seconds` and `max_attempts` — the dedupe key makes it safe and
+   idempotent. The narrower "no live job" trigger is explicitly wrong: a
+   *succeeded* job row exists but isn't live, and re-enqueueing it returns
+   the same succeeded job forever.
+3. **Succeeded job + pending step → workflow failed, never re-enqueue.**
+   Unreachable through the engine (the job can only flip succeeded inside
+   the same transaction that marks its step succeeded) and unrecoverable —
+   the step's dedupe key returns the succeeded job forever, and DLQ replay
+   refuses non-dead jobs. The reconciler **surfaces** it: the workflow is
+   marked `failed` with an explanatory `last_error`; a test pins that
+   repeated cycles do not loop on it.
+
+`DeadlockDetected` skips the rule (the transaction rolls back; the next
+cycle retries it from scratch); the worker's hook tolerates one raised
+between rules the same way.
 
 ## Workflow changes while running
 
@@ -133,49 +232,34 @@ redelivered job uncompleted and the workflow stalled.
 - Changing a step's *code* applies to whichever attempt runs next (normal
   deploy semantics).
 
-## Reconciler (checkpoint 5, design)
-
-A repair loop next to the reaper, one SQL statement per rule, **lock order
-job → step → workflow** everywhere:
-
-1. **Dead current step → workflow failed.** For each `running` workflow, its
-   current step is the first non-succeeded step; if that step's job is `dead`,
-   mark the step `failed` and the workflow `failed` with `failed_step` +
-   `last_error`.
-2. **Missing job → re-enqueue.** If the current step has **no job row at all**
-   (not "no live job"), enqueue it — the dedupe key makes this safe. The
-   narrower "no live job" trigger is explicitly wrong: a *succeeded* job row
-   exists but isn't live, and re-enqueueing it returns the same succeeded job
-   forever, so the repair would loop without doing anything.
-
-**Is `succeeded job + pending step` reachable?** Under the atomic advance
-transaction, no: a job can only flip to `succeeded` inside the same transaction
-that marks its step `succeeded`. The state can only appear through manual SQL
-or a future bug — exactly the state answer (c) called unrecoverable. The
-reconciler therefore treats it as an anomaly to **surface, not repair**: mark
-the workflow `failed` with `last_error` explaining the inconsistency (a test
-will pin that it does not loop on it).
-
-## Durable timers (checkpoint 5)
+## Durable timers (implemented)
 
 `delay_seconds` lives in the next step's job `run_at`
 (`run_at = now() + delay`), set inside the advance transaction. No worker
-blocks; the delay survives worker death because it is database state. The test
-kills all workers during a delay and restarts them: the step must not run
-early and must run promptly once `run_at` passes.
+blocks; the delay survives worker death because it is database state. The
+test runs a worker through step a, stops it mid-delay, and starts a fresh
+worker: the step must not run early (the live worker cannot claim it while
+`run_at` is future) and must run promptly once `run_at` passes.
 
-## Dead-letter view and replay (checkpoint 5)
+## Dead-letter view and replay (implemented)
 
-`dead_letters` view: dead jobs joined with their workflow/step context.
-`python -m engine.dlq list | replay <job_id>`. Replay, in one transaction
-(lock order job → step → workflow):
+The `dead_letters` view (migration 0005) lists every dead job — plain jobs
+with NULL workflow context, workflow steps joined to their step and workflow
+rows — plus `replay_count`. `python -m engine.dlq list [--limit N]` reads it;
+`python -m engine.dlq replay <job_id> [--budget N]` replays (budget defaults
+to the configured `max_attempts`). Replay, in one transaction (lock order
+job → step → workflow):
 
-- refuses non-dead jobs;
-- `state = 'queued'`, `run_at = now()`, `replay_count += 1`;
+- locks the job `WHERE id = ? FOR UPDATE` and **refuses** (`NotReplayable`)
+  anything missing or not `dead`;
+- sets `state = 'queued'`, `run_at = now()`, `replay_count += 1`;
 - **never touches `attempts`** — see the note below;
 - gives fresh attempts by **extending the budget**:
   `max_attempts = attempts + <budget>`;
-- sets the step back to `pending` and the workflow back to `running`.
+- sets the step back to `pending` and the workflow back to `running`,
+  clearing `failed_step` (`last_error` is kept as history);
+- retries the whole transaction exactly once on `DeadlockDetected`, then
+  propagates.
 
 ### Note: why replay must never rewind `attempts`
 

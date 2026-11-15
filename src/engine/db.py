@@ -41,11 +41,16 @@ def connect(
 
 
 def get_thread_connection(
-    settings: Settings | None = None,
+    settings: Settings,
     *,
     application_name: str | None = None,
 ) -> psycopg.Connection[Row]:
-    """Return this thread's connection, opening one on first use."""
+    """Return this thread's connection, opening one on first use.
+
+    `settings` is required on purpose: defaulting to the environment made a
+    handler silently target the wrong database when no DATABASE_URL was set.
+    Callers pass the worker's settings explicitly.
+    """
     conn: psycopg.Connection[Row] | None = getattr(_local, "conn", None)
     if conn is None or conn.closed:
         conn = connect(settings, application_name=application_name)

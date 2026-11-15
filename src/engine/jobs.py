@@ -41,6 +41,15 @@ class LeaseLost(Exception):
     """A fenced write matched zero rows: the lease is gone. Never swallow it."""
 
 
+class NonRetryableError(Exception):
+    """A handler says this job can never succeed: fail it dead immediately.
+
+    Raised inside a handler, it maps to `force_dead` in fail.sql — the job
+    goes straight to 'dead' on this attempt (no backoff, no requeue) and the
+    workflow reconciler / DLQ replay take over from there.
+    """
+
+
 @dataclass(frozen=True)
 class Job:
     id: UUID
@@ -107,6 +116,10 @@ def enqueue(
     `run_at` schedules absolutely; `delay_seconds` schedules relative to the
     database's now() (run_at = now() + delay). run_at wins when both are set.
     """
+    if delay_seconds is not None and delay_seconds < 0:
+        raise ValueError(f"delay_seconds must be >= 0, got {delay_seconds}")
+    if max_attempts is not None and max_attempts < 1:
+        raise ValueError(f"max_attempts must be >= 1, got {max_attempts}")
     settings = settings or load_settings()
     row = conn.execute(
         _ENQUEUE_SQL,
@@ -196,8 +209,13 @@ def fail(
     attempts: int,
     backoff_seconds: float,
     last_error: str,
+    force_dead: bool = False,
 ) -> Job:
-    """Requeue with backoff, or go dead at max_attempts, fenced by the token."""
+    """Requeue with backoff, go dead at max_attempts, or force_dead NOW.
+
+    Fenced by the full claim token. `force_dead` is the NonRetryableError
+    path: the SQL's CASE decides, the caller only passes the flag.
+    """
     return _fenced_write(
         conn,
         _FAIL_SQL,
@@ -207,6 +225,7 @@ def fail(
             "attempts": attempts,
             "backoff_seconds": backoff_seconds,
             "last_error": last_error,
+            "force_dead": force_dead,
         },
     )
 

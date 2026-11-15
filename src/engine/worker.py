@@ -19,7 +19,7 @@ from uuid import UUID
 
 import psycopg
 
-from . import db, jobs
+from . import db, jobs, reconciler
 from .config import Settings, load_settings
 from .jobs import Job, LeaseLost
 
@@ -196,6 +196,7 @@ class Worker:
         self._heartbeat = HeartbeatThread(settings)
         self._conn: psycopg.Connection[db.Row] | None = None
         self._last_reap = 0.0
+        self._last_reconcile = 0.0
 
     @property
     def worker_id(self) -> str:
@@ -233,6 +234,28 @@ class Worker:
         reaped = jobs.reaper(self._connection(), batch=self._settings.reaper_batch)
         if reaped:
             logger.info("reaped %d expired jobs", len(reaped))
+
+    def _reconcile_if_due(self) -> None:
+        """Repair loop next to the reaper: workflow rules on a cadence.
+
+        reconciler.reconcile catches DeadlockDetected per rule (skip; the next
+        cycle retries); OperationalError propagates to run()'s reconnect path.
+        """
+        now = time.monotonic()
+        if now - self._last_reconcile < self._settings.reconciler_interval_seconds:
+            return
+        self._last_reconcile = now
+        try:
+            counts = reconciler.reconcile(
+                self._connection(), settings=self._settings
+            )
+        except psycopg.errors.DeadlockDetected:
+            # the rules catch their own deadlocks; this guards one raised
+            # between rules. The next cycle retries.
+            logger.warning("reconcile deadlocked; retrying next cycle")
+            return
+        if any(counts.values()):
+            logger.info("reconciler actions: %s", counts)
 
     def _try_claim(self) -> Job | None:
         return jobs.claim(
@@ -308,7 +331,9 @@ class Worker:
             )
             self._finish_fail(job, _truncate(f"workflow advance failed: {exc!r}"))
 
-    def _finish_fail(self, job: Job, last_error: str) -> None:
+    def _finish_fail(
+        self, job: Job, last_error: str, force_dead: bool = False
+    ) -> None:
         try:
             jobs.fail(
                 self._connection(),
@@ -319,6 +344,7 @@ class Worker:
                     job.attempts, self._settings
                 ),
                 last_error=last_error,
+                force_dead=force_dead,
             )
         except LeaseLost:
             logger.warning(
@@ -362,9 +388,14 @@ class Worker:
 
         self._heartbeat.set_token(job, lease_lost_event)
         failure: str | None = None
+        force_dead = False
         result: dict[str, Any] | None = None
         try:
             result = handler(job.payload, ctx)
+        except jobs.NonRetryableError as exc:
+            # the handler declares the job unsalvageable: dead this attempt
+            failure = _truncate(f"non-retryable: {exc}")
+            force_dead = True
         except Exception as exc:  # any exception is a failure
             failure = _truncate(repr(exc))
         finally:
@@ -377,7 +408,7 @@ class Worker:
             logger.warning(
                 "job %s attempt %s failed: %s", job.id, job.attempts, failure
             )
-            self._finish_fail(job, failure)
+            self._finish_fail(job, failure, force_dead=force_dead)
             return
 
         if lease_lost_event.is_set():
@@ -408,6 +439,7 @@ class Worker:
             while not self._stop_event.is_set():
                 try:
                     self._reap_if_due()
+                    self._reconcile_if_due()
                     job = self._try_claim()
                 except psycopg.OperationalError as exc:
                     logger.warning(

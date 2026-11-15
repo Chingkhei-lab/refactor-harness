@@ -1,14 +1,18 @@
--- fail: one statement decides requeue-or-dead with a CASE on
--- attempts >= max_attempts, so the decision is made atomically in SQL.
+-- fail: one statement decides requeue-or-dead with a CASE, so the decision is
+-- made atomically in SQL (only this SQL changes the state; callers pass flags).
+-- - force_dead (a NonRetryableError): dead immediately, no retry budget.
+-- - attempts >= max: dead, and a dead job keeps its old run_at (no new one).
 -- - attempts < max: requeue with run_at = now() + backoff (jitter computed in
 --   Python from the token's attempts, passed in as seconds).
--- - attempts >= max: dead, and a dead job keeps its old run_at (no new one).
 -- Either way the job leaves 'running': clear locked_by, lease_expires_at and
 -- last_heartbeat_at.
 UPDATE jobs
-SET state = CASE WHEN attempts >= max_attempts THEN 'dead' ELSE 'queued' END,
+SET state = CASE
+        WHEN %(force_dead)s::bool OR attempts >= max_attempts THEN 'dead'
+        ELSE 'queued'
+    END,
     run_at = CASE
-        WHEN attempts >= max_attempts THEN run_at
+        WHEN %(force_dead)s::bool OR attempts >= max_attempts THEN run_at
         ELSE now() + make_interval(secs => %(backoff_seconds)s)
     END,
     last_error = %(last_error)s,
