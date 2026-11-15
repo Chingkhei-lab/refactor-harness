@@ -13,7 +13,7 @@ import socket
 import threading
 import time
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 from uuid import UUID
 
@@ -26,15 +26,33 @@ from .jobs import Job, LeaseLost
 logger = logging.getLogger(__name__)
 
 Handler = Callable[[dict[str, Any], "HandlerContext"], dict[str, Any] | None]
+AfterCompleteCallback = Callable[[psycopg.Connection[db.Row]], None]
 
 
 @dataclass(frozen=True)
 class HandlerContext:
-    """What a handler sees: identity, attempt, and a cancellation signal."""
+    """What a handler sees: identity, attempt, and a cancellation signal.
+
+    `after_complete(callback)` registers work the worker runs inside the same
+    transaction as the job's `complete` — that is how a workflow step commits
+    its output atomically with the fenced completion (ADR 002). Callbacks
+    receive the worker's connection and must not commit or open their own
+    transaction; any callback exception rolls the whole transaction back.
+    """
 
     job_id: UUID
     attempt: int
     lease_lost: threading.Event
+    _after_complete_callbacks: list[AfterCompleteCallback] = field(
+        default_factory=list, repr=False
+    )
+
+    def after_complete(self, callback: AfterCompleteCallback) -> None:
+        self._after_complete_callbacks.append(callback)
+
+    @property
+    def after_complete_callbacks(self) -> tuple[AfterCompleteCallback, ...]:
+        return tuple(self._after_complete_callbacks)
 
 
 def _make_worker_id() -> str:
@@ -224,15 +242,37 @@ class Worker:
             types=sorted(self._handlers),
         )
 
-    def _finish_complete(self, job: Job, result: dict[str, Any] | None) -> None:
+    def _finish_complete(
+        self,
+        job: Job,
+        result: dict[str, Any] | None,
+        callbacks: tuple[AfterCompleteCallback, ...] = (),
+    ) -> None:
         try:
-            jobs.complete(
-                self._connection(),
-                job_id=job.id,
-                locked_by=job.locked_by or "",
-                attempts=job.attempts,
-                result=result,
-            )
+            if callbacks:
+                # The advance transaction: the fenced complete, then the
+                # registered callbacks (a workflow step's output write and
+                # next-job enqueue), committing atomically. LeaseLost (zero
+                # fenced rows) or any callback exception rolls everything
+                # back, so a stale attempt's output dies with its lease.
+                with self._connection().transaction():
+                    jobs.complete(
+                        self._connection(),
+                        job_id=job.id,
+                        locked_by=job.locked_by or "",
+                        attempts=job.attempts,
+                        result=result,
+                    )
+                    for callback in callbacks:
+                        callback(self._connection())
+            else:
+                jobs.complete(
+                    self._connection(),
+                    job_id=job.id,
+                    locked_by=job.locked_by or "",
+                    attempts=job.attempts,
+                    result=result,
+                )
         except LeaseLost:
             logger.warning(
                 "job %s attempt %s: lease lost before complete; result dropped",
@@ -242,8 +282,8 @@ class Worker:
         except psycopg.DataError as exc:
             # Postgres jsonb rejects values json.dumps accepts (NaN, Infinity,
             # \u0000 in strings, over-deep nesting). That must fail the JOB,
-            # not crash the worker: autocommit means the failed complete left
-            # the row and token untouched, so fail() carries the same token.
+            # not crash the worker: the transaction rolled back, so the row
+            # and token are untouched and fail() carries the same token.
             logger.warning(
                 "job %s attempt %s: database rejected the result: %s",
                 job.id,
@@ -259,6 +299,14 @@ class Worker:
                 _truncate(repr(exc)),
             )
             self._reconnect()
+        except Exception as exc:  # a callback failed; the complete rolled back
+            logger.warning(
+                "job %s attempt %s: advance transaction failed: %s",
+                job.id,
+                job.attempts,
+                _truncate(repr(exc)),
+            )
+            self._finish_fail(job, _truncate(f"workflow advance failed: {exc!r}"))
 
     def _finish_fail(self, job: Job, last_error: str) -> None:
         try:
@@ -351,7 +399,7 @@ class Worker:
             )
             return
 
-        self._finish_complete(job, result)
+        self._finish_complete(job, result, ctx.after_complete_callbacks)
 
     def run(self) -> int:
         logger.info("worker %s starting", self._worker_id)
@@ -390,6 +438,17 @@ def main() -> int:
     if not spec:
         raise SystemExit("ENGINE_HANDLERS_MODULE is required (module or .py path)")
     handlers = _load_handlers(spec)
+    workflows_spec = os.environ.get("ENGINE_WORKFLOWS_MODULE", "")
+    if workflows_spec:
+        from .workflows import load_workflows, make_workflow_handlers
+
+        workflow_defs = load_workflows(workflows_spec)
+        if "workflow_step" in handlers:
+            raise SystemExit(
+                "ENGINE_HANDLERS_MODULE must not define 'workflow_step'; it is "
+                "provided by ENGINE_WORKFLOWS_MODULE"
+            )
+        handlers.update(make_workflow_handlers(workflow_defs, settings=settings))
     worker = Worker(settings, handlers)
 
     def _on_signal(signum: int, frame: Any) -> None:

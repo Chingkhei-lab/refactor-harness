@@ -98,10 +98,15 @@ def enqueue(
     payload: dict[str, Any] | None = None,
     dedupe_key: str | None = None,
     run_at: datetime | None = None,
+    delay_seconds: float | None = None,
     max_attempts: int | None = None,
     settings: Settings | None = None,
 ) -> Job:
-    """Insert a job, or return the existing job for a duplicate dedupe_key."""
+    """Insert a job, or return the existing job for a duplicate dedupe_key.
+
+    `run_at` schedules absolutely; `delay_seconds` schedules relative to the
+    database's now() (run_at = now() + delay). run_at wins when both are set.
+    """
     settings = settings or load_settings()
     row = conn.execute(
         _ENQUEUE_SQL,
@@ -110,6 +115,7 @@ def enqueue(
             "payload": Json(payload) if payload is not None else Json({}),
             "max_attempts": max_attempts if max_attempts is not None else settings.max_attempts,
             "run_at": run_at,
+            "delay_seconds": delay_seconds,
             "dedupe_key": dedupe_key,
         },
     ).fetchone()

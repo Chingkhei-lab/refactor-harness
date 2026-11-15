@@ -9,7 +9,7 @@ INSERT INTO jobs (
     'queued',
     0,
     %(max_attempts)s,
-    COALESCE(%(run_at)s, now()),
+    COALESCE(%(run_at)s, now() + COALESCE(%(delay_seconds)s, 0) * interval '1 second'),
     %(dedupe_key)s
 )
 ON CONFLICT (dedupe_key) WHERE dedupe_key IS NOT NULL

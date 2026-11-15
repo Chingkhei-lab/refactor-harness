@@ -54,11 +54,11 @@ def settings() -> Settings:
 
 @pytest.fixture
 def clean_db(settings: Settings) -> Settings:
-    """Truncate jobs before and after each test."""
+    """Truncate queue and workflow tables before and after each test."""
     with psycopg.connect(settings.database_url, autocommit=True) as conn:
-        conn.execute("TRUNCATE jobs")
+        conn.execute("TRUNCATE jobs, workflows CASCADE")
     try:
         yield settings
     finally:
         with psycopg.connect(settings.database_url, autocommit=True) as conn:
-            conn.execute("TRUNCATE jobs")
+            conn.execute("TRUNCATE jobs, workflows CASCADE")
