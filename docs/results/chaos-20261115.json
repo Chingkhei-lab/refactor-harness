@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-15",
+  "environment": {
+    "runner": "Docker container (Linux): Windows host cannot signal processes reliably",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.41",
+    "python": "3.12.16",
+    "cpus": 4,
+    "ram_gb": 3.8,
+    "postgres": "PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+    "database": "app_test"
+  },
+  "config": {
+    "jobs": 10000,
+    "workers": 3,
+    "lease_seconds": 4.0,
+    "reaper_interval_seconds": 1.0,
+    "kill_interval_seconds": [
+      3.0,
+      6.0
+    ],
+    "handler_sleep_ms": [
+      5,
+      30
+    ],
+    "max_attempts": 5,
+    "drain_timeout_seconds": 600.0
+  },
+  "results": {
+    "duration_seconds": 137.1,
+    "jobs_per_second": 72.9,
+    "kills": 26,
+    "restarts": 26,
+    "succeeded": 10000,
+    "dead": 0,
+    "attempts_histogram": {
+      "1": 9979,
+      "2": 21
+    },
+    "duplicate_effects": 19,
+    "violations": 0,
+    "missing_side_effects": 0
+  },
+  "gate": {
+    "all_terminal": true,
+    "violations_empty": true,
+    "effects_match_attempts": true,
+    "drained": true
+  }
+}
