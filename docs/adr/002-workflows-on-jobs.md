@@ -57,6 +57,16 @@ Every multi-row writer takes row locks in one global order: **the job row,
 then the step row, then the workflow row** (the next-job INSERT last). The
 advance transaction, the reconciler, and replay all follow it.
 
+**Checkpoint 8 addition — the patch-log append.** The patch log's head
+advance is a compare-and-swap (`UPDATE workspaces SET head_seq = head_seq +
+1, head_hash = :new WHERE id = :ws AND head_hash = :parent RETURNING
+head_seq`), not a separate lock — it adds no new edge to the global order.
+The row lock that UPDATE takes on the workspaces row sits **after the job,
+step and workflow locks** (it is the last statement inside the step's
+advance transaction), so an append never runs before a writer that could
+also want the workspace row: the order stays job -> step -> workflow ->
+workspaces row, total and cycle-free.
+
 **Exception — `start_workflow` inserts in reverse order** (workflow row, then
 the step rows, then step 0's job). It is safe because those rows do not exist
 for any other transaction until commit: no other writer can hold or await

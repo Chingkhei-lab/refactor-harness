@@ -306,6 +306,55 @@ Marker semantics:
   rejected at apply time, not silently merged. Accepted for checkpoint 7;
   re-evaluate if evals (Phase 6) need a stronger quiescence guarantee.
 
+### D8 — The host-side workspace is an in-memory tree; tools never touch a host FS (checkpoint 8)
+
+**Decision**: between sandbox runs, the workspace is a `WorkspaceTree` — a
+mapping of validated path to bytes, **regular files only** — built once from
+the content-addressed base snapshot by the SAME safe extractor that parses
+copy-out (`sandbox.parse_workspace_tar`). Tools (`read_file`, `search`,
+`apply_patch`) operate on this map; nothing in the tools module opens a
+host path, follows a link, or shells out. The symlink door stays closed on
+the host side *by construction* — there is no filesystem to escape into —
+and the extractor's hostile-suite guarantees (absolute/`..`/NUL refusal,
+duplicate-entry rejection, header-size caps, links never materialized)
+apply to snapshot loads for free because it is one shared code path.
+
+**`state_hash`** = sha256 of the sorted `(path \t sha256(content) \n)`
+manifest — a pure function of the tree, so any worker that rebuilds
+base+log computes the same token. It is the patch log's CAS currency and
+`apply_patch`'s precondition.
+
+**Caps** mirror the sandbox copy-out boundary (what can leave a sandbox can
+enter a workspace, and no further): `FILE_MAX_BYTES` 4 MiB per file,
+`MAX_FILES` 20 000, `SNAPSHOT_MAX_BYTES` 32 MiB, `PATCH_MAX_BYTES` 8 MiB,
+`MAX_EDITS_PER_CALL` 64.
+
+**Why in-memory rather than a temp directory**: a temp dir re-opens every
+door the tree closes — path traversal against a real filesystem, symlink
+smuggling, TOCTOU between validation and use, and cleanup liability. A
+dict of bytes has no such surface, and workspaces in this phase are far
+below the caps above (32 MiB is a bounded, copy-out-shaped amount to hold).
+
+**search is literal matching, on purpose**: `str.find` has no backtracking,
+so there is no ReDoS shape — no pattern a model supplies can pin the worker
+CPU or starve the fenced heartbeat thread. A `re` pattern in the worker
+process could hang it (catastrophic backtracking with the GIL held);
+RE2 would fix that but adds a C-extension dependency to the runtime image;
+regex-in-sandbox costs a container spin-up per search. Linear-time literal
+matching covers "find this exact string" — the operation the run phase
+actually needs — and the model still gets file+line excerpts.
+
+**Path rules** (`paths.py`): no absolute paths, no `..` (and no `.` — no
+normalization in the tree, so `a/./b` would be a distinct key for the same
+file), no NUL, no empty/over-long paths (>1024 bytes total, >255 per
+component), and no component equal to `.git` case-insensitively (the
+workspace never carries repository metadata the model could rewrite).
+**Backslashes are rejected outright** — the tree is POSIX-shaped, and a
+backslash in model output is a Windows-path confusion attack, not a rare
+legal filename. **No Unicode normalization**: Linux filenames are bytes;
+NFC/NFD spellings are DIFFERENT files and must not be silently merged.
+Paths decode as strict UTF-8 and compare byte-exactly.
+
 ## The exact container-create arguments
 
 The hardening profile (`create_kwargs`), pinned by

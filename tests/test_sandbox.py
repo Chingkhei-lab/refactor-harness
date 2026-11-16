@@ -756,7 +756,7 @@ def test_copy_out_caps_huge_declared_file() -> None:
         info.size = 2 * 1024**3
         tar.addfile(info)
     client = FakeClient(exec_stream_payload=buffer.getvalue())
-    with pytest.raises(SandboxError, match="exceeds the copy-out cap"):
+    with pytest.raises(SandboxError, match="exceeds the archive cap"):
         copy_out(client, FakeContainer(), max_bytes=1024 * 1024)
 
 

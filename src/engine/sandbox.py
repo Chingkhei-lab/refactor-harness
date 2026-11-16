@@ -937,22 +937,39 @@ def copy_out(
             stdout.extend(payload)
         elif frame_type == _STDERR_FRAME:
             stderr.extend(payload)
-    files: dict[str, bytes] = {}
-    symlinks_skipped = 0
+    files, symlinks_skipped = parse_workspace_tar(
+        bytes(stdout), max_bytes=max_bytes, max_entries=max_entries
+    )
+    return CopyOut(files=files, symlinks_skipped=symlinks_skipped, truncated=False)
+
+
+def parse_workspace_tar(
+    data: bytes, *, max_bytes: int, max_entries: int
+) -> tuple[dict[str, bytes], int]:
+    """The safe extractor, shared by copy-out and the host-side snapshot
+    builder (checkpoint 8): materialize REGULAR FILES ONLY from a tar.
+
+    Refuses absolute paths, `..`, and NUL, rejects duplicate regular-file
+    entries (a crafted archive must not overwrite silently), never
+    materializes symlinks/hardlinks (counted, not followed), skips
+    directories and device/fifo nodes, and caps the entry count and each
+    file's declared size — huge/sparse headers die in the header. Raises
+    SandboxUnsafeArchive for crafted structure and SandboxError for caps.
+    """
     try:
-        tar = tarfile.open(fileobj=io.BytesIO(bytes(stdout)), mode="r:")
+        tar = tarfile.open(fileobj=io.BytesIO(data), mode="r:")
     except tarfile.TarError as exc:
         # a truncated or non-tar stream (SandboxUnsafeArchive below is NOT a
         # TarError and still propagates)
-        raise SandboxError(
-            f"workspace copy-out produced an unreadable archive: {exc}"
-        ) from exc
+        raise SandboxError(f"unreadable workspace archive: {exc}") from exc
+    files: dict[str, bytes] = {}
+    symlinks_skipped = 0
     seen_files: set[str] = set()
     with tar:
         for entry_count, member in enumerate(tar, start=1):
             if entry_count > max_entries:
                 raise SandboxError(
-                    f"copy-out archive has more than {max_entries} entries "
+                    f"workspace archive has more than {max_entries} entries "
                     "(tar bomb refused)"
                 )
             if member.issym() or member.islnk():
@@ -962,17 +979,15 @@ def copy_out(
                 continue  # directories, devices, fifos: not results
             rel = _rel_name(member.name)
             if rel in seen_files:
-                raise SandboxUnsafeArchive(
-                    f"duplicate archive member {rel!r} in copy-out"
-                )
+                raise SandboxUnsafeArchive(f"duplicate archive member {rel!r}")
             seen_files.add(rel)
             if member.size > max_bytes:
-                raise SandboxError(f"file {rel!r} exceeds the copy-out cap")
+                raise SandboxError(f"file {rel!r} exceeds the archive cap")
             extracted = tar.extractfile(member)
             if extracted is None:
                 continue
             files[rel] = extracted.read()
-    return CopyOut(files=files, symlinks_skipped=symlinks_skipped, truncated=False)
+    return files, symlinks_skipped
 
 
 def sweep_containers(
