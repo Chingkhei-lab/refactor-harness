@@ -510,6 +510,7 @@ def main() -> int:
             "failing_step_max_attempts": 3,
             "workers": WORKER_COUNT,
             "lease_seconds": LEASE_SECONDS,
+            "heartbeat_interval_seconds": round(LEASE_SECONDS / 3, 3),
             "reconciler_interval_seconds": RECONCILER_INTERVAL_SECONDS,
             "backoff_base_seconds": BACKOFF_BASE_SECONDS,
             "backoff_cap_seconds": BACKOFF_CAP_SECONDS,
@@ -540,22 +541,38 @@ def main() -> int:
         "notes": {
             "duplicate_executions": (
                 "count(executions) - count(DISTINCT effect_key): executions of "
-                "the same step beyond the first (kill-retries and the injected "
-                "failing steps' own retry attempts). Expected > 0."
+                "the same step beyond the first (kill-redeliveries and the "
+                "injected failing steps' own retry attempts). This is the "
+                "real evidence of the chaos run: redelivered executions "
+                "absorbed."
             ),
             "duplicate_effects": (
-                "effects(effect_key UNIQUE) + ON CONFLICT DO NOTHING: a step's "
-                "effect exists at most once, ever. Expected exactly 0."
+                "true by construction: effects(effect_key UNIQUE) + ON "
+                "CONFLICT DO NOTHING cannot produce more than one row per "
+                "key, so this number is not evidence by itself; the evidence "
+                "is duplicate_executions (absorbed) plus the one-effect-row-"
+                "per-step and sums checks. Idempotency is a handler contract "
+                "- the engine's part is the stable effect_key in the step "
+                "context."
+            ),
+            "replay_phase_test_hook": (
+                "the replayed workflow's always-failing step was made to "
+                "succeed via a pardon scaffolding row before dlq.replay ran; "
+                "in real use replay only helps once the underlying cause is "
+                "fixed."
             ),
             "reconciler_latency": (
                 "workflows.updated_at - jobs.updated_at for failed workflows "
                 "(both DB-clock stamps at their transitions); bounded by the "
-                "reconciler cadence by design. Measured before the replay phase."
+                "reconciler cadence (see config.reconciler_interval_seconds) "
+                "by design. Measured before the replay phase."
             ),
             "throughput": (
-                "jobs_per_second is an end-to-end pipeline number for THIS "
-                "environment (workflow steps, handler sleeps, 2s delay steps, "
-                "kill/restart cycles included) — not a database benchmark."
+                "jobs_per_second is a chaos-run figure for THIS environment "
+                "and run (workflow steps, 20-60 ms handler sleeps, 2 s timer "
+                "steps, kill/restart cycles included) - a chaos-run "
+                "measurement, not a capacity number and not a database "
+                "benchmark."
             ),
         },
         "gate": gate,
