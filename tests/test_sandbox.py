@@ -154,6 +154,9 @@ def _stdout_frames(data: bytes, chunk: int = 8192) -> list[bytes]:
     return frames
 
 
+OOM_EVENTS_TEXT = "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n"
+
+
 class FakeClient:
     """Stub client: `existing` containers are visible to list() immediately;
     `next` containers are returned by create() in order."""
@@ -165,6 +168,7 @@ class FakeClient:
         exec_exit_code: int | None = 0,
         exec_reaped: bool = False,
         exec_stream_payload: bytes | None = None,
+        oom_events_text: str | None = OOM_EVENTS_TEXT,
     ) -> None:
         self.existing = list(existing or [])
         self._next = list(next or [])
@@ -183,6 +187,11 @@ class FakeClient:
             if exec_stream_payload is not None
             else _tar_with_members([])
         )
+        # the cgroup memory.events text the oom-counter exec reads back;
+        # None simulates an unreadable counter (cgroup v1 / read refused)
+        self.oom_events_text = oom_events_text
+        self._exec_cmd_by_id: dict[str, list[str]] = {}
+        self._exec_counter = 0
 
     def create(self, **kwargs: Any) -> FakeContainer:
         self.created_kwargs.append(kwargs)
@@ -207,14 +216,21 @@ class FakeClient:
         self.exec_cmds.append(cmd)
         if self.created:
             self.created[-1].events.append("exec_create")
-        return {"Id": "exec-1"}
+        self._exec_counter += 1
+        exec_id = f"exec-{self._exec_counter}"
+        self._exec_cmd_by_id[exec_id] = cmd
+        return {"Id": exec_id}
 
     def exec_start(
         self, exec_id: str, *, socket: bool = False, stream: bool = False
     ) -> Any:
         if stream:
-            # copy-out: the runner demuxes this raw multiplexed stream
-            return iter(_stdout_frames(self.exec_stream_payload))
+            cmd = self._exec_cmd_by_id.get(exec_id, [])
+            if cmd[:1] == ["/bin/sh"]:  # the oom-counter read (cat)
+                data = (self.oom_events_text or "").encode()
+            else:  # the copy-out tar
+                data = self.exec_stream_payload
+            return iter(_stdout_frames(data))
         assert socket is True  # copy-in always hijacks the socket
         sock = FakeSocket()
         self.exec_sockets.append(sock)
@@ -499,6 +515,37 @@ def test_run_marker_detection_across_frame_split() -> None:
     assert result.exit_code == 3
 
 
+def _marker_run(nonce: str, code: int, **client_kwargs: Any) -> Any:
+    """A supervised run whose payload reported `code` on the done marker."""
+    from engine.sandbox import _DONE_PREFIX
+
+    marker = _DONE_PREFIX + nonce.encode() + b"=" + str(code).encode() + b"\n"
+    frame = bytes([1, 0, 0, 0]) + len(marker).to_bytes(4, "big") + marker
+    client = FakeClient(next=[SupervisedContainer([frame])], **client_kwargs)
+    return run(_spec(), client, _limits(wall_seconds=5.0), done_nonce=nonce)
+
+
+def test_marker_137_with_oom_counter_is_ground_truth() -> None:
+    # exit 137 is SIGKILL, not proof of OOM; the cgroup's oom_kill counter
+    # (read while the container is held open) is the evidence
+    result = _marker_run("aa01", 137, oom_events_text="oom_kill 1\n")
+    assert result.exit_code == 137
+    assert result.oom_killed is True
+
+
+def test_marker_137_without_oom_evidence_is_self_kill() -> None:
+    # the payload killed itself: counter 0 proves NO kernel OOM kill
+    result = _marker_run("aa02", 137, oom_events_text=OOM_EVENTS_TEXT)
+    assert result.exit_code == 137
+    assert result.oom_killed is False
+
+
+def test_marker_137_unreadable_counter_is_probably_oom() -> None:
+    # cgroup v1 / read refused: no evidence — documented "probably OOM" label
+    result = _marker_run("aa03", 137, oom_events_text=None)
+    assert result.oom_killed is True
+
+
 def test_run_output_caps_and_truncation() -> None:
     # a stream that prints a 10-frame flood; the reader must stop at the cap
     frame = bytes([1, 0, 0, 0]) + (200_000).to_bytes(4, "big") + b"x" * 200_000
@@ -541,13 +588,17 @@ def _tar_with_members(members: list[tuple[str, int, bytes]]) -> bytes:
         for name, kind, payload in members:
             info = tarfile.TarInfo(name)
             info.size = len(payload)
-            if kind == tarfile.SYMTYPE:
-                info.type = tarfile.SYMTYPE
+            if kind in (tarfile.SYMTYPE, tarfile.LNKTYPE):
+                info.type = kind
                 info.linkname = payload.decode()
                 info.size = 0
                 tar.addfile(info)
             elif kind == tarfile.DIRTYPE:
                 info.type = tarfile.DIRTYPE
+                tar.addfile(info)
+            elif kind in (tarfile.CHRTYPE, tarfile.BLKTYPE, tarfile.FIFOTYPE):
+                info.type = kind
+                info.size = 0
                 tar.addfile(info)
             else:
                 tar.addfile(info, io.BytesIO(payload))
@@ -583,6 +634,70 @@ def test_copy_out_rejects_escaping_members() -> None:
     )
     with pytest.raises(SandboxUnsafeArchive):
         copy_out(client, FakeContainer())
+
+
+def test_copy_out_skips_hardlinks_devices_and_fifos() -> None:
+    archive = _tar_with_members(
+        [
+            ("./hard", tarfile.LNKTYPE, b"./real.txt"),
+            ("./dev", tarfile.CHRTYPE, b""),
+            ("./blk", tarfile.BLKTYPE, b""),
+            ("./fifo", tarfile.FIFOTYPE, b""),
+            ("./real.txt", tarfile.REGTYPE, b"ok"),
+        ]
+    )
+    client = FakeClient(exec_stream_payload=archive)
+    result = copy_out(client, FakeContainer())
+    assert result.files == {"real.txt": b"ok"}
+    assert result.symlinks_skipped == 1  # hardlinks counted with symlinks
+
+
+def test_copy_out_rejects_duplicate_file_entries() -> None:
+    # a crafted archive must not overwrite a result silently
+    archive = _tar_with_members(
+        [
+            ("./dup.txt", tarfile.REGTYPE, b"first"),
+            ("./dup.txt", tarfile.REGTYPE, b"second"),
+        ]
+    )
+    client = FakeClient(exec_stream_payload=archive)
+    with pytest.raises(SandboxUnsafeArchive, match="duplicate"):
+        copy_out(client, FakeContainer())
+
+
+def test_copy_out_preserves_case_distinct_names() -> None:
+    # "Out.txt" and "out.txt" are distinct Linux names. The copy-out lands
+    # in runner memory / the patch log — the runner never extracts onto a
+    # host filesystem — so both survive; the tool layer re-checks at apply
+    # time (checkpoint 8).
+    archive = _tar_with_members(
+        [("./Out.txt", tarfile.REGTYPE, b"A"), ("./out.txt", tarfile.REGTYPE, b"a")]
+    )
+    client = FakeClient(exec_stream_payload=archive)
+    result = copy_out(client, FakeContainer())
+    assert result.files == {"Out.txt": b"A", "out.txt": b"a"}
+
+
+def test_copy_out_caps_entry_count_tar_bomb() -> None:
+    archive = _tar_with_members(
+        [(f"./f{i:03d}.txt", tarfile.REGTYPE, b"x") for i in range(30)]
+    )
+    client = FakeClient(exec_stream_payload=archive)
+    with pytest.raises(SandboxError, match="more than 10 entries"):
+        copy_out(client, FakeContainer(), max_entries=10)
+
+
+def test_copy_out_caps_huge_declared_file() -> None:
+    # a lying/sparse header declaring 2 GiB with no data behind it: refused
+    # before any read, from the header alone
+    buffer = io.BytesIO()
+    with tarfile.open(fileobj=buffer, mode="w") as tar:
+        info = tarfile.TarInfo("./bomb.bin")
+        info.size = 2 * 1024**3
+        tar.addfile(info)
+    client = FakeClient(exec_stream_payload=buffer.getvalue())
+    with pytest.raises(SandboxError, match="exceeds the copy-out cap"):
+        copy_out(client, FakeContainer(), max_bytes=1024 * 1024)
 
 
 def test_copy_out_caps_total_payload() -> None:

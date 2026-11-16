@@ -73,3 +73,17 @@ Phase 2 (durable workflows) targets the 19 duplicate effects: step outputs
 become first-class, and effects are deduplicated by `effect_key`. Chaos v2 is
 that proof: under 59 hard kills, 122 redelivered executions were absorbed by
 idempotency keys and 0 duplicate effects appeared.
+
+## Sandbox (Phase 3, checkpoint 7)
+
+Untrusted code runs in Docker containers: read-only rootfs, non-root,
+no network, capped CPU/memory/pids/disk/output, tmpfs workspace transported
+through the exec'd tar boundary (ADR
+[`docs/adr/003-sandbox.md`](docs/adr/003-sandbox.md)). 18-case hostile
+suite runs in CI (`sandbox-hostile` job) against a real daemon.
+
+> **The sandbox protects the host, not the verdict.** Everything the
+> container reports — exit codes, output, the completion marker — is
+> untrusted input; only the host-side evidence (cgroup counters, caps,
+> deadlines) decides what actually happened, and anything that turns a run
+> into a pass/fail verdict must re-verify it outside the container.

@@ -45,12 +45,48 @@ Resolution:
 
 - **Install phase** (per requirements hash, cached): a container from the
   pinned base image, network allowed, **no secrets, no workspace, no
-  environment** — it only runs `pip install --target /opt/deps -r req.txt`
-  and the result is committed as a derived image tagged
-  `sandbox-deps-<sha256(requirements)>`. The derived image's digest is
-  recorded with the run.
+  environment** — it only runs pip and the result is committed as a derived
+  image tagged `sandbox-deps-<sha256(requirements)>`. The derived image's
+  digest is recorded with the run.
 - **Run phase**: `network_mode='none'` from the derived image;
   `PATH=/opt/deps/bin:$PATH`, `PYTHONPATH=/opt/deps`.
+
+**Install-phase hardening** (decided in checkpoint 7 review, **not yet
+implemented** — no install-phase code exists yet):
+
+- `pip install --only-binary :all:` wherever the pin set permits wheels:
+  `--only-binary` refuses the `setup.py` execution path entirely, so the
+  most dangerous install-time code (arbitrary build scripts of a malicious
+  sdist) never runs. Packages that only publish sdists fail the install and
+  surface as a decision, not a surprise. `--require-hashes` pins every
+  artifact to the hash recorded at pin time — a compromised index cannot
+  substitute a different wheel under the same version.
+- The install container inherits the run phase's hardening **except the
+  network**: `read_only` rootfs (pip writes to `/opt/deps`, a tmpfs),
+  non-root user, `cap_drop: ALL`, `no-new-privileges`, CPU/memory/pids
+  limits. The one deliberate widening is `network_mode` — installs need
+  the index. No secrets and no workspace are mounted, so a malicious build
+  script can reach only the index and its own scratch space.
+- **Base image pinned by digest** (`python@sha256:...`): the same immutability
+  rule the run phase already uses; a mutable `latest` tag would let an
+  attacker's push silently change every future derived image.
+- **The poisoning risk, stated plainly**: the derived image is keyed by
+  `sha256(requirements)`, so a *poisoned build is reused by every run with
+  the same requirements* — an attacker who once gets malicious code into
+  the install phase (e.g. a typosquatted package whose wheel ships a
+  modified `sitecustomize.py`, or an index-serving a backdoored artifact
+  that still satisfies `--require-hashes` only if the pin itself was
+  compromised) bakes it into the cache, and later runs never re-execute
+  pip. Mitigations, in order: the pin file itself is workflow input and
+  goes through review; hashes make silent artifact substitution detectable;
+  the derived-image digest is recorded with every run, so an incident is a
+  `grep` over run records, not a mystery; and a cache-bust (bump the pin,
+  or purge `sandbox-deps-*` images) is a mechanical response. What
+  content-addressing deliberately does NOT do is make poisoning
+  impossible — it makes it *persist*, which is why it must be named here.
+- The derived image is built with `container.commit()`, which preserves the
+  container's filesystem but not its tmpfs mounts — `/opt/deps` must be a
+  real layer directory, created as root then chowned, not a tmpfs.
 
 Rejected alternative: downloading a wheel cache at run time with
 `pip --no-index` — it still runs pip inside the sandbox (parse/rendering of
@@ -105,17 +141,42 @@ host-side symlink door open. Chosen: the workspace is a **tmpfs inside the
 container** (`size=64m,nosuid,nodev`), populated by copy-in and drained by
 copy-out through the exec'd tar streams of D7 (the daemon archive API
 cannot see tmpfs contents, and a safe extractor that refuses absolute
-paths, `..`, NUL, and never materializes symlinks/hardlinks parses the
+paths, `..`, NUL, rejects duplicate regular-file entries, caps the entry
+count at `copy_out_max_entries` = 20 000 and checks each file's declared
+size *before* reading it — huge/sparse headers die in the header, not in
+`extractfile` — and never materializes symlinks/hardlinks parses the
 copy-out). There are therefore **no host mounts at all** — the
 symlink-through-workspace door is closed at the boundary, and Windows'
 slow, differently-permissioned `/mnt/c` bind mounts never appear.
 
 `exec` stays allowed on the workspace (running untrusted code is the
 feature; the boundary is the container), `nosuid`/`nodev` do not compromise
-that. tmpfs pages are charged to the container's memory cgroup, so
-`workspace_mb + tmp_mb` must stay inside `mem_mb` — the limits dataclass
-documents this. Trade-off: a tmpfs workspace dies with the container, which
-is exactly why D3 moves identity into the DB.
+that.
+
+**tmpfs pages are charged to the container's memory cgroup — measured, not
+assumed.** tmpfs is shmem; the pages a fill faults in count against
+`mem_limit` exactly like heap. Two hostile cases pin the relationship on
+this daemon (Docker 28.3.2):
+
+- *Inside the budget*: `workspace_mb=64` filled with 8 KiB files →
+  `FILL-STOPPED errno 28` (ENOSPC) after 8192 files, payload exits 0,
+  runner responsive. The size cap fires first.
+- *Crossing the budget*: `workspace_mb=248, mem_mb=256` filled the same way
+  → the kernel **OOM-killed the container before ENOSPC could fire**
+  (exit 137, cgroup `oom_kill` counter > 0). tmpfs + interpreter overhead
+  crossed the 256 MiB line while filling.
+
+So the operating rule is: `workspace_mb + tmp_mb + interpreter headroom
+must stay inside mem_mb`, and a caller who sets the workspace near the
+memory limit converts every full-workspace fill from a clean ENOSPC into a
+kernel OOM kill. Both outcomes are contained — but they are different
+failures, and the limits dataclass documents which one a given
+configuration produces. `copy_out_max_entries` (20 000) belongs here too:
+it caps the number of archive entries the runner accepts back, so a tar
+bomb cannot turn the runner's parse step into the next resource problem.
+
+Trade-off: a tmpfs workspace dies with the container, which is exactly why
+D3 moves identity into the DB.
 
 ### D5 — Timeout, kill, and cleanup semantics
 
@@ -198,11 +259,34 @@ answer.
 Marker semantics:
 
 - **Exit-code authority**: the marker when present, else `State.ExitCode`.
-- **OOM rule**: a marker exit of 137 means OOM. The payload is a *child*,
-  so the daemon's `State.OOMKilled` can stay `False` on a child OOM; 137 is
-  the kernel OOM killer's signature and the only in-container SIGKILL
-  source (the runner kills only at the deadline, after which no marker
-  exists).
+- **137 provenance rule** (revised after review: exit 137 is SIGKILL, and
+  the payload can send itself SIGKILL — 137 alone is an inference, not
+  evidence). Evidence, in priority order:
+  1. **The cgroup's `oom_kill` counter is the ground truth** — read from
+     `/sys/fs/cgroup/memory.events` via exec **while the container is still
+     held open** (the marker path; cgroup v2, measured on this daemon:
+     the container sees its own cgroup at `/sys/fs/cgroup`, private
+     cgroupns, `memory.events` readable by uid 65534, and `memory.max`
+     mirrors `mem_limit` exactly). `oom_killed = counter > 0`; a counter of
+     0 **proves** the kernel did NOT kill — a 137 with counter 0 is the
+     payload killing itself (e.g. `os.kill(os.getpid(), SIGKILL)`), and is
+     reported as such.
+  2. **Counter unreadable** (cgroup v1 daemons, exec refused, or the exec
+     record already reaped): fall back to the daemon's `State.OOMKilled`
+     flag — set only when the *main* process is OOM-killed, which under the
+     supervisor pattern the payload never is — and otherwise label a 137
+     **"SIGKILL, probably OOM"**. This label is honest about being an
+     inference.
+  3. **No marker** (container exited, deadline, crash): the container is
+     gone and there is nothing to exec, so only the daemon flag applies —
+     and 137 alone no longer implies OOM.
+  Known residual: on a cgroup-v1 daemon a *child* OOM leaves neither
+  counter nor daemon flag, and the "probably OOM" label is the best
+  available answer. Cgroup v2 is what this daemon and CI run.
+  4. **Runner deadline** kills with SIGKILL at expiry — that is
+     `timed_out=True`, never `oom_killed`; a container killed by something
+     outside the runner (host OOM at the daemon level, operator `docker
+     kill`) surfaces as exit-without-marker or an exception, not as OOM.
 - **Copy-out timing**: copy-out runs only when the payload reported
   completion through the marker — a timed-out run's mutations die with the
   container (the workflow retry rebuilds from the patch log). The
@@ -258,10 +342,13 @@ as a hostile-suite observation, not an assumption.
 
 ## Consequences
 
-- Sandbox tests need Docker and therefore run on the dev machine, not in
-  CI; CI exercises the runner logic with stubs (30 tests) and skips the
-  hostile cases unless `ENGINE_SANDBOX_TESTS=1` is set (14 real-Docker
-  cases, all passing on Docker 28.3.2).
+- Sandbox tests run in TWO CI jobs: the `ci` job exercises the runner
+  logic with stubs (38 tests) and skips the hostile cases unless
+  `ENGINE_SANDBOX_TESTS=1` is set; the `sandbox-hostile` job runs the
+  real-Docker suite on GitHub's Docker-equipped `ubuntu-latest` runners
+  (18 cases, all passing on Docker 28.3.2 locally and in CI). The docker
+  SDK is deliberately absent from the dev extras so the stub suite keeps
+  proving the runner is optional; the hostile job installs it explicitly.
 - The patch-log workspace and typed tools (checkpoint 8) implement on top
   of D3/D4; `apply_patch`'s precondition hash is the concurrency gate.
 - The privilege problem is a standing rule: nothing that talks to jobs or

@@ -40,3 +40,27 @@ jobs:
         run: mypy
       - name: Test
         run: pytest -v
+
+  sandbox-hostile:
+    # The real-Docker hostile suite must run on a real daemon in CI, not
+    # only on the author's machine. ubuntu-latest ships Docker; no Postgres
+    # is needed (conftest.py is fixture-lazy, no hostile test touches the
+    # DB). The docker SDK is deliberately NOT in the dev extras — the stub
+    # suite must keep proving the runner is optional — so it is installed
+    # explicitly here.
+    runs-on: ubuntu-latest
+    env:
+      ENGINE_SANDBOX_TESTS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]" "docker>=7.2"
+      - name: Verify the daemon is reachable
+        run: docker version
+      - name: Hostile sandbox suite (real containers)
+        run: pytest tests/test_sandbox_hostile.py -v -s

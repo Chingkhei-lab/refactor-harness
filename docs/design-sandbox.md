@@ -25,7 +25,7 @@ untrusted code is the product, so containment, not prevention, is the goal.
 | --- | --- | --- |
 | container ↔ host kernel | shared kernel | a kernel 0-day reachable through an allowed syscall escapes the container; Docker is not a hardened multi-tenant boundary. gVisor (user-space kernel) or Firecracker (micro-VM) are stretch goals. |
 | runner ↔ Docker API | whoever holds the API is root on the host | the API client is only ever held by the runner; never mounted into a container; no model/tool passes raw Docker options; all limits are runner config. |
-| copy-out boundary | results are hostile input to the host side | the workspace travels back through an exec'd tar (the daemon archive API cannot see tmpfs contents — measured); the safe extractor materializes regular files only, refuses absolute paths/`..`/NUL, caps total size; symlinks are counted and skipped, never followed. |
+| copy-out boundary | results are hostile input to the host side | the workspace travels back through an exec'd tar (the daemon archive API cannot see tmpfs contents — measured); the safe extractor materializes regular files only, refuses absolute paths/`..`/NUL, rejects duplicate regular-file entries (a crafted archive must not overwrite a result silently), caps the entry count (20 000 — tar bombs die in the parser) and total size, and checks each file's declared size before reading it (huge/sparse headers die in the header); symlinks/hardlinks are counted and skipped, never followed. |
 | copy-in boundary | content produced by the runner itself | still validated by the same rules (contract, defense in depth); travels in through an exec'd tar because the daemon refuses archive PUTs into read-only containers (measured). |
 | tool layer (checkpoint 8) | paths arrive from the adversary | resolve against the workspace root; reject absolute paths, `..`, NUL, and any resolved path that leaves the root; deny `.git` writes; limit read sizes; refuse binaries. |
 
@@ -109,13 +109,13 @@ by stub tests in CI plus a real janitor case. Tool-layer path tests
 (traversal, huge/binary files, patch atomicity, precondition hash, `.git`
 write denial) arrive with the tools in checkpoint 8.
 
-**Measured on Docker 28.3.2 / API 1.51 (all 14 cases passing):**
+**Measured on Docker 28.3.2 / API 1.51 (all 18 cases passing):**
 
 | Attack | Observed containment | Limit that stopped it |
 | --- | --- | --- |
 | fork bomb (`os.fork` loop) | EAGAIN (errno 11) after 63 forks, runner responsive | `pids_limit=64` (pids cgroup) |
 | infinite loop | killed at the wall: exit 137, `timed_out=True`, `kill_failed=False` | runner wall clock |
-| memory hog | exit 137, `oom_killed=True` | `mem_limit` == `memswap_limit` |
+| memory hog (main-process OOM) | exit 137, `oom_killed=True` (daemon flag + counter agree) | `mem_limit` == `memswap_limit` |
 | disk fill (write loop) | EFBIG (errno 27) before the tmpfs total is reached | `fsize` ulimit (32 MiB/file) |
 | output flood | exactly 1 MiB captured, `truncated=True` | per-stream output cap |
 | outbound TCP / DNS | connect fails / `gaierror`, duration ~1 s | `network_mode=none` |
@@ -126,6 +126,18 @@ write denial) arrive with the tools in checkpoint 8.
 | io_uring_setup (syscall 425) | `ret=-1, errno=1 (EPERM)` — measured, not assumed | default seccomp profile |
 | symlink through workspace | copy-out returns `{"real.txt": b"payload"}`, `symlinks_skipped=2` — links never materialized or followed | safe extractor |
 | janitor | stale container removed, fresh kept, none left behind | `sweep_containers` |
+| payload SIGKILLs itself (`os.kill(getpid(), SIGKILL)`) | exit 137, **`oom_killed=False`** — cgroup `oom_kill` counter == 0 proves no kernel kill | 137-provenance rule (cgroup counter, not exit code) |
+| child OOM (heap hog under supervisor) | exit 137, **`oom_killed=True`** — counter read from `memory.events`, not inferred | cgroup v2 `memory.events` |
+| tmpfs fill, many small files | 8192 × 8 KiB files → clean `FILL-STOPPED errno 28` (ENOSPC), payload exits 0, runner responsive, < 25 s | `workspace_mb` tmpfs size |
+| tmpfs fill crossing `mem_limit` (`workspace_mb=248`, `mem_mb=256`) | kernel OOM-kill **before** ENOSPC: exit 137, `oom_killed=True` — tmpfs pages are charged to the memory cgroup (measured) | `mem_limit` (tmpfs↔memory coupling) |
+
+The four new cases (review round 1) close two honesty gaps: exit 137 is
+SIGKILL, which a payload can send itself — so OOM is decided from the
+cgroup's `oom_kill` counter when available (ground truth), from the daemon
+flag otherwise, and only labeled "probably OOM" when neither exists; and
+tmpfs size is charged to `mem_limit`, so a full-workspace fill inside the
+budget fails cleanly with ENOSPC while a fill that crosses the memory
+limit is OOM-killed before ENOSPC can fire.
 
 ## Report (checkpoint 9)
 

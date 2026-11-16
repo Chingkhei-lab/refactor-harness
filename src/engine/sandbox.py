@@ -51,6 +51,7 @@ _SANDBOX_USER = "65534:65534"  # nobody:nogroup in the pinned Debian images
 _WORKSPACE_DIR = "/workspace"
 _COPY_IN_DRAIN_TIMEOUT_SECONDS = 30.0
 _EXEC_EXIT_POLL_SECONDS = 5.0
+_COPY_OUT_MAX_ENTRIES = 20_000  # hostile-archive cap: tar entries accepted
 # Stream-end signals vary by Docker transport: unix sockets raise OSError
 # subclasses, the Windows named-pipe transport raises RuntimeError and
 # pywintypes.error (pywin32, pulled in by the docker SDK on Windows —
@@ -96,8 +97,12 @@ class SandboxLimits:
     """The ONLY knobs a caller may tune — numbers, never raw Docker options.
 
     tmpfs pages are charged to the container's memory cgroup, so
-    workspace_mb + tmp_mb must stay inside mem_mb. copy_out_mb caps the
-    runner-side memory for the copied-out workspace (not a container quota).
+    workspace_mb + tmp_mb must stay inside mem_mb — a fill that crosses
+    mem_limit OOM-kills the container before ENOSPC can fire (measured);
+    inside the budget the same fill fails cleanly with ENOSPC. copy_out_mb
+    caps the runner-side memory for the copied-out workspace and
+    copy_out_max_entries the number of tar entries accepted (hostile
+    tar-bomb cap); neither is a container quota.
     """
 
     mem_mb: int = 256
@@ -110,6 +115,7 @@ class SandboxLimits:
     fsize_mb: int = 32
     nofile: int = 256
     copy_out_mb: int = 32
+    copy_out_max_entries: int = 20_000
 
 
 @dataclass(frozen=True)
@@ -623,6 +629,39 @@ def _verify_copy_in(container: SandboxContainer) -> None:
     raise SandboxError("workspace copy-in did not land (ready flag missing)")
 
 
+def _read_oom_counter(client: SandboxClient, container: SandboxContainer) -> int | None:
+    """Ground truth for a 137 exit: the cgroup's oom_kill counter (v2).
+
+    Executed while the container is still running (the supervisor's sleep
+    holds it open on the marker path). Measured on Docker 28.3.2: the
+    container sees its own cgroup at /sys/fs/cgroup (private namespace) and
+    memory.events carries an oom_kill line; memory.max mirrors mem_limit.
+    Returns None when unreadable (cgroup v1, exec refused, record reaped) —
+    the caller then applies its documented fallback.
+    """
+    try:
+        exec_result = client.exec_create(
+            str(container.id), ["/bin/sh", "-c", "cat /sys/fs/cgroup/memory.events"]
+        )
+        exec_id = str(exec_result["Id"])
+        raw = bytearray()
+        for chunk in client.exec_start(exec_id, stream=True):
+            if len(raw) + len(chunk) > 65536:
+                return None  # absurd for memory.events: treat as unreadable
+            raw.extend(chunk)
+        text = ""
+        for frame_type, payload in _demux(iter([bytes(raw)])):
+            if frame_type == _STDOUT_FRAME:
+                text = payload.decode(errors="replace")
+        for line in text.splitlines():
+            fields = line.split()
+            if len(fields) == 2 and fields[0] == "oom_kill":
+                return int(fields[1])
+    except _DRAIN_ERRORS:
+        pass  # exec failed (container mid-teardown, v1, etc.) — unreadable
+    return None
+
+
 def run(
     spec: SandboxSpec,
     client: SandboxClient,
@@ -686,19 +725,36 @@ def run(
             exit_code = int(reader.done_code) if reader.done_code is not None else -1
         else:
             exit_code = state_exit
-        # With the supervisor pattern the payload is a CHILD, so the daemon's
-        # State.OOMKilled can stay False on a child OOM; a marker exit of 137
-        # implies the kernel OOM killer — the only in-container SIGKILL source
-        # (the runner kills only at the deadline, after which no marker
-        # exists).
-        oom_killed = bool(state.get("OOMKilled")) or (
-            done_kind == "marker" and exit_code == 137
-        )
+        # OOM ground truth, in evidence order: (1) the cgroup's oom_kill
+        # counter, readable while the container is held open (marker path,
+        # cgroup v2 — measured on Docker 28.3.2); (2) the daemon's
+        # State.OOMKilled (set when the MAIN process is OOM-killed); (3)
+        # nothing — exit 137 alone is SIGKILL, which a payload can also send
+        # to itself, so without evidence it is NOT labeled OOM. On cgroup-v1
+        # daemons a CHILD OOM leaves no marker-path counter and no daemon
+        # flag (documented residual gap in ADR 003 D7).
+        daemon_oom = bool(state.get("OOMKilled"))
+        if done_kind == "marker":
+            oom_counter = _read_oom_counter(client, container)
+            if oom_counter is not None:
+                oom_killed = oom_counter > 0
+            else:
+                # no cgroup evidence (cgroup v1 or read refused): 137 is
+                # SIGKILL, probably the kernel OOM killer — the documented
+                # "probably OOM" label
+                oom_killed = daemon_oom or exit_code == 137
+        else:
+            oom_killed = daemon_oom  # container gone: no counter to read
 
         files: dict[str, bytes] = {}
         symlinks_skipped = 0
         if done_kind == "marker" and spec.workspace_files:
-            copied = copy_out(client, container, max_bytes=limits.copy_out_mb * 1024 * 1024)
+            copied = copy_out(
+                client,
+                container,
+                max_bytes=limits.copy_out_mb * 1024 * 1024,
+                max_entries=limits.copy_out_max_entries,
+            )
             files = {
                 key: value
                 for key, value in copied.files.items()
@@ -788,6 +844,7 @@ def copy_out(
     client: SandboxClient,
     container: SandboxContainer,
     max_bytes: int = _COPY_OUT_MAX_BYTES,
+    max_entries: int = _COPY_OUT_MAX_ENTRIES,
 ) -> CopyOut:
     """Copy results out through an exec'd tar and materialize REGULAR FILES
     ONLY.
@@ -798,8 +855,11 @@ def copy_out(
     files on a running container — so the workspace is read back the same
     way it was written: `tar -cf -` INSIDE the container, streamed over the
     exec channel. The safe parser refuses absolute paths, `..`, and NUL,
-    and NEVER materializes symlinks/hardlinks — a planted link cannot make
-    any host- or runner-side read follow it. The total payload is capped.
+    NEVER materializes symlinks/hardlinks (counted, not followed), skips
+    directories and device/fifo/special nodes, rejects duplicate regular
+    file entries (a crafted archive must not overwrite silently), and caps
+    both the total payload (max_bytes) and the entry count (max_entries) —
+    a tar bomb dies here, not in runner memory.
     """
     exec_result = client.exec_create(
         str(container.id), ["tar", "-cf", "-", "-C", _WORKSPACE_DIR, "."]
@@ -840,19 +900,30 @@ def copy_out(
         raise SandboxError(
             f"workspace copy-out produced an unreadable archive: {exc}"
         ) from exc
+    seen_files: set[str] = set()
     with tar:
-        for member in tar:
+        for entry_count, member in enumerate(tar, start=1):
+            if entry_count > max_entries:
+                raise SandboxError(
+                    f"copy-out archive has more than {max_entries} entries "
+                    "(tar bomb refused)"
+                )
             if member.issym() or member.islnk():
-                symlinks_skipped += 1
+                symlinks_skipped += 1  # counted, never materialized/followed
                 continue
             if not member.isfile():
-                continue  # directories and specials are not results
+                continue  # directories, devices, fifos: not results
             rel = _rel_name(member.name)
+            if rel in seen_files:
+                raise SandboxUnsafeArchive(
+                    f"duplicate archive member {rel!r} in copy-out"
+                )
+            seen_files.add(rel)
+            if member.size > max_bytes:
+                raise SandboxError(f"file {rel!r} exceeds the copy-out cap")
             extracted = tar.extractfile(member)
             if extracted is None:
                 continue
-            if member.size > max_bytes:
-                raise SandboxError(f"file {rel!r} exceeds the copy-out cap")
             files[rel] = extracted.read()
     return CopyOut(files=files, symlinks_skipped=symlinks_skipped, truncated=False)
 

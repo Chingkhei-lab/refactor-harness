@@ -437,3 +437,114 @@ def test_janitor_removes_stale_keeps_fresh(sandbox: Any, docker_env: Any) -> Non
                 container.remove(force=True)
             except OSError:
                 pass
+
+
+def test_self_sigkill_is_not_reported_as_oom(sandbox: Any) -> None:
+    adapter, digest, job = sandbox
+    # exit 137 is SIGKILL, which a payload can send to itself; the cgroup
+    # oom_kill counter (read while the container is held open) is the
+    # ground truth that keeps this from being labeled oom_killed
+    code = "import os, signal\nos.kill(os.getpid(), signal.SIGKILL)\n"
+    result = run(
+        _spec(
+            digest,
+            ("python", "-c", code),
+            job_id=job,
+            workspace_files={"real.txt": b"payload"},  # marker + counter path
+        ),
+        adapter,
+    )
+    print(
+        f"OBSERVED self-sigkill: exit={result.exit_code} oom_killed={result.oom_killed} "
+        f"timed_out={result.timed_out}"
+    )
+    assert result.exit_code == 137
+    assert result.oom_killed is False  # counter == 0: no kernel OOM kill
+    assert result.timed_out is False
+
+
+def test_child_oom_reports_cgroup_counter(sandbox: Any) -> None:
+    adapter, digest, job = sandbox
+    # child OOM: the daemon's State.OOMKilled stays False (payload is a
+    # CHILD); the cgroup counter is what proves the kill was the kernel
+    code = "xs = []\nwhile True: xs.append(b'x' * (10 ** 7))\n"
+    result = run(
+        _spec(
+            digest,
+            ("python", "-c", code),
+            job_id=job,
+            workspace_files={"real.txt": b"payload"},
+        ),
+        adapter,
+        _limits(mem_mb=192),
+    )
+    print(
+        f"OBSERVED child-oom: exit={result.exit_code} oom_killed={result.oom_killed} "
+        f"timed_out={result.timed_out} duration={result.duration_seconds}s"
+    )
+    assert result.exit_code == 137
+    assert result.oom_killed is True  # counter > 0, not an inference
+    assert result.timed_out is False
+
+
+def test_tmpfs_fill_many_small_files_stays_clean(sandbox: Any) -> None:
+    adapter, digest, job = sandbox
+    # fill the 64 MiB workspace tmpfs with 8 KiB files (well under the
+    # per-file fsize cap): inside the mem budget the failure is ENOSPC,
+    # the payload handles it and exits 0, and the runner stays responsive
+    code = (
+        "import errno, os\n"
+        "os.makedirs('/workspace/fill', exist_ok=True)\n"
+        "count = 0\n"
+        "try:\n"
+        "    while True:\n"
+        "        with open(f'/workspace/fill/{count:05d}', 'wb') as f:\n"
+        "            f.write(b'x' * 8192)\n"
+        "        count += 1\n"
+        "except OSError as e:\n"
+        "    print('FILL-STOPPED', e.errno, 'files', count, flush=True)\n"
+    )
+    result = run(_spec(digest, ("python", "-c", code), job_id=job), adapter)
+    observed = result.stdout.decode(errors="replace").strip()
+    print(f"OBSERVED tmpfs-fill: stdout={observed!r} exit={result.exit_code}")
+    assert result.timed_out is False
+    assert result.duration_seconds < 25.0  # runner stayed responsive
+    assert observed.startswith("FILL-STOPPED")
+    assert observed.split()[1] == "28"  # ENOSPC from the tmpfs size cap
+    assert result.exit_code == 0  # the payload handled its own failure
+
+
+def test_tmpfs_pages_charge_against_mem_limit(sandbox: Any) -> None:
+    adapter, digest, job = sandbox
+    # the coupling the ADR documents: tmpfs pages are shmem charged to the
+    # container's memory cgroup. workspace_mb=248 + interpreter overhead
+    # crosses mem_mb=256 while filling -> the kernel OOM-kills before
+    # ENOSPC can fire. Whichever way the daemon rules it, the failure must
+    # be clean and the runner responsive (both outcomes are recorded).
+    code = (
+        "import errno, os\n"
+        "os.makedirs('/workspace/fill', exist_ok=True)\n"
+        "count = 0\n"
+        "try:\n"
+        "    while True:\n"
+        "        with open(f'/workspace/fill/{count:05d}', 'wb') as f:\n"
+        "            f.write(b'x' * 8192)\n"
+        "        count += 1\n"
+        "except OSError as e:\n"
+        "    print('FILL-STOPPED', e.errno, 'files', count, flush=True)\n"
+    )
+    result = run(
+        _spec(digest, ("python", "-c", code), job_id=job),
+        adapter,
+        _limits(workspace_mb=248, tmp_mb=4, mem_mb=256, wall_seconds=20.0),
+    )
+    observed = result.stdout.decode(errors="replace").strip()
+    print(
+        f"OBSERVED tmpfs-charges-memory: stdout={observed!r} exit={result.exit_code} "
+        f"oom_killed={result.oom_killed} timed_out={result.timed_out}"
+    )
+    assert result.timed_out is False
+    assert result.duration_seconds < 20.0  # runner stayed responsive
+    filled_to_limit = observed.startswith("FILL-STOPPED") and observed.split()[1] == "28"
+    oom = result.exit_code == 137 and result.oom_killed
+    assert filled_to_limit or oom  # clean either way; the coupling is real
