@@ -32,6 +32,29 @@ PostgreSQL 16.15.
 > kill/restart cycles included. It measures the pipeline, not Postgres; it is
 > not a database benchmark.
 
+Chaos v2 (2026-11-16) — durable workflows under the same kill loop; full
+report: [`docs/results/chaos-v2-20261116.json`](docs/results/chaos-v2-20261116.json)
+
+| Metric | Value |
+| --- | --- |
+| Workflows | 2,000 × 4 steps (one 2-second delay step each) |
+| Injected failures | 2% always-failing (40) + 1% NonRetryable (20) |
+| Workers / hard kills / restarts | 3 / 59 / 59 (83.1% of kills hit a running job) |
+| Terminal | 1,940 succeeded + 60 failed == exactly the injected count |
+| Duplicate executions / duplicate effects | 122 (> 0, expected) / **0** |
+| Claim violations (same `(job_id, attempt)` executed twice) | 0 |
+| Succeeded workflows: one effect row per step, sums `1→3→6→10` | 1,940 / 1,940 |
+| Every failed workflow in `dead_letters` | 60 / 60 |
+| Reconciler latency (job death → workflow failed) | p50 0.27 s, p95 0.64 s, max 0.89 s |
+| Replay of one failed workflow (pardon + DLQ) | succeeded in 4.0 s, full effect chain |
+| Duration / throughput | 297.0 s / 26.5 jobs/s |
+| Config | 4 s lease, 1 s reaper + reconciler interval, 0.2 s backoff base, 8-attempt budget on sum steps |
+
+Environment: same as v1 (Docker Linux on WSL2, 4 CPUs / 3.8 GB, PostgreSQL
+16.15); workflow step handlers sleep 20–60 ms, so jobs/s is not comparable to
+v1's plain handlers — see the caveat above.
+
 Phase 2 (durable workflows) targets the 19 duplicate effects: step outputs
 become first-class, and effects are deduplicated by `effect_key`, driving the
-at-least-once baseline to zero visible duplicates.
+at-least-once baseline to zero visible duplicates. Chaos v2 is that proof:
+duplicate executions happen under kills (122), duplicate effects never do.

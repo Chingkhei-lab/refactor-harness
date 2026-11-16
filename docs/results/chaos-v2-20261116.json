@@ -1,0 +1,459 @@
+{
+  "date": "2026-11-16",
+  "environment": {
+    "runner": "Docker container (Linux): Windows host cannot signal processes reliably",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.41",
+    "python": "3.12.16",
+    "cpus": 4,
+    "ram_gb": 3.8,
+    "postgres": "PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+    "database": "app_test"
+  },
+  "config": {
+    "workflows": 2000,
+    "steps_per_workflow": 4,
+    "delay_step_seconds": 2.0,
+    "injected": {
+      "fail": 40,
+      "nr": 20,
+      "seed": 42
+    },
+    "normal_step_max_attempts": 8,
+    "failing_step_max_attempts": 3,
+    "workers": 3,
+    "lease_seconds": 4.0,
+    "reconciler_interval_seconds": 1.0,
+    "backoff_base_seconds": 0.2,
+    "backoff_cap_seconds": 5.0,
+    "kill_interval_seconds": [
+      3.0,
+      6.0
+    ],
+    "drain_timeout_seconds": 600.0
+  },
+  "results": {
+    "duration_seconds": 297.0,
+    "jobs_total": 7880,
+    "jobs_per_second": 26.5,
+    "kills": 59,
+    "restarts": 59,
+    "kills_with_running_job": 49,
+    "kill_fraction_mid_job": 0.831,
+    "kill_log": [
+      {
+        "kill": 1,
+        "slot": 0,
+        "worker_id": "chaos-v2-w0-a7476c92",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 2,
+        "slot": 1,
+        "worker_id": "chaos-v2-w1-9509562b",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 3,
+        "slot": 0,
+        "worker_id": "chaos-v2-w0-3249ea8d",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 4,
+        "slot": 1,
+        "worker_id": "chaos-v2-w1-8e6e704a",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 5,
+        "slot": 0,
+        "worker_id": "chaos-v2-w0-1e596bb3",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 6,
+        "slot": 1,
+        "worker_id": "chaos-v2-w1-efc76cf3",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 7,
+        "slot": 0,
+        "worker_id": "chaos-v2-w0-37eae5db",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 8,
+        "slot": 2,
+        "worker_id": "chaos-v2-w2-a42e1a2a",
+        "held_running_jobs": 0
+      },
+      {
+        "kill": 9,
+        "slot": 2,
+        "worker_id": "chaos-v2-w2-8a2a6ef0",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 10,
+        "slot": 1,
+        "worker_id": "chaos-v2-w1-cfb6b8ed",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 11,
+        "slot": 2,
+        "worker_id": "chaos-v2-w2-fafecb1b",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 12,
+        "slot": 2,
+        "worker_id": "chaos-v2-w2-ed7066a1",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 13,
+        "slot": 0,
+        "worker_id": "chaos-v2-w0-ec3dcb35",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 14,
+        "slot": 0,
+        "worker_id": "chaos-v2-w0-413eacb7",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 15,
+        "slot": 1,
+        "worker_id": "chaos-v2-w1-adffb5ad",
+        "held_running_jobs": 0
+      },
+      {
+        "kill": 16,
+        "slot": 2,
+        "worker_id": "chaos-v2-w2-24b7ef9c",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 17,
+        "slot": 2,
+        "worker_id": "chaos-v2-w2-efad135f",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 18,
+        "slot": 2,
+        "worker_id": "chaos-v2-w2-421545dd",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 19,
+        "slot": 0,
+        "worker_id": "chaos-v2-w0-9f9bdb6c",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 20,
+        "slot": 1,
+        "worker_id": "chaos-v2-w1-4ff606ee",
+        "held_running_jobs": 0
+      },
+      {
+        "kill": 21,
+        "slot": 2,
+        "worker_id": "chaos-v2-w2-5baee4f7",
+        "held_running_jobs": 0
+      },
+      {
+        "kill": 22,
+        "slot": 0,
+        "worker_id": "chaos-v2-w0-26ce6877",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 23,
+        "slot": 2,
+        "worker_id": "chaos-v2-w2-c25060d3",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 24,
+        "slot": 1,
+        "worker_id": "chaos-v2-w1-ffd8dea4",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 25,
+        "slot": 1,
+        "worker_id": "chaos-v2-w1-d6fb33ce",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 26,
+        "slot": 2,
+        "worker_id": "chaos-v2-w2-5401d4f1",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 27,
+        "slot": 0,
+        "worker_id": "chaos-v2-w0-42ba5afa",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 28,
+        "slot": 0,
+        "worker_id": "chaos-v2-w0-16733326",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 29,
+        "slot": 1,
+        "worker_id": "chaos-v2-w1-36da0526",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 30,
+        "slot": 0,
+        "worker_id": "chaos-v2-w0-6c275bd2",
+        "held_running_jobs": 0
+      },
+      {
+        "kill": 31,
+        "slot": 0,
+        "worker_id": "chaos-v2-w0-d6b64601",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 32,
+        "slot": 0,
+        "worker_id": "chaos-v2-w0-bd9efef9",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 33,
+        "slot": 2,
+        "worker_id": "chaos-v2-w2-c3274b31",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 34,
+        "slot": 1,
+        "worker_id": "chaos-v2-w1-602d31b8",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 35,
+        "slot": 0,
+        "worker_id": "chaos-v2-w0-a8344b42",
+        "held_running_jobs": 0
+      },
+      {
+        "kill": 36,
+        "slot": 1,
+        "worker_id": "chaos-v2-w1-aad7344f",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 37,
+        "slot": 1,
+        "worker_id": "chaos-v2-w1-93fdea4c",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 38,
+        "slot": 0,
+        "worker_id": "chaos-v2-w0-ed9821a3",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 39,
+        "slot": 0,
+        "worker_id": "chaos-v2-w0-5198ed5b",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 40,
+        "slot": 1,
+        "worker_id": "chaos-v2-w1-b5ee9e9f",
+        "held_running_jobs": 0
+      },
+      {
+        "kill": 41,
+        "slot": 0,
+        "worker_id": "chaos-v2-w0-e0beac04",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 42,
+        "slot": 2,
+        "worker_id": "chaos-v2-w2-e2bdb3ad",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 43,
+        "slot": 0,
+        "worker_id": "chaos-v2-w0-09e5beb7",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 44,
+        "slot": 2,
+        "worker_id": "chaos-v2-w2-2f4b38ad",
+        "held_running_jobs": 0
+      },
+      {
+        "kill": 45,
+        "slot": 1,
+        "worker_id": "chaos-v2-w1-bdbe61b5",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 46,
+        "slot": 1,
+        "worker_id": "chaos-v2-w1-2a423222",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 47,
+        "slot": 1,
+        "worker_id": "chaos-v2-w1-5285865d",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 48,
+        "slot": 0,
+        "worker_id": "chaos-v2-w0-45a300ea",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 49,
+        "slot": 2,
+        "worker_id": "chaos-v2-w2-737cd632",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 50,
+        "slot": 2,
+        "worker_id": "chaos-v2-w2-41b52ad5",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 51,
+        "slot": 2,
+        "worker_id": "chaos-v2-w2-93559a09",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 52,
+        "slot": 0,
+        "worker_id": "chaos-v2-w0-61e50453",
+        "held_running_jobs": 0
+      },
+      {
+        "kill": 53,
+        "slot": 0,
+        "worker_id": "chaos-v2-w0-54722b89",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 54,
+        "slot": 2,
+        "worker_id": "chaos-v2-w2-481def71",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 55,
+        "slot": 2,
+        "worker_id": "chaos-v2-w2-867e1df7",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 56,
+        "slot": 0,
+        "worker_id": "chaos-v2-w0-10d123ec",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 57,
+        "slot": 2,
+        "worker_id": "chaos-v2-w2-d15a7c5f",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 58,
+        "slot": 1,
+        "worker_id": "chaos-v2-w1-eb104cbc",
+        "held_running_jobs": 1
+      },
+      {
+        "kill": 59,
+        "slot": 1,
+        "worker_id": "chaos-v2-w1-db96f28c",
+        "held_running_jobs": 0
+      }
+    ],
+    "workflow_states": {
+      "succeeded": 1940,
+      "failed": 60
+    },
+    "job_states": {
+      "dead": 60,
+      "succeeded": 7820
+    },
+    "attempts_histogram": {
+      "1": 7792,
+      "2": 48,
+      "3": 40
+    },
+    "executions": 8002,
+    "distinct_effect_keys": 7880,
+    "duplicate_executions": 122,
+    "effects_total": 7880,
+    "duplicate_effects": 0,
+    "claim_violations": 0,
+    "reconciler_latency_seconds": {
+      "count": 60,
+      "min_seconds": 0.005,
+      "p50_seconds": 0.274,
+      "p95_seconds": 0.639,
+      "max_seconds": 0.892,
+      "avg_seconds": 0.296
+    },
+    "replay": {
+      "attempted": true,
+      "workflow_id": "03537aa8-aaa0-4a25-8890-8d4010da5d1a",
+      "job_id": "9a7a1d85-ef0a-44fb-8ad8-cfb33a6c87b7",
+      "replay_budget": 3,
+      "max_attempts_after_replay": 6,
+      "replay_count": 1,
+      "finished_state": "succeeded",
+      "duration_seconds": 4.0,
+      "job_state": "succeeded",
+      "job_attempts": 4,
+      "job_replay_count": 1,
+      "effects_total": 4,
+      "effects_distinct_steps": 4,
+      "sums_bad": 0
+    }
+  },
+  "notes": {
+    "duplicate_executions": "count(executions) - count(DISTINCT effect_key): executions of the same step beyond the first (kill-retries and the injected failing steps' own retry attempts). Expected > 0.",
+    "duplicate_effects": "effects(effect_key UNIQUE) + ON CONFLICT DO NOTHING: a step's effect exists at most once, ever. Expected exactly 0.",
+    "reconciler_latency": "workflows.updated_at - jobs.updated_at for failed workflows (both DB-clock stamps at their transitions); bounded by the reconciler cadence by design. Measured before the replay phase.",
+    "throughput": "jobs_per_second is an end-to-end pipeline number for THIS environment (workflow steps, handler sleeps, 2s delay steps, kill/restart cycles included) \u2014 not a database benchmark."
+  },
+  "gate": {
+    "drained": true,
+    "all_workflows_terminal": true,
+    "succeeded_effects_complete": true,
+    "succeeded_sums_chain": true,
+    "failed_matches_injected": true,
+    "failed_in_dead_letters": true,
+    "no_claim_violations": true,
+    "duplicate_effects_zero": true,
+    "replay_succeeds": true
+  }
+}

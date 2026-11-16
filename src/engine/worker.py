@@ -481,7 +481,11 @@ def main() -> int:
                 "provided by ENGINE_WORKFLOWS_MODULE"
             )
         handlers.update(make_workflow_handlers(workflow_defs, settings=settings))
-    worker = Worker(settings, handlers)
+    worker = Worker(
+        settings,
+        handlers,
+        worker_id=os.environ.get("ENGINE_WORKER_ID") or None,
+    )
 
     def _on_signal(signum: int, frame: Any) -> None:
         logger.info("signal %s received: finishing current job", signum)
