@@ -7,6 +7,13 @@
 -- Only the workflow row is written; concurrent reconcilers serialize on the
 -- wf.state = 'running' guard, and 'succeeded' is immutable, so the EXISTS
 -- read cannot go stale.
+--
+-- NOTE for future edits: never put a literal percent sign in the engine's
+-- .sql files, comments included. psycopg scans the WHOLE statement text
+-- (comment lines included) for its own percent placeholders, so a bare
+-- percent-s anywhere collides with the named parameters ("positional and
+-- named placeholders cannot be mixed"; found the hard way in checkpoint
+-- 5). Build dynamic text with || concatenation instead.
 WITH inconsistent AS (
     SELECT s.workflow_id, s.name
     FROM workflow_steps s
@@ -28,12 +35,10 @@ WITH inconsistent AS (
 UPDATE workflows wf
 SET state = 'failed',
     failed_step = i.name,
-    last_error = format(
-        'inconsistent state: step %%s has a succeeded job but the step row'
-        ' is pending; not repairable by re-enqueue (DLQ replay handles dead'
-        ' jobs only); manual investigation required',
-        i.name
-    ),
+    last_error = 'inconsistent state: step ' || i.name ||
+        ' has a succeeded job but the step row is pending; not repairable'
+        ' by re-enqueue (DLQ replay handles dead jobs only); manual'
+        ' investigation required',
     updated_at = now()
 FROM inconsistent i
 WHERE wf.id = i.workflow_id

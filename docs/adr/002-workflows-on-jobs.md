@@ -91,6 +91,22 @@ flows through the same path (it is just `force_dead` in `fail.sql`, which
 makes the job dead immediately — the reconciler picks it up on its next
 cycle).
 
+### Retention must not free live dedupe keys
+
+A future retention job may only delete jobs whose workflow is terminal.
+Deleting a `workflow_step` job of a running workflow frees the step's dedupe
+key, and the reconciler's rule 2 ("current step pending, no job row at all →
+re-enqueue") would then create a duplicate job for a step that may have
+already run; the effect stays idempotent but the workflow gets a second era
+of the same step, and rule 3's anomaly becomes reachable through the tooling
+itself. Rule 2's trigger is only safe while "no job row" cannot be
+manufactured by deletion. Rule 3's state itself (succeeded job, pending
+step) is likewise only reachable outside the engine — manual ad-hoc SQL, a
+backup restore with mismatched table ages, or a misfiring retention job —
+and the decision is **manual intervention only**: replay raises
+`NotReplayable` for those jobs, and no automated repair command exists,
+because the engine cannot know whether the step's effect happened.
+
 ### Workflow changes while running: snapshot BOTH delay and budget
 
 The step list is snapshotted per instance in `workflow_steps` — names,

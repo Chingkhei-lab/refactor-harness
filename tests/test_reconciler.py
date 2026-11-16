@@ -308,21 +308,27 @@ def test_replay_races_reconciler_final_state_is_legal(
     """Replay vs reconciler on the same workflow, many rounds.
 
     Both sides lock in the global order job -> step -> workflow, so no
-    deadlock can leave a partial write: the final state is always one of
-    the two legal whole-outcomes:
+    deadlock can leave a partial write, and — because "reconciler applied,
+    then replay applied" still converges on replay's reset — the final
+    state is always exactly:
 
-    - (workflow running, step pending, job queued)   — replay applied
-    - (workflow failed, step failed, job dead)       — reconciler applied
+    - (workflow running, step pending, job queued)
 
-    Anything else (e.g. queued job on a failed workflow) would mean one
-    side's transaction was torn, which the lock order makes impossible.
+    The (failed, failed, dead) tuple could only appear if replay gave up on
+    DeadlockDetected, which the global order makes unreachable: with both
+    sides taking locks in the same order, one of them waits at the first
+    shared row and no cycle can form. So the test asserts BOTH:
+
+    - zero DeadlockDetected across all rounds (any deadlock found here is a
+      lock-order violation — real drift from ADR 002 — and tuple membership
+      must not be allowed to hide it);
+    - the final tuple is the legal one (this pins transaction atomicity:
+      a queued job on a failed workflow, or a failed step on a running
+      workflow, would mean one side's transaction was torn).
     """
     settings = _fast(clean_db)
     conn = db.connect(settings)
-    legal = {
-        ("running", "pending", "queued"),
-        ("failed", "failed", "dead"),
-    }
+    total_deadlocks = 0
     for round_no in range(30):
         calls: dict[str, int] = {}
         definition = _two_step(calls)
@@ -340,16 +346,21 @@ def test_replay_races_reconciler_final_state_is_legal(
         _kill_step_job(conn, wf, 0, error="boom")
 
         barrier = threading.Barrier(2)
+        deadlocks: list[str] = []
 
         def run_replay(
-            barrier: threading.Barrier = barrier, job_id: Any = job_id
+            barrier: threading.Barrier = barrier,
+            job_id: Any = job_id,
+            deadlocks: list[str] = deadlocks,
         ) -> None:
             rc = db.connect(settings)
             barrier.wait()
             try:
                 dlq_module.replay(rc, job_id["id"], budget=3)
-            except psycopg.errors.DeadlockDetected:
-                pass  # a legal give-up after the single retry
+            except psycopg.errors.DeadlockDetected as exc:
+                # reachable ONLY via a lock-order violation; recorded, never
+                # silently accepted
+                deadlocks.append(str(exc))
 
         def run_reconcile(barrier: threading.Barrier = barrier) -> None:
             rc = db.connect(settings)
@@ -364,6 +375,12 @@ def test_replay_races_reconciler_final_state_is_legal(
         t2.join(timeout=30)
         assert not t1.is_alive() and not t2.is_alive()
 
+        assert not deadlocks, (
+            f"round {round_no}: {len(deadlocks)} DeadlockDetected during "
+            f"replay-vs-reconciler — a lock-order violation ({deadlocks})"
+        )
+        total_deadlocks += len(deadlocks)
+
         final = conn.execute(
             "SELECT wf.state AS wf_state, s.state AS step_state,"
             " j.state AS job_state"
@@ -376,4 +393,7 @@ def test_replay_races_reconciler_final_state_is_legal(
         ).fetchone()
         assert final is not None
         outcome = (final["wf_state"], final["step_state"], final["job_state"])
-        assert outcome in legal, f"round {round_no}: illegal state {outcome}"
+        assert outcome == ("running", "pending", "queued"), (
+            f"round {round_no}: illegal final state {outcome}"
+        )
+    assert total_deadlocks == 0

@@ -213,6 +213,26 @@ global order **job → step → workflow**, each selection `SKIP LOCKED`:
    refuses non-dead jobs. The reconciler **surfaces** it: the workflow is
    marked `failed` with an explanatory `last_error`; a test pins that
    repeated cycles do not loop on it.
+   How it can still appear in production: an ad-hoc manual `UPDATE`/`DELETE`
+   by an operator or script, a restore from backups where `jobs` and
+   `workflow_steps` were dumped at different moments, or the future retention
+   job misfiring (see below). **Decision: no automated repair command.** The
+   engine cannot know whether the step's effect actually happened — one of
+   the two rows is simply wrong — so replay raises `NotReplayable` (the job
+   is succeeded) and the operator investigates by hand: compare the effect
+   records or the external system, then fix the rows manually, explicitly
+   outside the engine. An automated "fix" would either re-execute an effect
+   or fabricate a step success.
+
+**Retention (future work) must never free live dedupe keys.** If retention
+ever deletes old job rows, it must only delete jobs whose workflow is
+terminal (`succeeded`/`failed`). Deleting a `workflow_step` job of a running
+workflow frees the step's dedupe key: rule 2 would then re-enqueue it and
+create a second job for a step that may have already run — the effect stays
+idempotent, but the state machine now has two eras of the same step, and a
+succeeded job under a pending step (rule 3) becomes reachable through the
+tooling itself. Rule 2's "no job row at all" trigger is only safe while
+"no job row" cannot be manufactured by deletion.
 
 `DeadlockDetected` skips the rule (the transaction rolls back; the next
 cycle retries it from scratch); the worker's hook tolerates one raised
@@ -260,6 +280,13 @@ job → step → workflow):
   clearing `failed_step` (`last_error` is kept as history);
 - retries the whole transaction exactly once on `DeadlockDetected`, then
   propagates.
+
+**Replay has no cap** — each replay extends `max_attempts`, so a poison step
+can be replayed forever. That is accepted for a manual operator command, and
+`replay_count` is the human's visibility: the view exposes it and `dlq list`
+prints `replayed=N` on every row. A job whose workflow is rule-3-failed
+(succeeded job, pending step) is **not** replayable at all — see the
+reconciler section for the manual path.
 
 ### Note: why replay must never rewind `attempts`
 
