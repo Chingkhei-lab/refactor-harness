@@ -533,6 +533,38 @@ def _remove_with_retries(container: SandboxContainer) -> tuple[bool, bool]:
     return False, True
 
 
+def _send_all(sock: Any, data: bytes) -> None:
+    """Transport-tolerant copy-in write.
+
+    The Windows npipe raw socket exposes `sendall`; the Linux transport
+    hands back a `socket.SocketIO` (io.RawIOBase) which has `write()` only
+    — and `write()` may deliver FEWER bytes than asked, so loop on the
+    returned count. Measured in CI (ubuntu runner): the npipe-only
+    `sendall` crashed every workspace run with
+    `AttributeError: 'SocketIO' object has no attribute 'sendall'`.
+    """
+    sendall = getattr(sock, "sendall", None)
+    if sendall is not None:
+        sendall(data)
+        return
+    if not hasattr(sock, "write"):
+        raise SandboxError("exec socket has neither sendall nor write")
+    view = memoryview(data)
+    while view:
+        written = sock.write(view)
+        if not written:
+            raise SandboxError("exec socket refused a copy-in write (closed?)")
+        view = view[written:]
+
+
+def _drain_chunk(sock: Any, size: int) -> bytes:
+    """Transport-tolerant read: npipe's recv(), SocketIO's read()."""
+    recv = getattr(sock, "recv", None)
+    if recv is not None:
+        return bytes(recv(size) or b"")
+    return bytes(sock.read(size) or b"")
+
+
 def copy_in(
     client: SandboxClient,
     container: SandboxContainer,
@@ -558,7 +590,7 @@ def copy_in(
     exec_id = str(exec_id_result["Id"])
     sock = client.exec_start(exec_id, socket=True)
     try:
-        sock.sendall(build_workspace_tar(payload))
+        _send_all(sock, build_workspace_tar(payload))
     except _DRAIN_ERRORS as exc:
         raise SandboxError(f"workspace copy-in failed: {exc}") from exc
     # No half-close here: measured on the Windows named-pipe transport,
@@ -569,9 +601,17 @@ def copy_in(
     try:
         sock.settimeout(_COPY_IN_DRAIN_TIMEOUT_SECONDS)
     except (AttributeError, OSError):
-        pass  # not every transport supports timeouts; drain unbounded
+        # Linux SocketIO has no settimeout of its own; its underlying
+        # socket does. Unbounded drain is the fallback — the exec
+        # exit-code poll below still bounds the overall copy-in.
+        underlying = getattr(sock, "_sock", None)
+        if underlying is not None:
+            try:
+                underlying.settimeout(_COPY_IN_DRAIN_TIMEOUT_SECONDS)
+            except (AttributeError, OSError):
+                pass
     try:
-        while sock.recv(65536):
+        while _drain_chunk(sock, 65536):
             pass  # drain tar's (tiny, multiplexed) output
     except _DRAIN_ERRORS as exc:
         # Transport variance: on Windows named pipes EOF arrives as a

@@ -328,6 +328,51 @@ def test_run_copies_workspace_in_and_removes_after() -> None:
     assert container.started and container.removed == 1
 
 
+class SocketIOLike:
+    """Linux transport shape: socket.SocketIO — write()/read() only, and
+    write() may deliver fewer bytes than asked (no sendall, no recv).
+    Measured in CI: the npipe-only sendall crashed every workspace run on
+    Linux runners with `AttributeError: 'SocketIO' object has no attribute
+    'sendall'`."""
+
+    def __init__(self) -> None:
+        self.sent = bytearray()
+
+    def write(self, data: Any) -> int:
+        piece = bytes(data[:2])  # force the partial-write loop
+        self.sent.extend(piece)
+        return len(piece)
+
+    def read(self, size: int) -> bytes:
+        return b""  # EOF: tar produced nothing
+
+
+class SocketIOLikeClient(FakeClient):
+    """exec_start(socket=True) hands back the Linux SocketIO shape."""
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.socketio = SocketIOLike()
+
+    def exec_start(
+        self, exec_id: str, *, socket: bool = False, stream: bool = False
+    ) -> Any:
+        if socket:
+            self.exec_sockets.append(self.socketio)
+            return self.socketio
+        return super().exec_start(exec_id, socket=socket, stream=stream)
+
+
+def test_copy_in_writes_through_the_linux_socketio_shape() -> None:
+    # the Linux SDK returns socket.SocketIO for a hijacked exec; the
+    # copy-in must loop partial writes and drain via read()
+    container = FakeContainer()
+    client = SocketIOLikeClient(next=[container])
+    run(_spec(), client, _limits(), done_nonce="cafe01")
+    with tarfile.open(fileobj=io.BytesIO(bytes(client.exec_sockets[0].sent))) as tar:
+        assert sorted(m.name for m in tar) == [".engine_ready", "hello.txt"]
+
+
 def test_run_starts_before_copy_in() -> None:
     # Measured Docker constraint: PUTs into read-only containers are refused
     # ("rootfs is marked read-only"), so the workspace goes in AFTER start,
