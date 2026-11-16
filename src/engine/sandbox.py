@@ -536,19 +536,26 @@ def _remove_with_retries(container: SandboxContainer) -> tuple[bool, bool]:
 def _send_all(sock: Any, data: bytes) -> None:
     """Transport-tolerant copy-in write.
 
-    The Windows npipe raw socket exposes `sendall`; the Linux transport
-    hands back a `socket.SocketIO` (io.RawIOBase) which has `write()` only
-    — and `write()` may deliver FEWER bytes than asked, so loop on the
-    returned count. Measured in CI (ubuntu runner): the npipe-only
-    `sendall` crashed every workspace run with
-    `AttributeError: 'SocketIO' object has no attribute 'sendall'`.
+    Three measured shapes:
+    - Windows npipe raw socket: has `sendall` — the original path.
+    - Linux (SDK 7.2, ubuntu runner): `exec_start(socket=True)` returns the
+      http-client's READER stream — a `socket.SocketIO` opened 'rb'. Its
+      `write()` exists but RAISES `io.UnsupportedOperation: File or stream
+      is not writable.`; the writable side is the underlying socket at
+      `sock._sock`. (First CI run died with "no attribute 'sendall'", the
+      second with exactly that UnsupportedOperation.)
+    - Any other writable RawIOBase: loop `write()` honoring partial writes.
     """
     sendall = getattr(sock, "sendall", None)
     if sendall is not None:
         sendall(data)
         return
+    underlying = getattr(sock, "_sock", None)
+    if underlying is not None and hasattr(underlying, "sendall"):
+        underlying.sendall(data)
+        return
     if not hasattr(sock, "write"):
-        raise SandboxError("exec socket has neither sendall nor write")
+        raise SandboxError("exec socket has no sendall/_sock/write to write through")
     view = memoryview(data)
     while view:
         written = sock.write(view)

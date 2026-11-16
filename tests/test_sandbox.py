@@ -329,22 +329,34 @@ def test_run_copies_workspace_in_and_removes_after() -> None:
 
 
 class SocketIOLike:
-    """Linux transport shape: socket.SocketIO — write()/read() only, and
-    write() may deliver fewer bytes than asked (no sendall, no recv).
-    Measured in CI: the npipe-only sendall crashed every workspace run on
-    Linux runners with `AttributeError: 'SocketIO' object has no attribute
-    'sendall'`."""
+    """Linux transport shape (measured in CI): socket.SocketIO opened
+    'rb' by the http-client reader — `write()` EXISTS but raises
+    io.UnsupportedOperation ("File or stream is not writable"); the
+    writable side is the underlying socket at `_sock`. No sendall, no
+    recv on the facade itself."""
 
     def __init__(self) -> None:
-        self.sent = bytearray()
+        self._sock = _WritableUnderlying()
 
     def write(self, data: Any) -> int:
-        piece = bytes(data[:2])  # force the partial-write loop
-        self.sent.extend(piece)
-        return len(piece)
+        raise io.UnsupportedOperation("File or stream is not writable.")
 
     def read(self, size: int) -> bytes:
         return b""  # EOF: tar produced nothing
+
+
+class _WritableUnderlying:
+    """The real socket behind a SocketIO: sendall/settimeout."""
+
+    def __init__(self) -> None:
+        self.sent = bytearray()
+        self.timeout_set: float | None = None
+
+    def sendall(self, data: bytes) -> None:
+        self.sent.extend(data)
+
+    def settimeout(self, seconds: float) -> None:
+        self.timeout_set = seconds
 
 
 class SocketIOLikeClient(FakeClient):
@@ -364,13 +376,16 @@ class SocketIOLikeClient(FakeClient):
 
 
 def test_copy_in_writes_through_the_linux_socketio_shape() -> None:
-    # the Linux SDK returns socket.SocketIO for a hijacked exec; the
-    # copy-in must loop partial writes and drain via read()
+    # the Linux SDK returns a read-mode SocketIO for a hijacked exec:
+    # write() raises UnsupportedOperation, the writable side is `_sock`,
+    # and the drain goes through read(). The runner must take that path.
     container = FakeContainer()
     client = SocketIOLikeClient(next=[container])
     run(_spec(), client, _limits(), done_nonce="cafe01")
-    with tarfile.open(fileobj=io.BytesIO(bytes(client.exec_sockets[0].sent))) as tar:
+    sent = bytes(client.socketio._sock.sent)
+    with tarfile.open(fileobj=io.BytesIO(sent)) as tar:
         assert sorted(m.name for m in tar) == [".engine_ready", "hello.txt"]
+    assert client.socketio._sock.timeout_set == 30.0
 
 
 def test_run_starts_before_copy_in() -> None:
