@@ -576,11 +576,18 @@ def test_durable_timer_survives_worker_restart(clean_db: Settings) -> None:
     worker1, thread1 = _run_worker(settings, handlers)
     try:
         _wait_until(lambda: calls.get("a") == 1, timeout=30)
-        job_b = _row(
-            conn,
-            "SELECT state, run_at FROM jobs WHERE dedupe_key = %(k)s",
-            {"k": workflows.step_job_dedupe_key(wf.id, 1)},
-        )
+
+        def _job_b() -> Any:
+            return conn.execute(
+                "SELECT state, run_at FROM jobs WHERE dedupe_key = %(k)s",
+                {"k": workflows.step_job_dedupe_key(wf.id, 1)},
+            ).fetchone()
+
+        # calls["a"] is bumped inside the handler, BEFORE the completion
+        # transaction (which enqueues b) commits — wait for the row itself
+        # so this is not a commit race under load
+        _wait_until(lambda: _job_b() is not None, timeout=10)
+        job_b = _job_b()
         assert job_b["state"] == "queued"
         gap = (job_b["run_at"] - _row(conn, "SELECT now() AS t")["t"]).total_seconds()
         assert 0 < gap < 2.5, f"b scheduled at now()+delay (gap={gap}s)"

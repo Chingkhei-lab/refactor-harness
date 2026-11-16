@@ -29,6 +29,12 @@ strict = true
 packages = ["engine"]
 mypy_path = "src"
 
+# pywintypes (pywin32) is imported by NAME only, inside a guarded import:
+# present on Windows hosts (via the docker SDK), absent elsewhere.
+[[tool.mypy.overrides]]
+module = "pywintypes"
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
