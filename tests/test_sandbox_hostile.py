@@ -66,7 +66,18 @@ def docker_env() -> Any:
         client.ping()
     except Exception as exc:  # pragma: no cover - local daemon issues
         pytest.skip(f"docker daemon unavailable: {exc}")
-    image = client.images.pull(BASE_IMAGE)
+    image = None
+    try:
+        image = client.images.pull(BASE_IMAGE)
+    except Exception:
+        # Docker Hub rate-limits shared CI runner IPs (429) and the image
+        # may already be present locally (pre-pulled by the workflow with
+        # retries): fall back to the local image instead of erroring the
+        # whole module on a registry refusal
+        try:
+            image = client.images.get(BASE_IMAGE)
+        except Exception:
+            pytest.skip(f"cannot pull or find {BASE_IMAGE} locally")
     digests = image.attrs.get("RepoDigests") or []
     if not digests:
         pytest.skip("no RepoDigests available to pin the base image")

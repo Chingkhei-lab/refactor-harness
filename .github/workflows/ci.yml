@@ -62,5 +62,28 @@ jobs:
           pip install -e ".[dev]" "docker>=7.2"
       - name: Verify the daemon is reachable
         run: docker version
+      - name: Pre-pull the base image (Docker Hub rate-limit retries)
+        run: |
+          ok=0
+          for i in 1 2 3 4 5; do
+            if docker pull python:3.12-slim; then ok=1; break; fi
+            echo "pull attempt $i failed; sleeping 30s"; sleep 30
+          done
+          [ "$ok" = 1 ]
       - name: Hostile sandbox suite (real containers)
-        run: pytest tests/test_sandbox_hostile.py -v -s
+        shell: bash
+        run: |
+          set -o pipefail
+          pytest tests/test_sandbox_hostile.py -v -s 2>&1 | tee hostile.log
+      - name: Surface failures as check annotations
+        if: failure()
+        run: |
+          # the check-run annotations API is readable without credentials;
+          # the raw job log is not — mirror the short summary there
+          if grep -qE "^(FAILED|ERROR) " hostile.log; then
+            grep -E "^(FAILED|ERROR) " hostile.log | head -25 | while read -r line; do
+              echo "::error::${line}"
+            done
+          else
+            echo "::error::hostile suite failed without summary lines; dump: $(tail -c 800 hostile.log | tr '\n' ' ')"
+          fi
