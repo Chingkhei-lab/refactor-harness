@@ -3,7 +3,6 @@ allowlisted commands, budgets, error conversion, and the tool_calls log."""
 
 from __future__ import annotations
 
-import json
 from typing import Any
 from uuid import uuid4
 
@@ -587,7 +586,9 @@ def _db_ctx(connection, job: Any, attempt: int = 1, **overrides: Any) -> tools.T
         parent_state_hash=tree.state_hash(),
         job_id=job.id,
         attempt=attempt,
-        run_ref=f"{job.id}/{attempt}",
+        # attempt-STABLE step identity: the same value on every attempt of
+        # one step, carrying the job (workflow) id and step position
+        run_ref=f"{job.id}/step:0",
         conn=connection,
         allowlist=_ALLOWLIST,
     )
@@ -608,13 +609,14 @@ def test_tool_calls_rows_written(clean_db, db_conn) -> None:
                     "path": "mod.py",
                     "expected_file_hash": sha256_hex(b"VALUE = 1\n"),
                     "old_string": "1",
-                    "new_string": "2",
+                    "new_string": "x" * 300,  # big enough to exceed the preview
                 }
             ]
         },
     )
     rows = db_conn.execute(
-        "SELECT call_index, tool, ok, error_code, args_json, output_bytes, duration_ms"
+        "SELECT call_index, tool, ok, error_code, args_sha256, args_bytes,"
+        " args_preview, output_bytes, duration_ms"
         " FROM tool_calls WHERE job_id = %s ORDER BY call_index",
         (job.id,),
     ).fetchall()
@@ -622,8 +624,17 @@ def test_tool_calls_rows_written(clean_db, db_conn) -> None:
     assert [r["tool"] for r in rows] == ["read_file", "read_file", "apply_patch"]
     assert [r["ok"] for r in rows] == [True, False, True]
     assert rows[1]["error_code"] == "path_denied"
-    assert rows[0]["args_json"] == {"path": "notes.txt", "start": 1, "end": None}
-    assert rows[2]["args_json"]["edits"][0]["path"] == "mod.py"  # VALIDATED input
+    # the canonical JSON of the VALIDATED ReadFileInput (ensure_ascii,
+    # default separators — the same bytes the digest is taken over)
+    canonical = '{"path": "notes.txt", "start": 1, "end": null}'
+    assert rows[0]["args_sha256"] == sha256_hex(canonical.encode("utf-8"))
+    assert rows[0]["args_bytes"] == len(canonical.encode("utf-8"))
+    assert rows[0]["args_preview"] == canonical
+    # apply_patch args are summarized too: the FULL edits are NOT in the row
+    assert rows[2]["args_preview"].startswith('{"edits": [')
+    assert len(rows[2]["args_preview"]) == 200  # truncated at 200 chars
+    assert "x" * 300 not in rows[2]["args_preview"]  # the repo content is not there
+    assert rows[2]["args_bytes"] > 200  # the full args were bigger than the preview
     assert all(r["output_bytes"] > 0 for r in (rows[0], rows[2]))
     assert all(r["duration_ms"] >= 0 for r in rows)
 
@@ -651,17 +662,22 @@ def test_redelivered_step_does_not_duplicate_rows(clean_db, db_conn) -> None:
     assert all(int(r["n"]) == 1 for r in rows)
 
 
-def test_nul_in_args_is_sanitized_for_jsonb(clean_db, db_conn) -> None:
+def test_nul_in_args_is_sanitized_before_hashing(clean_db, db_conn) -> None:
     job = jobs.enqueue(db_conn, job_type="noop")
     ctx = _db_ctx(db_conn, job)
     result = ctx.invoke("read_file", {"path": "bad\x00path"})
     assert result.error_code == "path_denied"
     row = db_conn.execute(
-        "SELECT args_json FROM tool_calls WHERE job_id = %s AND call_index = 0",
+        "SELECT args_sha256, args_preview FROM tool_calls WHERE job_id = %s AND call_index = 0",
         (job.id,),
     ).fetchone()
-    assert row is not None  # the row WAS written (jsonb would reject \u0000)
-    assert "\x00" not in json.dumps(row["args_json"])
+    assert row is not None  # the row WAS written
+    assert "\x00" not in row["args_preview"]  # no NUL anywhere in the row
+    # the sanitized U+FFFD is stored as the JSON escape \ufffd (ensure_ascii)
+    assert "\\ufffd" in row["args_preview"]
+    # the digest is over the SANITIZED canonical JSON, so it is reproducible
+    canonical = '{"path": "bad\\ufffdpath"}'
+    assert row["args_sha256"] == sha256_hex(canonical.encode("utf-8"))
 
 
 def test_row_failure_never_breaks_the_tool_result(clean_db) -> None:

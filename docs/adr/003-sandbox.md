@@ -353,7 +353,13 @@ workspace never carries repository metadata the model could rewrite).
 backslash in model output is a Windows-path confusion attack, not a rare
 legal filename. **No Unicode normalization**: Linux filenames are bytes;
 NFC/NFD spellings are DIFFERENT files and must not be silently merged.
-Paths decode as strict UTF-8 and compare byte-exactly.
+Paths decode as strict UTF-8 and compare byte-exactly. **Control
+characters (Unicode Cc: newline, tab, CR, DEL) and bidirectional
+overrides (U+202A–202E, U+2066–2069) are refused** — a newline breaks
+line-oriented logs, and a bidi override reorders the DISPLAYED text so a
+diff-review screen can show `report.txt.exe` while the real name ends in
+`.exe`: the filename is an attack surface for human review, not only for
+the tree. (Checkpoint 8 review round 1.)
 
 ## The exact container-create arguments
 
@@ -402,3 +408,17 @@ as a hostile-suite observation, not an assumption.
   of D3/D4; `apply_patch`'s precondition hash is the concurrency gate.
 - The privilege problem is a standing rule: nothing that talks to jobs or
   models ever receives the Docker API client.
+
+### Future work — garbage collection (checkpoint 8 review)
+
+Orphan blobs (from rolled-back advance transactions are rolled back with
+them, so what remains are blobs uploaded but never referenced by a
+committed patch row, and the blobs of workspaces whose workflows reached a
+terminal state) are never deleted today. The rule, mirroring the ADR 002
+retention rule: **never delete anything a non-terminal workflow
+references** — a GC pass may collect (a) blobs unreferenced by any
+`workspaces`/`workspace_patches` row for N days, and (b) workspaces (and
+their blobs, cascade) whose workflow is `succeeded`/`failed` and older
+than the retention window. Rebuild traffic makes (b) safe: a terminal
+workflow is never retried. Not implemented in checkpoint 8; tracked here
+so it is a decision to make, not a thing to rediscover.

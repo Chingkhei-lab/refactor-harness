@@ -15,6 +15,11 @@ transaction rolls back. This serializes appends without adding a new
 edge to the lock order — the row lock is taken inside the step's advance
 transaction, after the job, step and workflow locks (recorded in ADR 002).
 
+Idempotent redelivery is keyed on STEP IDENTITY (`run_ref` = workflow id +
+step position, partial UNIQUE index): content keys cannot distinguish a
+redelivered step from a different step producing the same A->B patch after
+an A->B->A revert, because state hashes are content hashes.
+
 Everything here runs on the CALLER's connection and never commits: the
 append must be inside the step's advance transaction, which is enforced —
 calling it outside a transaction raises, because two statements (CAS +
@@ -56,7 +61,7 @@ _WORKSPACE_GET_SQL = _load_sql("workspace_get.sql")
 _PATCH_CAS_SQL = _load_sql("patch_cas.sql")
 _PATCH_INSERT_SQL = _load_sql("patch_insert.sql")
 _PATCH_AT_SEQ_SQL = _load_sql("patch_at_seq.sql")
-_PATCH_BY_PARENT_SQL = _load_sql("patch_by_parent_hash.sql")
+_PATCH_BY_RUN_REF_SQL = _load_sql("patch_by_run_ref.sql")
 _PATCH_LOG_LOAD_SQL = _load_sql("patch_log_load.sql")
 
 
@@ -151,9 +156,7 @@ def load_blob(conn: psycopg.Connection[Row], blob_hash: str) -> bytes:
     return data
 
 
-def create_workspace(
-    conn: psycopg.Connection[Row], files: dict[str, bytes]
-) -> int:
+def create_workspace(conn: psycopg.Connection[Row], files: dict[str, bytes]) -> int:
     """Store the base snapshot and open the patch log at seq 0.
 
     The snapshot goes through WorkspaceTree, which enforces the path rules
@@ -190,14 +193,27 @@ def append_patch(
 ) -> AppendPatchResult:
     """Append one patch inside the caller's transaction: CAS on the head.
 
+    Redelivery is keyed on STEP IDENTITY — `run_ref` MUST carry the workflow
+    id and step position (e.g. "wf:<uuid>/step:<pos>"), and a partial UNIQUE
+    index allows one recorded patch per (workspace, run_ref). Content keys
+    cannot do this job: state hashes are content hashes, so a workspace can
+    legitimately return to an earlier state (A->B, revert B->A) and a
+    DIFFERENT step can then produce the very same A->B patch bytes. A
+    (parent hash, patch bytes) lookup would misreport that genuine new
+    append as redelivery and silently drop it; a step identity cannot.
+
     Outcomes, in the order they are checked:
-    - the same patch (same parent hash + same bytes) is already recorded ->
-      idempotent success (`already_applied`) — a retried step re-appending
-      its identical patch is NOT an error and writes nothing;
+    - a row for this run_ref already exists and carries the SAME parent
+      hash and patch blob -> idempotent success (`already_applied`): the
+      step's advance transaction committed once, and this is the same step
+      re-executing. Writes nothing;
+    - a row for this run_ref exists with DIFFERENT content -> PatchConflict:
+      the same step cannot produce two different patches;
     - the head no longer matches `parent_state_hash` -> StaleAppend: a
       newer attempt or a concurrent append won; the caller rolls back;
     - the CAS wins -> the patch row is inserted at the returned seq in the
-      same transaction;
+      same transaction (the UNIQUE index is the backstop: two rows for one
+      step identity cannot commit);
     - a row already occupies the target seq with a different patch ->
       PatchConflict (defensive: unreachable while appends are atomic, so
       it also guards against external tampering with the log).
@@ -216,27 +232,34 @@ def append_patch(
         raise PatchLogError("too_large", f"patch exceeds {PATCH_MAX_BYTES} bytes")
     patch_blob_hash = store_blob(conn, patch_bytes, cap_bytes=PATCH_MAX_BYTES)
 
-    head = conn.execute(
-        _WORKSPACE_GET_SQL, {"workspace_id": workspace_id}
-    ).fetchone()
+    head = conn.execute(_WORKSPACE_GET_SQL, {"workspace_id": workspace_id}).fetchone()
     if head is None:
         raise PatchLogError("unknown_workspace", f"workspace {workspace_id} not found")
 
-    existing = conn.execute(
-        _PATCH_BY_PARENT_SQL,
-        {
-            "workspace_id": workspace_id,
-            "parent_state_hash": parent_state_hash,
-            "patch_blob_hash": patch_blob_hash,
-        },
-    ).fetchone()
-    if existing is not None:
-        return AppendPatchResult(
-            status="already_applied",
-            seq=int(existing["seq"]),
-            head_seq=int(head["head_seq"]),
-            head_hash=str(head["head_hash"]),
-        )
+    if run_ref != "":
+        recorded = conn.execute(
+            _PATCH_BY_RUN_REF_SQL,
+            {"workspace_id": workspace_id, "run_ref": run_ref},
+        ).fetchone()
+        if recorded is not None:
+            same_patch = (
+                str(recorded["parent_state_hash"]) == parent_state_hash
+                and str(recorded["patch_blob_hash"]) == patch_blob_hash
+            )
+            if same_patch:
+                return AppendPatchResult(
+                    status="already_applied",
+                    seq=int(recorded["seq"]),
+                    head_seq=int(head["head_seq"]),
+                    head_hash=str(head["head_hash"]),
+                )
+            raise PatchConflict(
+                f"run_ref {run_ref!r} already recorded a DIFFERENT patch at "
+                f"seq {int(recorded['seq'])} (parent "
+                f"{recorded['parent_state_hash']}, blob "
+                f"{recorded['patch_blob_hash']}): the same step cannot "
+                "append twice with different content"
+            )
 
     taken = conn.execute(
         _PATCH_AT_SEQ_SQL,
@@ -266,8 +289,7 @@ def append_patch(
     if cas is None:
         # the head moved between the read above and the CAS: lost the race
         raise StaleAppend(
-            f"head moved between read and CAS: parent {parent_state_hash} "
-            "no longer matches"
+            f"head moved between read and CAS: parent {parent_state_hash} no longer matches"
         )
     seq = int(cas["head_seq"])
     conn.execute(
@@ -281,23 +303,17 @@ def append_patch(
             "run_ref": run_ref,
         },
     )
-    return AppendPatchResult(
-        status="applied", seq=seq, head_seq=seq, head_hash=new_state_hash
-    )
+    return AppendPatchResult(status="applied", seq=seq, head_seq=seq, head_hash=new_state_hash)
 
 
-def load_workspace_head(
-    conn: psycopg.Connection[Row], workspace_id: int
-) -> tuple[int, str]:
+def load_workspace_head(conn: psycopg.Connection[Row], workspace_id: int) -> tuple[int, str]:
     row = conn.execute(_WORKSPACE_GET_SQL, {"workspace_id": workspace_id}).fetchone()
     if row is None:
         raise PatchLogError("unknown_workspace", f"workspace {workspace_id} not found")
     return int(row["head_seq"]), str(row["head_hash"])
 
 
-def rebuild_workspace(
-    conn: psycopg.Connection[Row], workspace_id: int
-) -> WorkspaceTree:
+def rebuild_workspace(conn: psycopg.Connection[Row], workspace_id: int) -> WorkspaceTree:
     """Base snapshot + ordered log -> the current tree (the round trip).
 
     Verifies the hash chain as it goes: each patch must carry the hash of
@@ -319,9 +335,7 @@ def rebuild_workspace(
         return tree
     patches = [
         _to_patch_record(r)
-        for r in conn.execute(
-            _PATCH_LOG_LOAD_SQL, {"workspace_id": workspace_id}
-        ).fetchall()
+        for r in conn.execute(_PATCH_LOG_LOAD_SQL, {"workspace_id": workspace_id}).fetchall()
     ]
     for record in patches:
         blob = load_blob(conn, record.patch_blob_hash)

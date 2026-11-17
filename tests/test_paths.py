@@ -62,6 +62,17 @@ PATH_TABLE = [
     # refuses: over-long
     ("x" * (MAX_PATH_BYTES + 1), "longer"),
     (f"{'y' * 256}/b", "longer"),
+    # refuses: control characters (Unicode Cc) — newline, tab, CR, DEL, C1
+    ("a\nb", "control character"),
+    ("a\tb", "control character"),
+    ("a\rb", "control character"),
+    ("a\x7fb", "control character"),
+    ("a\x85b", "control character"),
+    ("a\x1bb", "control character"),
+    # refuses: bidirectional overrides — they reorder DISPLAYED text, so a
+    # diff-review screen can show "report.txt.exe" while the name ends .exe
+    ("report\u202exe", "bidirectional override"),
+    ("a\u2066b", "bidirectional override"),
     # refuses: not valid UTF-8 text (lone surrogate from a JSON \uD800 escape)
     ("a\ud800b", "UTF-8"),
 ]
@@ -90,10 +101,46 @@ def test_sha256_hex() -> None:
     assert not is_sha256_hex("z" * 64)
 
 
-# THE property: for ANY string input, the validator either refuses it or
-# hands back a path that provably resolves inside the root — relative, no
-# '..' component, and (joined onto a root) never escaping it. Accepted but
-# escaping is the bug this test exists to catch.
+# THE property, with an adversarial alphabet: plain st.text() almost never
+# generates '..' or '.git' by chance, so N random strings prove little.
+# These components are exactly the forbidden / separator-adjacent shapes,
+# joined by both separators, plus an optional leading slash — every ACCEPTED
+# result must have no forbidden component and stay root-confined.
+_ADVERSARIAL_COMPONENTS = ["", ".", "..", ".git", ".GIT", "a", "\x00", "é"]
+
+
+@st.composite
+def _adversarial_paths(draw) -> str:
+    components = draw(st.lists(st.sampled_from(_ADVERSARIAL_COMPONENTS), min_size=1, max_size=6))
+    separator = draw(st.sampled_from(["/", "\\"]))
+    path = separator.join(components)
+    if draw(st.booleans()):
+        path = "/" + path  # absolute-shaped half the time
+    return path
+
+
+@given(_adversarial_paths())
+@hyp_settings(max_examples=500)
+def test_fuzz_adversarial_components_rejected_or_clean(path: str) -> None:
+    try:
+        result = validate_path(path)
+    except PathDenied:
+        return  # rejected outright: fine
+    # accepted ⟹ provably clean: no forbidden component, no traversal, no
+    # backslash, root-confined when joined onto a root
+    assert result == path
+    assert not path.startswith("/")
+    assert "\\" not in path
+    components = path.split("/")
+    for component in components:
+        assert component not in ("", ".", "..")
+        assert component.lower() != ".git"
+    joined = "/root/" + path
+    assert joined.startswith("/root/") and ".." not in components
+
+
+# kept as a second layer: arbitrary text can still hit rules the adversarial
+# alphabet does not encode (control characters, bidi overrides, surrogates)
 @given(st.text(max_size=200))
 @hyp_settings(max_examples=500)
 def test_fuzz_any_input_rejected_or_root_confined(path: str) -> None:

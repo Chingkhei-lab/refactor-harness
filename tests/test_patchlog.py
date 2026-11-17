@@ -181,6 +181,154 @@ def _base_hash(ws_id: int, conn: psycopg.Connection[db.Row]) -> str:
     return str(row["head_hash"])
 
 
+def test_revert_then_identical_patch_from_another_step_is_NOT_redelivery(conn) -> None:
+    """THE bug from the checkpoint-8 review: state hashes are CONTENT hashes,
+    so a workspace can return to an earlier state. Step 1 appends A->B, step
+    2 reverts B->A, and step 3 (a different step) produces the very SAME
+    A->B patch bytes. The old (parent hash, patch blob) idempotency lookup
+    matched step 1's row and silently DROPPED the genuine append. Redelivery
+    is now keyed on step identity (run_ref, migration 0007)."""
+    files = {"a.txt": "A\n"}
+    tree = WorkspaceTree({k: v.encode("utf-8") for k, v in files.items()})
+    ws_id = patchlog.create_workspace(conn, tree.files)
+    a_hash = _base_hash(ws_id, conn)
+
+    # step 1: A -> B
+    edits_ab = [
+        PatchEdit(
+            path="a.txt", expected_file_hash=sha256_hex(b"A\n"), old_string="A", new_string="B"
+        )
+    ]
+    plan_ab = tree.apply_edits(edits_ab)
+    b_hash = plan_ab.new_state_hash
+    patch_ab = canonical_patch_json(a_hash, b_hash, edits_ab)
+    with conn.transaction():
+        r1 = patchlog.append_patch(
+            conn,
+            workspace_id=ws_id,
+            parent_state_hash=a_hash,
+            new_state_hash=b_hash,
+            patch_bytes=patch_ab,
+            run_ref="wf:w1/step:1",
+        )
+    assert r1.status == "applied" and r1.seq == 1
+
+    # step 2: B -> A (the revert) — the head returns to A's content hash
+    edits_ba = [
+        PatchEdit(
+            path="a.txt", expected_file_hash=sha256_hex(b"B\n"), old_string="B", new_string="A"
+        )
+    ]
+    plan_ba = tree.apply_edits(edits_ba)
+    assert plan_ba.new_state_hash == a_hash  # back to the same CONTENT state
+    patch_ba = canonical_patch_json(b_hash, a_hash, edits_ba)
+    with conn.transaction():
+        r2 = patchlog.append_patch(
+            conn,
+            workspace_id=ws_id,
+            parent_state_hash=b_hash,
+            new_state_hash=a_hash,
+            patch_bytes=patch_ba,
+            run_ref="wf:w1/step:2",
+        )
+    assert r2.status == "applied" and r2.seq == 2
+
+    # step 3: A -> B again, with THE SAME patch bytes as step 1
+    tree3 = WorkspaceTree({"a.txt": b"A\n"})  # a fresh rebuild sits at A
+    plan_ab2 = tree3.apply_edits(edits_ab)
+    assert plan_ab2.new_state_hash == b_hash
+    with conn.transaction():
+        r3 = patchlog.append_patch(
+            conn,
+            workspace_id=ws_id,
+            parent_state_hash=a_hash,
+            new_state_hash=b_hash,
+            patch_bytes=patch_ab,  # byte-identical to r1's
+            run_ref="wf:w1/step:3",  # a DIFFERENT step
+        )
+    # the fix: applied at seq 3 — not swallowed as step 1's redelivery
+    assert r3.status == "applied"
+    assert r3.seq == 3
+    head_seq, head_hash = patchlog.load_workspace_head(conn, ws_id)
+    assert (head_seq, head_hash) == (3, b_hash)
+    count = conn.execute(
+        "SELECT count(*) AS n FROM workspace_patches WHERE workspace_id = %s", (ws_id,)
+    ).fetchone()
+    assert int(count["n"]) == 3
+
+    # step 3's OWN redelivery (same run_ref, same bytes): idempotent success
+    with conn.transaction():
+        r3b = patchlog.append_patch(
+            conn,
+            workspace_id=ws_id,
+            parent_state_hash=a_hash,
+            new_state_hash=b_hash,
+            patch_bytes=patch_ab,
+            run_ref="wf:w1/step:3",
+        )
+    assert r3b.status == "already_applied" and r3b.seq == 3
+
+    # the same run_ref with DIFFERENT content: the step cannot append twice
+    patch_other = canonical_patch_json(
+        a_hash, "e" * 64, [PatchEdit(path="new.txt", expected_file_hash=None, new_string="x")]
+    )
+    with pytest.raises(patchlog.PatchConflict, match="already recorded a DIFFERENT patch"):
+        with conn.transaction():
+            patchlog.append_patch(
+                conn,
+                workspace_id=ws_id,
+                parent_state_hash=a_hash,
+                new_state_hash="e" * 64,
+                patch_bytes=patch_other,
+                run_ref="wf:w1/step:3",
+            )
+
+
+def test_rebuild_round_trip_after_revert(clean_db, conn) -> None:
+    """A->B->A->B histories rebuild correctly: the log replays in seq order
+    and lands on the current head hash — revisited states are not states."""
+    files = {"a.txt": "A\n"}
+    tree = WorkspaceTree({k: v.encode("utf-8") for k, v in files.items()})
+    ws_id = patchlog.create_workspace(conn, tree.files)
+    a_hash = _base_hash(ws_id, conn)
+    edits_ab = [
+        PatchEdit(
+            path="a.txt", expected_file_hash=sha256_hex(b"A\n"), old_string="A", new_string="B"
+        )
+    ]
+    plan_ab = tree.apply_edits(edits_ab)
+    with conn.transaction():
+        patchlog.append_patch(
+            conn,
+            workspace_id=ws_id,
+            parent_state_hash=a_hash,
+            new_state_hash=plan_ab.new_state_hash,
+            patch_bytes=canonical_patch_json(a_hash, plan_ab.new_state_hash, edits_ab),
+            run_ref="wf:w1/step:1",
+        )
+    edits_ba = [
+        PatchEdit(
+            path="a.txt", expected_file_hash=sha256_hex(b"B\n"), old_string="B", new_string="A"
+        )
+    ]
+    plan_ba = tree.apply_edits(edits_ba)
+    with conn.transaction():
+        patchlog.append_patch(
+            conn,
+            workspace_id=ws_id,
+            parent_state_hash=plan_ab.new_state_hash,
+            new_state_hash=plan_ba.new_state_hash,
+            patch_bytes=canonical_patch_json(
+                plan_ab.new_state_hash, plan_ba.new_state_hash, edits_ba
+            ),
+            run_ref="wf:w1/step:2",
+        )
+    with db.connect(clean_db, application_name="test-rebuild-revert") as conn2:
+        rebuilt = patchlog.rebuild_workspace(conn2, ws_id)
+    assert rebuilt.files == tree.files
+    assert rebuilt.state_hash() == tree.state_hash() == plan_ba.new_state_hash
+
+
 def test_stale_append_rolls_back_the_whole_transaction(conn) -> None:
     files = {"a.txt": "v1\n"}
     tree = WorkspaceTree({k: v.encode("utf-8") for k, v in files.items()})

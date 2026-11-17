@@ -63,7 +63,8 @@ _TOOL_CALL_INSERT_SQL = _load_sql("tool_call_insert.sql")
 READ_MAX_BYTES = 64 * 1024  # per-read content cap (returned bytes)
 _BINARY_SNIFF_BYTES = 8000  # git's rule: NUL in the first 8 KiB => binary
 _EXCERPT_MAX_CHARS = 240
-_ARGS_ROW_MAX_BYTES = 32 * 1024  # tool_calls.args_json cap
+_ARGS_PREVIEW_CHARS = 200  # tool_calls.args_preview cap (chars)
+_ERROR_MESSAGE_MAX_CHARS = 500  # tool_calls.error_message cap (chars)
 
 
 class ToolError(Exception):
@@ -215,18 +216,14 @@ def _expand_argv(
             key = arg[1:-1]
             value = provided.get(key)
             if value is None:
-                raise ToolError(
-                    "invalid_args", f"parameter {key!r} is required by this command"
-                )
+                raise ToolError("invalid_args", f"parameter {key!r} is required by this command")
             argv.append(validators[key](value))
             used.add(key)
         else:
             argv.append(arg)
     smuggled = sorted(k for k, v in provided.items() if v is not None and k not in used)
     if smuggled:
-        raise ToolError(
-            "invalid_args", f"parameters not accepted by this command: {smuggled}"
-        )
+        raise ToolError("invalid_args", f"parameters not accepted by this command: {smuggled}")
     return argv
 
 
@@ -316,8 +313,7 @@ class ReadFile(Tool):
         if b"\x00" in content[:_BINARY_SNIFF_BYTES]:
             raise ToolError(
                 "binary_file",
-                f"{path!r} looks binary (NUL byte within the first "
-                f"{_BINARY_SNIFF_BYTES} bytes)",
+                f"{path!r} looks binary (NUL byte within the first {_BINARY_SNIFF_BYTES} bytes)",
             )
         lines = _split_lines(content)
         total = len(lines)
@@ -391,9 +387,7 @@ class Search(Tool):
                     line_end = len(text)
                 excerpt = text[line_start:line_end].rstrip("\r")[:_EXCERPT_MAX_CHARS]
                 matches.append(
-                    SearchMatch(
-                        path=path, line=text.count("\n", 0, idx) + 1, excerpt=excerpt
-                    )
+                    SearchMatch(path=path, line=text.count("\n", 0, idx) + 1, excerpt=excerpt)
                 )
                 if len(matches) >= args.max_results:
                     truncated = True  # more exist; cap hit
@@ -426,9 +420,7 @@ class ApplyPatch(Tool):
             plan = ctx.workspace.plan_edits(args.edits)
             all_edits = [*ctx.pending_edits, *args.edits]
             try:
-                patch = canonical_patch_json(
-                    ctx.parent_state_hash, plan.new_state_hash, all_edits
-                )
+                patch = canonical_patch_json(ctx.parent_state_hash, plan.new_state_hash, all_edits)
             except PatchError as exc:
                 # the step's accumulated patch would exceed the cap: refuse
                 # BEFORE committing (the tree is untouched by plan)
@@ -490,9 +482,7 @@ def _run_allowlisted(
         raise ToolError("not_configured", "no command allowlist configured for this run")
     template = allowlist.template(kind)
     if template is None:
-        raise ToolError(
-            "not_configured", f"no {kind} command configured for this workspace"
-        )
+        raise ToolError("not_configured", f"no {kind} command configured for this workspace")
     argv = _expand_argv(template, provided, validators)
     if ctx.sandbox_runner is None:
         raise ToolError("not_configured", "no sandbox runner available for this run")
@@ -548,6 +538,11 @@ class ToolContext:
     parent_state_hash: str  # the log head at step start: the append's parent
     job_id: UUID
     attempt: int
+    # STEP IDENTITY for patch-log idempotency (migration 0007): MUST carry
+    # the workflow id and step position, e.g. "wf:<uuid>/step:<pos>", and
+    # MUST be the same across attempts of one step — a matching run_ref is
+    # the redelivery signal, so attempt-varying values here would break
+    # idempotency. Empty string only in non-workspace callers.
     run_ref: str
     conn: Any | None = None
     budgets: ToolBudgets = field(default_factory=ToolBudgets)
@@ -575,15 +570,12 @@ class ToolContext:
                 name,
                 raw_args,
                 "budget_exhausted",
-                "per-run tool output budget "
-                f"({self.budgets.max_output_bytes_per_run} bytes) spent",
+                f"per-run tool output budget ({self.budgets.max_output_bytes_per_run} bytes) spent",
             )
         try:
             args = tool.input_model.model_validate(raw_args)
         except ValidationError as exc:
-            return self._refused(
-                name, raw_args, "invalid_args", _short_validation_error(exc)
-            )
+            return self._refused(name, raw_args, "invalid_args", _short_validation_error(exc))
         call_index = self._calls_used
         started = time.perf_counter()
         try:
@@ -626,9 +618,7 @@ class ToolContext:
             output_bytes=output_bytes,
         )
 
-    def _refused(
-        self, name: str, raw_args: dict[str, Any], code: str, message: str
-    ) -> ToolResult:
+    def _refused(self, name: str, raw_args: dict[str, Any], code: str, message: str) -> ToolResult:
         """A call refused before execution: still logged, zero output."""
         call_index = self._calls_used
         self._calls_used += 1
@@ -671,7 +661,12 @@ class ToolContext:
                 dumped: Any = args.model_dump(mode="json")
             else:
                 dumped = raw_args if raw_args is not None else {}
-            args_json = _row_safe_json(dumped)
+            # Arguments are NEVER stored verbatim: apply_patch arguments are
+            # megabytes of repository content and can contain repo secrets.
+            # The row carries the canonical JSON's digest, its size, and a
+            # 200-char preview for triage.
+            canonical = _row_safe_json(dumped)
+            args_text = _nul_free_json(canonical)
             self.conn.execute(
                 _TOOL_CALL_INSERT_SQL,
                 {
@@ -679,10 +674,14 @@ class ToolContext:
                     "attempt": self.attempt,
                     "call_index": call_index,
                     "tool": tool_name,
-                    "args_json": _nul_free_json(args_json),
+                    "args_sha256": sha256_hex(args_text.encode("utf-8")),
+                    "args_bytes": len(args_text.encode("utf-8")),
+                    "args_preview": _row_safe_text(args_text[:_ARGS_PREVIEW_CHARS]),
                     "ok": ok,
                     "error_code": error_code,
-                    "error_message": message,
+                    "error_message": None
+                    if message is None
+                    else message[:_ERROR_MESSAGE_MAX_CHARS],
                     "duration_ms": duration_seconds * 1000.0,
                     "output_bytes": output_bytes,
                 },
@@ -713,12 +712,9 @@ def _strip_nul(value: Any) -> Any:
     return value
 
 
-def _row_safe_json(payload: Any) -> dict[str, Any]:
-    """jsonb rejects NUL anywhere; sanitize and cap before storing."""
+def _row_safe_json(payload: Any) -> Any:
+    """Sanitize before hashing: jsonb is gone, but NUL never enters a row."""
     clean = _strip_nul(payload)
-    text = json.dumps(clean, ensure_ascii=True, allow_nan=False, default=str)
-    if len(text.encode("utf-8")) > _ARGS_ROW_MAX_BYTES:
-        return {"_too_large": True, "_bytes": len(text.encode("utf-8"))}
     if isinstance(clean, dict):
         return clean
     return {"_payload": clean}
@@ -741,6 +737,19 @@ def _row_safe_text(text: str) -> str:
 
 
 def patch_log_append_callback(ctx: ToolContext) -> Callable[[Any], None]:
+    """Registered with `after_complete`: appends the step's accumulated
+    patch inside the advance transaction.
+
+    Idempotency contract (migration 0007): `ctx.run_ref` is the step's
+    identity — the same value on every attempt of one step, carrying the
+    workflow id and step position ("wf:<uuid>/step:<pos>"). The append is
+    redelivery-safe BECAUSE of that identity: a run_ref match with the same
+    parent+blob is `already_applied`, and a match with different content is
+    a PatchConflict. Content keys (parent hash + patch bytes) cannot do
+    this: state hashes are content hashes, so A->B -> revert -> a new A->B
+    from another step would false-positive on a content lookup.
+    """
+
     def _append(conn: Any) -> None:
         if not ctx.pending_edits:
             return  # a read-only step proposes nothing; nothing to append
@@ -760,6 +769,4 @@ def patch_log_append_callback(ctx: ToolContext) -> Callable[[Any], None]:
     return _append
 
 
-PATCH_APPEND_CONTRACT = (
-    f"patch bytes are canonical JSON; the cap is {PATCH_MAX_BYTES} bytes"
-)
+PATCH_APPEND_CONTRACT = f"patch bytes are canonical JSON; the cap is {PATCH_MAX_BYTES} bytes"

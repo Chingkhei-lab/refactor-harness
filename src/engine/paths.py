@@ -25,14 +25,36 @@ Decisions the spec asked for:
 - The `.git` component is refused case-insensitively (`.GIT`, `.Git`):
   the workspace must never carry repository metadata the model could
   rewrite (hooks, config) — D3's symlink-door rule applied to names.
+- **Control characters and bidirectional overrides are refused**:
+  everything in Unicode category Cc (C0/C1 controls — newline, tab, CR,
+  DEL) and the bidi overrides U+202A–U+202E / U+2066–U+2069. A newline in
+  a path breaks line-oriented tooling and logs; a bidi override reorders
+  the DISPLAYED text, so a reviewer's diff screen can show
+  `report.txt.exe` while the real name ends in `.exe` — the filename is
+  an attack surface for human review, not just for the tree.
 """
 
 from __future__ import annotations
+
+import unicodedata
 
 MAX_PATH_BYTES = 1024  # total path length (bytes, UTF-8)
 MAX_COMPONENT_BYTES = 255  # NAME_MAX on Linux, per component
 
 _HEX_HASH_LENGTH = 64
+
+# Bidirectional text overrides: they reorder the DISPLAYED characters, so a
+# path can LOOK benign in a diff-review screen while its real name ends in
+# ".exe". Ranges per the Unicode Bidi_Class=ON override/isolate set.
+_BIDI_OVERRIDE_RANGES = (
+    (0x202A, 0x202E),  # LRE, RLE, PDF, LRO, RLO
+    (0x2066, 0x2069),  # LRI, RLI, FSI, PDI
+)
+
+
+def _is_bidi_override(ch: str) -> bool:
+    code = ord(ch)
+    return any(lo <= code <= hi for lo, hi in _BIDI_OVERRIDE_RANGES)
 
 
 class PathDenied(ValueError):
@@ -61,6 +83,16 @@ def validate_path(path: str) -> str:
         raise PathDenied("NUL byte in path")
     if "\\" in path:
         raise PathDenied("backslash in path (POSIX separator expected)")
+    for ch in path:
+        if unicodedata.category(ch) == "Cc":
+            # all C0/C1 controls: newline, tab, CR, DEL, C1 bytes — a
+            # newline breaks line-oriented logs; the rest never belong
+            # in a workspace filename
+            raise PathDenied(f"control character U+{ord(ch):04X} in path")
+        if _is_bidi_override(ch):
+            raise PathDenied(
+                f"bidirectional override U+{ord(ch):04X} in path (reorders displayed text)"
+            )
     try:
         encoded = path.encode("utf-8")
     except UnicodeEncodeError as exc:
