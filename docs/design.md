@@ -198,3 +198,15 @@ RETURNING ...;
 - **Queue tables bloat.** `jobs` is updated constantly; future work: tune
   autovacuum for `jobs`, and add a retention job that deletes old `succeeded`
   rows.
+- **Phase 3 adds two more growth sources, and neither has a collector yet.**
+  (a) Content-addressed **snapshot and patch blobs** plus the `workspaces` /
+  `workspace_patches` references to them; (b) **terminal workflows**
+  (`succeeded` / `failed`) and their step rows, whose workspaces and blobs are
+  then unreachable. The rule is the ADR 002 retention rule mirrored for this
+  phase: **never delete anything a non-terminal workflow references**, and a
+  terminal workflow is never retried — that is exactly what makes collecting it
+  safe. Install images (`engine-deps:<install_key>`) belong to the same story:
+  one image per requirements × base digest, never pruned. Full decision record:
+  ADR [`adr/003-sandbox.md`](adr/003-sandbox.md) "Future work — garbage
+  collection"; measurements beside
+  [`results/sandbox-2026-11-18.md`](results/sandbox-2026-11-18.md).

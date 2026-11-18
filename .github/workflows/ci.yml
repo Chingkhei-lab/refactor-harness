@@ -75,15 +75,28 @@ jobs:
         run: |
           set -o pipefail
           pytest tests/test_sandbox_hostile.py -v -s 2>&1 | tee hostile.log
+      - name: Install-hostile suite (real pip + Docker)
+        # The 6 install-phase cases used to run only on the author's machine.
+        # They belong here: they assert the property the whole cache rests on
+        # (a hashed, wheel-only install committed to a derived image that runs
+        # OFFLINE), and `--only-binary :all:` makes any sdist-only pin fail
+        # loudly rather than silently change the boundary.
+        shell: bash
+        run: |
+          set -o pipefail
+          pytest tests/test_install_hostile.py -v -s 2>&1 | tee install-hostile.log
       - name: Surface failures as check annotations
         if: failure()
         run: |
           # the check-run annotations API is readable without credentials;
           # the raw job log is not — mirror the short summary there
-          if grep -qE "^(FAILED|ERROR) " hostile.log; then
-            grep -E "^(FAILED|ERROR) " hostile.log | head -25 | while read -r line; do
-              echo "::error::${line}"
-            done
-          else
-            echo "::error::hostile suite failed without summary lines; dump: $(tail -c 800 hostile.log | tr '\n' ' ')"
-          fi
+          for log in hostile.log install-hostile.log; do
+            [ -f "$log" ] || continue
+            if grep -qE "^(FAILED|ERROR) " "$log"; then
+              grep -E "^(FAILED|ERROR) " "$log" | head -25 | while read -r line; do
+                echo "::error::${line}"
+              done
+            else
+              echo "::error::${log}: suite failed without summary lines; dump: $(tail -c 800 "$log" | tr '\n' ' ')"
+            fi
+          done

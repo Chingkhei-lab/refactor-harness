@@ -6,7 +6,7 @@ for expired leases, and at-least-once delivery with bounded retries.
 
 - Design: [`docs/design.md`](docs/design.md) · ADRs: [`docs/adr/`](docs/adr/)
 - Queue SQL (the review artifacts): [`src/engine/sql/`](src/engine/sql/)
-- CI: ruff + mypy + pytest (Python 3.12, Postgres 16 service container)
+- CI: ruff + mypy + pytest (Python 3.12, Postgres 16 service container; run #20: 249 passed / 25 skipped)
 
 ## Results
 
@@ -98,7 +98,7 @@ Full report with every OBSERVED number:
 | Install cold / cached | 10.031 s / 0.234 s (same image ID; key = sha256(requirements ∥ base digest)) |
 | Container start (n=30) | p50 0.375 s, p95 0.532 s |
 | Copy-in/out roundtrip (1 KiB…8 MiB) | 0.14–0.6 s each way, integrity verified |
-| Concurrency ramp, 256 MiB sandboxes | clean at n=1…12; per-worker default 4 × 3 workers = 12 ≤ host max |
+| Concurrency ramp, 256 MiB sandboxes | **clean at n=96 (3 runs) and n=128 (1 run)** with a 60 s per-sandbox deadline (`scripts/sandbox_ramp_max.py`); p50 24–59 s. The one earlier 96 failure (6/96 exit 137) was the demo's **25 s** deadline, not host memory — it vanished at 60 s. Host wall not reached at 128. Default 4 × 3 = 12 stays as headroom |
 | Kill demo | orphan swept in 0.828 s; workflow succeeded 41.6 s after the kill; one `sandbox_runs` row (the committing attempt); zero leftovers |
 | Mini-chaos (200 workflows, 3 workers, kill every 3–6 s) | drained in 2786.2 s: **200/200 succeeded, 0 failed**; zero duplicate `(job_id, attempt)` rows, zero orphan rows, one row per succeeded workflow, zero leftover containers; regression tests green; deepest victim needed 24 attempts (budget 40 absorbed it) |
 
@@ -108,3 +108,9 @@ dead-lettered 42 workflows whose 5-attempt step budget was exhausted by 428
 mid-job kills (a murdered job costs an attempt — engine behaviour correct,
 budget wrong for a bombardment); run 3 sizes the retry budget via
 `ENGINE_SANDBOX_STEP_BUDGET`.
+
+The 24-attempt step is a **budget-sizing datum from a bombardment, not an
+operating point**: 553 kills over 200 workflows, and as the pool drains every
+remaining kill lands on the few jobs still in flight. A murdered job costs an
+attempt like any other failure, so the number says the budget is sized
+correctly — it does not say a normal run needs 24 tries.

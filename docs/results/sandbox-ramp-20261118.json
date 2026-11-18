@@ -1,0 +1,112 @@
+{
+  "containers_swept": 0,
+  "daemon": {
+    "image": "python:3.12-slim",
+    "mem_limit_mb": 256,
+    "payload": "import time; time.sleep(2); print('ok')",
+    "server_version": "28.3.2",
+    "vm_cpus": 4,
+    "vm_mem_gib": 3.83
+  },
+  "first_failure": null,
+  "levels": [
+    {
+      "clean": true,
+      "failure_samples": [],
+      "failures": 0,
+      "max_seconds": 39.047,
+      "n": 80,
+      "p50_seconds": 33.438,
+      "repeat": 1,
+      "returned": 80,
+      "wall_seconds": 39.1,
+      "wall_seconds_limit": 60.0
+    },
+    {
+      "clean": true,
+      "failure_samples": [],
+      "failures": 0,
+      "max_seconds": 28.407,
+      "n": 80,
+      "p50_seconds": 23.906,
+      "repeat": 2,
+      "returned": 80,
+      "wall_seconds": 28.5,
+      "wall_seconds_limit": 60.0
+    },
+    {
+      "clean": true,
+      "failure_samples": [],
+      "failures": 0,
+      "max_seconds": 48.25,
+      "n": 88,
+      "p50_seconds": 38.563,
+      "repeat": 1,
+      "returned": 88,
+      "wall_seconds": 48.5,
+      "wall_seconds_limit": 60.0
+    },
+    {
+      "clean": true,
+      "failure_samples": [],
+      "failures": 0,
+      "max_seconds": 66.172,
+      "n": 88,
+      "p50_seconds": 59.234,
+      "repeat": 2,
+      "returned": 88,
+      "wall_seconds": 66.2,
+      "wall_seconds_limit": 60.0
+    },
+    {
+      "clean": true,
+      "failure_samples": [],
+      "failures": 0,
+      "max_seconds": 45.516,
+      "n": 96,
+      "p50_seconds": 40.031,
+      "repeat": 1,
+      "returned": 96,
+      "wall_seconds": 45.6,
+      "wall_seconds_limit": 60.0
+    },
+    {
+      "clean": true,
+      "failure_samples": [],
+      "failures": 0,
+      "max_seconds": 45.125,
+      "n": 96,
+      "p50_seconds": 39.109,
+      "repeat": 2,
+      "returned": 96,
+      "wall_seconds": 45.2,
+      "wall_seconds_limit": 60.0
+    },
+    {
+      "clean": true,
+      "failure_samples": [],
+      "failures": 0,
+      "max_seconds": 38.719,
+      "n": 96,
+      "p50_seconds": 32.75,
+      "repeat": 1,
+      "returned": 96,
+      "wall_seconds": 38.8,
+      "wall_seconds_limit": 60.0
+    },
+    {
+      "clean": true,
+      "failure_samples": [],
+      "failures": 0,
+      "max_seconds": 44.359,
+      "n": 128,
+      "p50_seconds": 38.781,
+      "repeat": 1,
+      "returned": 128,
+      "wall_seconds": 44.5,
+      "wall_seconds_limit": 60.0
+    }
+  ],
+  "max_clean": 128,
+  "runs_note": "All levels ran with a 60 s per-sandbox deadline and no workspace. 96 was clean in 3 runs (2 repeats + 1 confirmation), 128 in 1. The earlier 96 failure under the demo's 25 s deadline is recorded in docs/results/sandbox-2026-11-18.md; it was not reproduced at 60 s."
+}
