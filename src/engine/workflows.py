@@ -123,6 +123,14 @@ class StepContext:
     effect_key: str
     lease_lost: threading.Event
     _job_ctx: HandlerContext = field(repr=False)
+    # Checkpoint 9: the carrying job's id (an execution's durable identity —
+    # e.g. sandbox_runs keys the run record on the RUN step's job+attempt)
+    # and the worker's autocommit connection for step functions that must
+    # read (or, inside an explicit `conn.transaction()` block, write) the
+    # database. Writes that must be atomic with the step's completion still
+    # belong in after_complete callbacks — never on `conn` bare.
+    job_id: UUID | None = None
+    conn: psycopg.Connection[Row] | None = None
 
     def after_complete(self, callback: AfterCompleteCallback) -> None:
         """Register work for the advance transaction (with the job complete).
@@ -245,9 +253,7 @@ def load_workflow_state(
         raise LookupError(f"workflow {workflow_id} not found")
     steps = [
         _to_step(step_row)
-        for step_row in conn.execute(
-            _LOAD_STEPS_SQL, {"workflow_id": workflow_id}
-        ).fetchall()
+        for step_row in conn.execute(_LOAD_STEPS_SQL, {"workflow_id": workflow_id}).fetchall()
     ]
     return _to_workflow(row), steps
 
@@ -354,9 +360,7 @@ def _run_workflow_step(
     if definition is None:
         raise RuntimeError(f"no workflow definition for type {workflow.type!r}")
     if position >= len(definition.steps) or position >= len(steps):
-        raise RuntimeError(
-            f"step position {position} out of range for workflow {workflow.id}"
-        )
+        raise RuntimeError(f"step position {position} out of range for workflow {workflow.id}")
     step_row = steps[position]
     step_def = definition.step_by_name(step_row.name)
 
@@ -368,6 +372,8 @@ def _run_workflow_step(
         effect_key=effect_key(workflow.id, step_row.name),
         lease_lost=ctx.lease_lost,
         _job_ctx=ctx,
+        job_id=ctx.job_id,
+        conn=conn,
     )
 
     if step_row.state == "succeeded":

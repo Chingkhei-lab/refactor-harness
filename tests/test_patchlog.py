@@ -284,6 +284,64 @@ def test_revert_then_identical_patch_from_another_step_is_NOT_redelivery(conn) -
             )
 
 
+def test_run_ref_unique_index_is_a_real_constraint(conn) -> None:
+    """Migration 0007's partial UNIQUE index itself — the redelivery path
+    verified through the CONSTRAINT, not only through the pre-check: a raw
+    INSERT that bypasses append_patch cannot record a second patch for one
+    step identity, and the database (not the code) holds the invariant.
+
+    Honesty: the normal path never reaches this constraint. append_patch
+    runs inside the advance transaction; two workers redelivering the same
+    step serialize on the workspace row — the second one's CAS re-reads the
+    head after the first commits, sees head_hash != parent, and raises
+    StaleAppend before any insert (the two-thread race test asserts exactly
+    one row). The index is the BACKSTOP for the day the pre-check + CAS
+    logic is bypassed or regresses.
+    """
+    tree = WorkspaceTree({"a.txt": b"A\n"})
+    ws_id = patchlog.create_workspace(conn, tree.files)
+    head = conn.execute("SELECT head_hash FROM workspaces WHERE id = %s", (ws_id,)).fetchone()
+    parent = str(head["head_hash"])
+    blob = patchlog.store_blob(conn, b"patch bytes", cap_bytes=patchlog.PATCH_MAX_BYTES)
+
+    def _insert(seq: int, run_ref: str) -> None:
+        conn.execute(
+            "INSERT INTO workspace_patches"
+            " (workspace_id, seq, parent_state_hash, new_state_hash,"
+            "  patch_blob_hash, run_ref)"
+            " VALUES (%s, %s, %s, %s, %s, %s)",
+            (ws_id, seq, parent, sha256_hex(b"B\n"), blob, run_ref),
+        )
+
+    # the index exists and is partial: its definition carries the
+    # run_ref <> '' predicate
+    defn = conn.execute(
+        "SELECT indexdef FROM pg_indexes WHERE indexname = %s",
+        ("workspace_patches_run_ref_uq",),
+    ).fetchone()
+    assert defn is not None
+    assert "workspace_patches" in defn["indexdef"]
+    assert "run_ref <> ''" in defn["indexdef"]
+
+    _insert(1, "wf:w9/step:1")
+    # same (workspace_id, run_ref), different seq: the CONSTRAINT refuses
+    # this, not the pre-check — no append_patch call involved (and seq=2
+    # rules out the primary key as the refusing constraint)
+    with pytest.raises(psycopg.errors.UniqueViolation) as excinfo:
+        with conn.transaction():
+            _insert(2, "wf:w9/step:1")
+    assert excinfo.value.diag.constraint_name == "workspace_patches_run_ref_uq"
+
+    # run_ref = '' is exempt (non-workspace callers; the CAS serializes
+    # them): two empty-run_ref rows in one workspace are allowed
+    _insert(3, "")
+    _insert(4, "")
+    count = conn.execute(
+        "SELECT count(*) AS n FROM workspace_patches WHERE workspace_id = %s", (ws_id,)
+    ).fetchone()
+    assert int(count["n"]) == 3
+
+
 def test_rebuild_round_trip_after_revert(clean_db, conn) -> None:
     """A->B->A->B histories rebuild correctly: the log replays in seq order
     and lands on the current head hash — revisited states are not states."""

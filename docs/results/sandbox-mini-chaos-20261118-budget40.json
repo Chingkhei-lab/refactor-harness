@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-18",
+  "environment": {
+    "runner": "host python (worker children are the script's own; engine state is daemon-side)",
+    "platform": "Windows-10-10.0.26300-SP0",
+    "python": "3.11.9",
+    "cpus": 12,
+    "docker_version": "28.3.2",
+    "docker_mem_total_gb": 3.83,
+    "docker_ncpu": 4
+  },
+  "total_workflows": 200,
+  "worker_count": 3,
+  "kill_interval_range_s": [
+    3.0,
+    6.0
+  ],
+  "lease_seconds": 2.0,
+  "reaper_interval_seconds": 0.5,
+  "step_budget": 40,
+  "regression_tests": {
+    "tests": [
+      "tests/test_workflows.py::test_crash_mid_step_resumes_at_that_step",
+      "tests/test_workflows.py::test_committed_step_is_not_rerun"
+    ],
+    "returncode": 0,
+    "tail": [
+      "..                                                                       [100%]"
+    ]
+  },
+  "drained": true,
+  "duration_seconds": 2786.2,
+  "kills": 553,
+  "killed_with_running_job": 543,
+  "restarts": 553,
+  "kill_log": [
+    {
+      "kill": 544,
+      "slot": 1,
+      "worker_id": "mini-chaos-w1-7fba5072",
+      "held_running_jobs": 1
+    },
+    {
+      "kill": 545,
+      "slot": 0,
+      "worker_id": "mini-chaos-w0-5963eea1",
+      "held_running_jobs": 0
+    },
+    {
+      "kill": 546,
+      "slot": 0,
+      "worker_id": "mini-chaos-w0-c38a0de0",
+      "held_running_jobs": 0
+    },
+    {
+      "kill": 547,
+      "slot": 2,
+      "worker_id": "mini-chaos-w2-c8e5abb7",
+      "held_running_jobs": 1
+    },
+    {
+      "kill": 548,
+      "slot": 1,
+      "worker_id": "mini-chaos-w1-02f93273",
+      "held_running_jobs": 1
+    },
+    {
+      "kill": 549,
+      "slot": 0,
+      "worker_id": "mini-chaos-w0-66fcd22d",
+      "held_running_jobs": 1
+    },
+    {
+      "kill": 550,
+      "slot": 2,
+      "worker_id": "mini-chaos-w2-40f39bff",
+      "held_running_jobs": 1
+    },
+    {
+      "kill": 551,
+      "slot": 0,
+      "worker_id": "mini-chaos-w0-963c3ffd",
+      "held_running_jobs": 0
+    },
+    {
+      "kill": 552,
+      "slot": 2,
+      "worker_id": "mini-chaos-w2-10d30fd0",
+      "held_running_jobs": 0
+    },
+    {
+      "kill": 553,
+      "slot": 0,
+      "worker_id": "mini-chaos-w0-b58700c6",
+      "held_running_jobs": 0
+    }
+  ],
+  "workflow_states": {
+    "succeeded": 200
+  },
+  "attempts_histogram": {
+    "1": 650,
+    "2": 47,
+    "3": 29,
+    "4": 18,
+    "5": 16,
+    "6": 9,
+    "7": 9,
+    "8": 6,
+    "9": 4,
+    "10": 3,
+    "11": 2,
+    "12": 1,
+    "13": 3,
+    "14": 1,
+    "18": 1,
+    "24": 1
+  },
+  "max_step_attempts": 24,
+  "workflow_duration_seconds": {
+    "count": 200,
+    "min_seconds": 755.3,
+    "p50_seconds": 1718.9,
+    "p95_seconds": 2613.7,
+    "max_seconds": 2785.6
+  },
+  "sandbox_runs_rows": 200,
+  "duplicate_run_rows": 0,
+  "runs_with_no_workflow": 0,
+  "janitor": {
+    "removed": 0,
+    "failed": 0,
+    "pass_seconds": 0.0,
+    "leftover_after_pass": []
+  },
+  "gates": {
+    "drained_in_time": true,
+    "all_workflows_terminal": true,
+    "all_workflows_succeeded": true,
+    "zero_leftover_containers": true,
+    "no_duplicate_run_rows": true,
+    "one_run_row_per_workflow": true,
+    "no_orphan_run_rows": true,
+    "regression_tests_pass": true
+  }
+}

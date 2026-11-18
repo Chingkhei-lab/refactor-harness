@@ -41,58 +41,121 @@ which is where the timeout/kill/removal-failure paths are exercised in CI.
 ### D2 — Dependencies: two phases, install networked, run offline
 
 The run phase is `network_mode='none'`, but tests need installed packages.
-Resolution:
+Resolution (implemented in `engine/install.py`, checkpoint 9):
 
-- **Install phase** (per requirements hash, cached): a container from the
-  pinned base image, network allowed, **no secrets, no workspace, no
-  environment** — it only runs pip and the result is committed as a derived
-  image tagged `sandbox-deps-<sha256(requirements)>`. The derived image's
-  digest is recorded with the run.
+- **Install phase** (per content key, cached): a container from the
+  digest-pinned base image, network allowed, **no secrets, no workspace,
+  no environment** — it runs one FIXED pip argv and the result is committed
+  as a derived image tagged
+  `engine-deps:<install_key>` where `install_key =
+  sha256(requirements bytes + base image digest)` (domain-separated). The
+  base image is pinned before use: a digest-pinned ref passes through; a
+  tag is inspected once and pinned to its registry digest (RepoDigests),
+  falling back to the image ID for locally-built bases. The resolved base
+  ref and the image ID actually used are recorded with every run.
 - **Run phase**: `network_mode='none'` from the derived image;
-  `PATH=/opt/deps/bin:$PATH`, `PYTHONPATH=/opt/deps`.
+  `PYTHONPATH=/var/tmp/deps`.
 
-**Install-phase hardening** (decided in checkpoint 7 review, **not yet
-implemented** — no install-phase code exists yet):
+**Install-phase hardening** — two deliberate widenings, everything else
+identical to the run phase's profile:
 
-- `pip install --only-binary :all:` wherever the pin set permits wheels:
-  `--only-binary` refuses the `setup.py` execution path entirely, so the
-  most dangerous install-time code (arbitrary build scripts of a malicious
-  sdist) never runs. Packages that only publish sdists fail the install and
-  surface as a decision, not a surprise. `--require-hashes` pins every
-  artifact to the hash recorded at pin time — a compromised index cannot
-  substitute a different wheel under the same version.
-- The install container inherits the run phase's hardening **except the
-  network**: `read_only` rootfs (pip writes to `/opt/deps`, a tmpfs),
-  non-root user, `cap_drop: ALL`, `no-new-privileges`, CPU/memory/pids
-  limits. The one deliberate widening is `network_mode` — installs need
-  the index. No secrets and no workspace are mounted, so a malicious build
-  script can reach only the index and its own scratch space.
-- **Base image pinned by digest** (`python@sha256:...`): the same immutability
-  rule the run phase already uses; a mutable `latest` tag would let an
-  attacker's push silently change every future derived image.
+- `network_mode='bridge'`: installs need the index. This container is the
+  ONLY networked one in the pipeline.
+- `read_only=False`: **this corrects the earlier plan** ("read_only rootfs,
+  pip writes `/opt/deps`, a tmpfs"). That plan was wrong: `container.commit()`
+  captures only the container's WRITABLE LAYER, and tmpfs content is not
+  part of that layer — a read-only install container with a tmpfs deps
+  directory would commit NOTHING. The packages therefore land in
+  `/var/tmp/deps` — a real layer directory (FHS `/var/tmp` is world-writable
+  sticky, so the non-root user creates it) that `commit()` captures — and
+  `/tmp` is a tmpfs, so pip's scratch never bakes into the image. Keeping
+  the rootfs writable is the narrower change measured against the
+  alternative below; every other flag is unchanged: non-root
+  `65534:65534`, `cap_drop: ALL`, `no-new-privileges`, CPU/memory/pids
+  limits, capped logs, wall clock.
+- The pins travel in via `put_archive` BEFORE start (the daemon's measured
+  refusal of archive PUTs applies to READ-ONLY containers only) into
+  `/var/tmp`, so the requirements file itself is part of the committed
+  layer: every derived image carries its provenance.
+- `pip install --only-binary :all: --require-hashes` as a FIXED argv (never
+  caller-supplied flags): `--only-binary` refuses the `setup.py` execution
+  path entirely, so the most dangerous install-time code (arbitrary build
+  scripts of a malicious sdist) never runs — packages that only publish
+  sdists fail the install LOUDLY as a typed `pip_failed`, surfacing as a
+  decision, not a surprise. `--require-hashes` pins every artifact to the
+  hash recorded at pin time; an UNPINNED requirements file fails before the
+  network matters, and a compromised index cannot substitute a different
+  wheel under the same version.
+- Failures are typed: `pip_failed` / `too_large` / `base_image_missing` are
+  permanent (`NonRetryableError`); `timeout` / `oom` / `daemon` /
+  `lock_timeout` retry. A killed installer's containers carry the same
+  `engine-sandbox.*` labels (kind=install), so the janitor sweeps them like
+  run containers — one namespace, one sweeper.
+- **Base image pinned by digest**: the same immutability rule the run phase
+  already uses; a mutable `latest` tag would let an attacker's push silently
+  change every future derived image.
 - **The poisoning risk, stated plainly**: the derived image is keyed by
-  `sha256(requirements)`, so a *poisoned build is reused by every run with
-  the same requirements* — an attacker who once gets malicious code into
-  the install phase (e.g. a typosquatted package whose wheel ships a
-  modified `sitecustomize.py`, or an index-serving a backdoored artifact
-  that still satisfies `--require-hashes` only if the pin itself was
-  compromised) bakes it into the cache, and later runs never re-execute
-  pip. Mitigations, in order: the pin file itself is workflow input and
-  goes through review; hashes make silent artifact substitution detectable;
-  the derived-image digest is recorded with every run, so an incident is a
-  `grep` over run records, not a mystery; and a cache-bust (bump the pin,
-  or purge `sandbox-deps-*` images) is a mechanical response. What
-  content-addressing deliberately does NOT do is make poisoning
-  impossible — it makes it *persist*, which is why it must be named here.
-- The derived image is built with `container.commit()`, which preserves the
-  container's filesystem but not its tmpfs mounts — `/opt/deps` must be a
-  real layer directory, created as root then chowned, not a tmpfs.
+  content, so a *poisoned build is reused by every run with the same
+  requirements* — an attacker who once gets malicious code into the install
+  phase (e.g. a typosquatted package whose wheel ships a modified
+  `sitecustomize.py`, or an index serving a backdoored artifact that still
+  satisfies `--require-hashes` only if the pin itself was compromised) bakes
+  it into the cache, and later runs never re-execute pip. Mitigations, in
+  order: the pin file itself is workflow input and goes through review;
+  hashes make silent artifact substitution detectable; the derived image ID
+  is recorded with every run, so an incident is a `grep` over run records,
+  not a mystery; and a cache-bust (bump the pin, or purge `engine-deps`
+  images) is a mechanical response. What content-addressing deliberately
+  does NOT do is make poisoning impossible — it makes it *persist*, which
+  is why it must be named here.
 
-Rejected alternative: downloading a wheel cache at run time with
-`pip --no-index` — it still runs pip inside the sandbox (parse/rendering of
-untrusted package metadata) and couples run-time behavior to cache state.
-Baking the derived image moves all of that behind the install-phase
-boundary, and the hash key makes it a pure cache.
+**Build coordination** (one machine, several workers): builds are NOT
+byte-reproducible — layer timestamps differ between two builds of the same
+pins — so the honest claim is "functionally equivalent", and each run
+records the image ID it actually used. The coordination point is
+per-daemon, and deliberately NOT the database:
+
+1. inspect `engine-deps:<key>` — cached? return it;
+2. take a LOCAL FILE LOCK (flock on POSIX, msvcrt on Windows) in a
+   lock directory (`ENGINE_INSTALL_LOCK_DIR`);
+3. double-check inside the lock (the loser of a race returns the winner's
+   image, `cached=True`);
+4. build: hardened container → fixed pip → `commit()` → re-inspect →
+   record the image ID.
+
+The lock is held at most one builder wall clock; the kernel releases it if
+the builder is SIGKILL'd, and a waiter's bounded timeout
+(`lock_timeout`) retries. Two workers racing on the same key serialize;
+the content tag makes even a lock-free race harmless — the loser writes
+functionally equivalent content under the same name.
+
+Rejected option 1 — building from a Dockerfile context (`docker build` with
+the requirements as a build arg): that moves the build execution into the
+DAEMON — root privileges, no capability profile, no wall clock we enforce —
+a strictly wider boundary for the same job, and it loses D5's
+timeout/kill machinery. The container path keeps the build under the same
+hardening profile as the run.
+
+Rejected option 2 — a `build-image` JOB through the queue, deduped on the
+install key, with step functions waiting on the result. Flawed twice:
+first, a queue job builds on the CLAIMING worker's daemon — the engine
+never records which daemon that is, so the "shared cache" silently only
+helps the worker that won the build (and on a multi-daemon deployment the
+other daemons still build their own). Second, and fatal: the dedupe key
+persists after SUCCESS, so once the job row says "done", a
+`docker image prune` (routine housekeeping) leaves nobody willing to
+rebuild — every later run finds the successful job and no image. A queue
+dedupes IDEMPOTENT EFFECTS; a build is a cache fill, and cache fills need
+cache-shaped coordination: inspect → lock → double-check → build, local to
+the daemon that owns the image. A registry would only be wanted to share
+images ACROSS machines — deliberately deferred, not built.
+
+Rejected alternative (unchanged from checkpoint 7): downloading a wheel
+cache at run time with `pip --no-index` — it still runs pip inside the
+sandbox (parse/rendering of untrusted package metadata) and couples
+run-time behavior to cache state. Baking the derived image moves all of
+that behind the install-phase boundary, and the hash key makes it a pure
+cache.
 
 ### D3 — Workspace storage: content-addressed base snapshot + ordered patch log
 

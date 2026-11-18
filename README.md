@@ -87,3 +87,24 @@ suite runs in CI (`sandbox-hostile` job) against a real daemon.
 > untrusted input; only the host-side evidence (cgroup counters, caps,
 > deadlines) decides what actually happened, and anything that turns a run
 > into a pass/fail verdict must re-verify it outside the container.
+
+### Sandbox measurements (checkpoint 9, 2026-11-18)
+
+Full report with every OBSERVED number:
+[`docs/results/sandbox-2026-11-18.md`](docs/results/sandbox-2026-11-18.md).
+
+| Measurement | Result |
+| --- | --- |
+| Install cold / cached | 10.031 s / 0.234 s (same image ID; key = sha256(requirements ∥ base digest)) |
+| Container start (n=30) | p50 0.375 s, p95 0.532 s |
+| Copy-in/out roundtrip (1 KiB…8 MiB) | 0.14–0.6 s each way, integrity verified |
+| Concurrency ramp, 256 MiB sandboxes | clean at n=1…12; per-worker default 4 × 3 workers = 12 ≤ host max |
+| Kill demo | orphan swept in 0.828 s; workflow succeeded 41.6 s after the kill; one `sandbox_runs` row (the committing attempt); zero leftovers |
+| Mini-chaos (200 workflows, 3 workers, kill every 3–6 s) | drained in 2786.2 s: **200/200 succeeded, 0 failed**; zero duplicate `(job_id, attempt)` rows, zero orphan rows, one row per succeeded workflow, zero leftover containers; regression tests green; deepest victim needed 24 attempts (budget 40 absorbed it) |
+
+The mini-chaos ran three times, and the report preserves why: run 1 (lease
+4 s) never drained — queue math, not correctness; run 2 drained but
+dead-lettered 42 workflows whose 5-attempt step budget was exhausted by 428
+mid-job kills (a murdered job costs an attempt — engine behaviour correct,
+budget wrong for a bombardment); run 3 sizes the retry budget via
+`ENGINE_SANDBOX_STEP_BUDGET`.

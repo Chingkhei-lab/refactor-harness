@@ -46,7 +46,11 @@ _REMOVE_RETRIES = 3
 _REMOVE_BACKOFF_SECONDS = 0.5
 _LOG_JOIN_TIMEOUT_SECONDS = 10.0
 _COPY_OUT_MAX_BYTES = 32 * 1024 * 1024
-_LABEL_PREFIX = "engine-sandbox"
+# Label namespace for ALL engine-owned containers (sandbox runs AND install
+# builds — one janitor sweeps both). Public so the install phase labels its
+# containers into the same namespace.
+LABEL_PREFIX = "engine-sandbox"
+_LABEL_PREFIX = LABEL_PREFIX  # internal alias kept for readability below
 _SANDBOX_USER = "65534:65534"  # nobody:nogroup in the pinned Debian images
 _WORKSPACE_DIR = "/workspace"
 _COPY_IN_DRAIN_TIMEOUT_SECONDS = 30.0
@@ -221,9 +225,7 @@ class SandboxClient(Protocol):
 
     def exec_create(self, container_id: str, cmd: list[str]) -> Any: ...
 
-    def exec_start(
-        self, exec_id: str, *, socket: bool = ..., stream: bool = ...
-    ) -> Any: ...
+    def exec_start(self, exec_id: str, *, socket: bool = ..., stream: bool = ...) -> Any: ...
 
     def exec_inspect(self, exec_id: str) -> Any: ...
 
@@ -241,20 +243,45 @@ class DockerSandboxAdapter:
     def list_containers(self, filters: dict[str, Any]) -> list[Any]:
         # docker-py takes `all` as its own argument, not a filter key
         real_filters = {k: v for k, v in filters.items() if k != "all"}
-        return list(
-            self._client.containers.list(all=True, filters=real_filters or None)
-        )
+        return list(self._client.containers.list(all=True, filters=real_filters or None))
 
     def exec_create(self, container_id: str, cmd: list[str]) -> Any:
         return self._client.api.exec_create(container_id, cmd, stdin=True)
 
-    def exec_start(
-        self, exec_id: str, *, socket: bool = False, stream: bool = False
-    ) -> Any:
+    def exec_start(self, exec_id: str, *, socket: bool = False, stream: bool = False) -> Any:
         return self._client.api.exec_start(exec_id, socket=socket, stream=stream)
 
     def exec_inspect(self, exec_id: str) -> Any:
         return self._client.api.exec_inspect(exec_id)
+
+    def image_attrs(self, ref: str) -> dict[str, Any] | None:
+        """docker image inspect, mapped to None when the image is absent.
+
+        Broad catch on purpose: any failure to classify the image (missing,
+        daemon hiccup mid-inspect) reads as "not cached", and the build path
+        below surfaces the real daemon error. The inspect here only decides
+        whether to build.
+        """
+        try:
+            attrs: dict[str, Any] | None = self._client.images.get(ref).attrs
+        except Exception:  # noqa: BLE001 - see docstring
+            return None
+        return attrs
+
+    def logs_socket(self, container_id: str) -> Any:
+        """The RAW attach socket for the log stream.
+
+        Why not container.logs(stream=True): docker-py 7.2.0 demuxes
+        client-side and DISCARDS the frame type, so stderr merges into
+        stdout (measured on Docker Desktop 28.3.2) — the digests recorded
+        in sandbox_runs would lie. The attach socket keeps the daemon's
+        multiplexed framing: _demux sees real frames and stdout/stderr
+        stay separated. Same socket trick as copy-in (checkpoint 8).
+        """
+        return self._client.api.attach_socket(
+            str(container_id),
+            params={"stdout": 1, "stderr": 1, "stream": 1, "logs": 1},
+        )
 
 
 def command_for(spec: SandboxSpec) -> list[str]:
@@ -309,8 +336,7 @@ def create_kwargs(
             # exec stays ALLOWED on the workspace: running untrusted code is
             # the feature; the boundary is the container, not the file system
             _WORKSPACE_DIR: (
-                f"size={limits.workspace_mb}m,nosuid,nodev,"
-                f"uid=65534,gid=65534,mode=0755"
+                f"size={limits.workspace_mb}m,nosuid,nodev,uid=65534,gid=65534,mode=0755"
             ),
         },
         "environment": env,  # allowlist + runner nonce; no host passthrough
@@ -371,6 +397,24 @@ def _kill(container: SandboxContainer) -> None:
         pass  # already dead, or wedged in D state — removal handles the rest
 
 
+def _socket_chunks(sock: Any, size: int = 65536) -> Iterator[bytes]:
+    """Chunks off the RAW attach socket, until the peer closes or the kill
+    tears the stream down. Both transports expose recv(): unix gives a raw
+    socket; Windows gives docker-py's named-pipe socket (the copy-in path
+    already reaches its underlying handle through ._sock, checkpoint 8)."""
+    reader = getattr(sock, "recv", None) or getattr(getattr(sock, "_sock", None), "recv", None)
+    if reader is None:
+        return
+    while True:
+        try:
+            chunk = reader(size)
+        except _DRAIN_ERRORS:
+            return  # socket torn down by the kill — expected
+        if not chunk:
+            return
+        yield chunk
+
+
 class _LogReader:
     """Consumes the multiplexed log stream in a thread, capped per stream.
 
@@ -385,7 +429,11 @@ class _LogReader:
     """
 
     def __init__(
-        self, container: SandboxContainer, cap: int, done_nonce: str = ""
+        self,
+        container: SandboxContainer,
+        cap: int,
+        done_nonce: str = "",
+        socket: Any | None = None,
     ) -> None:
         self._container = container
         self._cap = cap
@@ -394,20 +442,22 @@ class _LogReader:
         self._stdout_truncated = False
         self._stderr_truncated = False
         self._thread: threading.Thread | None = None
-        self._done_prefix = (
-            _DONE_PREFIX + done_nonce.encode() + b"=" if done_nonce else None
-        )
+        self._done_prefix = _DONE_PREFIX + done_nonce.encode() + b"=" if done_nonce else None
         self._carry = bytearray()
         self.done_code: int | None = None
         self.done_event = threading.Event()
+        # When the caller hands over the RAW attach socket (the real Docker
+        # adapter, attached BEFORE start), the daemon's framing reaches
+        # _demux intact and stdout/stderr stay separated. Without it (unit
+        # stubs, older clients) the container.logs() stream is used as-is.
+        self._socket = socket
 
     def start(self) -> None:
-        stream = self._container.logs(
-            stream=True, follow=True, stdout=True, stderr=True
-        )
-        self._thread = threading.Thread(
-            target=self._consume, args=(stream,), daemon=True
-        )
+        if self._socket is not None:
+            stream = _socket_chunks(self._socket)
+        else:
+            stream = self._container.logs(stream=True, follow=True, stdout=True, stderr=True)
+        self._thread = threading.Thread(target=self._consume, args=(stream,), daemon=True)
         self._thread.start()
 
     def _consume(self, stream: Any) -> None:
@@ -467,9 +517,13 @@ def _demux(stream: Any) -> Iterator[tuple[int, bytes]]:
     """Yield (frame_type, payload) from Docker's multiplexed stream protocol.
 
     Each frame: 8-byte header [type, 0, 0, 0, size:u32be] then the payload.
-    Chunks from the stream may split frames arbitrarily. A frame whose type
-    is not 0/1/2 means the stream is not multiplexed (tty mode) — the runner
-    always sets tty=False, so this is defensive only.
+    Chunks from the stream may split frames arbitrarily. A stream that is
+    NOT the multiplexed protocol is yielded whole as stdout: the attach
+    socket (the runner's log path, checkpoint 9) always sends real frames,
+    but the fallback covers docker-py versions/builds that demux client-
+    side and strip the frame types (docker-py 7.2.0 measured), and tty
+    mode. A real frame has zeros at bytes 1-4, so a payload chunk that
+    merely starts with 0x00-0x02 is not mistaken for a frame header.
     """
     buffer = bytearray()
     for chunk in stream:
@@ -477,7 +531,10 @@ def _demux(stream: Any) -> Iterator[tuple[int, bytes]]:
         while len(buffer) >= 8:
             frame_type = buffer[0]
             size = int.from_bytes(buffer[4:8], "big")
-            if frame_type not in (0, _STDOUT_FRAME, _STDERR_FRAME):
+            if (
+                frame_type not in (0, _STDOUT_FRAME, _STDERR_FRAME)
+                or bytes(buffer[1:4]) != b"\x00\x00\x00"
+            ):
                 # not the multiplexed protocol: yield everything as stdout
                 payload = bytes(buffer)
                 buffer.clear()
@@ -488,6 +545,10 @@ def _demux(stream: Any) -> Iterator[tuple[int, bytes]]:
             payload = bytes(buffer[8 : 8 + size])
             del buffer[: 8 + size]
             yield frame_type, payload
+    # stream end: flush a raw stream's final tail — a demuxed payload
+    # shorter than one header (e.g. `b"1.16.0\n"`, 7 bytes) is real output
+    if buffer and buffer[0] not in (0, _STDOUT_FRAME, _STDERR_FRAME):
+        yield _STDOUT_FRAME, bytes(buffer)
 
 
 def _wait_for_done(
@@ -666,9 +727,7 @@ def _verify_copy_in(container: SandboxContainer) -> None:
                 raise SandboxError("workspace archive exceeds the copy-out cap")
             raw.extend(chunk)
     except OSError as exc:
-        raise SandboxError(
-            "workspace copy-in did not land (workspace unreadable)"
-        ) from exc
+        raise SandboxError("workspace copy-in did not land (workspace unreadable)") from exc
     with tarfile.open(fileobj=io.BytesIO(bytes(raw)), mode="r:") as tar:
         for member in tar:
             if member.name == _READY_FLAG and member.isfile():
@@ -737,22 +796,26 @@ def run(
     _remove_same_name(client, name)
     try:
         container = client.create(
-            **create_kwargs(
-                spec, limits, name, _labels(spec, started_epoch), done_nonce
-            )
+            **create_kwargs(spec, limits, name, _labels(spec, started_epoch), done_nonce)
         )
     except OSError as exc:
         raise SandboxError(f"sandbox create failed: {exc}") from exc
     completed = False
+    attach = getattr(client, "logs_socket", None)
+    sock = None
     try:
+        # Attach BEFORE start (the docker-run pattern): a fast-exiting
+        # payload cannot outpace the log attach, and the daemon's
+        # multiplexed framing reaches the reader intact (docker-py 7.x
+        # demuxes its logs() client-side and discards the frame types).
+        if attach is not None:
+            sock = attach(str(container.id))
         container.start()
-        reader = _LogReader(container, limits.output_bytes_per_stream, done_nonce)
+        reader = _LogReader(container, limits.output_bytes_per_stream, done_nonce, socket=sock)
         reader.start()
         if spec.workspace_files:
             copy_in(client, container, spec.workspace_files)
-        done_kind = _wait_for_done(
-            container, reader.done_event, started + limits.wall_seconds
-        )
+        done_kind = _wait_for_done(container, reader.done_event, started + limits.wall_seconds)
         timed_out = done_kind == "timeout"
         if timed_out:
             _kill(container)
@@ -803,9 +866,7 @@ def run(
                 max_entries=limits.copy_out_max_entries,
             )
             files = {
-                key: value
-                for key, value in copied.files.items()
-                if not key.startswith(".engine_")
+                key: value for key, value in copied.files.items() if not key.startswith(".engine_")
             }
             symlinks_skipped = copied.symlinks_skipped
 
@@ -837,6 +898,11 @@ def run(
             # container behind — take it down before propagating the error.
             _kill(container)
             _remove_with_retries(container)
+            if sock is not None:
+                try:
+                    sock.close()
+                except _DRAIN_ERRORS:
+                    pass
 
 
 def _rel_name(name: str) -> str:
@@ -916,9 +982,7 @@ def copy_out(
     try:
         for chunk in client.exec_start(exec_id, stream=True):
             if len(raw) + len(chunk) > max_bytes:
-                raise SandboxError(
-                    f"copy-out from {_WORKSPACE_DIR} exceeds {max_bytes} bytes"
-                )
+                raise SandboxError(f"copy-out from {_WORKSPACE_DIR} exceeds {max_bytes} bytes")
             raw.extend(chunk)
     except _DRAIN_ERRORS as exc:
         raise SandboxError(f"workspace copy-out failed: {exc}") from exc
@@ -969,8 +1033,7 @@ def parse_workspace_tar(
         for entry_count, member in enumerate(tar, start=1):
             if entry_count > max_entries:
                 raise SandboxError(
-                    f"workspace archive has more than {max_entries} entries "
-                    "(tar bomb refused)"
+                    f"workspace archive has more than {max_entries} entries (tar bomb refused)"
                 )
             if member.issym() or member.islnk():
                 symlinks_skipped += 1  # counted, never materialized/followed
@@ -1019,3 +1082,31 @@ def sweep_containers(
         except OSError:
             failed += 1
     return SweepResult(removed=removed, failed=failed)
+
+
+def remove_stale_containers(client: SandboxClient, *, job_id: str, keep_attempt: int) -> int:
+    """Remove one job's containers from EARLIER attempts, before a retry.
+
+    A worker killed mid-run leaves its sandbox (and install) containers
+    behind; the janitor is the age-based backstop, but a redelivered job
+    must not wait for it: the retry sweeps its OWN job's older-attempt
+    containers before starting. Containers that cannot be classified
+    (missing or garbled attempt label) and removals that keep failing are
+    left for the janitor — never removed blind.
+    """
+    removed = 0
+    for container in client.list_containers({"label": f"{LABEL_PREFIX}.job={job_id}"}):
+        labels = getattr(container, "labels", {}) or {}
+        raw = labels.get(f"{LABEL_PREFIX}.attempt", "")
+        try:
+            attempt = int(raw)
+        except ValueError:
+            continue  # unlabeled or garbled: the janitor's rules, not ours
+        if attempt >= keep_attempt:
+            continue  # this attempt's own containers (or newer)
+        try:
+            container.remove(force=True)
+            removed += 1
+        except OSError:
+            pass  # wedged in D state: the janitor retries later
+    return removed

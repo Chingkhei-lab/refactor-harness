@@ -72,9 +72,7 @@ class FakeContainer:
         else:
             oom_exit = int(self._wait_result)
         # real Docker: State mirrors the wait result
-        self.attrs: dict[str, Any] = {
-            "State": {"OOMKilled": oom, "ExitCode": oom_exit}
-        }
+        self.attrs: dict[str, Any] = {"State": {"OOMKilled": oom, "ExitCode": oom_exit}}
         self._wait_delay = 0.0
         self.killed = 0
         self.removed = 0
@@ -85,6 +83,7 @@ class FakeContainer:
     def start(self) -> None:
         self.started = True
         self.events.append("start")
+
     def wait(self, timeout: float | None = None) -> Any:
         if self._wait_delay:
             time.sleep(min(self._wait_delay, timeout or self._wait_delay))
@@ -112,13 +111,7 @@ class FakeContainer:
         # copy-in verification reads the /workspace DIRECTORY back (measured:
         # single-file GETs 404 on Docker Desktop) and looks for the flag
         return (
-            iter(
-                [
-                    _tar_with_members(
-                        [(".engine_ready", tarfile.REGTYPE, b"1")]
-                    )
-                ]
-            ),
+            iter([_tar_with_members([(".engine_ready", tarfile.REGTYPE, b"1")])]),
             {"name": path},
         )
 
@@ -183,9 +176,7 @@ class FakeClient:
         # the payload is what the in-container tar produces. Default: a
         # valid empty tar (GNU tar's end-of-archive blocks).
         self.exec_stream_payload = (
-            exec_stream_payload
-            if exec_stream_payload is not None
-            else _tar_with_members([])
+            exec_stream_payload if exec_stream_payload is not None else _tar_with_members([])
         )
         # the cgroup memory.events text the oom-counter exec reads back;
         # None simulates an unreadable counter (cgroup v1 / read refused)
@@ -221,9 +212,7 @@ class FakeClient:
         self._exec_cmd_by_id[exec_id] = cmd
         return {"Id": exec_id}
 
-    def exec_start(
-        self, exec_id: str, *, socket: bool = False, stream: bool = False
-    ) -> Any:
+    def exec_start(self, exec_id: str, *, socket: bool = False, stream: bool = False) -> Any:
         if stream:
             cmd = self._exec_cmd_by_id.get(exec_id, [])
             if cmd[:1] == ["/bin/sh"]:  # the oom-counter read (cat)
@@ -249,9 +238,7 @@ class FakeClient:
 
 def test_create_kwargs_are_hardened() -> None:
     nonce = "cafe01"
-    kwargs = create_kwargs(
-        _spec(), _limits(), "engine-sandbox-job-1-runkey", {}, nonce
-    )
+    kwargs = create_kwargs(_spec(), _limits(), "engine-sandbox-job-1-runkey", {}, nonce)
     assert kwargs["network_mode"] == "none"
     assert kwargs["user"] == "65534:65534"
     assert kwargs["read_only"] is True
@@ -272,10 +259,7 @@ def test_create_kwargs_are_hardened() -> None:
     assert kwargs["nano_cpus"] == 1_000_000_000
     assert kwargs["working_dir"] == "/workspace"
     assert kwargs["tmpfs"]["/tmp"] == "size=16m,noexec,nosuid,nodev"
-    assert (
-        kwargs["tmpfs"]["/workspace"]
-        == "size=64m,nosuid,nodev,uid=65534,gid=65534,mode=0755"
-    )
+    assert kwargs["tmpfs"]["/workspace"] == "size=64m,nosuid,nodev,uid=65534,gid=65534,mode=0755"
     ulimits = {u["Name"]: u for u in kwargs["ulimits"]}
     assert ulimits["nofile"]["Hard"] == 256
     assert ulimits["fsize"]["Hard"] == 32 * 1024 * 1024
@@ -290,9 +274,7 @@ def test_create_kwargs_are_hardened() -> None:
 
 def test_command_is_plain_argv_without_workspace() -> None:
     # no copy-in: no wrapper, no nonce — the argv list IS the command
-    kwargs = create_kwargs(
-        _spec(workspace_files={}), _limits(), "engine-sandbox-job-1-runkey", {}
-    )
+    kwargs = create_kwargs(_spec(workspace_files={}), _limits(), "engine-sandbox-job-1-runkey", {})
     assert kwargs["command"] == ["/usr/bin/env"]
     assert kwargs["environment"] == {"HOME": "/tmp"}
 
@@ -366,9 +348,7 @@ class SocketIOLikeClient(FakeClient):
         super().__init__(*args, **kwargs)
         self.socketio = SocketIOLike()
 
-    def exec_start(
-        self, exec_id: str, *, socket: bool = False, stream: bool = False
-    ) -> Any:
+    def exec_start(self, exec_id: str, *, socket: bool = False, stream: bool = False) -> Any:
         if socket:
             self.exec_sockets.append(self.socketio)
             return self.socketio
@@ -642,6 +622,68 @@ def test_demux_falls_back_for_non_multiplexed_stream() -> None:
     assert frames == [(1, b"raw output without headers")]
 
 
+def test_demux_flushes_a_short_raw_tail() -> None:
+    """A demuxed (docker-py 7.x) payload shorter than one header — the bug
+    that swallowed `b"1.16.0\\n"` — is real output, not a lost frame."""
+    assert list(_demux(iter([b"1.16.0\n"]))) == [(1, b"1.16.0\n")]
+    assert list(_demux(iter([b"hi\n"]))) == [(1, b"hi\n")]
+    # multi-chunk raw streams still land whole, tail included
+    frames = list(_demux(iter([b"Traceback (most recent call last):\n", b"x"])))
+    assert frames == [
+        (1, b"Traceback (most recent call last):\n"),
+        (1, b"x"),
+    ]
+
+
+def test_demux_rejects_payload_chunk_mimicking_a_frame() -> None:
+    """A raw chunk starting with 0x01 is NOT a frame unless bytes 1-4 are
+    zeros like every real docker frame header."""
+    stream = iter([b"\x01not-a-frame-header"])
+    assert list(_demux(stream)) == [(1, b"\x01not-a-frame-header")]
+
+
+class _FramesSocket:
+    """A recv()-style socket feeding docker frames: the shape the real
+    attach socket presents on both transports."""
+
+    def __init__(self, chunks: list[bytes]) -> None:
+        self._chunks = list(chunks)
+
+    def recv(self, bufsize: int) -> bytes:
+        return self._chunks.pop(0) if self._chunks else b""
+
+
+class _AttachClient(FakeClient):
+    """Provides logs_socket (the real adapter's contract); run() attaches
+    BEFORE start."""
+
+    def __init__(self, sock: _FramesSocket, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self._sock = sock
+        self.attach_calls: list[str] = []
+
+    def logs_socket(self, container_id: str) -> Any:
+        self.attach_calls.append(container_id)
+        return self._sock
+
+
+def test_reader_uses_the_attach_socket_and_keeps_streams_separate() -> None:
+    """With logs_socket available the reader consumes the RAW attach socket:
+    the daemon's framing reaches _demux intact and stdout/stderr stay
+    separated even where docker-py would merge them (7.2.0 demuxes client-
+    side)."""
+    out = b"OUT-LINE\n"
+    err = b"ERR-LINE\n"
+    out_frames = _stdout_frames(out)
+    err_frames = [bytes([2, 0, 0, 0]) + len(err).to_bytes(4, "big") + err]
+    sock = _FramesSocket(out_frames[:1] + err_frames + out_frames[1:])
+    client = _AttachClient(sock, next=[FakeContainer()])
+    result = run(_spec(), client, _limits(), done_nonce="cafe01")
+    assert result.stdout == out
+    assert result.stderr == err
+    assert len(client.attach_calls) == 1
+
+
 def _tar_with_members(members: list[tuple[str, int, bytes]]) -> bytes:
     buffer = io.BytesIO()
     with tarfile.open(fileobj=buffer, mode="w") as tar:
@@ -739,9 +781,7 @@ def test_copy_out_preserves_case_distinct_names() -> None:
 
 
 def test_copy_out_caps_entry_count_tar_bomb() -> None:
-    archive = _tar_with_members(
-        [(f"./f{i:03d}.txt", tarfile.REGTYPE, b"x") for i in range(30)]
-    )
+    archive = _tar_with_members([(f"./f{i:03d}.txt", tarfile.REGTYPE, b"x") for i in range(30)])
     client = FakeClient(exec_stream_payload=archive)
     with pytest.raises(SandboxError, match="more than 10 entries"):
         copy_out(client, FakeContainer(), max_entries=10)
@@ -837,9 +877,7 @@ def test_janitor_sweeps_old_and_keeps_fresh() -> None:
     old = Sweepable({"engine-sandbox.created": str(now - 7200)})
     fresh = Sweepable({"engine-sandbox.created": str(now - 60)})
     broken = Sweepable({"engine-sandbox.created": str(now - 7200)}, broken=True)
-    result = sweep_containers(
-        SweepFake([old, fresh, broken]), max_age_seconds=3600, now=now
-    )
+    result = sweep_containers(SweepFake([old, fresh, broken]), max_age_seconds=3600, now=now)
     assert result.removed == 1
     assert result.failed == 1
     assert old.removed == 1 and fresh.removed == 0 and broken.removed == 0

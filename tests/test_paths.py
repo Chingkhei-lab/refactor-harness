@@ -5,6 +5,8 @@ something else once it becomes a tree key."""
 
 from __future__ import annotations
 
+import unicodedata
+
 import pytest
 from hypothesis import given
 from hypothesis import settings as hyp_settings
@@ -104,8 +106,7 @@ def test_sha256_hex() -> None:
 # THE property, with an adversarial alphabet: plain st.text() almost never
 # generates '..' or '.git' by chance, so N random strings prove little.
 # These components are exactly the forbidden / separator-adjacent shapes,
-# joined by both separators, plus an optional leading slash — every ACCEPTED
-# result must have no forbidden component and stay root-confined.
+# joined by both separators, plus an optional leading slash.
 _ADVERSARIAL_COMPONENTS = ["", ".", "..", ".git", ".GIT", "a", "\x00", "é"]
 
 
@@ -119,6 +120,33 @@ def _adversarial_paths(draw) -> str:
     return path
 
 
+def _assert_accepted_path_is_clean(path: str) -> None:
+    """The final assertion, INDEPENDENT of the validator: if validate_path
+    accepted, the path provably violates none of the rules — restated here
+    inlined (no import of the validator's internals), so a bug in
+    validate_path cannot hide behind the validator itself. Checked against
+    the RAW input string, not the return value (which is asserted equal
+    separately)."""
+    assert not path.startswith("/"), f"absolute path accepted: {path!r}"
+    assert "\\" not in path, f"backslash accepted: {path!r}"
+    for component in path.split("/"):
+        assert component != "", f"empty component accepted: {path!r}"
+        assert component != ".", f"'.' component accepted: {path!r}"
+        assert component != "..", f"'..' component accepted: {path!r}"
+        assert component.lower() != ".git", f"'.git' component accepted: {path!r}"
+    for ch in path:
+        code = ord(ch)
+        assert unicodedata.category(ch) != "Cc", (
+            f"control character U+{code:04X} accepted: {path!r}"
+        )
+        assert not (0x202A <= code <= 0x202E or 0x2066 <= code <= 0x2069), (
+            f"bidirectional override U+{code:04X} accepted: {path!r}"
+        )
+    # root-confined: with no '..' component, joining onto a root is a pure
+    # descent and cannot escape it
+    assert ("/root/" + path).startswith("/root/")
+
+
 @given(_adversarial_paths())
 @hyp_settings(max_examples=500)
 def test_fuzz_adversarial_components_rejected_or_clean(path: str) -> None:
@@ -126,17 +154,8 @@ def test_fuzz_adversarial_components_rejected_or_clean(path: str) -> None:
         result = validate_path(path)
     except PathDenied:
         return  # rejected outright: fine
-    # accepted ⟹ provably clean: no forbidden component, no traversal, no
-    # backslash, root-confined when joined onto a root
-    assert result == path
-    assert not path.startswith("/")
-    assert "\\" not in path
-    components = path.split("/")
-    for component in components:
-        assert component not in ("", ".", "..")
-        assert component.lower() != ".git"
-    joined = "/root/" + path
-    assert joined.startswith("/root/") and ".." not in components
+    assert result == path  # returned unchanged: the exact tree key
+    _assert_accepted_path_is_clean(path)
 
 
 # kept as a second layer: arbitrary text can still hit rules the adversarial
@@ -148,14 +167,5 @@ def test_fuzz_any_input_rejected_or_root_confined(path: str) -> None:
         result = validate_path(path)
     except PathDenied:
         return  # rejected outright: fine
-    # returned unchanged and provably safe
     assert result == path
-    assert not path.startswith("/")
-    assert not path.startswith("\\")
-    components = path.split("/")
-    assert all(components)  # no empty components
-    assert ".." not in components and "." not in components
-    # joining onto a root never escapes: no '..' above means the join is a
-    # pure descent; assert the joined form stays under the root prefix
-    joined = "/root/" + path
-    assert joined.startswith("/root/") and "//" not in joined[6:]
+    _assert_accepted_path_is_clean(path)

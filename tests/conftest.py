@@ -58,7 +58,7 @@ def clean_db(settings: Settings) -> Settings:
     with psycopg.connect(settings.database_url, autocommit=True) as conn:
         conn.execute(
             "TRUNCATE jobs, workflows, tool_calls, workspace_patches, "
-            "workspaces, blobs CASCADE"
+            "sandbox_runs, workspaces, blobs CASCADE"
         )
     try:
         yield settings
