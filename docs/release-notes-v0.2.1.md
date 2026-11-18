@@ -60,8 +60,9 @@ measured-clean level.
   `sandbox-hostile` 18 passed / 0 failed.
 - The 6-case install-hostile suite previously ran only locally; the follow-up
   commit adds it to the `sandbox-hostile` job (real pip + Docker, wheels only).
-- Tag `v0.2.1` is the checkpoint-9 commit; these review-round-1 corrections
-  land on `main` after it.
+- `v0.2.1` is the checkpoint-9 commit (`c0a9c3d`). The review-round-1
+  corrections above land on `main` as `bc6689c` — the same follow-up
+  pattern as checkpoint 8 (`9bc8281`). The tag is not moved.
 
 ## Artifacts
 
