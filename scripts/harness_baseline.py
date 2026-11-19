@@ -29,6 +29,7 @@ import sys
 from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(_REPO_ROOT / "src"))
@@ -54,7 +55,7 @@ def _target_version(target_path: Path, module: str) -> str:
     return "unknown"
 
 
-def _coverage(target_path: Path, coverage_data: Path, module: str) -> dict:
+def _coverage(target_path: Path, coverage_data: Path, module: str) -> dict[str, Any]:
     """Line and branch coverage, plus the uncovered functions and the total."""
     json_path = coverage_data.with_suffix(".json")
     subprocess.run(
@@ -62,10 +63,11 @@ def _coverage(target_path: Path, coverage_data: Path, module: str) -> dict:
          f"--data-file={coverage_data}"],
         cwd=str(_REPO_ROOT), capture_output=True, text=True,
     )
-    result: dict = {
-        "line_percent": None, "branch_percent": None, "statements": 0,
-        "covered_statements": 0, "branches": 0, "covered_branches": 0,
-        "uncovered_functions": [], "function_count": 0,
+    result: dict[str, Any] = {
+        "line_percent": None, "branch_percent": None, "combined_percent": None,
+        "statements": 0, "covered_statements": 0, "branches": 0, "covered_branches": 0,
+        "never_entered_functions": [], "partially_covered_functions": [],
+        "never_entered_statements": 0, "function_count": 0,
     }
     if not json_path.exists():
         return result
@@ -75,19 +77,53 @@ def _coverage(target_path: Path, coverage_data: Path, module: str) -> dict:
     result["covered_statements"] = totals.get("covered_lines", 0)
     result["branches"] = totals.get("num_branches", 0)
     result["covered_branches"] = totals.get("covered_branches", 0)
-    result["line_percent"] = round(totals.get("percent_covered", 0.0), 2)
+    # Three different numbers, and they are different numbers:
+    #   lines    covered_statements / statements
+    #   branches covered_branches / branches
+    #   combined (lines + branches) / (statements + branches) -- this is what
+    #            coverage.py's `percent_covered` reports, and calling it "line
+    #            coverage" understates the line number by three points.
+    result["line_percent"] = round(
+        100.0 * result["covered_statements"] / result["statements"], 2
+    )
     result["branch_percent"] = (
         round(100.0 * result["covered_branches"] / result["branches"], 2)
         if result["branches"] else None
     )
-    uncovered: list[str] = []
+    result["combined_percent"] = round(
+        100.0
+        * (result["covered_statements"] + result["covered_branches"])
+        / (result["statements"] + result["branches"]),
+        2,
+    )
+
+    never_entered: list[dict[str, Any]] = []
+    partial: list[dict[str, Any]] = []
     count = 0
     for path, file_data in payload.get("files", {}).items():
         for name, function in (file_data.get("functions") or {}).items():
             count += 1
-            if function.get("missing_lines"):
-                uncovered.append(f"{Path(path).name}::{name}")
-    result["uncovered_functions"] = sorted(uncovered)
+            missing = function.get("missing_lines") or []
+            executed = function.get("executed_lines") or []
+            if not missing:
+                continue
+            entry = {
+                "function": f"{Path(path).name}::{name}",
+                "start_line": function.get("start_line"),
+                "executed_lines": len(executed),
+                "missing_lines": len(missing),
+            }
+            if executed:
+                partial.append(entry)
+            else:
+                never_entered.append(entry)
+    result["never_entered_functions"] = sorted(never_entered, key=lambda item: item["function"])
+    result["partially_covered_functions"] = sorted(
+        partial, key=lambda item: item["function"]
+    )
+    result["never_entered_statements"] = sum(
+        item["missing_lines"] for item in never_entered
+    )
     result["function_count"] = count
     return result
 
@@ -155,17 +191,35 @@ def main() -> int:
     shuffled_noise = baseline_noise(shuffled)
     print(f"OBSERVED A/A noise (shuffled order): {len(shuffled_noise)}")
 
-    # shim-off, one pass, to say WHICH clock surfaces the controls decide
-    bare_dir = _REPO_ROOT / ".harness" / "no-shim"
-    bare_dir.mkdir(parents=True, exist_ok=True)
-    unshimmed = _run(args.passes + 100, shim=bare_dir)
+    # Which cases read the clock, measured by MOVING the clock rather than by
+    # turning the shim off. Two shim-off passes on the same day agree even for
+    # time-dependent cases (the real date is the same in both), so shim-off
+    # agreement proves nothing; a different frozen epoch does.
+    shifted_dir = determinism.write_shim(
+        _REPO_ROOT / ".harness" / "shim-shifted", epoch=determinism.FROZEN_EPOCH + 365 * 86400
+    )
+    shifted = run_pass(
+        python=sys.executable,
+        checkout=target_path,
+        shim_dir=shifted_dir,
+        src_dir=_REPO_ROOT / "src",
+        target_paths=[target_path],
+        cases=cases,
+        index=args.passes + 200,
+        module=args.target,
+        workdir=work,
+        expected_case_set_hash=set_hash,
+    )
     reference = fixed[0].by_case()
-    shim_dependent = sorted(
+    clock_dependent = sorted(
         case_id
-        for case_id, observation in unshimmed.by_case().items()
+        for case_id, observation in shifted.by_case().items()
         if case_id in reference and reference[case_id].fingerprint != observation.fingerprint
     )
-    print(f"OBSERVED cases decided by the shim: {len(shim_dependent)}")
+    print(f"OBSERVED cases that change when the frozen epoch moves a year: {len(clock_dependent)}")
+
+    bare_dir = _REPO_ROOT / ".harness" / "no-shim"
+    bare_dir.mkdir(parents=True, exist_ok=True)
 
     probe_shimmed = determinism.run_probe(sys.executable, target_path, shim_dir, [target_path])
     probe_bare = determinism.run_probe(sys.executable, target_path, bare_dir, [target_path])
@@ -190,8 +244,11 @@ def main() -> int:
     print(
         f"OBSERVED coverage: lines {coverage['covered_statements']}/{coverage['statements']} "
         f"({coverage['line_percent']}%), branches {coverage['covered_branches']}/"
-        f"{coverage['branches']} ({coverage['branch_percent']}%), "
-        f"uncovered functions {len(coverage['uncovered_functions'])}/{coverage['function_count']}"
+        f"{coverage['branches']} ({coverage['branch_percent']}%), combined "
+        f"{coverage['combined_percent']}%, never-entered functions "
+        f"{len(coverage['never_entered_functions'])}/{coverage['function_count']}, "
+        f"functions with an unexecuted line "
+        f"{len(coverage['never_entered_functions']) + len(coverage['partially_covered_functions'])}"
     )
 
     store = BlobStore(out_dir / f"harness-{args.target}-blobs")
@@ -215,7 +272,7 @@ def main() -> int:
         },
         "controls": list(fixed[0].controls),
         "clock_surfaces": clock_surfaces,
-        "shim_dependent_cases": shim_dependent,
+        "clock_dependent_cases": clock_dependent,
         "coverage": coverage,
         "golden_blobs": len(store.written),
         "digests": digest_map(fixed[0]),
@@ -229,7 +286,7 @@ def main() -> int:
     return 0
 
 
-def _write_markdown(path: Path, report: dict) -> None:
+def _write_markdown(path: Path, report: dict[str, Any]) -> None:
     coverage = report["coverage"]
     unfixed = report["orders"]["fixed"]["noise"]
     shuffled = report["orders"]["shuffled"]["noise"]
@@ -248,13 +305,19 @@ def _write_markdown(path: Path, report: dict) -> None:
         f"| A/A passes per order | {report['passes']} fixed, {report['passes']} shuffled |",
         f"| A/A noise (fixed order) | **{len(unfixed)}** |",
         f"| A/A noise (shuffled order) | **{len(shuffled)}** |",
-        f"| Cases the shim decides | {len(report['shim_dependent_cases'])} |",
+        f"| Cases whose value moves when the frozen epoch moves a year | "
+        f"{len(report['clock_dependent_cases'])} |",
         f"| Line coverage | {coverage['covered_statements']}/{coverage['statements']} "
         f"({coverage['line_percent']}%) |",
         f"| Branch coverage | {coverage['covered_branches']}/{coverage['branches']} "
         f"({coverage['branch_percent']}%) |",
-        f"| Uncovered functions | {len(coverage['uncovered_functions'])}/"
-        f"{coverage['function_count']} |",
+        f"| Combined (what coverage.py reports as `percent_covered`) | "
+        f"{coverage['combined_percent']}% |",
+        f"| Functions never entered | {len(coverage['never_entered_functions'])}/"
+        f"{coverage['function_count']} ({coverage['never_entered_statements']} statements) |",
+        f"| Functions with an unexecuted line | "
+        f"{len(coverage['never_entered_functions']) + len(coverage['partially_covered_functions'])}"
+        f"/{coverage['function_count']} |",
         f"| Golden blobs | {report['golden_blobs']} |",
         f"| Controls applied | {', '.join(report['controls'])} |",
         "",
@@ -293,16 +356,18 @@ def _write_markdown(path: Path, report: dict) -> None:
         lines.append(f"- **{order} order**: {detail}")
     lines += [
         "",
-        "## Cases the determinism shim decides",
+        "## Cases that read the clock",
         "",
-        "Method: run one pass with the shim and one without, then compare the "
-        "control-free fingerprint of each case. A case that differs is one where "
-        "a shimmed surface changed the observed value; the clock-surface table "
-        "above says which surfaces those are.",
+        "Method: run the same case set twice with the shim **on**, once at the "
+        "default frozen epoch and once a year later, and compare fingerprints. "
+        "This is the experiment that works: two shim-OFF passes on the same day "
+        "agree even for time-dependent cases, because the real date is the same "
+        "in both, so shim-off agreement is not evidence of clock independence. "
+        "Moving the frozen epoch is.",
         "",
     ]
-    shim_cases = chr(10).join(f"- `{case_id}`" for case_id in report["shim_dependent_cases"])
-    lines.append(shim_cases or "None: every case is clock-, random- and hash-independent.")
+    clock_cases = chr(10).join(f"- `{case_id}`" for case_id in report["clock_dependent_cases"])
+    lines.append(clock_cases or "None: no case's value depends on the date.")
     lines += [
         "",
         "## Known target defect (reproduced outside the harness)",
@@ -316,14 +381,28 @@ def _write_markdown(path: Path, report: dict) -> None:
         "truncated observation (1 000 items, `truncated: true`) instead of "
         "hanging.",
         "",
-        "## Uncovered functions (the limit of these claims)",
+        "## Function coverage (the limit of these claims)",
         "",
-        f"{len(coverage['uncovered_functions'])} of {coverage['function_count']} "
-        "functions were never executed by the case set:",
+        f"{len(coverage['never_entered_functions'])} of {coverage['function_count']} "
+        f"functions were never entered ({coverage['never_entered_statements']} of "
+        f"{coverage['statements']} statements); another "
+        f"{len(coverage['partially_covered_functions'])} were entered but have an "
+        "unexecuted line. The count is coverage.py's own function data (it parses "
+        "the source), not a separate AST walk, and 'uncovered' here means at "
+        "least one unexecuted line.",
         "",
+        "| Function | Start | Lines run | Lines not run |",
+        "| --- | --- | --- | --- |",
     ]
-    uncovered = [f"- `{name}`" for name in coverage["uncovered_functions"]]
-    lines.append(chr(10).join(uncovered) or "Every function was reached at least once.")
+    for item in coverage["never_entered_functions"]:
+        lines.append(
+            f"| `{item['function']}` | {item['start_line']} | 0 | {item['missing_lines']} |"
+        )
+    for item in coverage["partially_covered_functions"]:
+        lines.append(
+            f"| `{item['function']}` | {item['start_line']} | {item['executed_lines']} | "
+            f"{item['missing_lines']} |"
+        )
     path.write_text(chr(10).join(lines) + chr(10), encoding="utf-8")
 
 

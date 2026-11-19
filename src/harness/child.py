@@ -27,7 +27,58 @@ from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from typing import Any
 
-from harness.observation import Observation, encode_exception, encode_with_meta
+from harness.observation import (
+    EncodedValue,
+    Observation,
+    encode_exception,
+    encode_with_meta,
+)
+
+
+def cpu_seconds() -> float:
+    """CPU time this process has used, or 0.0 where `resource` is unavailable."""
+    try:
+        import resource
+    except ImportError:  # Windows: no rlimit, the runner falls back to the clock
+        return 0.0
+    getrusage = getattr(resource, "getrusage", None)
+    which = getattr(resource, "RUSAGE_SELF", None)
+    if getrusage is None or which is None:
+        return 0.0
+    usage = getrusage(which)
+    return float(usage.ru_utime + usage.ru_stime)
+
+
+def install_cpu_budget(budget: float) -> bool:
+    """Bound the NEXT case by CPU time, not wall time.
+
+    The soft limit is raised to "CPU used so far + budget" before every case, so
+    a case that loops in C (a regex backtracking, a tight numeric loop) is killed
+    by SIGXCPU at its budget even though it never returns to the interpreter —
+    which a wall-clock timeout can only do by killing the process from outside,
+    indistinguishable from a slow machine.
+
+    The hard limit is a pass-wide backstop and is set once: POSIX allows lowering
+    a hard limit but not raising it again, so a per-case hard limit would make
+    the second case unmeasurable. Soft alone terminates the case: SIGXCPU's
+    default action is terminate.
+    """
+    try:
+        import resource
+    except ImportError:
+        return False
+    limit = getattr(resource, "RLIMIT_CPU", None)
+    setrlimit = getattr(resource, "setrlimit", None)
+    if limit is None or setrlimit is None:
+        return False
+    used = int(cpu_seconds())
+    soft = used + max(1, int(round(budget)))
+    hard = max(soft + 1, 3600)
+    try:
+        setrlimit(limit, (soft, hard))
+    except (ValueError, OSError):
+        return False
+    return True
 
 
 def _shim() -> Any:
@@ -103,7 +154,7 @@ def run_case(
         entry=entry,
         inputs=inputs,
         outcome="unsupported" if unsupported else "return",
-        value=encoded,
+        value=EncodedValue(encoded),
         exception=(
             {
                 "__exception__": {
@@ -134,10 +185,22 @@ def main(argv: list[str] | None = None) -> int:
     plan = json.loads(plan_path.read_text(encoding="utf-8"))
     module = importlib.import_module(plan.get("module", "parse"))
     case_set_hash = plan["case_set_hash"]
+    cpu_budget = float(plan.get("cpu_budget") or 0.0)
     shim = _shim()
     controls = _controls(shim)
-    with out_path.open("w", encoding="utf-8") as handle:
+    # Begin markers: if the process dies inside a case (a CPU budget kill), the
+    # runner needs to know WHICH case was in flight, and the last written
+    # observation does not say that.
+    begin_path = out_path.with_suffix(".begin")
+    with out_path.open("w", encoding="utf-8") as handle, begin_path.open(
+        "w", encoding="utf-8"
+    ) as begun:
         for case in plan["cases"]:
+            begun.write(case["id"] + chr(10))
+            begun.flush()
+            # No rlimit on this platform (Windows): the runner's wall clock is
+            # then the only bound, and the report says so.
+            install_cpu_budget(cpu_budget) if cpu_budget > 0 else None
             try:
                 observation = run_case(module, case, controls, case_set_hash, shim)
             except BaseException:  # noqa: BLE001 - harness bug, record it, keep going

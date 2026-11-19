@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Chingkhei-lab/refactor-harness/harness/rules/schema.json",
+  "title": "Harness normalizer rules",
+  "description": "One file per target. A rule exists only for a field the A/A baseline showed to be noise, and every rule must say why.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["target", "case_set_hash", "rules"],
+  "properties": {
+    "target": {"type": "string", "minLength": 1},
+    "case_set_hash": {
+      "type": "string",
+      "minLength": 8,
+      "description": "sha256 of the case set the rules were written for; a run with a different case set is refused."
+    },
+    "notes": {"type": "string"},
+    "rules": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "path", "type", "reason"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Dotted path in the encoded observation, `$` for root, `*` matches one segment (a dict key or a list index)."
+          },
+          "type": {"type": "string", "enum": ["uuid", "timestamp", "float", "regex_mask", "unordered_list"]},
+          "reason": {
+            "type": "string",
+            "minLength": 12,
+            "description": "The A/A finding or case that motivated this rule. Required: a rule without a reason is a bug being hidden."
+          },
+          "tolerance": {"type": "number", "description": "float: absolute tolerance, or relative tolerance when used with the value."},
+          "tolerance_seconds": {"type": "number", "description": "timestamp: how far apart the two parsed timestamps may be."},
+          "pattern": {"type": "string", "description": "regex_mask: the pattern both sides must fully match."}
+        }
+      }
+    }
+  }
+}

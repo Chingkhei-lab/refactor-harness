@@ -1,0 +1,6 @@
+{
+  "target": "parse",
+  "case_set_hash": "f3b6b66d737ec9bbf60973b4ee34fb22ec7d585ba4ead7e00a9d9758a3ea252f",
+  "notes": "parse is deterministic under the shim: 0 A/A noise over 5 fixed-order and 5 shuffled-order passes, so no field needed masking. An empty rule list is the correct result here, not an oversight.",
+  "rules": []
+}

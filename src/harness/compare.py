@@ -22,13 +22,46 @@ from dataclasses import dataclass
 from typing import Any
 
 from .observation import Observation
+from .rules import RuleSet, apply_rules
 
 EQUAL = "equal"
 DIFFERENT = "different"
+EQUIVALENT = "equivalent"
 EQUIVALENT_BOUNDED = "equivalent_bounded"
 UNDECIDABLE = "undecidable"
 
-OUTCOMES = (EQUAL, DIFFERENT, EQUIVALENT_BOUNDED, UNDECIDABLE)
+OUTCOMES = (EQUAL, DIFFERENT, EQUIVALENT, EQUIVALENT_BOUNDED, UNDECIDABLE)
+
+# How the four comparison outcomes land in the five report classes. They are NOT
+# one-to-one, so the report keeps five lines and never folds a hedged verdict
+# into a confident one:
+#
+#   identical            -> equal, nothing masked
+#   equivalent           -> equal after a declared rule masked a field
+#   equivalent_bounded   -> both truncated at the same bound, prefixes agree
+#   different            -> an observable difference, at a reported path
+#   unsupported          -> undecidable: opaque, budget hit, or unsupported case
+#   flaky                -> the case varied across A/A passes (assigned by the
+#                           workflow, not by a comparison)
+#
+# `equivalent_bounded` stays on its own line, next to `equivalent` and never
+# inside it. `undecidable` is counted with `unsupported` in the one-line
+# summary, and every such case is listed with its reason.
+CLASS_IDENTICAL = "identical"
+CLASS_EQUIVALENT = "equivalent"
+CLASS_EQUIVALENT_BOUNDED = "equivalent_bounded"
+CLASS_DIFFERENT = "different"
+CLASS_UNSUPPORTED = "unsupported"
+CLASS_FLAKY = "flaky"
+
+CLASSES = (
+    CLASS_IDENTICAL,
+    CLASS_EQUIVALENT,
+    CLASS_EQUIVALENT_BOUNDED,
+    CLASS_DIFFERENT,
+    CLASS_UNSUPPORTED,
+    CLASS_FLAKY,
+)
 
 
 @dataclass(frozen=True)
@@ -41,6 +74,17 @@ class Comparison:
     left: Any = None
     right: Any = None
     reason: str = ""
+    masked: tuple[str, ...] = ()
+
+    @property
+    def report_class(self) -> str:
+        if self.outcome == EQUAL:
+            return CLASS_EQUIVALENT if self.masked else CLASS_IDENTICAL
+        return {
+            DIFFERENT: CLASS_DIFFERENT,
+            EQUIVALENT_BOUNDED: CLASS_EQUIVALENT_BOUNDED,
+            UNDECIDABLE: CLASS_UNSUPPORTED,
+        }[self.outcome]
 
     def __str__(self) -> str:
         head = f"{self.case_id}: {self.outcome}"
@@ -84,14 +128,16 @@ def _behaviour(observation: Observation) -> dict[str, Any]:
     return {
         "inputs": observation.inputs,
         "outcome": observation.outcome,
-        "value": observation.value,
+        "value": observation.value_body(),
         "exception": observation.exception,
         "stdout": observation.stdout,
         "stderr": observation.stderr,
     }
 
 
-def compare(left: Observation, right: Observation) -> Comparison:
+def compare(
+    left: Observation, right: Observation, rules: RuleSet | None = None
+) -> Comparison:
     """Compare two observations of the SAME case under the same case set."""
     if left.case_id != right.case_id:
         raise ValueError(f"not the same case: {left.case_id} != {right.case_id}")
@@ -123,26 +169,71 @@ def compare(left: Observation, right: Observation) -> Comparison:
     right_flags = right.flags or {}
     truncated = bool(left_flags.get("truncated")) and bool(right_flags.get("truncated"))
 
-    difference = _first_difference(_behaviour(left), _behaviour(right))
+    left_body, right_body = _behaviour(left), _behaviour(right)
+    masked: tuple[str, ...] = ()
+    refusals: list[str] = []
+    if rules is not None and rules.rules:
+        # Deep copies: normalisation must not rewrite the stored observations.
+        import json
+
+        applied = apply_rules(
+            json.loads(json.dumps(left_body)), json.loads(json.dumps(right_body)), rules
+        )
+        left_body, right_body = applied.left, applied.right
+        masked = tuple(f"{item.rule_id}@{item.path}" for item in applied.applied)
+        refusals = [f"{item['rule_id']}@{item['path']}: {item['reason']}"
+                    for item in applied.refused]
+
+    difference = _first_difference(left_body, right_body)
     if difference is None:
         if truncated:
             return Comparison(
                 left.case_id,
                 EQUIVALENT_BOUNDED,
                 reason="both truncated; the prefixes agree and nothing beyond was seen",
+                masked=masked,
             )
-        return Comparison(left.case_id, EQUAL)
+        return Comparison(
+            left.case_id,
+            EQUAL,
+            masked=masked,
+            reason=("masked by " + ", ".join(masked)) if masked else "",
+        )
+    refused = ("; refused: " + "; ".join(refusals)) if refusals else ""
     if truncated:
         # A difference inside a truncated value is still a real difference.
-        return Comparison(left.case_id, DIFFERENT, *difference, reason="truncated but differs")
-    return Comparison(left.case_id, DIFFERENT, *difference)
+        return Comparison(
+            left.case_id, DIFFERENT, *difference,
+            reason="truncated but differs" + refused, masked=masked,
+        )
+    return Comparison(left.case_id, DIFFERENT, *difference, reason=refused, masked=masked)
+
+
+def summarise(comparisons: list[Comparison]) -> dict[str, Any]:
+    """Counts by report class, with every undecidable case named and explained.
+
+    `unsupported` folds in the undecidable verdicts — the one-line summary has
+    five classes, not six — but the individual reasons are always kept next to
+    the count so the fold cannot be mistaken for "nothing to see".
+    """
+    counts = {name: 0 for name in CLASSES}
+    reasons: list[dict[str, str]] = []
+    for comparison in comparisons:
+        counts[comparison.report_class] += 1
+        if comparison.outcome == UNDECIDABLE:
+            reasons.append({"case_id": comparison.case_id, "reason": comparison.reason})
+    return {**counts, "undecidable_reasons": reasons}
 
 
 def compare_sets(
-    left: dict[str, Observation], right: dict[str, Observation]
+    left: dict[str, Observation],
+    right: dict[str, Observation],
+    rules: RuleSet | None = None,
 ) -> dict[str, Comparison]:
     """Compare two `case_id -> observation` maps, refusing an incomplete pair."""
     missing = sorted(set(left) ^ set(right))
     if missing:
         raise ValueError(f"case sets differ: {missing[:5]}")
-    return {case_id: compare(left[case_id], right[case_id]) for case_id in sorted(left)}
+    return {
+        case_id: compare(left[case_id], right[case_id], rules) for case_id in sorted(left)
+    }

@@ -142,6 +142,22 @@ the cases before it. That is why each case is preceded by a reset of both, and
 why the A/A baseline runs a fixed order *and* a different shuffle every pass: 0
 noise in both orders is the claim, and a fixed order alone could not support it.
 
+## Two layers, in this order
+
+The **controls** come first: the shim removes the clock, the hash seed, the uuid
+counter and the random stream. Only what survives that is candidate noise, and
+only then may a **rule** declare a field uninteresting. Rules are data
+(`harness/rules/<target>.json`), validated against a JSON schema on load, each
+one carrying the A/A finding that motivated it, and the file is hashed into every
+report. `parse` needs no rules, which is the honest answer for a target with no
+A/A noise — and it is recorded as "0 rules", not as an empty file nobody looked
+at.
+
+The rules are proven on a deliberately noisy fixture (`tests/noisy_fixture.py`):
+with the controls on, no rule is needed; switch one control off and the noise
+appears, and a declared rule makes the result equivalent; change a field the
+rule does not name and the comparison is still different.
+
 ## What a report contains
 
 Counts by class; the masked fields and which rule masked them; unsupported

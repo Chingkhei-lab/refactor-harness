@@ -282,6 +282,20 @@ def digest(value: Any) -> str:
 
 
 @dataclass(frozen=True)
+class EncodedValue:
+    """A value that the child already encoded, so the parent must not re-encode.
+
+    Encoding twice is not harmless: a tag dict such as `{"__float__": "1.5"}`
+    has a dunder key, so a second pass escapes it through the mapping form and
+    every tag ends up one level down — rules then see a dict where the target
+    returned a number, and the comparator reports `$.value.__mapping__[0][1]`
+    instead of `$.value`.
+    """
+
+    payload: Any
+
+
+@dataclass(frozen=True)
 class Observation:
     """What one case actually did. Measurements only — no timings, no paths."""
 
@@ -297,6 +311,12 @@ class Observation:
     flags: dict[str, Any] = field(default_factory=dict)
     case_set_hash: str = ""
 
+    def value_body(self) -> Any:
+        """The encoded value, encoding it once if it arrived raw."""
+        if isinstance(self.value, EncodedValue):
+            return self.value.payload
+        return None if self.value is None else encode(self.value)
+
     def body(self) -> dict[str, Any]:
         return {
             "case_id": self.case_id,
@@ -305,7 +325,7 @@ class Observation:
             "outcome": self.outcome,
             # keep the encoded value even when unsupported: "what was opaque"
             # is the diagnostic, and dropping it made the report unable to say.
-            "value": None if self.value is None else encode(self.value),
+            "value": self.value_body(),
             "exception": self.exception,
             "stdout": self.stdout,
             "stderr": self.stderr,

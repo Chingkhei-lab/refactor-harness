@@ -1,0 +1,430 @@
+{
+  "aa_noise": [],
+  "budget": {
+    "cpu_seconds_per_case": 0.0,
+    "kind": "wall clock"
+  },
+  "case_count": 273,
+  "case_set_hash": "f3b6b66d737ec9bbf60973b4ee34fb22ec7d585ba4ead7e00a9d9758a3ea252f",
+  "cases_by_source": {
+    "docs": 42,
+    "grammar": 132,
+    "grammar-random": 33,
+    "hypothesis": 40,
+    "malformed": 26
+  },
+  "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+  ],
+  "differences": [],
+  "generated_at": "2026-11-19T16:35:26.595823+00:00",
+  "masked": [],
+  "new": {
+    "path": "C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify-trees\\harmless",
+    "version": "1.22.4"
+  },
+  "old": {
+    "path": "C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\target",
+    "version": "1.22.4"
+  },
+  "order": "old, new, old, new (alternating)",
+  "rounds": 2,
+  "rules": {
+    "count": 0,
+    "path": "C:\\Users\\yumkh\\Documents\\Refactor-harness\\harness\\rules\\parse.json",
+    "sha256": "4515107d75a6c14c7d8db4f743cf7352e0febd5a1a4d383b13e81040b1a869db"
+  },
+  "summary": {
+    "different": 0,
+    "equivalent": 0,
+    "equivalent_bounded": 2,
+    "flaky": 0,
+    "flaky_cases": [],
+    "identical": 498,
+    "undecidable_reasons": [
+      {
+        "case_id": "0044-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0048-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0052-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0056-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0060-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0064-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0068-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0072-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0076-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0084-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0092-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0096-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0100-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0104-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0108-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0112-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0116-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0120-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0132-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0152-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0156-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0168-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0172-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0044-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0048-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0052-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0056-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0060-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0064-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0068-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0072-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0076-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0084-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0092-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0096-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0100-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0104-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0108-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0112-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0116-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0120-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0132-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0152-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0156-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0168-parse-grammar",
+        "reason": "parse was unsupported"
+      },
+      {
+        "case_id": "0172-parse-grammar",
+        "reason": "parse was unsupported"
+      }
+    ],
+    "unsupported": 46
+  },
+  "target": "parse",
+  "unsupported": [
+    {
+      "case_id": "0044-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0048-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0052-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0056-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0060-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0064-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0068-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0072-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0076-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0084-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0092-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0096-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0100-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0104-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0108-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0112-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0116-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0120-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0132-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0152-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0156-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0168-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0172-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0044-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0048-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0052-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0056-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0060-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0064-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0068-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0072-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0076-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0084-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0092-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0096-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0100-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0104-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0108-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0112-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0116-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0120-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0132-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0152-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0156-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0168-parse-grammar",
+      "reason": "parse was unsupported"
+    },
+    {
+      "case_id": "0172-parse-grammar",
+      "reason": "parse was unsupported"
+    }
+  ]
+}

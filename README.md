@@ -93,6 +93,24 @@ codebase**: 1 106 lines, zero dependencies, wheels only, deliberately boring so
 that a misbehaving harness cannot hide behind an interesting target. The
 legacy-modernisation story starts at stage 2/3, chosen after the harness works.
 
+Measurement, so far: 273 cases (sha256 `f3b6b66d…`), 0 A/A noise over 5 fixed
+and 5 shuffled passes, 0 differences between the target and an identical copy
+and between the target and a formatting-plus-renamed-local refactor, 498
+identical / 2 equivalent-on-bounded-prefix / 46 unsupported of 546 case
+comparisons. Line coverage 76.71 %, branch 66.26 %, combined 73.5 %; 19 of 47
+functions never entered.
+
+### Known target bugs (not harness bugs)
+
+- **`parse.findall` never terminates when the format can match the empty
+  string.** `list(parse.findall("{:tt}", "22:13:20"))` yields the zero-width
+  match at offset 8 forever. Reproduced on 1.22.4 with no shim, no sandbox and an
+  external timeout (exit 124). Upstream: open pull request
+  [r1chardj0n3s/parse#246](https://github.com/r1chardj0n3s/parse/pull/246)
+  ("Avoid infinite findall iteration for empty matches", 2026-09-12, unmerged in
+  1.22.4). The harness records this case as a truncated observation (1 000 items)
+  rather than hanging, and never as "equal".
+
 ## Sandbox (Phase 3, checkpoint 7)
 
 Untrusted code runs in Docker containers: read-only rootfs, non-root,

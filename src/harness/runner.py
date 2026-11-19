@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import random
+import signal
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -19,7 +20,7 @@ from typing import Any
 
 from harness import determinism
 from harness.cases import Case
-from harness.observation import Observation
+from harness.observation import EncodedValue, Observation
 
 
 @dataclass(frozen=True)
@@ -55,6 +56,8 @@ def run_pass(
     order: str = "fixed",
     shuffle_seed: int = 0,
     expected_case_set_hash: str = "",
+    shim_disable: tuple[str, ...] = (),
+    cpu_budget_seconds: float = 0.0,
 ) -> Pass:
     from harness.cases import case_set_hash as compute_case_set_hash
 
@@ -74,10 +77,13 @@ def run_pass(
     workdir.mkdir(parents=True, exist_ok=True)
     plan_path = workdir / f"plan-{index}.json"
     out_path = workdir / f"observations-{index}.jsonl"
+    begin_path = out_path.with_suffix(".begin")
     plan_path.write_text(
         json.dumps({"module": module, "cases": [case.body() for case in cases]}), encoding="utf-8"
     )
-    env = determinism.child_env(checkout, shim_dir, [src_dir, *target_paths])
+    env = determinism.child_env(
+        checkout, shim_dir, [src_dir, *target_paths], shim_disable=shim_disable
+    )
     if coverage:
         command = [
             python,
@@ -107,24 +113,33 @@ def run_pass(
                 {
                     "module": module,
                     "case_set_hash": set_hash,
+                    "cpu_budget": cpu_budget_seconds,
                     "cases": [case.body() for case in remaining],
                 }
             ),
             encoding="utf-8",
         )
+        wall_timeout = (
+            (cpu_budget_seconds + 5.0) * max(1, len(remaining))
+            if cpu_budget_seconds > 0
+            else case_budget_seconds * max(1, len(remaining))
+        )
         try:
-            subprocess.run(
+            result = subprocess.run(
                 command,
                 cwd=str(checkout),
                 env=env,
                 capture_output=True,
                 text=True,
-                timeout=case_budget_seconds * max(1, len(remaining)),
+                timeout=wall_timeout,
             )
             timed_out = False
+            returncode = result.returncode
+            last_stderr = result.stderr or ""
         except subprocess.TimeoutExpired as exc:
             last_stderr = str(exc)
             timed_out = True
+            returncode = None
         if out_path.exists():
             for line in out_path.read_text(encoding="utf-8").splitlines():
                 if line.strip():
@@ -135,24 +150,29 @@ def run_pass(
         if not missing:
             break
         if not timed_out:
-            raise RuntimeError(
-                f"child skipped {len(missing)} case(s); stderr: {last_stderr[-800:]}"
-            )
+            # The child died inside a case. The begin marker says which one: if
+            # it was killed by its CPU budget (SIGXCPU/SIGKILL) that case is
+            # `unsupported (CpuBudget)`, and the rest of the set resumes in a
+            # fresh child. Any other death is a harness bug and must not be
+            # papered over as a target finding.
+            in_flight = _in_flight(begin_path)
+            killed = _death_by_budget(returncode)
+            if in_flight is None or not killed:
+                raise RuntimeError(
+                    f"child exited {returncode} with {len(missing)} case(s) left; "
+                    f"last begun: {in_flight}; stderr: {last_stderr[-800:]}"
+                )
+            stuck = next((case for case in missing if case.id == in_flight), None)
+            if stuck is None:
+                raise RuntimeError(
+                    f"begin marker {in_flight!r} is not a pending case; stderr: "
+                    f"{last_stderr[-800:]}"
+                )
+            remaining = [case for case in missing if case.id != stuck.id]
+            done[stuck.id] = _budget_observation(stuck, cpu_budget_seconds)
+            continue
         stuck, remaining = missing[0], missing[1:]
-        done[stuck.id] = Observation(
-            case_id=stuck.id,
-            entry=stuck.entry,
-            inputs={"args": list(stuck.args), "kwargs": dict(stuck.kwargs)},
-            outcome="unsupported",
-            exception={
-                "__exception__": {
-                    "type": "CaseTimeout",
-                    "module": "harness",
-                    "message": f"no result within {case_budget_seconds:.0f}s; "
-                    "recorded as unsupported (a target hang, not a comparison)",
-                }
-            },
-        )
+        done[stuck.id] = _budget_observation(stuck, case_budget_seconds, wall=True)
     observations = tuple(done[case.id] for case in cases if case.id in done)
     controls = observations[0].controls if observations else ()
     return Pass(
@@ -166,13 +186,59 @@ def run_pass(
     )
 
 
+def _in_flight(begin_path: Path) -> str | None:
+    """The case the child had begun when it died, from its begin markers."""
+    if not begin_path.exists():
+        return None
+    lines = [line.strip() for line in begin_path.read_text(encoding="utf-8").splitlines()]
+    return lines[-1] if lines else None
+
+
+def _death_by_budget(returncode: int | None) -> bool:
+    """True when the child was killed by a CPU-budget signal.
+
+    SIGXCPU (24) is the soft limit; SIGKILL (9) is the hard backstop. Both mean
+    the case outlived its budget rather than the harness breaking: the case is
+    `unsupported (CpuBudget)`, and that is a measurement about the case, not a
+    claim that its behaviour is equal.
+    """
+    if returncode is None:
+        return False
+    budget_signals = {
+        getattr(signal, name)
+        for name in ("SIGXCPU", "SIGKILL")
+        if hasattr(signal, name)
+    }
+    return returncode < 0 and -returncode in budget_signals
+
+
+def _budget_observation(
+    case: Case, budget: float, *, wall: bool = False
+) -> Observation:
+    kind = "CaseTimeout" if wall else "CpuBudget"
+    message = (
+        f"no result within {budget:.0f}s of wall clock; recorded as unsupported "
+        "(a target hang, not a comparison)"
+        if wall
+        else f"exceeded {budget:.0f}s of CPU; recorded as unsupported (a budget, "
+        "not a comparison)"
+    )
+    return Observation(
+        case_id=case.id,
+        entry=case.entry,
+        inputs={"args": list(case.args), "kwargs": dict(case.kwargs)},
+        outcome="unsupported",
+        exception={"__exception__": {"type": kind, "module": "harness", "message": message}},
+    )
+
+
 def _to_observation(body: dict[str, Any]) -> Observation:
     return Observation(
         case_id=body["case_id"],
         entry=body["entry"],
         inputs=body["inputs"],
         outcome=body["outcome"],
-        value=body.get("value"),
+        value=EncodedValue(body.get("value")),
         exception=body.get("exception"),
         stdout=body.get("stdout", ""),
         stderr=body.get("stderr", ""),

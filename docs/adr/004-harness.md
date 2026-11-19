@@ -141,6 +141,36 @@ report lists every function with no executed line. For `parse` 1.22.4 that is
 "0 differences" over 60 % of a library means something different from 0
 differences over all of it.
 
+### D6b — Coverage is three numbers, and "uncovered function" means two things
+
+Reporting `percent_covered` as "line coverage" is wrong by three points on
+`parse`: 425/554 statements is **76.71 %**, 163/246 branches is **66.26 %**, and
+73.5 % is the combined (425+163)/(554+246) that coverage.py's `percent_covered`
+actually reports. All three appear in the report, labelled.
+
+"Uncovered function" was also ambiguous, and the ambiguity hid a number:
+coverage.py's function data flags a function when *any* line in it is missing, so
+"32 of 47 functions uncovered" included functions that were entered and partly
+run (`Parser._handle_field` ran 125 lines and missed 30). The report now splits
+them: **19 of 47 functions were never entered** (129 of 554 statements, ~4 lines
+each — the `with_pattern` decorator, the seven `FixedTzOffset` methods, `compile`,
+the `Result` dunder methods), and **32 of 47 have at least one unexecuted line**.
+The core parse→search→findall path is in the 15 fully covered functions; what is
+missing is alternative API surface and error branches. That distinction is the
+difference between "the harness is blind to the library" and "the harness has not
+exercised the parts nobody's refactor is likely to touch".
+
+### D6c — Clock dependence is measured by moving the clock, not by turning it off
+
+Two shim-off passes on the same day agree even for time-dependent cases, because
+the real date is the same in both. Shim-off agreement is therefore not evidence
+that a case is clock-independent, and an earlier version of this report implied
+it was. The experiment that works: run the same case set at two frozen epochs a
+year apart. Exactly **3 of 273** cases change — the ones whose format fills in a
+missing year from `today()`. The probe table (shimmed vs unshimmed, one arm per
+control) is the other half of the evidence: 13 of 14 surfaces differ, and `hash`
+is fixed by `PYTHONHASHSEED` in the environment rather than by the shim.
+
 ### D7 — Stage 1 target is a calibration instrument
 
 `parse` 1.22.4 (MIT, 1 106 source lines, one module, zero runtime deps, wheels
@@ -232,6 +262,56 @@ missing case.
 The compared body excludes `flags`: a node count is bookkeeping, and a
 dict-versus-float change must be reported at `$.value`, not at `$.flags.nodes`.
 
+| Comparison outcome | Report class | Where it appears |
+| --- | --- | --- |
+| `equal`, no rule applied | **identical** | its own line |
+| `equal` after a declared rule masked a field | **equivalent** | its own line, with the rule ids and paths |
+| `equivalent_bounded` (both truncated, prefixes agree) | **equivalent_bounded** | its own line — never folded into `equivalent` |
+| `different` | **different** | its own line, with path, left and right |
+| `undecidable` (opaque, budget, unsupported case) | **unsupported** | counted in the `unsupported` line, every reason listed per case |
+| a case that varied between two A/A passes | **flaky** | assigned by the workflow, not by a comparison |
+
+The five classes in the design doc therefore stay five lines. `equivalent_bounded`
+is a hedged verdict and gets its own line because folding it into `equivalent`
+would claim more than the encoder saw; `undecidable` is folded into `unsupported`
+in the count but never in the evidence.
+
+### D10c — Rules: one file per target, schema-validated, every rule justified
+
+`harness/rules/<target>.json`, not one shared file: a rule that masks `parse`'s
+`__version__` must not silently apply to the next target. Each file carries the
+`case_set_hash` it was written for, and a run whose case set differs is refused,
+because a rule written for one case set is not a rule for another.
+
+Three requirements, enforced in `load_rules`:
+
+- **Schema validation on load** (`harness/rules/schema.json`, strict: unknown
+  fields are errors, so a typo cannot be silently ignored).
+- **A mandatory `reason`** of at least 12 characters naming the A/A finding or
+  case that motivated the rule. A rule without a reason is a bug being hidden.
+- **Hash pinning**: the file's canonical sha256 goes into every report, next to
+  the case-set hash.
+
+Masking is shape-checked before it happens, per type:
+
+| Type | What both sides must be |
+| --- | --- |
+| `uuid` | strings that parse as UUIDs |
+| `timestamp` | strings that parse as ISO 8601, within `tolerance_seconds` |
+| `float` | floats on both sides (an int against a float is different), within absolute or relative `tolerance` |
+| `regex_mask` | strings that fully match `pattern` |
+| `unordered_list` | lists of equal length and equal as multisets |
+
+A refused rule does not stop the walk (a broad `$.value` rule must not shadow a
+narrow `$.value.id`) and leaves the values unmasked, so an uncheckable rule can
+never hide a difference. Path syntax is dotted with `*` for one segment; a key
+containing `.` cannot be named, and such a rule is refused rather than silently
+meaning something else.
+
+`parse` ships an empty rule list. That is the correct result for a target with 0
+A/A noise, and it is recorded as such rather than left absent, so "no rules" is
+distinguishable from "nobody wrote any".
+
 ### D11 — The case set's identity is its hash, not a version integer
 
 `case_set_version: 1` cannot detect an edited case file, and comparing a run
@@ -242,13 +322,33 @@ every observation, every blob path (`<root>/<hash[:8]>/<sha[:2]>/<sha>.json`) an
 every report. `run_pass` takes `expected_case_set_hash` and raises on mismatch
 rather than comparing.
 
-### D12 — Case budget: wall clock today, CPU/step budget preferred
+### D12 — Case budget: CPU time where the platform has it
 
-A case gets a wall-clock timeout, which is order-dependent under load and can
-therefore turn a slow machine into `unsupported` cases — the honest reading is
-that the run is inconclusive, not that the case is unsupported. A CPU-time or
-step-count budget would be a property of the case rather than of the host. Not
-implemented at checkpoint 10; the report says which budget was used.
+A wall-clock timeout measures the host, not the program: under load, a
+slow-but-deterministic case becomes `unsupported` and the report cannot tell a
+hang from a busy machine. So the child sets `RLIMIT_CPU` before each case, with
+the soft limit at "CPU used so far + budget". A case that loops inside C (a regex
+backtracking, a tight numeric loop) is killed by **SIGXCPU** at its budget, which
+a Python-level timeout cannot do without killing the process from outside.
+
+The hard limit is a pass-wide backstop set once, not `soft + 1`: POSIX lets a
+process lower a hard limit but never raise it again, so a per-case hard limit
+would make the second case unmeasurable. Soft alone terminates the case, which is
+the observed behaviour, not an assumption:
+
+| Check | Result |
+| --- | --- |
+| `re.match(r"(a+)+b", "a"*40+"c")` with soft = used+2, `python:3.12-slim` | killed, exit 152 (128+SIGXCPU), "CPU time limit exceeded" |
+| the same call with a SIGXCPU handler installed | handler runs, then the process exits by its own choice |
+| a 3-case pass with one such case, budget 3 s | case recorded `unsupported (CpuBudget)`, other two cases recorded, pass resumes, 5 s total |
+
+The runner attributes the kill with a **begin marker**: the child writes the case
+id it is about to run and flushes, so a dead child leaves "this case was in
+flight" behind even though no observation was written. A death that is not a
+budget signal is a harness bug and is raised, never recorded as a target finding.
+On Windows `resource` is absent, the wall clock is the only bound, and the report
+says which budget was used. A case that exceeds its budget in some passes and not
+others is `flaky`, not `unsupported`, because the disagreement is the finding.
 
 ## Consequences
 
