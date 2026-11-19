@@ -204,7 +204,12 @@ value" is not a total function. Every bound is explicit and recorded:
 | Reference cycles | visited set | `{"__cycle__": ...}` |
 
 A cycle encodes as a marker rather than recursing, so a self-referencing object
-is observable instead of crashing the child. A hit bound sets `limit`, and the
+does not crash the child — but the marker names the class, not *which* ancestor
+the back-edge targets, so a structure that retargets its back-edge encodes
+identically. Cyclic values are therefore `undecidable`, not `equal`: the
+traversal terminates, the identity of the referent is not observed. (Aliasing is
+invisible everywhere in this encoding, not only at cycles — two equal sublists
+encode the same whether they are one object or two.) A hit bound sets `limit`, and the
 case becomes `unsupported` — a truncated observation is *not* evidence that the
 prefixes agree, because two different values can share their first 1 000 items.
 
@@ -212,6 +217,20 @@ Measured on `parse`: 1 truncated case (the `{:tt}` `findall` above), 0
 depth/node hits. Checkpoint 11 adds the comparator outcome for two observations
 that are both truncated with matching prefixes: **equivalent on bounded
 prefix**, a third outcome next to `equal` and `different`, never `equal`.
+
+### D10b — Four comparison outcomes, not two
+
+`equal`, `different` (with a path), `equivalent_bounded` and `undecidable`.
+The third exists because two observations cut off at the same bound can agree on
+everything inside it and still differ beyond it: calling that `equal` is a claim
+about values nobody saw, and calling it `different` would blame the change for
+the bound. The fourth is the default for everything the encoder flagged, so "I
+could not look" never becomes "nothing changed". `compare` also refuses two
+observations whose `case_set_hash` disagree, and `compare_sets` refuses a
+missing case.
+
+The compared body excludes `flags`: a node count is bookkeeping, and a
+dict-versus-float change must be reported at `$.value`, not at `$.flags.nodes`.
 
 ### D11 — The case set's identity is its hash, not a version integer
 
