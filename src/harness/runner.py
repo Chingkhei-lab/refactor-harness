@@ -34,6 +34,7 @@ class Pass:
     stderr: str
     case_set_hash: str = ""
     order: str = "fixed"
+    restarts: int = 0
 
     def by_case(self) -> dict[str, Observation]:
         return {observation.case_id: observation for observation in self.observations}
@@ -73,7 +74,9 @@ def run_pass(
         # Same cases, different order per pass: if any case's result depends on
         # what earlier cases consumed, this is what exposes it.
         random.Random(shuffle_seed + index).shuffle(execution)
-    workdir = workdir or Path.cwd()
+    # Absolute: the child runs with `cwd=checkout`, so a relative workdir would
+    # make it look for the plan inside the target tree.
+    workdir = (workdir or Path.cwd()).resolve()
     workdir.mkdir(parents=True, exist_ok=True)
     plan_path = workdir / f"plan-{index}.json"
     out_path = workdir / f"observations-{index}.jsonl"
@@ -107,39 +110,44 @@ def run_pass(
     done: dict[str, Observation] = {}
     remaining = list(execution)
     last_stderr = ""
-    for _ in range(attempts):
+    restarts = 0
+    for _attempt in range(attempts):
         plan_path.write_text(
             json.dumps(
                 {
                     "module": module,
                     "case_set_hash": set_hash,
                     "cpu_budget": cpu_budget_seconds,
+                    "cpu_hard_seconds": _hard_cpu_seconds(cpu_budget_seconds, len(remaining)),
                     "cases": [case.body() for case in remaining],
                 }
             ),
             encoding="utf-8",
         )
+        # A per-case wall watchdog, not a pass-wide timeout. The pass-wide form
+        # was `case_budget * len(remaining)`, so on a platform without RLIMIT_CPU
+        # one hanging case gave the child hours: a mutant that loops forever
+        # stalled the whole experiment (observed at mutant 111 of 300). The child
+        # writes a begin marker and an observation per case, so "no progress for
+        # `case_budget_seconds`" identifies a hung case in bounded time and lets
+        # the pass resume after it.
         wall_timeout = (
-            (cpu_budget_seconds + 5.0) * max(1, len(remaining))
+            (cpu_budget_seconds + case_budget_seconds + 5.0) * max(1, len(remaining))
             if cpu_budget_seconds > 0
             else case_budget_seconds * max(1, len(remaining))
         )
         try:
-            result = subprocess.run(
+            timed_out, returncode, last_stderr = _supervise(
                 command,
-                cwd=str(checkout),
+                cwd=checkout,
                 env=env,
-                capture_output=True,
-                text=True,
-                timeout=wall_timeout,
+                out_path=out_path,
+                begin_path=begin_path,
+                stall_seconds=case_budget_seconds,
+                wall_timeout=wall_timeout,
             )
-            timed_out = False
-            returncode = result.returncode
-            last_stderr = result.stderr or ""
-        except subprocess.TimeoutExpired as exc:
-            last_stderr = str(exc)
-            timed_out = True
-            returncode = None
+        except OSError as exc:
+            raise RuntimeError(f"could not start the child: {exc}") from exc
         if out_path.exists():
             for line in out_path.read_text(encoding="utf-8").splitlines():
                 if line.strip():
@@ -150,17 +158,24 @@ def run_pass(
         if not missing:
             break
         if not timed_out:
-            # The child died inside a case. The begin marker says which one: if
-            # it was killed by its CPU budget (SIGXCPU/SIGKILL) that case is
-            # `unsupported (CpuBudget)`, and the rest of the set resumes in a
-            # fresh child. Any other death is a harness bug and must not be
-            # papered over as a target finding.
+            # The child died inside a case. Which case, and why, decides whether
+            # this is a finding or a harness bug:
+            #
+            #   no begin marker       -> the harness itself broke; raise
+            #   SIGXCPU               -> the case outlived its CPU budget
+            #   SIGKILL               -> a resource kill (OOM, or the pass-wide
+            #                            hard backstop): a property of the limits,
+            #                            not of the target
+            #   any other exit/signal -> THE TARGET CRASHED. A refactor that
+            #                            introduces an abort, a segfault or an
+            #                            os._exit changed behaviour, and calling
+            #                            that a harness bug would hide exactly the
+            #                            defect this exists to find.
             in_flight = _in_flight(begin_path)
-            killed = _death_by_budget(returncode)
-            if in_flight is None or not killed:
+            if in_flight is None:
                 raise RuntimeError(
-                    f"child exited {returncode} with {len(missing)} case(s) left; "
-                    f"last begun: {in_flight}; stderr: {last_stderr[-800:]}"
+                    f"child exited {returncode} before beginning any case; "
+                    f"stderr: {last_stderr[-800:]}"
                 )
             stuck = next((case for case in missing if case.id == in_flight), None)
             if stuck is None:
@@ -168,11 +183,52 @@ def run_pass(
                     f"begin marker {in_flight!r} is not a pending case; stderr: "
                     f"{last_stderr[-800:]}"
                 )
+            restarts += 1
             remaining = [case for case in missing if case.id != stuck.id]
-            done[stuck.id] = _budget_observation(stuck, cpu_budget_seconds)
+            if returncode is None:
+                raise RuntimeError(
+                    f"child exited without a status inside case {in_flight!r}"
+                )
+            done[stuck.id] = _death_observation(stuck, returncode, last_stderr)
             continue
         stuck, remaining = missing[0], missing[1:]
-        done[stuck.id] = _budget_observation(stuck, case_budget_seconds, wall=True)
+        done[stuck.id] = Observation(
+            case_id=stuck.id,
+            entry=stuck.entry,
+            inputs={"args": list(stuck.args), "kwargs": dict(stuck.kwargs)},
+            outcome="unsupported",
+            exception={
+                "__exception__": {
+                    "type": "CaseTimeout",
+                    "module": "harness",
+                    "message": (
+                        "no result within the wall-clock backstop; recorded as "
+                        "unsupported (a budget, not a comparison)"
+                    ),
+                }
+            },
+        )
+    # A pass that ran out of attempts still reports every case: one that was
+    # never reached is `unsupported (NotRun)`, not a silent gap in the counts.
+    executed = {item.id for item in execution}
+    for case in cases:
+        if case.id in executed and case.id not in done:
+            done[case.id] = Observation(
+                case_id=case.id,
+                entry=case.entry,
+                inputs={"args": list(case.args), "kwargs": dict(case.kwargs)},
+                outcome="unsupported",
+                exception={
+                    "__exception__": {
+                        "type": "NotRun",
+                        "module": "harness",
+                        "message": (
+                            f"{attempts} child restarts were used before this case; "
+                            "recorded as unsupported (not run), not as equal"
+                        ),
+                    }
+                },
+            )
     observations = tuple(done[case.id] for case in cases if case.id in done)
     controls = observations[0].controls if observations else ()
     return Pass(
@@ -183,7 +239,60 @@ def run_pass(
         stderr=last_stderr[-2000:],
         case_set_hash=set_hash,
         order=order,
+        restarts=restarts,
     )
+
+
+def _line_count(path: Path) -> int:
+    if not path.exists():
+        return 0
+    with path.open("rb") as handle:
+        return sum(1 for _ in handle)
+
+
+def _supervise(
+    command: list[str],
+    *,
+    cwd: Path,
+    env: dict[str, str],
+    out_path: Path,
+    begin_path: Path,
+    stall_seconds: float,
+    wall_timeout: float,
+) -> tuple[bool, int | None, str]:
+    """Run the child, killing it after `stall_seconds` with no new case.
+
+    Returns `(timed_out, returncode, stderr_tail)`. A stall kill leaves the last
+    observation written, so the caller can name the case that was in flight.
+    """
+    import time
+
+    process = subprocess.Popen(
+        command,
+        cwd=str(cwd),
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    started = time.monotonic()
+    last_progress = started
+    progress = _line_count(out_path) + _line_count(begin_path)
+    timed_out = False
+    while process.poll() is None:
+        time.sleep(0.05)
+        current = _line_count(out_path) + _line_count(begin_path)
+        if current != progress:
+            progress = current
+            last_progress = time.monotonic()
+            continue
+        now = time.monotonic()
+        if now - last_progress > stall_seconds or now - started > wall_timeout:
+            timed_out = True
+            process.kill()
+            break
+    _, stderr = process.communicate()
+    return timed_out, process.returncode, (stderr or "")[-2000:]
 
 
 def _in_flight(begin_path: Path) -> str | None:
@@ -194,41 +303,67 @@ def _in_flight(begin_path: Path) -> str | None:
     return lines[-1] if lines else None
 
 
-def _death_by_budget(returncode: int | None) -> bool:
-    """True when the child was killed by a CPU-budget signal.
+def _hard_cpu_seconds(per_case: float, cases: int) -> int:
+    """The pass-wide hard CPU limit, derived rather than guessed.
 
-    SIGXCPU (24) is the soft limit; SIGKILL (9) is the hard backstop. Both mean
-    the case outlived its budget rather than the harness breaking: the case is
-    `unsupported (CpuBudget)`, and that is a measurement about the case, not a
-    claim that its behaviour is equal.
+    POSIX forbids raising a hard limit once it is lowered, so the hard limit is
+    set once per pass and must cover the legitimate total CPU of the whole pass,
+    or it would kill a healthy late case. Each case is allowed `per_case` CPU
+    seconds (its soft limit), so a pass cannot legitimately exceed
+    `per_case * cases`; the hard limit is that doubled, with a 60 s floor for a
+    short pass.
+
+    With the ordinary settings (10 s per case, 273 cases) the hard limit is
+    5 460 s. A full pass of the `parse` case set measures well under 60 s of CPU,
+    so the headroom is ~90x: the hard limit exists to bound a process that ignores
+    SIGXCPU, not to be the case budget.
     """
-    if returncode is None:
-        return False
-    budget_signals = {
-        getattr(signal, name)
-        for name in ("SIGXCPU", "SIGKILL")
-        if hasattr(signal, name)
-    }
-    return returncode < 0 and -returncode in budget_signals
+    if per_case <= 0:
+        return 3600
+    return max(60, int(2 * per_case * max(1, cases)))
 
 
-def _budget_observation(
-    case: Case, budget: float, *, wall: bool = False
-) -> Observation:
-    kind = "CaseTimeout" if wall else "CpuBudget"
-    message = (
-        f"no result within {budget:.0f}s of wall clock; recorded as unsupported "
-        "(a target hang, not a comparison)"
-        if wall
-        else f"exceeded {budget:.0f}s of CPU; recorded as unsupported (a budget, "
-        "not a comparison)"
-    )
+def _signal_name(number: int) -> str:
+    try:
+        return signal.Signals(number).name
+    except ValueError:
+        return f"signal {number}"
+
+
+def _death_observation(case: Case, returncode: int, stderr: str) -> Observation:
+    """Classify how the child died: budget, resource, or the target crashing.
+
+    Only the first two are `unsupported`. A crash is a behaviour, recorded with
+    its exit status or signal so two versions can be compared on it: "old
+    returned, new aborted" is a difference, not an infrastructure problem.
+    """
+    if returncode is not None and returncode < 0:
+        number = -returncode
+        name = _signal_name(number)
+        if name == "SIGXCPU":
+            kind, outcome = "CpuBudget", "unsupported"
+        elif name == "SIGKILL":
+            # OOM killer or the pass-wide hard backstop: a property of the
+            # limits, not of the target's behaviour.
+            kind, outcome = "ResourceKill", "unsupported"
+        else:
+            kind, outcome = "ProcessSignal", "exception"
+    else:
+        name, kind, outcome = "", "ProcessExit", "exception"
     return Observation(
         case_id=case.id,
         entry=case.entry,
         inputs={"args": list(case.args), "kwargs": dict(case.kwargs)},
-        outcome="unsupported",
-        exception={"__exception__": {"type": kind, "module": "harness", "message": message}},
+        outcome=outcome,
+        exception={
+            "__process__": {
+                "kind": kind,
+                "exit_code": None if returncode is None or returncode < 0 else returncode,
+                "signal": None if returncode is None or returncode >= 0 else -returncode,
+                "signal_name": name,
+                "stderr_tail": stderr[-400:],
+            }
+        },
     )
 
 

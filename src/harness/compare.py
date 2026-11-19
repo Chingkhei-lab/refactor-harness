@@ -75,6 +75,7 @@ class Comparison:
     right: Any = None
     reason: str = ""
     masked: tuple[str, ...] = ()
+    applied: tuple[Any, ...] = ()
 
     @property
     def report_class(self) -> str:
@@ -171,6 +172,7 @@ def compare(
 
     left_body, right_body = _behaviour(left), _behaviour(right)
     masked: tuple[str, ...] = ()
+    applied_items: tuple[Any, ...] = ()
     refusals: list[str] = []
     if rules is not None and rules.rules:
         # Deep copies: normalisation must not rewrite the stored observations.
@@ -181,6 +183,7 @@ def compare(
         )
         left_body, right_body = applied.left, applied.right
         masked = tuple(f"{item.rule_id}@{item.path}" for item in applied.applied)
+        applied_items = tuple(applied.applied)
         refusals = [f"{item['rule_id']}@{item['path']}: {item['reason']}"
                     for item in applied.refused]
 
@@ -192,11 +195,13 @@ def compare(
                 EQUIVALENT_BOUNDED,
                 reason="both truncated; the prefixes agree and nothing beyond was seen",
                 masked=masked,
+                applied=applied_items,
             )
         return Comparison(
             left.case_id,
             EQUAL,
             masked=masked,
+            applied=applied_items,
             reason=("masked by " + ", ".join(masked)) if masked else "",
         )
     refused = ("; refused: " + "; ".join(refusals)) if refusals else ""
@@ -205,8 +210,12 @@ def compare(
         return Comparison(
             left.case_id, DIFFERENT, *difference,
             reason="truncated but differs" + refused, masked=masked,
+            applied=applied_items,
         )
-    return Comparison(left.case_id, DIFFERENT, *difference, reason=refused, masked=masked)
+    return Comparison(
+        left.case_id, DIFFERENT, *difference, reason=refused, masked=masked,
+        applied=applied_items,
+    )
 
 
 def summarise(comparisons: list[Comparison]) -> dict[str, Any]:

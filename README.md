@@ -93,12 +93,31 @@ codebase**: 1 106 lines, zero dependencies, wheels only, deliberately boring so
 that a misbehaving harness cannot hide behind an interesting target. The
 legacy-modernisation story starts at stage 2/3, chosen after the harness works.
 
-Measurement, so far: 273 cases (sha256 `f3b6b66d…`), 0 A/A noise over 5 fixed
-and 5 shuffled passes, 0 differences between the target and an identical copy
-and between the target and a formatting-plus-renamed-local refactor, 498
-identical / 2 equivalent-on-bounded-prefix / 46 unsupported of 546 case
-comparisons. Line coverage 76.71 %, branch 66.26 %, combined 73.5 %; 19 of 47
-functions never entered.
+Measurement, so far: 273 cases, 0 A/A noise over 5 fixed and 5 shuffled passes,
+0 differences between the target and an identical copy and between the target and
+12 harmless refactors; one hand-seeded bug inside such a refactor was caught
+(4 cases). After the `evaluate_result` projection: 261 return / 12 exception /
+**0 unsupported** (was 23), line coverage 426/554. Observation schema v2; the
+checkpoint-10 numbers reproduce exactly under it (238 / 12 / 23, 273 blobs).
+
+Architecture, in the order a comparison runs:
+
+1. **Case set** (`harness/cases/<target>.json`) — inputs only, sha256 hashed into
+   every observation. `projection` selects a named view from an allowlist;
+   `expect: finite | stream` decides whether truncation is a failure or the
+   observation.
+2. **Child** (`harness.child`) — one interpreter per pass, the determinism shim
+   injected as `sitecustomize`, state reset before every case, values encoded
+   in-child with cycle/depth/node bounds, one JSON observation per case.
+3. **Runner** (`harness.runner`) — A/A passes, then old/new alternation; CPU
+   budget per case and per pass, begin markers so a crash is attributed rather
+   than lost.
+4. **Comparator** (`harness.compare`) — `equal` / `different` / `equivalent` /
+   `equivalent_bounded` / `undecidable`, with a path to the first difference.
+5. **Rules** (`harness.rules`, `harness/rules/`) — schema-validated, every rule
+   justified, shape-checked, usage reported.
+6. **Workflow** (`scripts/verify_change.py`) and the evaluation tools
+   (`scripts/mutate.py`, `scripts/refactor_check.py`).
 
 ### Known target bugs (not harness bugs)
 

@@ -1,0 +1,194 @@
+{
+  "generated_at": "2026-11-19T21:53:00.266618+00:00",
+  "case_set_hash": "283155b0bbb9816758552adf02f4dbf4ac83b06604d6dd07a62276a6cf829af3",
+  "case_count": 273,
+  "rows": [
+    {
+      "name": "ruff-format",
+      "kind": "mechanical: `ruff format`",
+      "applied": true,
+      "classes": {
+        "identical": 272,
+        "equivalent": 0,
+        "equivalent_bounded": 1,
+        "different": 0,
+        "unsupported": 0
+      },
+      "verdict": "clean",
+      "line_delta": -8
+    },
+    {
+      "name": "reorder-definitions",
+      "kind": "mechanical: move a definition",
+      "applied": true,
+      "classes": {
+        "identical": 272,
+        "equivalent": 0,
+        "equivalent_bounded": 1,
+        "different": 0,
+        "unsupported": 0
+      },
+      "verdict": "clean",
+      "line_delta": 0
+    },
+    {
+      "name": "libcst-rename-local",
+      "kind": "mechanical: libcst codemod renames a local",
+      "applied": true,
+      "classes": {
+        "identical": 272,
+        "equivalent": 0,
+        "equivalent_bounded": 1,
+        "different": 0,
+        "unsupported": 0
+      },
+      "verdict": "clean",
+      "line_delta": 0
+    },
+    {
+      "name": "percent-to-fstring",
+      "kind": "mechanical: `%` to an f-string",
+      "applied": true,
+      "classes": {
+        "identical": 272,
+        "equivalent": 0,
+        "equivalent_bounded": 1,
+        "different": 0,
+        "unsupported": 0
+      },
+      "verdict": "clean",
+      "line_delta": 0
+    },
+    {
+      "name": "loop-to-comprehension",
+      "kind": "mechanical: loop to a comprehension",
+      "applied": true,
+      "classes": {
+        "identical": 272,
+        "equivalent": 0,
+        "equivalent_bounded": 1,
+        "different": 0,
+        "unsupported": 0
+      },
+      "verdict": "clean",
+      "line_delta": -2
+    },
+    {
+      "name": "extract-method",
+      "kind": "mechanical: extract a helper",
+      "applied": true,
+      "classes": {
+        "identical": 272,
+        "equivalent": 0,
+        "equivalent_bounded": 1,
+        "different": 0,
+        "unsupported": 0
+      },
+      "verdict": "clean",
+      "line_delta": 3
+    },
+    {
+      "name": "hand-rename-locals",
+      "kind": "hand: rename every local in one method",
+      "applied": true,
+      "classes": {
+        "identical": 272,
+        "equivalent": 0,
+        "equivalent_bounded": 1,
+        "different": 0,
+        "unsupported": 0
+      },
+      "verdict": "clean",
+      "line_delta": 0
+    },
+    {
+      "name": "hand-restructure-branch",
+      "kind": "hand: hoist a default out of if/elif/else",
+      "applied": true,
+      "classes": {
+        "identical": 272,
+        "equivalent": 0,
+        "equivalent_bounded": 1,
+        "different": 0,
+        "unsupported": 0
+      },
+      "verdict": "clean",
+      "line_delta": -2
+    },
+    {
+      "name": "hand-docstring",
+      "kind": "hand: reword a docstring",
+      "applied": true,
+      "classes": {
+        "identical": 272,
+        "equivalent": 0,
+        "equivalent_bounded": 1,
+        "different": 0,
+        "unsupported": 0
+      },
+      "verdict": "clean",
+      "line_delta": 0
+    },
+    {
+      "name": "hand-constant-hoist",
+      "kind": "hand: hoist a literal to a constant",
+      "applied": true,
+      "classes": {
+        "identical": 272,
+        "equivalent": 0,
+        "equivalent_bounded": 1,
+        "different": 0,
+        "unsupported": 0
+      },
+      "verdict": "clean",
+      "line_delta": 3
+    },
+    {
+      "name": "hand-comment-churn",
+      "kind": "hand: comment and blank-line churn",
+      "applied": true,
+      "classes": {
+        "identical": 272,
+        "equivalent": 0,
+        "equivalent_bounded": 1,
+        "different": 0,
+        "unsupported": 0
+      },
+      "verdict": "clean",
+      "line_delta": 0
+    },
+    {
+      "name": "hand-class-alias",
+      "kind": "hand: add an alias for an existing class",
+      "applied": true,
+      "classes": {
+        "identical": 272,
+        "equivalent": 0,
+        "equivalent_bounded": 1,
+        "different": 0,
+        "unsupported": 0
+      },
+      "verdict": "clean",
+      "line_delta": 3
+    },
+    {
+      "name": "seeded-bug",
+      "kind": "CONTROL: refactor with one real change inside",
+      "applied": true,
+      "classes": {
+        "identical": 268,
+        "equivalent": 0,
+        "equivalent_bounded": 1,
+        "different": 4,
+        "unsupported": 0
+      },
+      "verdict": "different",
+      "line_delta": 3
+    }
+  ],
+  "refactors_clean": 12,
+  "false_positives": [],
+  "seeded_bug_detected": true,
+  "seeded_bug_differing_cases": 4,
+  "not_applicable": []
+}

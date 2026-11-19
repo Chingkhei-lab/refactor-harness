@@ -33,6 +33,8 @@ from harness.observation import (
     encode_exception,
     encode_with_meta,
 )
+from harness.projections import UnknownProjection
+from harness.projections import get as get_projection
 
 
 def cpu_seconds() -> float:
@@ -47,6 +49,15 @@ def cpu_seconds() -> float:
         return 0.0
     usage = getrusage(which)
     return float(usage.ru_utime + usage.ru_stime)
+
+
+_HARD_SECONDS = 3600
+
+
+def set_hard_cpu_limit(seconds: int) -> None:
+    """The pass-wide backstop, supplied by the runner (see runner._hard_cpu_seconds)."""
+    global _HARD_SECONDS
+    _HARD_SECONDS = max(1, int(seconds))
 
 
 def install_cpu_budget(budget: float) -> bool:
@@ -73,7 +84,7 @@ def install_cpu_budget(budget: float) -> bool:
         return False
     used = int(cpu_seconds())
     soft = used + max(1, int(round(budget)))
-    hard = max(soft + 1, 3600)
+    hard = max(soft + 1, _HARD_SECONDS)
     try:
         setrlimit(limit, (soft, hard))
     except (ValueError, OSError):
@@ -125,8 +136,13 @@ def run_case(
 
     out, err = io.StringIO(), io.StringIO()
     try:
+        projection_name = case.get("projection") or ""
         with redirect_stdout(out), redirect_stderr(err):
             value = handler(*args, **kwargs)
+            if projection_name:
+                # A named, allowlisted view: an opaque value becomes observable
+                # without the case spec being able to run arbitrary code.
+                value = get_projection(projection_name)(value)
     except BaseException as exc:  # noqa: BLE001 - an exception IS the observation
         return Observation(
             case_id=case["id"],
@@ -148,7 +164,15 @@ def run_case(
         "limit": meta["limit"],
         "nodes": int(meta["nodes"]),
     }
-    unsupported = flags["opaque"] or bool(flags["limit"])
+    # `expect` decides what truncation means. A finite case that hits the item
+    # limit is `unsupported (LimitHit)` — the harness did not see the value it
+    # was promised. A stream case is *expected* to be cut off, so the bounded
+    # prefix is the observation, and two matching prefixes are
+    # `equivalent_bounded`, never `identical`.
+    finite_limit_hit = flags["truncated"] and case.get("expect", "finite") != "stream"
+    unsupported = flags["opaque"] or bool(flags["limit"]) or finite_limit_hit
+    if finite_limit_hit:
+        flags["limit"] = "items"
     return Observation(
         case_id=case["id"],
         entry=entry,
@@ -165,7 +189,8 @@ def run_case(
                         "would assert an equality the harness cannot observe"
                     )
                     if flags["opaque"]
-                    else f"encoder {flags['limit']} budget fired; value was not fully encoded"
+                    else f"encoder {flags['limit']} limit hit on a finite case; "
+                    "value was not fully observed"
                 }
             }
             if unsupported
@@ -183,9 +208,36 @@ def main(argv: list[str] | None = None) -> int:
     argv = argv if argv is not None else sys.argv[1:]
     plan_path, out_path = Path(argv[0]), Path(argv[1])
     plan = json.loads(plan_path.read_text(encoding="utf-8"))
-    module = importlib.import_module(plan.get("module", "parse"))
+    try:
+        module = importlib.import_module(plan.get("module", "parse"))
+    except BaseException as exc:  # noqa: BLE001 - a target that cannot import IS a finding
+        # A target that fails at import time has changed behaviour just as much
+        # as one that crashes inside a call: a mutant that deletes a module-level
+        # name is "killed" by every case, not a harness bug. Record one
+        # observation per case so the pass completes and the comparison sees it.
+        detail = {
+            "__import__": {
+                "type": type(exc).__name__,
+                "message": str(exc)[:400],
+                "module": plan.get("module", "parse"),
+            }
+        }
+        with out_path.open("w", encoding="utf-8") as handle:
+            for case in plan["cases"]:
+                observation = Observation(
+                    case_id=case["id"],
+                    entry=case["entry"],
+                    inputs={"args": case.get("args"), "kwargs": case.get("kwargs")},
+                    outcome="exception",
+                    exception=detail,
+                    case_set_hash=plan["case_set_hash"],
+                )
+                handle.write(observation.to_json() + chr(10))
+        return 0
     case_set_hash = plan["case_set_hash"]
     cpu_budget = float(plan.get("cpu_budget") or 0.0)
+    if plan.get("cpu_hard_seconds"):
+        set_hard_cpu_limit(int(plan["cpu_hard_seconds"]))
     shim = _shim()
     controls = _controls(shim)
     # Begin markers: if the process dies inside a case (a CPU budget kill), the
@@ -203,6 +255,17 @@ def main(argv: list[str] | None = None) -> int:
             install_cpu_budget(cpu_budget) if cpu_budget > 0 else None
             try:
                 observation = run_case(module, case, controls, case_set_hash, shim)
+            except UnknownProjection as exc:
+                observation = Observation(
+                    case_id=case["id"],
+                    entry=case["entry"],
+                    inputs={"args": case.get("args"), "kwargs": case.get("kwargs")},
+                    outcome="unsupported",
+                    exception={"__exception__": {"type": "UnknownProjection",
+                                                 "module": "harness", "message": str(exc)}},
+                    controls=controls,
+                    case_set_hash=case_set_hash,
+                )
             except BaseException:  # noqa: BLE001 - harness bug, record it, keep going
                 observation = Observation(
                     case_id=case["id"],

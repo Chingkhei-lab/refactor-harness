@@ -27,6 +27,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from harness.projections import UnknownProjection
+from harness.projections import get as get_projection
+
 CASE_SET_VERSION = 1
 
 # Documented example inputs (not expected outputs).
@@ -114,15 +117,27 @@ class Case:
     entry: str
     args: tuple[Any, ...]
     kwargs: dict[str, Any] = field(default_factory=dict)
+    # A named, allowlisted view of the value (see harness.projections). Part of
+    # the case body, so a case set with projections has a different hash.
+    projection: str = ""
+    # "finite": the value is expected to terminate, so hitting the iterator
+    # limit is `unsupported (LimitHit)`. "stream": the value is a stream, so a
+    # bounded prefix is the honest observation and two matching prefixes are
+    # `equivalent_bounded`, never `identical`.
+    expect: str = "finite"
 
     def body(self) -> dict[str, Any]:
-        return {
+        body = {
             "id": self.id,
             "source": self.source,
             "entry": self.entry,
             "args": list(self.args),
             "kwargs": dict(self.kwargs),
+            "expect": self.expect,
         }
+        if self.projection:
+            body["projection"] = self.projection
+        return body
 
     @property
     def key(self) -> tuple[str, str]:
@@ -202,16 +217,33 @@ def build_parse_cases(hypothesis_examples: int = 40, seed: int = 1234) -> list[C
     # IDs must be unique ACROSS entry points: `docs-0000` would otherwise name
     # the parse, search and findall cases for the same example, and any map
     # keyed by case_id silently collapses them.
-    return [
-        Case(
-            id=f"{position:04d}-{case.entry}-{case.source}",
-            source=case.source,
-            entry=case.entry,
-            args=case.args,
-            kwargs=case.kwargs,
+    built: list[Case] = []
+    for position, case in enumerate(unique, start=1):
+        # `findall` returns an iterator: it is a stream by definition, so a
+        # bounded prefix is the honest observation and the case says so. A
+        # finite case that hits the item limit instead becomes `unsupported`.
+        expect = "stream" if case.entry == "findall" else "finite"
+        # `evaluate_result=False` returns a Result holding a re.Match and a
+        # Parser holding a re.Pattern: opaque by construction, 23 cases of
+        # `unsupported` at checkpoint 11. The projection is a named, allowlisted
+        # view of exactly the part a caller asked for, declared in the case.
+        projection = (
+            "evaluate_result"
+            if case.entry == "parse" and not case.kwargs.get("evaluate_result", True)
+            else ""
         )
-        for position, case in enumerate(unique, start=1)
-    ]
+        built.append(
+            Case(
+                id=f"{position:04d}-{case.entry}-{case.source}",
+                source=case.source,
+                entry=case.entry,
+                args=case.args,
+                kwargs=case.kwargs,
+                projection=projection,
+                expect=expect,
+            )
+        )
+    return built
 
 
 def save_cases(path: Path, cases: list[Case], target: str, version: str) -> None:
@@ -227,17 +259,33 @@ def save_cases(path: Path, cases: list[Case], target: str, version: str) -> None
 
 
 def load_cases(path: Path) -> list[Case]:
+    """Read a case file, validating projections against the allowlist on load."""
     payload = json.loads(path.read_text(encoding="utf-8"))
-    return [
-        Case(
-            id=item["id"],
-            source=item["source"],
-            entry=item["entry"],
-            args=tuple(item["args"]),
-            kwargs=dict(item.get("kwargs") or {}),
+    cases: list[Case] = []
+    for entry in payload["cases"]:
+        projection = entry.get("projection", "")
+        if projection:
+            try:
+                get_projection(projection)
+            except UnknownProjection as exc:
+                raise ValueError(f"case {entry['id']}: {exc}") from None
+        expect = entry.get("expect", "finite")
+        if expect not in ("finite", "stream"):
+            raise ValueError(
+                f"case {entry['id']}: expect must be 'finite' or 'stream', not {expect!r}"
+            )
+        cases.append(
+            Case(
+                id=entry["id"],
+                source=entry["source"],
+                entry=entry["entry"],
+                args=tuple(entry.get("args") or ()),
+                kwargs=dict(entry.get("kwargs") or {}),
+                projection=projection,
+                expect=expect,
+            )
         )
-        for item in payload["cases"]
-    ]
+    return cases
 
 
 def case_set_hash(cases: list[Case]) -> str:

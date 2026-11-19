@@ -321,6 +321,96 @@ meaning something else.
 A/A noise, and it is recorded as such rather than left absent, so "no rules" is
 distinguishable from "nobody wrote any".
 
+### D10d — A crash is a behaviour; only a markerless death is a harness bug
+
+A refactor that introduces `os._exit`, an abort or a segfault has changed
+behaviour, and it is exactly the kind of change a case set can catch cheaply. So
+a child death is classified by how it died, not lumped into "harness bug":
+
+| Death | Recorded as | Why |
+| --- | --- | --- |
+| exits with a status | `exception`, `{"__process__": {"kind": "ProcessExit", "exit_code": n}}` | the exit status is observable |
+| dies on SIGSEGV/SIGABRT/… | `exception`, `ProcessSignal` with the signal and its name | the signal is observable |
+| cannot import the target | `exception`, `{"__import__": {...}}` for **every** case | the module not importing is the most complete behaviour change there is |
+| SIGXCPU | `unsupported (CpuBudget)` | a budget, not the target |
+| SIGKILL | `unsupported (ResourceKill)` | a property of the limits (OOM or the hard backstop) |
+| no begin marker at all | **raise** | the harness itself failed |
+
+The begin marker is what makes this possible: the child flushes the case id it is
+about to run, so a death can be attributed to a case even when no observation was
+ever written. A death with no marker cannot be attributed, and that — and only
+that — is a harness bug.
+
+The first mutation run crashed on a mutant that deleted a module-level name and
+therefore broke the import. That is how this decision was found: the runner
+raised "child exited 1 before beginning any case" and the experiment stopped,
+which would have hidden a perfectly good kill. An import failure is now a
+finding for every case, and one bad mutant can no longer abort the run.
+
+### D10e — The observation schema is versioned, and the version is in the path
+
+Checkpoint 11's `EncodedValue` fix changed every blob's bytes without changing any
+observed value (the parent had been re-encoding the child's encoded value, so each
+tag was escaped one level down). That is a schema change, not a case change, and
+the two must not be confused: `observation_schema_version` is now in every
+observation, every report and the blob path
+(`<root>/v<schema>/<case_set_hash[:8]>/<sha[:2]>/<sha>.json`).
+
+The verification is the point: regenerating the **checkpoint-10 case set** under
+schema v2 reproduced its headline numbers exactly — 238 return, 12 exception, 23
+unsupported, 273 blobs. A schema bump that changed a value would have shown up
+there. `CHANGELOG.md` records the bump and why.
+
+### D10f — Case budgets: soft per case, hard per pass, restarts counted
+
+The soft limit is per case: "CPU used so far + budget". The hard limit must be
+set once (POSIX can lower a hard limit but never raise it), so it has to cover the
+legitimate total CPU of the whole pass or it would kill a healthy late case. It is
+`2 × per_case × cases`, floor 60 s: for 10 s per case over 273 cases that is
+**5 460 s**, roughly 90× what a full `parse` pass actually uses. It exists to
+bound a process that ignores SIGXCPU, not to be a case budget.
+
+Restarts count against the same three-attempt budget as timeouts: each budget kill
+consumes one attempt, the pass resumes after the killed case in a fresh child, and
+if the attempts run out the un-reached cases are recorded as
+`unsupported (NotRun)` so the counts still add up to the case count. Measured
+today: the whole mutation run consumed zero restarts on unmutated code, and
+exactly one per CPU-budget kill.
+
+### D10g — Rule usage is reported, because a close call is a warning
+
+A rule that masked a field where nothing differed is silent; a rule that masked a
+field differing by 99 % of its tolerance is one refactor away from masking a real
+change. Every report now carries, per rule: how many observations it matched, the
+largest observed difference, and the tolerance that permitted it (or a note that
+the check is shape-only). The number is not a verdict — it is the evidence a
+reviewer needs to decide whether the tolerance is still reasonable.
+
+Paths may now quote a segment (`$.value["a.b"]`) so a key containing the separator
+can be masked deliberately instead of being unmaskable. An unquoted bracket
+segment, or an empty segment, is refused rather than silently reinterpreted.
+
+### D10h — Projections before mutation, and what truncation means
+
+23 of 273 cases (8.4 %) were `unsupported` at checkpoint 11, all in
+`evaluate_result=False`, because the returned `Result` holds a `re.Match` and a
+`re.Pattern`. Mutation testing would pile survivors up there and every one would
+need an explanation, so the fix came first: a **projection registry**
+(`harness/projections.py`) with an allowlist of named views, selected by name in
+the case spec (`"projection": "evaluate_result"`). A case spec cannot run code; it
+can only name one of the reviewed projections. The projection is part of the case
+body, so it is part of the case-set hash.
+
+Measured: `unsupported` fell from **23 to 0**, return rose from 238 to 261, and
+line coverage rose from 425 to 426 statements.
+
+`expect: finite | stream` decides what truncation means. A `findall` is a stream by
+definition: a bounded prefix is the honest observation, and two matching prefixes
+are `equivalent_bounded`, never `identical`. A finite case that hits the item
+limit is `unsupported (LimitHit)` — the harness did not observe the value it was
+promised. Truncation is deliberately **not** turned into a projection that reports
+identical.
+
 ### D11 — The case set's identity is its hash, not a version integer
 
 `case_set_version: 1` cannot detect an edited case file, and comparing a run

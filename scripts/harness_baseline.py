@@ -42,7 +42,7 @@ from harness.cases import (  # noqa: E402
     counts_by_source,
     save_cases,
 )
-from harness.observation import BlobStore  # noqa: E402
+from harness.observation import OBSERVATION_SCHEMA_VERSION, BlobStore  # noqa: E402
 from harness.runner import Pass, baseline_noise, digest_map, run_pass  # noqa: E402
 
 
@@ -149,6 +149,13 @@ def main() -> int:
     parser.add_argument("--passes", type=int, default=5)
     parser.add_argument("--hypothesis-examples", type=int, default=40)
     parser.add_argument("--out", default="docs/results")
+    parser.add_argument("--label", default="", help="suffix for the report file name")
+    parser.add_argument(
+        "--no-projections",
+        action="store_true",
+        help="build the same cases with projections blanked: isolates what a "
+        "projection changes from what a schema bump changes",
+    )
     args = parser.parse_args()
 
     target_path = (_REPO_ROOT / args.target_path).resolve()
@@ -159,6 +166,10 @@ def main() -> int:
     cases_path = _REPO_ROOT / "harness" / "cases" / f"{args.target}.json"
 
     cases = build_parse_cases(hypothesis_examples=args.hypothesis_examples)
+    if args.no_projections:
+        from dataclasses import replace
+
+        cases = [replace(case, projection="") for case in cases]
     save_cases(cases_path, cases, args.target, version)
     set_hash = case_set_hash(cases)
     print(f"OBSERVED cases: {len(cases)} {counts_by_source(cases)} hash={set_hash[:12]}")
@@ -255,11 +266,12 @@ def main() -> int:
     for observation in fixed[0].observations:
         store.put(observation)
 
-    today = datetime.now(UTC).strftime("%Y%m%d")
+    today = datetime.now(UTC).strftime("%Y%m%d") + (f"-{args.label}" if args.label else "")
     report = {
         "target": args.target,
         "version": version,
         "generated_at": datetime.now(UTC).isoformat(),
+        "observation_schema_version": OBSERVATION_SCHEMA_VERSION,
         "case_set_hash": set_hash,
         "case_count": len(cases),
         "cases_by_source": counts_by_source(cases),

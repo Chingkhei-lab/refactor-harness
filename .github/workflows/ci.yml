@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main, master]
 
+permissions:
+  contents: read
+  statuses: write
+
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -43,6 +47,9 @@ jobs:
       - name: Report test counts in this run page
         if: always()
         run: python scripts/ci_summary.py --job ci junit-ci.xml >> "$GITHUB_STEP_SUMMARY"
+      - name: Publish counts as a commit status (readable without a token)
+        if: always()
+        run: python scripts/ci_status.py --context junit/ci --file junit-ci.xml
       - name: Upload JUnit report
         if: always()
         uses: actions/upload-artifact@v4
@@ -99,6 +106,10 @@ jobs:
         run: >-
           python scripts/ci_summary.py --job sandbox-hostile
           junit-hostile.xml junit-install-hostile.xml >> "$GITHUB_STEP_SUMMARY"
+      - name: Publish counts as a commit status (readable without a token)
+        if: always()
+        run: python scripts/ci_status.py --context junit/sandbox-hostile
+          --file junit-hostile.xml --file junit-install-hostile.xml
       - name: Upload JUnit reports
         if: always()
         uses: actions/upload-artifact@v4

@@ -33,7 +33,8 @@ sys.path.insert(0, str(_REPO_ROOT / "src"))
 from harness import determinism  # noqa: E402
 from harness.cases import Case, case_set_hash, counts_by_source, load_cases  # noqa: E402
 from harness.compare import CLASS_FLAKY, compare_sets, summarise  # noqa: E402
-from harness.rules import load_rules  # noqa: E402
+from harness.observation import OBSERVATION_SCHEMA_VERSION  # noqa: E402
+from harness.rules import load_rules, usage  # noqa: E402
 from harness.runner import Pass, baseline_noise, run_pass  # noqa: E402
 
 
@@ -114,8 +115,12 @@ def verify(
         pairs.append((old_pass, new_pass, f"old,new #{round_index}"))
 
     verdicts = []
+    applied_rules: list[Any] = []
     for old_pass, new_pass, _label in pairs:
-        for case_id, verdict in compare_sets(old_pass.by_case(), new_pass.by_case(), rules).items():
+        for case_id, verdict in compare_sets(
+            old_pass.by_case(), new_pass.by_case(), rules
+        ).items():
+            applied_rules.extend(verdict.applied)
             if case_id in flaky:
                 verdict = type(verdict)(
                     case_id=case_id,
@@ -157,6 +162,8 @@ def verify(
             if verdict.outcome == "undecidable"
         ][:50],
         "masked": sorted({mask for verdict in verdicts for mask in verdict.masked}),
+        "rules_usage": usage(rules, applied_rules),
+        "observation_schema_version": OBSERVATION_SCHEMA_VERSION,
         "rounds": len(pairs),
     }
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -195,6 +202,7 @@ def _write_markdown(path: Path, report: dict[str, Any]) -> None:
         f"| Controls | {', '.join(report['controls'])} |",
         f"| Budget | {report['budget']['kind']}{_budget_detail(report)} |",
         f"| A/A noise (old tree) | {len(report['aa_noise'])} |",
+        f"| Observation schema | v{report['observation_schema_version']} |",
     ]
     for name in ("identical", "equivalent", "equivalent_bounded", "different",
                  "unsupported", "flaky"):
@@ -217,6 +225,23 @@ def _write_markdown(path: Path, report: dict[str, Any]) -> None:
     if report["masked"]:
         lines += ["", "## Masked fields", ""]
         lines += [f"- `{mask}`" for mask in report["masked"]]
+    if report["rules_usage"]:
+        lines += [
+            "",
+            "## Rule usage (how close each rule came to masking something real)",
+            "",
+            "| Rule | Type | Matched | Largest difference | Tolerance | Ratio |",
+            "| --- | --- | --- | --- | --- | --- |",
+        ]
+        for rule_id, stat in sorted(report["rules_usage"].items()):
+            delta = stat["max_delta"]
+            ratio = stat["max_ratio"]
+            lines.append(
+                f"| `{rule_id}` | {stat['type']} | {stat['matched']} | "
+                f"{'-' if delta is None else f'{delta:.3g}'} | "
+                f"{'-' if stat['tolerance'] is None else f'{stat['tolerance']:.3g}'} | "
+                f"{'-' if ratio is None else f'{ratio:.1%}'} |"
+            )
     if report["summary"].get("flaky_cases"):
         lines += ["", "## Flaky cases (a case that disagrees with itself)", ""]
         lines += [f"- `{case_id}`" for case_id in report["summary"]["flaky_cases"]]

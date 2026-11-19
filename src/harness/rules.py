@@ -105,18 +105,41 @@ class Rule:
 
 
 def _segments(path: str) -> tuple[str, ...]:
-    """Split a dotted path, KEEPING empty segments so `$.a..b` is refused.
+    """Split a path into segments, supporting `.name`, `.*` and `["quoted name"]`.
 
-    Dropping empties would make `$.value..key` silently mean `$.value.key`,
-    i.e. a typo would mask a different field than the one named.
+    Quoted segments exist because a target key may contain the separator: the
+    report of a dict key `a.b` is addressed as `$.value["a.b"]`. Empty segments
+    are kept so that `$.value..key` is REFUSED rather than silently meaning
+    `$.value.key` (a typo would otherwise mask a different field than the one
+    named).
     """
-    if path.startswith("$."):
-        body = path[2:]
-    elif path.startswith("$"):
-        body = path[1:]
-    else:
-        body = path
-    return tuple(body.split(".")) if body else ()
+    if not path.startswith("$"):
+        raise RuleError(f"path {path!r} must start with '$'")
+    rest = path[1:]
+    segments: list[str] = []
+    index = 0
+    while index < len(rest):
+        char = rest[index]
+        if char == ".":
+            start = index + 1
+            end = start
+            while end < len(rest) and rest[end] not in ".[":
+                end += 1
+            segments.append(rest[start:end])
+            index = end
+        elif char == "[":
+            if not rest.startswith('["', index):
+                raise RuleError(
+                    f"path {path!r}: a bracket segment must be quoted, as in [\"key\"]"
+                )
+            end = rest.find('"]', index + 2)
+            if end == -1:
+                raise RuleError(f"path {path!r}: unterminated quoted segment")
+            segments.append(rest[index + 2:end])
+            index = end + 2
+        else:
+            raise RuleError(f"path {path!r}: unexpected {char!r} at offset {index}")
+    return tuple(segments)
 
 
 def _path_matches(rule_path: str, segments: tuple[str, ...]) -> bool:
@@ -249,67 +272,97 @@ def _decoded(value: Any) -> tuple[Any, str]:
 
 
 def _shape_ok(rule: Rule, left: Any, right: Any) -> str:
-    """Return "" when the mask is allowed, or the reason it is not."""
+    """Backwards-compatible wrapper: "" when allowed, else the reason."""
+    problem, _magnitude = _shape_check(rule, left, right)
+    return problem
+
+
+def _shape_check(rule: Rule, left: Any, right: Any) -> tuple[str, dict[str, Any]]:
+    """Return (problem, magnitude): "" when the mask is allowed.
+
+    `magnitude` is what the report needs to show how close a rule came to masking
+    something real: the observed difference next to the tolerance that permitted
+    it, or a note that the check is shape-only.
+    """
     if rule.type == "uuid":
         for side in (left, right):
             if not isinstance(side, str):
-                return f"uuid rule needs strings, got {type(side).__name__}"
+                return f"uuid rule needs strings, got {type(side).__name__}", {}
             try:
                 UUID(side)
             except ValueError:
-                return f"uuid rule: {side!r} is not a UUID"
-        return ""
+                return f"uuid rule: {side!r} is not a UUID", {}
+        return "", {"shape_only": True}
     if rule.type == "timestamp":
         parsed = []
         for side, _kind in (_decoded(left), _decoded(right)):
             if not isinstance(side, str):
-                return f"timestamp rule needs strings, got {type(side).__name__}"
+                return f"timestamp rule needs strings, got {type(side).__name__}", {}
             try:
                 parsed.append(datetime.fromisoformat(side))
             except ValueError:
-                return f"timestamp rule: {side!r} is not ISO 8601"
+                return f"timestamp rule: {side!r} is not ISO 8601", {}
         delta = abs((parsed[0] - parsed[1]).total_seconds())
+        magnitude = {
+            "delta": delta,
+            "tolerance": rule.tolerance_seconds,
+            "ratio": (delta / rule.tolerance_seconds) if rule.tolerance_seconds else None,
+        }
         if delta > rule.tolerance_seconds:
             return (
                 f"timestamp rule: {delta:.3f}s apart, tolerance is "
-                f"{rule.tolerance_seconds:.3f}s"
+                f"{rule.tolerance_seconds:.3f}s",
+                magnitude,
             )
-        return ""
+        return "", magnitude
     if rule.type == "float":
         left, left_kind = _decoded(left)
         right, right_kind = _decoded(right)
         for side, kind in ((left, left_kind), (right, right_kind)):
             if kind == "timestamp":
-                return "float rule got a timestamp"
+                return "float rule got a timestamp", {}
             if isinstance(side, bool) or not isinstance(side, float):
-                return f"float rule needs floats, got {type(side).__name__}"
+                return f"float rule needs floats, got {type(side).__name__}", {}
             if math.isnan(side):
-                return "float rule: NaN has no tolerance"
+                return "float rule: NaN has no tolerance", {}
         delta = abs(left - right)
         allowed = max(rule.tolerance, rule.tolerance * max(abs(left), abs(right)))
+        magnitude = {
+            "delta": delta,
+            "tolerance": allowed,
+            "ratio": (delta / allowed) if allowed else None,
+        }
         if delta > allowed:
-            return f"float rule: {delta!r} apart, tolerance is {allowed!r}"
-        return ""
+            return f"float rule: {delta!r} apart, tolerance is {allowed!r}", magnitude
+        return "", magnitude
     if rule.type == "regex_mask":
         import re
 
         for side in (left, right):
             if not isinstance(side, str):
-                return f"regex_mask rule needs strings, got {type(side).__name__}"
+                return f"regex_mask rule needs strings, got {type(side).__name__}", {}
             if re.fullmatch(rule.pattern, side) is None:
-                return f"regex_mask rule: {side!r} does not fully match {rule.pattern!r}"
-        return ""
+                return (
+                    f"regex_mask rule: {side!r} does not fully match {rule.pattern!r}",
+                    {},
+                )
+        return "", {"shape_only": True}
     if rule.type == "unordered_list":
         if not isinstance(left, list) or not isinstance(right, list):
-            return "unordered_list rule needs lists"
+            return "unordered_list rule needs lists", {}
         if len(left) != len(right):
-            return f"unordered_list rule: lengths differ ({len(left)} != {len(right)})"
+            return (
+                f"unordered_list rule: lengths differ ({len(left)} != {len(right)})",
+                {"length_delta": len(left) - len(right)},
+            )
         left_keys = sorted(json.dumps(item, sort_keys=True) for item in left)
         right_keys = sorted(json.dumps(item, sort_keys=True) for item in right)
         if left_keys != right_keys:
-            return "unordered_list rule: not equal as multisets"
-        return ""
-    return f"unknown rule type {rule.type!r}"
+            pairs = zip(left_keys, right_keys, strict=True)
+            differing = sum(1 for one, other in pairs if one != other)
+            return "unordered_list rule: not equal as multisets", {"differing": differing}
+        return "", {"comparisons": len(left)}
+    return f"unknown rule type {rule.type!r}", {}
 
 
 def _mask(rule: Rule) -> dict[str, Any]:
@@ -318,12 +371,13 @@ def _mask(rule: Rule) -> dict[str, Any]:
 
 @dataclass
 class Applied:
-    """One masked path, for the report: which rule, and why it was allowed."""
+    """One masked path, for the report: which rule, why, and how close it came."""
 
     rule_id: str
     path: str
     type: str
     reason: str
+    magnitude: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -348,6 +402,13 @@ def apply_rules(
     return result
 
 
+def _render(path: str, key: str) -> str:
+    """Report a key unambiguously: `$.value["a.b"]` rather than `$.value.a.b`."""
+    if any(char in key for char in '.*"') or key == "":
+        return f'{path}["{key}"]'
+    return f"{path}.{key}"
+
+
 def _walk(
     left: Any,
     right: Any,
@@ -358,19 +419,24 @@ def _walk(
 ) -> Any:
     for rule in rules.rules:
         if rule.matches(segments):
-            problem = _shape_ok(rule, left, right)
+            problem, magnitude = _shape_check(rule, left, right)
             if problem:
                 # A refused rule must not stop the walk: a broader rule that
                 # does not fit this node must not shadow a narrower one that
                 # does (a `$.value` uuid rule must not block `$.value.id`).
                 out.refused.append({"rule_id": rule.id, "path": path, "reason": problem})
                 continue
-            out.applied.append(Applied(rule.id, path, rule.type, rule.reason))
+            out.applied.append(Applied(rule.id, path, rule.type, rule.reason, magnitude))
             return (_mask(rule), _mask(rule))
     if isinstance(left, dict) and isinstance(right, dict):
         for key in sorted(set(left) | set(right)):
             one, other = _walk(
-                left.get(key), right.get(key), rules, (*segments, key), f"{path}.{key}", out
+                left.get(key),
+                right.get(key),
+                rules,
+                (*segments, key),
+                _render(path, key),
+                out,
             )
             left[key], right[key] = one, other
         return (left, right)
@@ -381,3 +447,38 @@ def _walk(
             )
             left[index], right[index] = new_left, new_right
     return (left, right)
+
+
+def usage(rules: RuleSet, applied: list[Applied]) -> dict[str, dict[str, Any]]:
+    """Per-rule counts and the largest observed difference versus its tolerance.
+
+    A rule that masked a field where nothing differed is silent; a rule that
+    masked a field differing by 99 % of its tolerance is one refactor away from
+    masking a real change. That is the number a reviewer needs, so every report
+    carries it.
+    """
+    stats: dict[str, dict[str, Any]] = {
+        rule.id: {
+            "type": rule.type,
+            "reason": rule.reason,
+            "matched": 0,
+            "max_ratio": None,
+            "max_delta": None,
+            "tolerance": rule.tolerance or rule.tolerance_seconds or None,
+        }
+        for rule in rules.rules
+    }
+    for item in applied:
+        entry = stats.setdefault(
+            item.rule_id,
+            {"type": item.type, "reason": item.reason, "matched": 0,
+             "max_ratio": None, "max_delta": None, "tolerance": None},
+        )
+        entry["matched"] += 1
+        ratio = item.magnitude.get("ratio")
+        delta = item.magnitude.get("delta")
+        if ratio is not None and (entry["max_ratio"] is None or ratio > entry["max_ratio"]):
+            entry["max_ratio"] = ratio
+        if delta is not None and (entry["max_delta"] is None or delta > entry["max_delta"]):
+            entry["max_delta"] = delta
+    return stats

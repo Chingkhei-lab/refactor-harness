@@ -1,5 +1,5 @@
 {
-  "case_set_hash": "f3b6b66d737ec9bbf60973b4ee34fb22ec7d585ba4ead7e00a9d9758a3ea252f",
+  "case_set_hash": "283155b0bbb9816758552adf02f4dbf4ac83b06604d6dd07a62276a6cf829af3",
   "case_set_version": 1,
   "cases": [
     {
@@ -8,6 +8,7 @@
         "hello"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0001-parse-docs",
       "kwargs": {},
       "source": "docs"
@@ -18,6 +19,7 @@
         "hello"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0002-search-docs",
       "kwargs": {},
       "source": "docs"
@@ -28,6 +30,7 @@
         "hello"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0003-findall-docs",
       "kwargs": {},
       "source": "docs"
@@ -38,6 +41,7 @@
         "42"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0004-parse-docs",
       "kwargs": {},
       "source": "docs"
@@ -48,6 +52,7 @@
         "42"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0005-search-docs",
       "kwargs": {},
       "source": "docs"
@@ -58,6 +63,7 @@
         "42"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0006-findall-docs",
       "kwargs": {},
       "source": "docs"
@@ -68,6 +74,7 @@
         "Hi Alice"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0007-parse-docs",
       "kwargs": {},
       "source": "docs"
@@ -78,6 +85,7 @@
         "Hi Alice"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0008-search-docs",
       "kwargs": {},
       "source": "docs"
@@ -88,6 +96,7 @@
         "Hi Alice"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0009-findall-docs",
       "kwargs": {},
       "source": "docs"
@@ -98,6 +107,7 @@
         "bob"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0010-parse-docs",
       "kwargs": {},
       "source": "docs"
@@ -108,6 +118,7 @@
         "bob"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0011-search-docs",
       "kwargs": {},
       "source": "docs"
@@ -118,6 +129,7 @@
         "bob"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0012-findall-docs",
       "kwargs": {},
       "source": "docs"
@@ -128,6 +140,7 @@
         "one two"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0013-parse-docs",
       "kwargs": {},
       "source": "docs"
@@ -138,6 +151,7 @@
         "one two"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0014-search-docs",
       "kwargs": {},
       "source": "docs"
@@ -148,6 +162,7 @@
         "one two"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0015-findall-docs",
       "kwargs": {},
       "source": "docs"
@@ -158,6 +173,7 @@
         "12345"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0016-parse-docs",
       "kwargs": {},
       "source": "docs"
@@ -168,6 +184,7 @@
         "12345"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0017-search-docs",
       "kwargs": {},
       "source": "docs"
@@ -178,6 +195,7 @@
         "12345"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0018-findall-docs",
       "kwargs": {},
       "source": "docs"
@@ -188,6 +206,7 @@
         "hello world"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0019-parse-docs",
       "kwargs": {},
       "source": "docs"
@@ -198,6 +217,7 @@
         "hello world"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0020-search-docs",
       "kwargs": {},
       "source": "docs"
@@ -208,6 +228,7 @@
         "hello world"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0021-findall-docs",
       "kwargs": {},
       "source": "docs"
@@ -218,6 +239,7 @@
         "ABC"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0022-parse-docs",
       "kwargs": {},
       "source": "docs"
@@ -228,6 +250,7 @@
         "ABC"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0023-search-docs",
       "kwargs": {},
       "source": "docs"
@@ -238,6 +261,7 @@
         "ABC"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0024-findall-docs",
       "kwargs": {},
       "source": "docs"
@@ -248,6 +272,7 @@
         ""
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0025-parse-docs",
       "kwargs": {},
       "source": "docs"
@@ -258,6 +283,7 @@
         ""
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0026-search-docs",
       "kwargs": {},
       "source": "docs"
@@ -268,6 +294,7 @@
         ""
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0027-findall-docs",
       "kwargs": {},
       "source": "docs"
@@ -278,6 +305,7 @@
         "notdigits"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0028-parse-docs",
       "kwargs": {},
       "source": "docs"
@@ -288,6 +316,7 @@
         "notdigits"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0029-search-docs",
       "kwargs": {},
       "source": "docs"
@@ -298,6 +327,7 @@
         "notdigits"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0030-findall-docs",
       "kwargs": {},
       "source": "docs"
@@ -308,6 +338,7 @@
         "  padded  "
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0031-parse-docs",
       "kwargs": {},
       "source": "docs"
@@ -318,6 +349,7 @@
         "  padded  "
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0032-search-docs",
       "kwargs": {},
       "source": "docs"
@@ -328,6 +360,7 @@
         "  padded  "
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0033-findall-docs",
       "kwargs": {},
       "source": "docs"
@@ -338,6 +371,7 @@
         "x-y"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0034-parse-docs",
       "kwargs": {},
       "source": "docs"
@@ -348,6 +382,7 @@
         "x-y"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0035-search-docs",
       "kwargs": {},
       "source": "docs"
@@ -358,6 +393,7 @@
         "x-y"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0036-findall-docs",
       "kwargs": {},
       "source": "docs"
@@ -368,6 +404,7 @@
         "3.14"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0037-parse-docs",
       "kwargs": {},
       "source": "docs"
@@ -378,6 +415,7 @@
         "3.14"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0038-search-docs",
       "kwargs": {},
       "source": "docs"
@@ -388,6 +426,7 @@
         "3.14"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0039-findall-docs",
       "kwargs": {},
       "source": "docs"
@@ -398,6 +437,7 @@
         "ab"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0040-parse-docs",
       "kwargs": {},
       "source": "docs"
@@ -408,6 +448,7 @@
         "ab"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0041-search-docs",
       "kwargs": {},
       "source": "docs"
@@ -418,6 +459,7 @@
         "ab"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0042-findall-docs",
       "kwargs": {},
       "source": "docs"
@@ -428,6 +470,7 @@
         "abc"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0043-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -438,10 +481,12 @@
         "abc"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0044-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -450,6 +495,7 @@
         "abc"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0045-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -460,6 +506,7 @@
         "abc"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0046-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -470,6 +517,7 @@
         "123"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0047-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -480,10 +528,12 @@
         "123"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0048-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -492,6 +542,7 @@
         "123"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0049-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -502,6 +553,7 @@
         "123"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0050-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -512,6 +564,7 @@
         "-1.5"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0051-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -522,10 +575,12 @@
         "-1.5"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0052-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -534,6 +589,7 @@
         "-1.5"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0053-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -544,6 +600,7 @@
         "-1.5"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0054-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -554,6 +611,7 @@
         "\u00fcn\u00efcode"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0055-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -564,10 +622,12 @@
         "\u00fcn\u00efcode"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0056-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -576,6 +636,7 @@
         "\u00fcn\u00efcode"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0057-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -586,6 +647,7 @@
         "\u00fcn\u00efcode"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0058-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -596,6 +658,7 @@
         "value"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0059-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -606,10 +669,12 @@
         "value"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0060-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -618,6 +683,7 @@
         "value"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0061-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -628,6 +694,7 @@
         "value"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0062-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -638,6 +705,7 @@
         "ab"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0063-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -648,10 +716,12 @@
         "ab"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0064-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -660,6 +730,7 @@
         "ab"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0065-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -670,6 +741,7 @@
         "ab"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0066-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -680,6 +752,7 @@
         "007"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0067-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -690,10 +763,12 @@
         "007"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0068-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -702,6 +777,7 @@
         "007"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0069-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -712,6 +788,7 @@
         "007"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0070-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -722,6 +799,7 @@
         "-12"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0071-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -732,10 +810,12 @@
         "-12"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0072-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -744,6 +824,7 @@
         "-12"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0073-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -754,6 +835,7 @@
         "-12"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0074-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -764,6 +846,7 @@
         "word"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0075-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -774,10 +857,12 @@
         "word"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0076-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -786,6 +871,7 @@
         "word"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0077-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -796,6 +882,7 @@
         "word"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0078-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -806,6 +893,7 @@
         "word"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0079-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -816,10 +904,12 @@
         "word"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0080-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -828,6 +918,7 @@
         "word"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0081-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -838,6 +929,7 @@
         "word"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0082-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -848,6 +940,7 @@
         "letters"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0083-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -858,10 +951,12 @@
         "letters"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0084-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -870,6 +965,7 @@
         "letters"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0085-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -880,6 +976,7 @@
         "letters"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0086-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -890,6 +987,7 @@
         " \t spaced"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0087-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -900,10 +998,12 @@
         " \t spaced"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0088-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -912,6 +1012,7 @@
         " \t spaced"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0089-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -922,6 +1023,7 @@
         " \t spaced"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0090-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -932,6 +1034,7 @@
         "UPPER"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0091-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -942,10 +1045,12 @@
         "UPPER"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0092-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -954,6 +1059,7 @@
         "UPPER"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0093-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -964,6 +1070,7 @@
         "UPPER"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0094-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -974,6 +1081,7 @@
         "1.5"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0095-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -984,10 +1092,12 @@
         "1.5"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0096-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -996,6 +1106,7 @@
         "1.5"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0097-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1006,6 +1117,7 @@
         "1.5"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0098-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1016,6 +1128,7 @@
         "1,000"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0099-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1026,10 +1139,12 @@
         "1,000"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0100-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -1038,6 +1153,7 @@
         "1,000"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0101-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1048,6 +1164,7 @@
         "1,000"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0102-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1058,6 +1175,7 @@
         "deadbeef"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0103-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1068,10 +1186,12 @@
         "deadbeef"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0104-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -1080,6 +1200,7 @@
         "deadbeef"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0105-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1090,6 +1211,7 @@
         "deadbeef"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0106-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1100,6 +1222,7 @@
         "755"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0107-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1110,10 +1233,12 @@
         "755"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0108-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -1122,6 +1247,7 @@
         "755"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0109-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1132,6 +1258,7 @@
         "755"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0110-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1142,6 +1269,7 @@
         "1010"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0111-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1152,10 +1280,12 @@
         "1010"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0112-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -1164,6 +1294,7 @@
         "1010"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0113-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1174,6 +1305,7 @@
         "1010"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0114-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1184,6 +1316,7 @@
         "2.5"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0115-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1194,10 +1327,12 @@
         "2.5"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0116-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -1206,6 +1341,7 @@
         "2.5"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0117-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1216,6 +1352,7 @@
         "2.5"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0118-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1226,6 +1363,7 @@
         "1.23456"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0119-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1236,10 +1374,12 @@
         "1.23456"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0120-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -1248,6 +1388,7 @@
         "1.23456"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0121-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1258,6 +1399,7 @@
         "1.23456"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0122-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1268,6 +1410,7 @@
         "ab"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0123-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1278,10 +1421,12 @@
         "ab"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0124-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -1290,6 +1435,7 @@
         "ab"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0125-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1300,6 +1446,7 @@
         "ab"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0126-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1310,6 +1457,7 @@
         "a"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0127-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1320,10 +1468,12 @@
         "a"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0128-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -1332,6 +1482,7 @@
         "a"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0129-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1342,6 +1493,7 @@
         "a"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0130-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1352,6 +1504,7 @@
         "2023-11-14"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0131-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1362,10 +1515,12 @@
         "2023-11-14"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0132-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -1374,6 +1529,7 @@
         "2023-11-14"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0133-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1384,6 +1540,7 @@
         "2023-11-14"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0134-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1394,6 +1551,7 @@
         "14.11.2023"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0135-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1404,10 +1562,12 @@
         "14.11.2023"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0136-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -1416,6 +1576,7 @@
         "14.11.2023"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0137-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1426,6 +1587,7 @@
         "14.11.2023"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0138-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1436,6 +1598,7 @@
         "Tue Nov 14 2023"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0139-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1446,10 +1609,12 @@
         "Tue Nov 14 2023"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0140-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -1458,6 +1623,7 @@
         "Tue Nov 14 2023"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0141-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1468,6 +1634,7 @@
         "Tue Nov 14 2023"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0142-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1478,6 +1645,7 @@
         "14 Nov 2023"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0143-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1488,10 +1656,12 @@
         "14 Nov 2023"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0144-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -1500,6 +1670,7 @@
         "14 Nov 2023"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0145-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1510,6 +1681,7 @@
         "14 Nov 2023"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0146-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1520,6 +1692,7 @@
         "Nov 14 2023"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0147-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1530,10 +1703,12 @@
         "Nov 14 2023"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0148-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -1542,6 +1717,7 @@
         "Nov 14 2023"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0149-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1552,6 +1728,7 @@
         "Nov 14 2023"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0150-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1562,6 +1739,7 @@
         "Tue Nov 14 22:13:20 2023"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0151-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1572,10 +1750,12 @@
         "Tue Nov 14 22:13:20 2023"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0152-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -1584,6 +1764,7 @@
         "Tue Nov 14 22:13:20 2023"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0153-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1594,6 +1775,7 @@
         "Tue Nov 14 22:13:20 2023"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0154-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1604,6 +1786,7 @@
         "22:13:20"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0155-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1614,10 +1797,12 @@
         "22:13:20"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0156-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -1626,6 +1811,7 @@
         "22:13:20"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0157-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1636,6 +1822,7 @@
         "22:13:20"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0158-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1646,6 +1833,7 @@
         "2023-11-14 22:13:20"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0159-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1656,10 +1844,12 @@
         "2023-11-14 22:13:20"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0160-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -1668,6 +1858,7 @@
         "2023-11-14 22:13:20"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0161-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1678,6 +1869,7 @@
         "2023-11-14 22:13:20"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0162-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1688,6 +1880,7 @@
         "Tue, 14 Nov 2023 22:13:20 +0000"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0163-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1698,10 +1891,12 @@
         "Tue, 14 Nov 2023 22:13:20 +0000"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0164-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -1710,6 +1905,7 @@
         "Tue, 14 Nov 2023 22:13:20 +0000"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0165-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1720,6 +1916,7 @@
         "Tue, 14 Nov 2023 22:13:20 +0000"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0166-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1730,6 +1927,7 @@
         "Nov 14"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0167-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1740,10 +1938,12 @@
         "Nov 14"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0168-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -1752,6 +1952,7 @@
         "Nov 14"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0169-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1762,6 +1963,7 @@
         "Nov 14"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0170-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1772,6 +1974,7 @@
         "22:13"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0171-parse-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1782,10 +1985,12 @@
         "22:13"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0172-parse-grammar",
       "kwargs": {
         "evaluate_result": false
       },
+      "projection": "evaluate_result",
       "source": "grammar"
     },
     {
@@ -1794,6 +1999,7 @@
         "22:13"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0173-search-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1804,6 +2010,7 @@
         "22:13"
       ],
       "entry": "findall",
+      "expect": "stream",
       "id": "0174-findall-grammar",
       "kwargs": {},
       "source": "grammar"
@@ -1814,6 +2021,7 @@
         "sample"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0175-parse-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -1824,6 +2032,7 @@
         "sample"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0176-search-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -1834,6 +2043,7 @@
         "sample"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0177-parse-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -1844,6 +2054,7 @@
         "sample"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0178-search-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -1854,6 +2065,7 @@
         "sample"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0179-parse-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -1864,6 +2076,7 @@
         "sample"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0180-search-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -1874,6 +2087,7 @@
         "sample"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0181-parse-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -1884,6 +2098,7 @@
         "sample"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0182-search-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -1894,6 +2109,7 @@
         "sample"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0183-parse-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -1904,6 +2120,7 @@
         "sample"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0184-search-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -1914,6 +2131,7 @@
         "sample"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0185-parse-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -1924,6 +2142,7 @@
         "sample"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0186-search-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -1934,6 +2153,7 @@
         "sample"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0187-parse-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -1944,6 +2164,7 @@
         "sample"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0188-search-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -1954,6 +2175,7 @@
         "sample"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0189-parse-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -1964,6 +2186,7 @@
         "sample"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0190-search-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -1974,6 +2197,7 @@
         "sample"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0191-parse-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -1984,6 +2208,7 @@
         "sample"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0192-search-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -1994,6 +2219,7 @@
         "sample"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0193-parse-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -2004,6 +2230,7 @@
         "sample"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0194-search-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -2014,6 +2241,7 @@
         "sample"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0195-parse-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -2024,6 +2252,7 @@
         "sample"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0196-search-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -2034,6 +2263,7 @@
         "sample"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0197-parse-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -2044,6 +2274,7 @@
         "sample"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0198-search-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -2054,6 +2285,7 @@
         "sample"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0199-parse-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -2064,6 +2296,7 @@
         "sample"
       ],
       "entry": "search",
+      "expect": "finite",
       "id": "0200-search-malformed",
       "kwargs": {},
       "source": "malformed"
@@ -2074,6 +2307,7 @@
         ""
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0201-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2084,6 +2318,7 @@
         "c"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0202-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2094,6 +2329,7 @@
         "Y_89b5_c7"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0203-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2104,6 +2340,7 @@
         ":6c::X3"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0204-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2114,6 +2351,7 @@
         "1X5_X2_b43."
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0205-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2124,6 +2362,7 @@
         "_2/-3"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0206-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2134,6 +2373,7 @@
         "1"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0207-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2144,6 +2384,7 @@
         " a2.7"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0208-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2154,6 +2395,7 @@
         "5a"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0209-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2164,6 +2406,7 @@
         ".-"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0210-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2174,6 +2417,7 @@
         "Z"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0211-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2184,6 +2428,7 @@
         "-c4Z8"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0212-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2194,6 +2439,7 @@
         "7"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0213-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2204,6 +2450,7 @@
         "84433_Y:/ac"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0214-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2214,6 +2461,7 @@
         " Y::Za"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0215-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2224,6 +2472,7 @@
         "a-Z"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0216-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2234,6 +2483,7 @@
         "3 :8X/47:9-465"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0217-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2244,6 +2494,7 @@
         "Y481Y"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0218-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2254,6 +2505,7 @@
         "78"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0219-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2264,6 +2516,7 @@
         "39"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0220-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2274,6 +2527,7 @@
         "Y-4c"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0221-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2284,6 +2538,7 @@
         "0"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0222-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2294,6 +2549,7 @@
         "36-4.08b: -"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0223-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2304,6 +2560,7 @@
         "Y.444_"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0224-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2314,6 +2571,7 @@
         "55:6-"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0225-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2324,6 +2582,7 @@
         "2.5"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0226-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2334,6 +2593,7 @@
         "4bZ4b6ba4Y2_"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0227-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2344,6 +2604,7 @@
         "61."
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0228-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2354,6 +2615,7 @@
         "/"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0229-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2364,6 +2626,7 @@
         " Y/_706"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0230-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2374,6 +2637,7 @@
         ":"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0231-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2384,6 +2648,7 @@
         "7798"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0232-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2394,6 +2659,7 @@
         "_ ac43Ybb 2_4"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0233-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2404,6 +2670,7 @@
         "0..0"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0234-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2414,6 +2681,7 @@
         "3.:59"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0235-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2424,6 +2692,7 @@
         "931_Z60Y:1"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0236-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2434,6 +2703,7 @@
         "1X19c3Z0:-1"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0237-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2444,6 +2714,7 @@
         "b1_Y06"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0238-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2454,6 +2725,7 @@
         ":0/"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0239-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2464,6 +2736,7 @@
         "_/.9"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0240-parse-hypothesis",
       "kwargs": {},
       "source": "hypothesis"
@@ -2474,6 +2747,7 @@
         ":c9_b1-c/"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0241-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2484,6 +2758,7 @@
         "8410"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0242-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2494,6 +2769,7 @@
         " 79:a9ca3Y"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0243-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2504,6 +2780,7 @@
         "8:5Zbc_8Zc-"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0244-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2514,6 +2791,7 @@
         "Ya4"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0245-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2524,6 +2802,7 @@
         "9"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0246-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2534,6 +2813,7 @@
         ":2"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0247-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2544,6 +2824,7 @@
         "b61:bZ1"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0248-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2554,6 +2835,7 @@
         "2Y"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0249-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2564,6 +2846,7 @@
         "b_5483_"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0250-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2574,6 +2857,7 @@
         "8b8.Z79"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0251-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2584,6 +2868,7 @@
         "21XZ66X"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0252-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2594,6 +2879,7 @@
         "X85:1/ 4"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0253-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2604,6 +2890,7 @@
         "Z"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0254-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2614,6 +2901,7 @@
         "1Y37cc5 b"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0255-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2624,6 +2912,7 @@
         "b09c"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0256-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2634,6 +2923,7 @@
         "327c_1c6 X5"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0257-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2644,6 +2934,7 @@
         "790"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0258-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2654,6 +2945,7 @@
         " 96Z_"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0259-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2664,6 +2956,7 @@
         "2b4"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0260-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2674,6 +2967,7 @@
         "Y8-83YYb"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0261-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2684,6 +2978,7 @@
         "ZY-c3Za::"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0262-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2694,6 +2989,7 @@
         ""
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0263-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2704,6 +3000,7 @@
         "cY b653 :5"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0264-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2714,6 +3011,7 @@
         "-/26"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0265-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2724,6 +3022,7 @@
         ":_Y-c"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0266-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2734,6 +3033,7 @@
         "165_"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0267-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2744,6 +3044,7 @@
         "9X51"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0268-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2754,6 +3055,7 @@
         "2_5"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0269-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2764,6 +3066,7 @@
         ""
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0270-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2774,6 +3077,7 @@
         "708Z5"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0271-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2784,6 +3088,7 @@
         "ac85"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0272-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"
@@ -2794,6 +3099,7 @@
         "6:8Z"
       ],
       "entry": "parse",
+      "expect": "finite",
       "id": "0273-parse-grammar-random",
       "kwargs": {},
       "source": "grammar-random"

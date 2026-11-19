@@ -13,6 +13,7 @@ import pathlib
 import uuid
 
 from harness.observation import (
+    OBSERVATION_SCHEMA_VERSION,
     BlobStore,
     Observation,
     canonical_json,
@@ -117,7 +118,9 @@ def test_blob_store_is_content_addressed(tmp_path: pathlib.Path) -> None:
         case_set_hash="0123456789abcdef",
     )
     key = store.put(observation)
-    path = tmp_path / "01234567" / key[:2] / f"{key}.json"
+    path = (
+        tmp_path / f"v{OBSERVATION_SCHEMA_VERSION}" / "01234567" / key[:2] / f"{key}.json"
+    )
     assert path.exists(), "blobs are sharded by case-set hash and content hash"
     assert store.put(observation) == key, "same observation, same address"
 

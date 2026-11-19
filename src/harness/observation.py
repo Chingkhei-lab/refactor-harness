@@ -57,6 +57,12 @@ _ITERATOR_TYPES = (collections.abc.Iterator,)
 # yields an infinite sequence for `findall("{:tt}", "22:13:20")` (zero-width
 # match at the end), which hung the first baseline for 900 s. The bound is the
 # harness's, and the truncation is recorded rather than silently dropped.
+# Bumped when the ENCODING changes, not when a case is added. The EncodedValue
+# fix (checkpoint 11) changed every blob's bytes without changing any value, so
+# v1 and v2 blobs are not interchangeable even though the case set is the same;
+# the version is in the payload and in the blob path so the two can never mix.
+OBSERVATION_SCHEMA_VERSION = 2
+
 ITERATOR_LIMIT = 1000
 
 # Structure bounds. A refactor can turn a list into a graph; the encoder must
@@ -319,6 +325,7 @@ class Observation:
 
     def body(self) -> dict[str, Any]:
         return {
+            "observation_schema_version": OBSERVATION_SCHEMA_VERSION,
             "case_id": self.case_id,
             "entry": self.entry,
             "inputs": encode(self.inputs),
@@ -372,7 +379,7 @@ class Observation:
 
 @dataclass
 class BlobStore:
-    """Content-addressed observations: `<root>/<case_set_hash[:8]>/<sha256>.json`.
+    """Content-addressed observations: `<root>/v<schema>/<case_set_hash[:8]>/...`.
 
     The case-set hash is part of the PATH: a golden blob is only meaningful for
     the case set that produced it, so it cannot be silently reused across a
@@ -385,7 +392,7 @@ class BlobStore:
     def put(self, observation: Observation) -> str:
         key = observation.sha256
         shard = observation.case_set_hash[:8] or "unknown"
-        path = self.root / shard / key[:2] / f"{key}.json"
+        path = self.root / f"v{OBSERVATION_SCHEMA_VERSION}" / shard / key[:2] / f"{key}.json"
         if not path.exists():
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(observation.to_json() + "\n", encoding="utf-8")
