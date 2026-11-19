@@ -152,11 +152,20 @@ actually reports. All three appear in the report, labelled.
 coverage.py's function data flags a function when *any* line in it is missing, so
 "32 of 47 functions uncovered" included functions that were entered and partly
 run (`Parser._handle_field` ran 125 lines and missed 30). The report now splits
-them: **19 of 47 functions were never entered** (129 of 554 statements, ~4 lines
-each — the `with_pattern` decorator, the seven `FixedTzOffset` methods, `compile`,
-the `Result` dunder methods), and **32 of 47 have at least one unexecuted line**.
-The core parse→search→findall path is in the 15 fully covered functions; what is
-missing is alternative API surface and error branches. That distinction is the
+them, and the split changes the reading:
+
+| Group | Functions | Missing statements |
+| --- | --- | --- |
+| Never entered | **19 of 47** | **29 of 554** (the `with_pattern` decorator, the seven `FixedTzOffset` methods, `compile`, the `Result` dunder methods, `Parser.format`/`named_fields`/`fixed_fields`, `percentage`, `Match.evaluate_result`) |
+| Entered, with unexecuted lines | 13 of 47 | 100 (`date_convert` 28, `_handle_field` 30, `extract_format` 9, `_to_group_name` 8, …) |
+| Total with any unexecuted line | 32 of 47 | 129 |
+
+So the harness is not blind to the core: the parse→search→findall path is among
+the 15 fully covered functions, and every missing statement outside the
+never-entered 29 sits in a branch of a function that did run. Both numbers appear
+in the report, with the per-function line counts, because "32 uncovered
+functions" alone reads as though two thirds of the library were never executed —
+which is not what the data says. That distinction is the
 difference between "the harness is blind to the library" and "the harness has not
 exercised the parts nobody's refactor is likely to touch".
 
