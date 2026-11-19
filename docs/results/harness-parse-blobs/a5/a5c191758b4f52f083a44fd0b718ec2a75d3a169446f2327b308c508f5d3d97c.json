@@ -1,1 +1,0 @@
-{"case_id":"grammar-random-0014","controls":["clock_frozen","random_seeded","uuid_frozen","hash_seed_0","tz_utc","locale_c","cwd_fixed","env_scrubbed"],"entry":"parse","exception":null,"inputs":{"args":["{:n}","1Y37cc5 b"],"kwargs":{}},"outcome":"return","stderr":"","stdout":"","value":null}

@@ -76,6 +76,26 @@ Two findings made this list longer than planned, both from the `parse` baseline:
 Rejected: storing `repr()`. It embeds memory addresses (`<object at 0x...>`) and
 changes between versions for reasons that are not behaviour.
 
+### D2b — Hangs and unbounded materialisation are case outcomes
+
+Two failure modes were found by the first `parse` baseline, and both are now
+part of the contract:
+
+- **An infinite iterator hung the harness for 900 s.** `parse.findall("{:tt}",
+  "22:13:20")` yields the same zero-width match forever, so materialising the
+  return value never finished. Iterator encoding is now bounded at
+  `ITERATOR_LIMIT = 1000` items and marks `{"truncated": true, "limit": 1000}`
+  — the truncation is *recorded*, so "we saw the first 1000 and there were
+  more" is a fact in the report instead of a silent equality.
+- **A case that never returns cannot eat the pass.** The child flushes every
+  observation, so on a per-case timeout the runner can see where it stopped,
+  record that case as **unsupported** with `CaseTimeout`, and resume from the
+  next case (up to three attempts). A target hang is a property of the target,
+  not a harness failure, and it must not be reported as a behaviour difference.
+
+The general rule: **a case can do anything, including loop forever**, and the
+harness's job is to bound its own work and say what it could not observe.
+
 ### D3 — Determinism controls, and the proof that they work
 
 Applied via `sitecustomize` (so they run before the target is imported) and

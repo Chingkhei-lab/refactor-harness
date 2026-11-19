@@ -82,6 +82,12 @@ from the child and printed in every report. The shim is tested by running a
 probe that prints the clock, a random number, a UUID and `hash('x')` twice and
 asserting the bytes match.
 
+**The target can loop forever.** A lazy return value is materialised only up to
+a fixed bound (1,000 items, marked `truncated`), and a case that never returns is
+recorded as **unsupported** with `CaseTimeout` and skipped, because a hang is a
+property of the target, not a comparison. `parse.findall("{:tt}", "22:13:20")`
+is exactly that case — found by the baseline on its first run.
+
 **Content-addressed observations.** Every observation is canonical JSON whose
 sha256 is its address. The golden record is the set of addresses the old
 version produced; a report is a mapping from case to address-pair

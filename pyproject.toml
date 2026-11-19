@@ -26,7 +26,7 @@ select = ["E", "F", "I", "B", "UP"]
 [tool.mypy]
 python_version = "3.12"
 strict = true
-packages = ["engine"]
+packages = ["engine", "harness"]
 mypy_path = "src"
 
 # pywintypes (pywin32) is imported by NAME only, inside a guarded import:

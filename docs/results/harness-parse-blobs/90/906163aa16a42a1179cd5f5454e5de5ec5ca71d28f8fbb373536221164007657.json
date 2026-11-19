@@ -1,1 +1,0 @@
-{"case_id":"hypothesis-0037","controls":["clock_frozen","random_seeded","uuid_frozen","hash_seed_0","tz_utc","locale_c","cwd_fixed","env_scrubbed"],"entry":"parse","exception":null,"inputs":{"args":["{:.2f}","b1_Y06"],"kwargs":{}},"outcome":"return","stderr":"","stdout":"","value":null}

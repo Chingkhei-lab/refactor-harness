@@ -32,6 +32,7 @@ import datetime
 import decimal
 import enum
 import hashlib
+import importlib
 import json
 import math
 import pathlib
@@ -44,8 +45,16 @@ from typing import Any
 # filter/zip/enumerate all satisfy the ABC, and `type(iter(()))` alone does not.
 _ITERATOR_TYPES = (collections.abc.Iterator,)
 
+# Materialising an iterator is UNBOUNDED work chosen by the target: parse 1.22.4
+# yields an infinite sequence for `findall("{:tt}", "22:13:20")` (zero-width
+# match at the end), which hung the first baseline for 900 s. The bound is the
+# harness's, and the truncation is recorded rather than silently dropped.
+ITERATOR_LIMIT = 1000
 
-def _datetime_types() -> tuple[type, type, type]:
+
+def _datetime_types() -> tuple[
+    type[datetime.datetime], type[datetime.date], type[datetime.time]
+]:
     """The REAL datetime classes.
 
     Under the determinism shim `datetime.datetime` and `datetime.date` are
@@ -55,8 +64,8 @@ def _datetime_types() -> tuple[type, type, type]:
     use them.
     """
     try:
-        import sitecustomize as shim
-
+        # generated at run time (no stubs, and absent unless the shim ran first)
+        shim = importlib.import_module("sitecustomize")
         return (
             shim.ORIGINAL_DATETIME,
             shim.ORIGINAL_DATE,
@@ -89,8 +98,21 @@ def encode(value: Any) -> Any:
     if isinstance(value, dict):
         return _encode_mapping(value)
     if isinstance(value, _ITERATOR_TYPES):
-        # materialise: a lazy return value has no stable identity otherwise
-        return {"__iterator__": [encode(item) for item in list(value)]}
+        # materialise, but only up to the bound: a lazy return value has no
+        # stable identity otherwise, and an infinite generator must not hang
+        # the harness (or be mistaken for a finite one).
+        items: list[Any] = []
+        truncated = False
+        for index, item in enumerate(value):
+            if index >= ITERATOR_LIMIT:
+                truncated = True
+                break
+            items.append(encode(item))
+        encoded: dict[str, Any] = {"__iterator__": items}
+        if truncated:
+            encoded["truncated"] = True
+            encoded["limit"] = ITERATOR_LIMIT
+        return encoded
     if isinstance(value, BaseException):
         return encode_exception(value)
     # Scalars with a stable textual identity. Without these, `encode` would fall

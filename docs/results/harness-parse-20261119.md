@@ -8,8 +8,8 @@ Evidence, not proof: this records what the target did under a fixed case set and
 | Outcomes (return / exception / unsupported) | {'return': 261, 'exception': 12, 'unsupported': 0} |
 | A/A passes | 5 |
 | A/A noise (cases that varied) | **0** |
-| Cases decided by the shim | 2 |
-| Uncovered functions | 33 |
+| Cases decided by the shim | 3 |
+| Uncovered functions | 32 |
 | Golden blobs | 273 |
 | Controls applied | clock_frozen, random_seeded, uuid_frozen, hash_seed_0, tz_utc, locale_c, cwd_fixed, env_scrubbed |
 
@@ -31,6 +31,7 @@ No case varied across passes.
 
 - `0167-parse-grammar`
 - `0169-search-grammar`
+- `0170-findall-grammar`
 
 ## Uncovered functions (the limit of these claims)
 
@@ -57,7 +58,6 @@ No case varied across passes.
 - `__init__.py::Result.__contains__`
 - `__init__.py::Result.__getitem__`
 - `__init__.py::Result.__repr__`
-- `__init__.py::ResultIterator.__iter__`
 - `__init__.py::ResultIterator.__next__`
 - `__init__.py::compile`
 - `__init__.py::date_convert`

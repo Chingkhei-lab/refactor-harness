@@ -47,6 +47,8 @@ def run_pass(
     module: str = "parse",
     workdir: Path | None = None,
     coverage: bool = False,
+    case_budget_seconds: float = 20.0,
+    attempts: int = 3,
 ) -> Pass:
     workdir = workdir or Path.cwd()
     workdir.mkdir(parents=True, exist_ok=True)
@@ -71,31 +73,67 @@ def run_pass(
         ]
     else:
         command = [python, "-m", "harness.child", str(plan_path), str(out_path)]
-    result = subprocess.run(
-        command,
-        cwd=str(checkout),
-        env=env,
-        capture_output=True,
-        text=True,
-        timeout=1800,
-    )
-    if not out_path.exists():
-        raise RuntimeError(
-            f"child produced no observations (rc={result.returncode}): "
-            f"{result.stderr[-1500:]}"
+    # One case can hang forever (a target infinite loop is not a harness bug, but
+    # it must not eat the pass). The child flushes each observation, so on a
+    # timeout the harness can see exactly where it stopped, record that case as
+    # unsupported, and resume from the next one.
+    done: dict[str, Observation] = {}
+    remaining = list(cases)
+    last_stderr = ""
+    for _ in range(attempts):
+        plan_path.write_text(
+            json.dumps({"module": module, "cases": [case.body() for case in remaining]}),
+            encoding="utf-8",
         )
-    observations = tuple(
-        _to_observation(json.loads(line))
-        for line in out_path.read_text(encoding="utf-8").splitlines()
-        if line.strip()
-    )
+        try:
+            subprocess.run(
+                command,
+                cwd=str(checkout),
+                env=env,
+                capture_output=True,
+                text=True,
+                timeout=case_budget_seconds * max(1, len(remaining)),
+            )
+            timed_out = False
+        except subprocess.TimeoutExpired as exc:
+            last_stderr = str(exc)
+            timed_out = True
+        if out_path.exists():
+            for line in out_path.read_text(encoding="utf-8").splitlines():
+                if line.strip():
+                    observation = _to_observation(json.loads(line))
+                    done[observation.case_id] = observation
+            out_path.unlink()
+        missing = [case for case in remaining if case.id not in done]
+        if not missing:
+            break
+        if not timed_out:
+            raise RuntimeError(
+                f"child skipped {len(missing)} case(s); stderr: {last_stderr[-800:]}"
+            )
+        stuck, remaining = missing[0], missing[1:]
+        done[stuck.id] = Observation(
+            case_id=stuck.id,
+            entry=stuck.entry,
+            inputs={"args": list(stuck.args), "kwargs": dict(stuck.kwargs)},
+            outcome="unsupported",
+            exception={
+                "__exception__": {
+                    "type": "CaseTimeout",
+                    "module": "harness",
+                    "message": f"no result within {case_budget_seconds:.0f}s; "
+                    "recorded as unsupported (a target hang, not a comparison)",
+                }
+            },
+        )
+    observations = tuple(done[case.id] for case in cases if case.id in done)
     controls = observations[0].controls if observations else ()
     return Pass(
         index=index,
         observations=observations,
         controls=controls,
-        stdout=result.stdout,
-        stderr=result.stderr,
+        stdout="",
+        stderr=last_stderr[-2000:],
     )
 
 
@@ -133,7 +171,7 @@ def baseline_noise(passes: list[Pass]) -> list[dict[str, Any]]:
             if base.fingerprint != observation.fingerprint:
                 kind = _variation_kind(base, observation)
                 entry = noise.setdefault(case_id, {"case_id": case_id, "kind": kind, "passes": []})
-                entry["passes"].append(other.index)  # type: ignore[union-attr]
+                entry["passes"].append(other.index)
         for case_id in reference:
             if case_id not in other.by_case():
                 noise.setdefault(case_id, {"case_id": case_id, "kind": "dropped"})

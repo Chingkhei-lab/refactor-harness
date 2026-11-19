@@ -108,3 +108,25 @@ def test_blob_store_is_content_addressed(tmp_path: pathlib.Path) -> None:
     path = tmp_path / key[:2] / f"{key}.json"
     assert path.exists()
     assert store.put(observation) == key, "same observation, same address"
+
+
+def test_infinite_iterator_is_truncated_not_hung() -> None:
+    """parse.findall('{:tt}', '22:13:20') never terminates.
+
+    Materialising a lazy value is unbounded work chosen by the target, so the
+    harness bounds it and records the truncation. Without this the first
+    baseline hung for 900 s on that one case.
+    """
+
+    def endless() -> object:
+        while True:
+            yield 1
+
+    encoded = encode(endless())
+    assert len(encoded["__iterator__"]) == 1000
+    assert encoded["truncated"] is True
+    assert encoded["limit"] == 1000
+
+
+def test_finite_iterator_is_not_marked_truncated() -> None:
+    assert "truncated" not in encode(iter([1, 2, 3]))
