@@ -186,7 +186,7 @@ def test_install_create_kwargs_are_hardened() -> None:
     assert "--only-binary" in kwargs["command"]
     assert ":all:" in kwargs["command"]
     assert "--require-hashes" in kwargs["command"]
-    assert kwargs["network_mode"] == "bridge"  # THE widening: the index
+    assert kwargs["network_mode"] == "bridge"  # the default widening: the index
     assert kwargs["read_only"] is False  # the other widening: the layer
     assert kwargs["user"] == "65534:65534"  # non-root, like the run phase
     assert kwargs["cap_drop"] == ["ALL"]
@@ -199,6 +199,26 @@ def test_install_create_kwargs_are_hardened() -> None:
     # deps land in the LAYER (/var/tmp), pip scratch in the /tmp tmpfs
     assert kwargs["tmpfs"] == {"/tmp": "size=256m,noexec,nosuid,nodev,mode=1777"}
     assert "volumes" not in kwargs and "mounts" not in kwargs  # no secrets/workspace
+
+
+def test_install_network_is_configurable() -> None:
+    """`ENGINE_INSTALL_NETWORK` narrows the one networked container.
+
+    The bridge default is the widest thing in the pipeline: it can reach host
+    services published on the gateway. An operator can point installs at a
+    user-defined network with filtered egress; the hostile suite then measures
+    whether the host port is still reachable (it xfails today).
+    """
+    default = install_create_kwargs(_BASE_DIGEST_REF, InstallLimits(), {})
+    narrowed = install_create_kwargs(
+        _BASE_DIGEST_REF, InstallLimits(network="engine-install-egress"), {}
+    )
+    assert default["network_mode"] == "bridge"
+    assert narrowed["network_mode"] == "engine-install-egress"
+    # the network is the ONLY thing that changed
+    assert {k: v for k, v in narrowed.items() if k != "network_mode"} == {
+        k: v for k, v in default.items() if k != "network_mode"
+    }
 
 
 # ---------------------------------------------------------------------------

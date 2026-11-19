@@ -3,7 +3,7 @@
 Run on Linux (Docker or WSL2) — Windows cannot signal processes reliably:
 
     docker run --rm -v "$PWD":/app -w /app \
-      -e DATABASE_URL=postgresql://app:app@host.docker.internal:5433/app_test \
+      -e ENGINE_DEMO_DATABASE_URL=postgresql://app:app@host.docker.internal:5433/chaos_demo \
       python:3.12-slim \
       bash -c "pip install -q 'psycopg[binary]' alembic && python scripts/chaos.py"
 
@@ -46,6 +46,8 @@ WORKER_COUNT = 3
 KILL_INTERVAL_RANGE = (3.0, 6.0)
 DRAIN_TIMEOUT_SECONDS = 600.0
 HANDLER_SLEEP_RANGE_MS = (5, 30)
+from demo_db import resolve_demo_url  # noqa: E402
+
 RESULTS_DIR = _REPO_ROOT / "docs" / "results"
 
 _SCAFFOLD_TABLES_SQL = [
@@ -71,16 +73,7 @@ _SCAFFOLD_TABLES_SQL = [
 
 
 def _database_url() -> str:
-    url = os.environ.get("DATABASE_URL", "")
-    if not url:
-        raise SystemExit("DATABASE_URL is required (chaos refuses defaults)")
-    dbname = urlsplit(url).path.lstrip("/")
-    if not dbname.endswith("_test") and os.environ.get("CHAOS_ALLOW_ANY_DB") != "1":
-        raise SystemExit(
-            f"refusing to run chaos against database {dbname!r}: the name must "
-            "end with '_test' (or set CHAOS_ALLOW_ANY_DB=1)"
-        )
-    return url
+    return resolve_demo_url("chaos")
 
 
 def _machine_specs() -> dict[str, Any]:
@@ -149,9 +142,7 @@ def main() -> int:
     )
 
     def start_worker() -> subprocess.Popen[Any]:
-        return subprocess.Popen(
-            [sys.executable, "-m", "engine.worker"], cwd=_REPO_ROOT, env=env
-        )
+        return subprocess.Popen([sys.executable, "-m", "engine.worker"], cwd=_REPO_ROOT, env=env)
 
     procs = [start_worker() for _ in range(WORKER_COUNT)]
     started = time.monotonic()
@@ -188,9 +179,7 @@ def main() -> int:
     duration = round(time.monotonic() - started, 1)
     jobs_per_second = round(TOTAL_JOBS / duration, 1) if duration > 0 else 0.0
 
-    states_rows = conn.execute(
-        "SELECT state, count(*) AS n FROM jobs GROUP BY state"
-    ).fetchall()
+    states_rows = conn.execute("SELECT state, count(*) AS n FROM jobs GROUP BY state").fetchall()
     states = {str(row["state"]): int(row["n"]) for row in states_rows}
     histogram_rows = conn.execute(
         "SELECT attempts, count(*) AS n FROM jobs GROUP BY attempts ORDER BY attempts"

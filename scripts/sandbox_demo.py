@@ -34,12 +34,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 from statistics import median
 from typing import Any
-from urllib.parse import urlsplit
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(_REPO_ROOT / "src"))
 
 import docker  # noqa: E402
+from demo_db import resolve_demo_url  # noqa: E402
 
 from engine import db, install, patchlog  # noqa: E402
 from engine.config import load_settings  # noqa: E402
@@ -67,11 +67,9 @@ _DEMO_COMMAND = ("python", "src/main.py")
 
 
 def _database_url() -> str:
-    url = os.environ.get("DATABASE_URL", "postgresql://app:app@localhost:5433/app_test")
-    dbname = urlsplit(url).path.lstrip("/")
-    if not dbname.endswith("_test"):
-        raise SystemExit(f"refusing to run against {dbname!r}: the name must end with '_test'")
-    return url
+    # A demo writes evidence; pytest truncates the test database. The rule
+    # lives in scripts/demo_db.py so every demo shares it.
+    return resolve_demo_url("sandbox_demo")
 
 
 def _machine_specs() -> dict[str, Any]:

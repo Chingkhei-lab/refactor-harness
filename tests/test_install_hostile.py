@@ -376,3 +376,48 @@ def _findlinks_tar(sdist: bytes) -> bytes:
         entry.mtime = 0
         tar.addfile(entry, io.BytesIO(sdist))
     return buffer.getvalue()
+
+
+_NET_PROBE = """
+import socket
+targets = ["host.docker.internal", "172.17.0.1", "localhost"]
+for host in targets:
+    try:
+        sock = socket.create_connection((host, 5433), timeout=3)
+        sock.close()
+        print(f"CONNECTED {host}:5433")
+    except OSError as exc:
+        print(f"REFUSED {host}:5433 {type(exc).__name__}")
+"""
+
+
+def test_install_container_cannot_reach_host_postgres(no_leftovers: Any) -> None:
+    """Measure the one networked container's reach, do not assume it.
+
+    The install phase is where untrusted input (package metadata) is closest to
+    the host, and a default bridge is documented as putting the host's
+    published ports on the container's gateway path. MEASURED on Docker
+    Desktop/WSL2 28.3.2: `host.docker.internal` does not resolve (gaierror),
+    the bridge gateway `172.17.0.1:5433` times out, and `localhost:5433` is
+    refused — so the documented risk does not materialise on this daemon. The
+    assertion stays so a daemon where it DOES materialise (a Linux host with
+    Postgres bound to 0.0.0.0) fails loudly instead of quietly widening the
+    boundary; `ENGINE_INSTALL_NETWORK` is the knob that narrows it further.
+    """
+    client, job = no_leftovers
+    adapter = DockerSandboxAdapter(client)
+    labels = _labels(job, 1, "net-probe", time.time())
+    kwargs = install_create_kwargs("python:3.12-slim", _limits(), labels)
+    kwargs["command"] = ["python", "-c", _NET_PROBE]
+    container = adapter.create(**kwargs)
+    try:
+        container.start()
+        container.wait(timeout=45)
+        output = container.logs(stdout=True, stderr=True).decode("utf-8", "replace")
+        print("OBSERVED install network probe:", output.replace("\n", " | "))
+        assert "CONNECTED" not in output, (
+            "the install container reached the host's Postgres port: "
+            + output.replace("\n", " | ")
+        )
+    finally:
+        container.remove(force=True)

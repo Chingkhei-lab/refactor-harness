@@ -4,7 +4,7 @@ Run on Linux (Docker) — Windows cannot signal processes reliably:
 
     docker run --rm --add-host=host.docker.internal:host-gateway \
       -v "$PWD":/app -w /app \
-      -e DATABASE_URL=postgresql://app:app@host.docker.internal:5433/app_test \
+      -e ENGINE_DEMO_DATABASE_URL=postgresql://app:app@host.docker.internal:5433/chaos_demo \
       python:3.12-slim \
       bash -c "pip install -q 'psycopg[binary]' alembic && python scripts/chaos_workflows.py"
 
@@ -67,6 +67,8 @@ BACKOFF_BASE_SECONDS = 0.2
 BACKOFF_CAP_SECONDS = 5.0
 REPLAY_BUDGET = 3
 REPLAY_TIMEOUT_SECONDS = 120.0
+from demo_db import resolve_demo_url  # noqa: E402
+
 RESULTS_DIR = _REPO_ROOT / "docs" / "results"
 HANDLER_MODULE = str(_REPO_ROOT / "scripts" / "chaos_workflow_handlers.py")
 
@@ -133,16 +135,7 @@ def _inject_counts(total: int) -> tuple[int, int]:
 
 
 def _database_url() -> str:
-    url = os.environ.get("DATABASE_URL", "")
-    if not url:
-        raise SystemExit("DATABASE_URL is required (chaos refuses defaults)")
-    dbname = urlsplit(url).path.lstrip("/")
-    if not dbname.endswith("_test") and os.environ.get("CHAOS_ALLOW_ANY_DB") != "1":
-        raise SystemExit(
-            f"refusing to run chaos against database {dbname!r}: the name must "
-            "end with '_test' (or set CHAOS_ALLOW_ANY_DB=1)"
-        )
-    return url
+    return resolve_demo_url("chaos_workflows")
 
 
 def _machine_specs() -> dict[str, Any]:
@@ -170,9 +163,7 @@ def _count(conn: Any, sql: str, params: dict[str, Any] | None = None) -> int:
 
 
 def _sums_chain_bad(conn: Any, workflow_id: Any = None) -> int:
-    params: dict[str, Any] = dict(
-        zip(("s0", "s1", "s2", "s3"), EXPECTED_SUMS, strict=True)
-    )
+    params: dict[str, Any] = dict(zip(("s0", "s1", "s2", "s3"), EXPECTED_SUMS, strict=True))
     sql = _SUMS_CHAIN_SQL
     if workflow_id is not None:
         sql += " AND s.workflow_id = %(workflow_id)s"
@@ -203,9 +194,7 @@ def _stats(values: list[float]) -> dict[str, Any]:
 def main() -> int:
     url = _database_url()
     total = int(os.environ.get("CHAOS_TOTAL_WORKFLOWS", TOTAL_WORKFLOWS))
-    drain_timeout = float(
-        os.environ.get("CHAOS_DRAIN_TIMEOUT_SECONDS", DRAIN_TIMEOUT_SECONDS)
-    )
+    drain_timeout = float(os.environ.get("CHAOS_DRAIN_TIMEOUT_SECONDS", DRAIN_TIMEOUT_SECONDS))
     inject_fail, inject_nr = _inject_counts(total)
     os.environ["ALEMBIC_DATABASE_URL"] = url
     alembic_config = Config(str(_REPO_ROOT / "alembic.ini"))
@@ -231,8 +220,7 @@ def main() -> int:
     # One statement: TRUNCATE refuses a table whose FK source is not truncated
     # in the same command (workflow_steps -> workflows).
     conn.execute(
-        "TRUNCATE jobs, workflows, workflow_steps, effects, executions, "
-        "violations, pardon"
+        "TRUNCATE jobs, workflows, workflow_steps, effects, executions, violations, pardon"
     )
 
     injected = (
@@ -252,10 +240,7 @@ def main() -> int:
         )
     for table in ("jobs", "workflows", "workflow_steps"):
         conn.execute(f"ANALYZE {table}")
-    print(
-        f"created {total} workflows "
-        f"(injected {inject_fail} fail, {inject_nr} nr)"
-    )
+    print(f"created {total} workflows (injected {inject_fail} fail, {inject_nr} nr)")
 
     env = os.environ.copy()
     env.update(
@@ -308,8 +293,7 @@ def main() -> int:
                 _proc, worker_id = entries[victim]
                 held = _count(
                     conn,
-                    "SELECT count(*) AS n FROM jobs "
-                    "WHERE state = 'running' AND locked_by = %(w)s",
+                    "SELECT count(*) AS n FROM jobs WHERE state = 'running' AND locked_by = %(w)s",
                     {"w": worker_id},
                 )
                 entries[victim][0].kill()  # hard kill on Linux (Docker)
@@ -323,16 +307,11 @@ def main() -> int:
                         "held_running_jobs": held,
                     }
                 )
-                print(
-                    f"kill #{kills}: worker={worker_id} "
-                    f"held_running_jobs={held}"
-                )
+                print(f"kill #{kills}: worker={worker_id} held_running_jobs={held}")
                 entries[victim] = start_worker(victim)
                 restarts += 1
             next_kill = time.monotonic() + random.uniform(*KILL_INTERVAL_RANGE)
-        busy = _count(
-            conn, "SELECT count(*) AS n FROM jobs WHERE state IN ('queued', 'running')"
-        )
+        busy = _count(conn, "SELECT count(*) AS n FROM jobs WHERE state IN ('queued', 'running')")
         unfinished = _count(
             conn,
             "SELECT count(*) AS n FROM workflows WHERE state NOT IN ('succeeded', 'failed')",
@@ -341,10 +320,7 @@ def main() -> int:
             drained = True
             break
         if int(now - started) % 30 == 0 and int(now - started) > 0:
-            print(
-                f"t={int(now - started)}s busy_jobs={busy} "
-                f"unfinished_workflows={unfinished}"
-            )
+            print(f"t={int(now - started)}s busy_jobs={busy} unfinished_workflows={unfinished}")
         time.sleep(1.0)
 
     duration = round(time.monotonic() - started, 1)
@@ -371,9 +347,7 @@ def main() -> int:
     attempts_histogram = {str(r["attempts"]): int(r["n"]) for r in histogram_rows}
 
     executions_total = _count(conn, "SELECT count(*) AS n FROM executions")
-    distinct_effect_keys = _count(
-        conn, "SELECT count(DISTINCT effect_key) AS n FROM executions"
-    )
+    distinct_effect_keys = _count(conn, "SELECT count(DISTINCT effect_key) AS n FROM executions")
     duplicate_executions = executions_total - distinct_effect_keys
     effects_total = _count(conn, "SELECT count(*) AS n FROM effects")
     duplicate_effects = _count(
@@ -453,8 +427,7 @@ def main() -> int:
             except subprocess.TimeoutExpired:
                 replay_proc.kill()
             replay_job = conn.execute(
-                "SELECT state, attempts, max_attempts, replay_count FROM jobs "
-                "WHERE id = %(id)s",
+                "SELECT state, attempts, max_attempts, replay_count FROM jobs WHERE id = %(id)s",
                 {"id": dead_job["id"]},
             ).fetchone()
             if replay_job is not None:

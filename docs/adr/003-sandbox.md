@@ -77,6 +77,20 @@ identical to the run phase's profile:
   refusal of archive PUTs applies to READ-ONLY containers only) into
   `/var/tmp`, so the requirements file itself is part of the committed
   layer: every derived image carries its provenance.
+- **Host reachability, measured rather than assumed.** `bridge` puts the
+  container on a network with a gateway to the host, so the documented risk is
+  that the install container can knock on services the host publishes — the
+  test database's port included. Measured on this daemon (Docker 28.3.2 /
+  WSL2): `host.docker.internal` does not resolve from the container
+  (`gaierror`), `172.17.0.1:5433` times out, `localhost:5433` is refused. The
+  risk is therefore real in principle and absent on this setup, which is why
+  it is a **test** and not a paragraph: `tests/test_install_hostile.py::`
+  `test_install_container_cannot_reach_host_postgres` asserts the refusal, so a
+  daemon where the gateway does expose the port fails the suite instead of
+  quietly widening the boundary. `ENGINE_INSTALL_NETWORK` names the network the
+  install container attaches to (default `bridge`), so an operator can point it
+  at a user-defined network whose egress is filtered to the package index
+  without touching the runner.
 - `pip install --only-binary :all: --require-hashes` as a FIXED argv (never
   caller-supplied flags): `--only-binary` refuses the `setup.py` execution
   path entirely, so the most dangerous install-time code (arbitrary build

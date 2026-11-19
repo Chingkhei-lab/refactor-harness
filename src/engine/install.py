@@ -108,6 +108,18 @@ class InstallLimits:
     bigger per-file size cap, longer wall clock.
     """
 
+    network: str = "bridge"
+    """Docker network the install container attaches to.
+
+    `bridge` is the default and THE widening (pip needs the index), but it is
+    also the widest thing in the pipeline: on a default bridge a container can
+    reach services the host publishes on its gateway address, so a compromised
+    install cannot read the database but it can knock on the port. Setting
+    `ENGINE_INSTALL_NETWORK` to a user-defined network whose egress is filtered
+    to the package index narrows that without changing anything else; the
+    hostile suite measures the reachability rather than assuming it.
+    """
+
     mem_mb: int = 512
     cpus: float = 1.0
     pids: int = 64
@@ -252,7 +264,7 @@ def install_create_kwargs(
         "image": base_ref,  # pinned by digest before use
         "command": list(PIP_ARGV),  # fixed argv, never a shell string
         # no name: the daemon assigns one; labels identify the container
-        "network_mode": "bridge",  # THE widening: pip needs the index
+        "network_mode": limits.network,  # THE widening: pip needs the index
         "user": "65534:65534",  # non-root, same uid as the run phase
         "working_dir": "/var/tmp",
         "read_only": False,  # the other widening: the layer is the product
@@ -472,7 +484,7 @@ def ensure_dependency_image(
     which is a later decision, not this one.
     """
     started = time.monotonic()
-    limits = limits or InstallLimits()
+    limits = limits or InstallLimits(network=os.environ.get("ENGINE_INSTALL_NETWORK", "bridge"))
     if not requirements.strip():
         raise InstallFailed("pip_failed", "requirements file is empty")
     base_ref, base_digest = _resolve_base(client, base_image)

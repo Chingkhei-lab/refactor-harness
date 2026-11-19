@@ -39,7 +39,16 @@ jobs:
       - name: Type check
         run: mypy
       - name: Test
-        run: pytest -v
+        run: pytest -v -rs --junitxml=junit-ci.xml
+      - name: Report test counts in this run page
+        if: always()
+        run: python scripts/ci_summary.py --job ci junit-ci.xml >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload JUnit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-ci
+          path: junit-ci.xml
 
   sandbox-hostile:
     # The real-Docker hostile suite must run on a real daemon in CI, not
@@ -74,7 +83,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          pytest tests/test_sandbox_hostile.py -v -s 2>&1 | tee hostile.log
+          pytest tests/test_sandbox_hostile.py -v -s --junitxml=junit-hostile.xml 2>&1 | tee hostile.log
       - name: Install-hostile suite (real pip + Docker)
         # The 6 install-phase cases used to run only on the author's machine.
         # They belong here: they assert the property the whole cache rests on
@@ -84,7 +93,20 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          pytest tests/test_install_hostile.py -v -s 2>&1 | tee install-hostile.log
+          pytest tests/test_install_hostile.py -v -s --junitxml=junit-install-hostile.xml 2>&1 | tee install-hostile.log
+      - name: Report test counts in this run page
+        if: always()
+        run: >-
+          python scripts/ci_summary.py --job sandbox-hostile
+          junit-hostile.xml junit-install-hostile.xml >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload JUnit reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-sandbox-hostile
+          path: |
+            junit-hostile.xml
+            junit-install-hostile.xml
       - name: Surface failures as check annotations
         if: failure()
         run: |

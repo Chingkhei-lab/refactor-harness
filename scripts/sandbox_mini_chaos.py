@@ -5,7 +5,7 @@ Run from the HOST python (Windows is fine here: the script only
 TerminateProcess'es its own worker children — the kill demo proved the
 mechanics; everything inside the engine is daemon-side):
 
-    DATABASE_URL=postgresql://app:app@localhost:5433/app_test \
+    ENGINE_DEMO_DATABASE_URL=postgresql://app:app@localhost:5433/chaos_demo \
       python scripts/sandbox_mini_chaos.py
 
 Setup: ONE shared repository snapshot blob (requirements.txt = the hashed
@@ -57,7 +57,6 @@ from datetime import UTC, datetime
 from pathlib import Path
 from statistics import median
 from typing import Any
-from urllib.parse import urlsplit
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(_REPO_ROOT / "src"))
@@ -105,6 +104,8 @@ REAPER_INTERVAL_SECONDS = 0.5
 RECONCILER_INTERVAL_SECONDS = 1.0
 BACKOFF_BASE_SECONDS = 0.2
 BACKOFF_CAP_SECONDS = 5.0
+from demo_db import resolve_demo_url  # noqa: E402
+
 RESULTS_DIR = _REPO_ROOT / "docs" / "results"
 HANDLER_MODULE = str(_REPO_ROOT / "scripts" / "sandbox_demo_handlers.py")
 _SIX_HASH = "8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"
@@ -121,16 +122,7 @@ REGRESSION_TESTS = [
 
 
 def _database_url() -> str:
-    url = os.environ.get("DATABASE_URL", "")
-    if not url:
-        raise SystemExit("DATABASE_URL is required (mini-chaos refuses defaults)")
-    dbname = urlsplit(url).path.lstrip("/")
-    if not dbname.endswith("_test"):
-        raise SystemExit(
-            f"refusing to run mini-chaos against database {dbname!r}: the name "
-            "must end with '_test'"
-        )
-    return url
+    return resolve_demo_url("sandbox_mini_chaos")
 
 
 def _count(conn: Any, sql: str, params: dict[str, Any] | None = None) -> int:
@@ -140,8 +132,7 @@ def _count(conn: Any, sql: str, params: dict[str, Any] | None = None) -> int:
 
 def _machine_specs() -> dict[str, Any]:
     spec: dict[str, Any] = {
-        "runner": "host python (worker children are the script's own; "
-        "engine state is daemon-side)",
+        "runner": "host python (worker children are the script's own; engine state is daemon-side)",
         "platform": platform.platform(),
         "python": platform.python_version(),
         "cpus": os.cpu_count(),
@@ -232,7 +223,8 @@ def main() -> int:
 
     # one shared snapshot: same pins + payload for all 200 workflows
     snapshot_hash = patchlog.store_blob(
-        conn, build_workspace_tar({"requirements.txt": _PINS, "src/main.py": _PAYLOAD}),
+        conn,
+        build_workspace_tar({"requirements.txt": _PINS, "src/main.py": _PAYLOAD}),
         cap_bytes=32 * 1024 * 1024,
     )
     definition = sandbox_demo_handlers.build_definition(
@@ -240,9 +232,7 @@ def main() -> int:
         settings=settings,
         allowed_commands=(_COMMAND,),
     )
-    conn.execute(
-        "TRUNCATE jobs, workflows, workflow_steps, sandbox_runs, tool_calls"
-    )
+    conn.execute("TRUNCATE jobs, workflows, workflow_steps, sandbox_runs, tool_calls")
     started_at = time.monotonic()
     for index in range(TOTAL_WORKFLOWS):
         start_workflow(
@@ -308,8 +298,7 @@ def main() -> int:
                 _proc, worker_id = entries[victim]
                 held = _count(
                     conn,
-                    "SELECT count(*) AS n FROM jobs "
-                    "WHERE state = 'running' AND locked_by = %(w)s",
+                    "SELECT count(*) AS n FROM jobs WHERE state = 'running' AND locked_by = %(w)s",
                     {"w": worker_id},
                 )
                 entries[victim][0].kill()  # hard kill (TerminateProcess on Windows)
@@ -378,9 +367,9 @@ def main() -> int:
         "SELECT attempts, count(*) AS n FROM jobs GROUP BY attempts ORDER BY attempts"
     ).fetchall()
     attempts_histogram = {str(r["attempts"]): int(r["n"]) for r in attempt_hist_rows}
-    max_step_attempts = conn.execute(
-        "SELECT COALESCE(max(attempts), 0) AS m FROM jobs"
-    ).fetchone()["m"]
+    max_step_attempts = conn.execute("SELECT COALESCE(max(attempts), 0) AS m FROM jobs").fetchone()[
+        "m"
+    ]
 
     durations = [
         float(r["seconds"])
