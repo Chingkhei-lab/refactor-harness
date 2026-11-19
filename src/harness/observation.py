@@ -13,16 +13,24 @@ Canonical rules (ADR 004, D2):
   be lost to a JSON number round-trip;
 - bytes are hex-tagged, sets are sorted-tagged, tuples are tagged (so a tuple
   and a list are different behaviour), mappings with non-string keys become a
-  sorted pair list;
+  sorted pair list — and so does any mapping with a key that starts with `__`,
+  because otherwise `{"__float__": "1.0"}` would encode exactly like the float
+  `1.0` and the canonical form would be ambiguous;
 - date/datetime/time/timedelta/Decimal/UUID/Path/Enum are tagged explicitly.
   They have no `__dict__`, so the object branch would call them "opaque" and a
   changed date would compare EQUAL — the parse clock probe found this;
 - iterators are materialised and tagged, because "lazy" is not observable
   through a comparison and a partially consumed iterator would otherwise look
-  identical to an empty one;
+  identical to an empty one. Materialisation is BOUNDED (`ITERATOR_LIMIT`);
 - exceptions are `{"__exception__": {...}}` with type, module and message;
 - arbitrary objects become `{"__object__": {"class": ..., "attrs": ...}}` with
   sorted attribute names, never `repr()` (a repr can embed a memory address).
+  An object with no attributes is **opaque** and is recorded as such: two
+  different opaque values would otherwise compare equal.
+
+Encoding is also bounded against hostile structure: cycles become
+`{"__cycle__": ...}`, depth and node budgets are capped, and every cap that
+fires is reported in the observation's flags rather than silently truncating.
 """
 
 from __future__ import annotations
@@ -51,32 +59,60 @@ _ITERATOR_TYPES = (collections.abc.Iterator,)
 # harness's, and the truncation is recorded rather than silently dropped.
 ITERATOR_LIMIT = 1000
 
+# Structure bounds. A refactor can turn a list into a graph; the encoder must
+# not recurse forever and must not walk a million nodes.
+MAX_DEPTH = 50
+MAX_NODES = 50_000
 
-def _datetime_types() -> tuple[
-    type[datetime.datetime], type[datetime.date], type[datetime.time]
-]:
-    """The REAL datetime classes.
 
-    Under the determinism shim `datetime.datetime` and `datetime.date` are
-    replaced with frozen subclasses, so `isinstance(value, datetime.date)` is
-    False for a plain `date` the target returns — which silently turned a
-    changed date into "opaque object". The shim keeps the originals reachable;
-    use them.
-    """
-    try:
-        # generated at run time (no stubs, and absent unless the shim ran first)
-        shim = importlib.import_module("sitecustomize")
-        return (
-            shim.ORIGINAL_DATETIME,
-            shim.ORIGINAL_DATE,
-            shim.ORIGINAL_TIME,
-        )
-    except (ImportError, AttributeError):
-        return datetime.datetime, datetime.date, datetime.time
+@dataclass
+class _State:
+    """Per-call encoder state: budget, cycle path, and what had to be capped."""
+
+    nodes: int = 0
+    path: set[int] = field(default_factory=set)
+    opaque: bool = False
+    truncated: bool = False
+    limit: str | None = None
+
+    def spend(self) -> bool:
+        self.nodes += 1
+        if self.nodes > MAX_NODES:
+            self.limit = self.limit or "nodes"
+            return False
+        return True
 
 
 def encode(value: Any) -> Any:
     """Canonical, JSON-serialisable form of `value`."""
+    return encode_with_meta(value)[0]
+
+
+def encode_with_meta(value: Any) -> tuple[Any, dict[str, Any]]:
+    """Encode and report what the encoder had to do to it.
+
+    `meta` is what the child stores as observation flags: `opaque` (a value with
+    no stable identity), `truncated` (a bounded iterator), `limit` (a depth or
+    node budget fired). Any of them makes the case **unsupported** rather than
+    silently comparable.
+    """
+    state = _State()
+    encoded = _enc(value, state, 0)
+    meta = {
+        "opaque": state.opaque,
+        "truncated": state.truncated,
+        "limit": state.limit,
+        "nodes": state.nodes,
+    }
+    return encoded, meta
+
+
+def _enc(value: Any, state: _State, depth: int) -> Any:
+    if not state.spend():
+        return {"__limit__": "nodes"}
+    if depth > MAX_DEPTH:
+        state.limit = state.limit or "depth"
+        return {"__limit__": "depth"}
     if value is None or isinstance(value, bool | int | str):
         return value
     if isinstance(value, float):
@@ -90,29 +126,16 @@ def encode(value: Any) -> Any:
     if isinstance(value, bytes | bytearray):
         return {"__bytes__": bytes(value).hex()}
     if isinstance(value, tuple):
-        return {"__tuple__": [encode(item) for item in value]}
+        return {"__tuple__": [_enc(item, state, depth + 1) for item in value]}
     if isinstance(value, set | frozenset):
-        return {"__set__": sorted((encode(item) for item in value), key=canonical_key)}
+        encoded = [_enc(item, state, depth + 1) for item in value]
+        return {"__set__": sorted(encoded, key=canonical_key)}
     if isinstance(value, list):
-        return [encode(item) for item in value]
+        return [_enc(item, state, depth + 1) for item in value]
     if isinstance(value, dict):
-        return _encode_mapping(value)
+        return _encode_mapping(value, state, depth)
     if isinstance(value, _ITERATOR_TYPES):
-        # materialise, but only up to the bound: a lazy return value has no
-        # stable identity otherwise, and an infinite generator must not hang
-        # the harness (or be mistaken for a finite one).
-        items: list[Any] = []
-        truncated = False
-        for index, item in enumerate(value):
-            if index >= ITERATOR_LIMIT:
-                truncated = True
-                break
-            items.append(encode(item))
-        encoded: dict[str, Any] = {"__iterator__": items}
-        if truncated:
-            encoded["truncated"] = True
-            encoded["limit"] = ITERATOR_LIMIT
-        return encoded
+        return _encode_iterator(value, state, depth)
     if isinstance(value, BaseException):
         return encode_exception(value)
     # Scalars with a stable textual identity. Without these, `encode` would fall
@@ -136,19 +159,54 @@ def encode(value: Any) -> Any:
     if isinstance(value, enum.Enum):
         return {
             "__enum__": f"{type(value).__module__}.{type(value).__qualname__}.{value.name}",
-            "value": encode(value.value),
+            "value": _enc(value.value, state, depth + 1),
         }
-    return _encode_object(value)
+    return _encode_object(value, state, depth)
 
 
-def _encode_mapping(value: dict[Any, Any]) -> Any:
-    if all(isinstance(key, str) for key in value):
-        return {key: encode(value[key]) for key in sorted(value, key=lambda k: k.encode("utf-8"))}
-    pairs = [[encode(key), encode(item)] for key, item in value.items()]
+def _encode_mapping(value: dict[Any, Any], state: _State, depth: int) -> Any:
+    marker = id(value)
+    if marker in state.path:
+        return {"__cycle__": "mapping"}
+    if all(isinstance(key, str) for key in value) and not any(
+        key.startswith("__") for key in value
+    ):
+        state.path.add(marker)
+        try:
+            return {
+                key: _enc(value[key], state, depth + 1)
+                for key in sorted(value, key=lambda k: k.encode("utf-8"))
+            }
+        finally:
+            state.path.discard(marker)
+    # Non-string keys OR a dunder-looking key: the tagged forms are a namespace,
+    # so a mapping that could collide with one is written as an explicit pair
+    # list. Without this, {"__float__": "1.0"} would encode like the float 1.0.
+    state.path.add(marker)
+    try:
+        pairs = [[_enc(key, state, depth + 1), _enc(item, state, depth + 1)]
+                 for key, item in value.items()]
+    finally:
+        state.path.discard(marker)
     return {"__mapping__": sorted(pairs, key=canonical_key)}
 
 
-def _encode_object(value: Any) -> Any:
+def _encode_iterator(value: Any, state: _State, depth: int) -> Any:
+    items: list[Any] = []
+    for index, item in enumerate(value):
+        if index >= ITERATOR_LIMIT:
+            state.truncated = True
+            encoded: dict[str, Any] = {"__iterator__": items, "truncated": True,
+                                       "limit": ITERATOR_LIMIT}
+            return encoded
+        items.append(_enc(item, state, depth + 1))
+    return {"__iterator__": items}
+
+
+def _encode_object(value: Any, state: _State, depth: int) -> Any:
+    marker = id(value)
+    if marker in state.path:
+        return {"__cycle__": type(value).__qualname__}
     cls = type(value)
     attrs: dict[str, Any] = {}
     for name in getattr(value, "__dict__", {}) or {}:
@@ -156,13 +214,21 @@ def _encode_object(value: Any) -> Any:
     for slot in getattr(cls, "__slots__", ()) or ():
         if isinstance(slot, str) and hasattr(value, slot):
             attrs[slot] = getattr(value, slot)
-    payload: dict[str, Any] = {
-        "class": f"{cls.__module__}.{cls.__qualname__}",
-        "attrs": {name: encode(attrs[name]) for name in sorted(attrs)},
-    }
-    if not attrs:
-        # no attributes and no repr: compare by type only, and say so
+    payload: dict[str, Any] = {"class": f"{cls.__module__}.{cls.__qualname__}"}
+    if attrs:
+        state.path.add(marker)
+        try:
+            payload["attrs"] = {
+                name: _enc(attrs[name], state, depth + 1) for name in sorted(attrs)
+            }
+        finally:
+            state.path.discard(marker)
+    else:
+        # No attributes, no stable textual identity: two different values of
+        # this type would encode identically. Say so, and let the case be
+        # classified as unsupported rather than compared.
         payload["opaque"] = True
+        state.opaque = True
     return {"__object__": payload}
 
 
@@ -175,6 +241,29 @@ def encode_exception(exc: BaseException) -> dict[str, Any]:
             "message": str(exc),
         }
     }
+
+
+def _datetime_types() -> tuple[
+    type[datetime.datetime], type[datetime.date], type[datetime.time]
+]:
+    """The REAL datetime classes.
+
+    Under the determinism shim `datetime.datetime` and `datetime.date` are
+    replaced with frozen subclasses, so `isinstance(value, datetime.date)` is
+    False for a plain `date` the target returns — which silently turned a
+    changed date into "opaque object". The shim keeps the originals reachable;
+    use them.
+    """
+    try:
+        # generated at run time (no stubs, and absent unless the shim ran first)
+        shim = importlib.import_module("sitecustomize")
+        return (
+            shim.ORIGINAL_DATETIME,
+            shim.ORIGINAL_DATE,
+            shim.ORIGINAL_TIME,
+        )
+    except (ImportError, AttributeError):
+        return datetime.datetime, datetime.date, datetime.time
 
 
 def canonical_key(value: Any) -> bytes:
@@ -205,6 +294,8 @@ class Observation:
     stdout: str = ""
     stderr: str = ""
     controls: tuple[str, ...] = ()
+    flags: dict[str, Any] = field(default_factory=dict)
+    case_set_hash: str = ""
 
     def body(self) -> dict[str, Any]:
         return {
@@ -212,36 +303,48 @@ class Observation:
             "entry": self.entry,
             "inputs": encode(self.inputs),
             "outcome": self.outcome,
-            "value": encode(self.value) if self.outcome == "return" else None,
+            # keep the encoded value even when unsupported: "what was opaque"
+            # is the diagnostic, and dropping it made the report unable to say.
+            "value": None if self.value is None else encode(self.value),
             "exception": self.exception,
             "stdout": self.stdout,
             "stderr": self.stderr,
             "controls": list(self.controls),
+            "flags": self.flags,
+            "case_set_hash": self.case_set_hash,
         }
 
     def fingerprint_body(self) -> dict[str, Any]:
-        """The observation WITHOUT the control list.
+        """The observation WITHOUT run metadata.
 
-        `controls` is metadata about the run, not behaviour: a shimmed and an
-        unshimmed pass must be comparable, so the comparison hash excludes it
-        while the stored blob keeps it.
+        `controls` and `case_set_hash` describe the run, not the behaviour: a
+        shimmed and an unshimmed pass must be comparable, so the comparison hash
+        excludes them while the stored blob keeps them.
         """
         body = self.body()
         body.pop("controls", None)
+        body.pop("case_set_hash", None)
         return body
 
     @property
     def sha256(self) -> str:
-        """Identity of the stored blob (includes controls)."""
+        """Identity of the stored blob (includes run metadata)."""
         return hashlib.sha256(
             json.dumps(self.body(), sort_keys=True, separators=(",", ":")).encode("utf-8")
         ).hexdigest()
 
     @property
     def fingerprint(self) -> str:
-        """Identity of the BEHAVIOUR (excludes controls)."""
+        """Identity of the BEHAVIOUR (excludes run metadata)."""
         text = json.dumps(self.fingerprint_body(), sort_keys=True, separators=(",", ":"))
         return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+    @property
+    def comparable(self) -> bool:
+        """False when the harness could not observe the value faithfully."""
+        if self.outcome == "unsupported":
+            return False
+        return not (self.flags.get("opaque") or self.flags.get("limit"))
 
     def to_json(self) -> str:
         return json.dumps(self.body(), sort_keys=True, separators=(",", ":"))
@@ -249,14 +352,20 @@ class Observation:
 
 @dataclass
 class BlobStore:
-    """Content-addressed observations: `<root>/<sha256[:2]>/<sha256>.json`."""
+    """Content-addressed observations: `<root>/<case_set_hash[:8]>/<sha256>.json`.
+
+    The case-set hash is part of the PATH: a golden blob is only meaningful for
+    the case set that produced it, so it cannot be silently reused across a
+    changed case set.
+    """
 
     root: Path
     written: set[str] = field(default_factory=set)
 
     def put(self, observation: Observation) -> str:
         key = observation.sha256
-        path = self.root / key[:2] / f"{key}.json"
+        shard = observation.case_set_hash[:8] or "unknown"
+        path = self.root / shard / key[:2] / f"{key}.json"
         if not path.exists():
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(observation.to_json() + "\n", encoding="utf-8")

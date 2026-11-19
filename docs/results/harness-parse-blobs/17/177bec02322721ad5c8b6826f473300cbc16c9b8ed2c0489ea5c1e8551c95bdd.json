@@ -1,1 +1,0 @@
-{"case_id":"0160-parse-grammar","controls":["clock_frozen","random_seeded","uuid_frozen","hash_seed_0","tz_utc","locale_c","cwd_fixed","env_scrubbed"],"entry":"parse","exception":null,"inputs":{"args":["{:ts}","2023-11-14 22:13:20"],"kwargs":{"evaluate_result":false}},"outcome":"return","stderr":"","stdout":"","value":null}

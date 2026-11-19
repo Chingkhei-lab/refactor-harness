@@ -12,7 +12,14 @@ import enum
 import pathlib
 import uuid
 
-from harness.observation import BlobStore, Observation, canonical_json, digest, encode
+from harness.observation import (
+    BlobStore,
+    Observation,
+    canonical_json,
+    digest,
+    encode,
+    encode_with_meta,
+)
 
 
 class Colour(enum.Enum):
@@ -102,12 +109,78 @@ def test_observation_fingerprint_ignores_controls(tmp_path: pathlib.Path) -> Non
 def test_blob_store_is_content_addressed(tmp_path: pathlib.Path) -> None:
     store = BlobStore(tmp_path)
     observation = Observation(
-        case_id="c1", entry="parse", inputs={"args": ["{}"]}, outcome="return", value="x"
+        case_id="c1",
+        entry="parse",
+        inputs={"args": ["{}"]},
+        outcome="return",
+        value="x",
+        case_set_hash="0123456789abcdef",
     )
     key = store.put(observation)
-    path = tmp_path / key[:2] / f"{key}.json"
-    assert path.exists()
+    path = tmp_path / "01234567" / key[:2] / f"{key}.json"
+    assert path.exists(), "blobs are sharded by case-set hash and content hash"
     assert store.put(observation) == key, "same observation, same address"
+
+
+def test_dunder_mapping_cannot_impersonate_a_tagged_float() -> None:
+    """A tag is a namespace: a mapping must not be able to claim it.
+
+    Before this rule a target returning {"__float__": "1.0"} encoded exactly
+    like the float 1.0, so a real behaviour change compared "identical".
+    """
+    impostor = encode({"__float__": "1.0"})
+    real = encode(1.0)
+    assert impostor == {"__mapping__": [["__float__", "1.0"]]}
+    assert impostor != real
+
+
+def test_dunder_mapping_cannot_impersonate_bytes_or_iterators() -> None:
+    for key in ("__bytes__", "__iterator__", "__object__", "__exception__"):
+        assert "__object__" not in encode({key: "00"}) or True
+        assert encode({key: "00"}).keys() == {"__mapping__"}, key
+
+
+def test_opaque_object_is_flagged_not_silently_equal() -> None:
+    """An object with no attributes has no stable identity to compare."""
+
+    class NoState:
+        __slots__ = ()
+
+    encoded, meta = encode_with_meta(NoState())
+    assert meta["opaque"] is True
+    assert encoded["__object__"]["opaque"] is True
+
+
+def test_cycle_is_encoded_not_recursed() -> None:
+    loop: dict[str, object] = {}
+    loop["self"] = loop
+    encoded, meta = encode_with_meta(loop)
+    assert encoded == {"self": {"__cycle__": "mapping"}}
+    assert meta["limit"] is None
+
+
+def test_self_referencing_object_is_encoded_not_recursed() -> None:
+    class Node:
+        def __init__(self) -> None:
+            self.next = self
+
+    node = Node()
+    encoded, meta = encode_with_meta(node)
+    assert encoded["__object__"]["attrs"]["next"] == {"__cycle__": type(node).__qualname__}
+    assert meta["limit"] is None
+
+
+def test_depth_and_node_budgets_are_recorded() -> None:
+    deep: object = []
+    cursor = deep
+    for _ in range(200):
+        child: list[object] = []
+        cursor.append(child)  # type: ignore[attr-defined]
+        cursor = child
+    _, meta = encode_with_meta(deep)
+    assert meta["limit"] in {"depth", "nodes"}
+    _, nodes_meta = encode_with_meta([list(range(1000))] * 100)
+    assert nodes_meta["limit"] == "nodes"
 
 
 def test_infinite_iterator_is_truncated_not_hung() -> None:

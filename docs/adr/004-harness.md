@@ -137,7 +137,7 @@ distance threshold is a rule that cannot be reviewed.
 
 The old version is measured with `coverage.py` under the case set, and the
 report lists every function with no executed line. For `parse` 1.22.4 that is
-**33 functions** out of the module — a number in the report, not a footnote, because
+**32 functions** of 47 — a number in the report, not a footnote, because
 "0 differences" over 60 % of a library means something different from 0
 differences over all of it.
 
@@ -153,6 +153,84 @@ Measured bonus: `parse`'s date/time types fill a missing year from
 and are stable with the shim. The baseline names exactly those two as
 "decided by the shim" — a free test of D3.
 
+### D8 — Process state is reset before every case; A/A runs in both orders
+
+`random` and the uuid counter are process state. Seeding once per pass makes the
+value a case observes depend on how many draws the cases *before* it made, so a
+refactor that changes one case's draw count shifts every later case and reads as
+a flood of behaviour changes. Sampling a fixed case order hides this by
+construction, because every pass couples the same pairs.
+
+Therefore: `reset_controls()` runs before each case in the child (control name
+`per_case_reset`), and the A/A baseline runs **both** a fixed order and a
+different shuffle per pass. Measured on `parse`: 0 noise in both orders over 5
+passes each. That is weak evidence for `parse`, which draws no randomness, so a
+unit test demonstrates the mechanism directly instead: with the reset the same
+case yields identical `random`/`uuid` values in any position; without it the
+values drift.
+
+Rejected: a fresh interpreter per case. It removes every kind of carried state,
+including import-level caches, but it is ~30x the process cost and the case set
+is 273 cases per pass over 10 passes. Recorded as an option if a target is ever
+found to carry state the reset does not cover.
+
+### D9 — An opaque value is `unsupported`, never "equal"
+
+An object with no `__dict__` and no usable slots (C-extension types,
+`__slots__` classes, `re.Match`, `re.Pattern`) has no representation the
+harness can compare: encoding it as an opaque marker makes two different values
+encode identically, and the comparator would then report a change as no change.
+
+Such a value sets `opaque: true` in the observation and the case outcome becomes
+`unsupported` with an `UnobservableValue` exception. Measured on `parse`:
+**23 of 273** cases, all of them the `evaluate_result=False` variants, which
+return a `Result` holding `re.Match` and a `Parser` holding `re.Pattern`. This
+is a real reduction in what the harness can say about that API, and it is
+visible in the report rather than absorbed into "equivalent".
+
+The recovery path is a declared projection (compare `Result.fixed`/`Result.named`
+only), which is a case-spec change, not an encoder change. Deferred.
+
+### D10 — Bounded observation: truncation, cycles, depth and node budgets
+
+`parse.findall('{:tt}', '22:13:20')` never terminates, so "observe the whole
+value" is not a total function. Every bound is explicit and recorded:
+
+| Bound | Limit | Recorded as |
+| --- | --- | --- |
+| Iterator items materialised | 1 000 | `truncated: true`, `limit: "iterator"` |
+| Container nesting depth | 50 | `limit: "depth"` |
+| Total nodes encoded | 50 000 | `limit: "nodes"` |
+| Reference cycles | visited set | `{"__cycle__": ...}` |
+
+A cycle encodes as a marker rather than recursing, so a self-referencing object
+is observable instead of crashing the child. A hit bound sets `limit`, and the
+case becomes `unsupported` — a truncated observation is *not* evidence that the
+prefixes agree, because two different values can share their first 1 000 items.
+
+Measured on `parse`: 1 truncated case (the `{:tt}` `findall` above), 0
+depth/node hits. Checkpoint 11 adds the comparator outcome for two observations
+that are both truncated with matching prefixes: **equivalent on bounded
+prefix**, a third outcome next to `equal` and `different`, never `equal`.
+
+### D11 — The case set's identity is its hash, not a version integer
+
+`case_set_version: 1` cannot detect an edited case file, and comparing a run
+against blobs recorded from a different case set would attribute a case-set edit
+to the code under test. The case file's sha256 is computed over the sorted
+canonical body of every case (`case_set_hash`), written into the case file,
+every observation, every blob path (`<root>/<hash[:8]>/<sha[:2]>/<sha>.json`) and
+every report. `run_pass` takes `expected_case_set_hash` and raises on mismatch
+rather than comparing.
+
+### D12 — Case budget: wall clock today, CPU/step budget preferred
+
+A case gets a wall-clock timeout, which is order-dependent under load and can
+therefore turn a slow machine into `unsupported` cases — the honest reading is
+that the run is inconclusive, not that the case is unsupported. A CPU-time or
+step-count budget would be a property of the case rather than of the host. Not
+implemented at checkpoint 10; the report says which budget was used.
+
 ## Consequences
 
 - A report must carry: class counts, masked fields + rules, unsupported cases,
@@ -160,7 +238,8 @@ and are stable with the shim. The baseline names exactly those two as
   hash, and the applied controls. A report missing any of them is not valid.
 - The comparator, normalizer and workflow (Task 7/8) build on the observation
   blob format fixed here; changing D2 later invalidates every stored golden
-  blob, so the encoding is versioned by `case_set_version`.
+  blob, so the encoding is versioned and every blob is keyed by the
+  `case_set_hash` it came from.
 - Custom-converter `parse` cases are **unsupported** for now, by decision, not
   by accident.
 - The sandbox is not yet in the loop at checkpoint 10: passes run in child

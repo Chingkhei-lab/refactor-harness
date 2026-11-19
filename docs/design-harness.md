@@ -117,9 +117,30 @@ behind an interesting target. The legacy-modernisation story needs stage 2 or 3
 (a genuinely old CLI or web app), chosen only after the harness works.
 
 `parse` also turned out to exercise the shim: its date/time types fill in a
-missing year from `datetime.today().year`, so the two no-year formats in the
-case set produce a different year without the shim and the same year with it.
-The baseline report names those two cases explicitly.
+missing year from `datetime.today().year`, so the no-year formats in the case
+set produce a different year without the shim and the same year with it. The
+baseline report names those cases explicitly — **three** of 273, found by
+running the whole case set twice, once with the shim and once without, and
+diffing the control-free fingerprints. That is the method; the count is its
+output.
+
+## What the harness refuses to call equal
+
+Two observations are only comparable if the harness can see the value at all.
+An object with no attributes (`re.Match`, `re.Pattern`, a `__slots__` class)
+encodes as opaque, and 23 of the 273 `parse` cases hit that — all of them the
+`evaluate_result=False` variants. A container that never terminates is
+materialised up to 1 000 items and marked truncated; one case does. Cycles,
+depth past 50 and more than 50 000 nodes are recorded rather than recursed.
+Every one of those cases is `unsupported`, counted in the report, never folded
+into "no difference".
+
+## Why the same case can disagree with itself
+
+`random` and the uuid counter are process state, so a case's value depends on
+the cases before it. That is why each case is preceded by a reset of both, and
+why the A/A baseline runs a fixed order *and* a different shuffle every pass: 0
+noise in both orders is the claim, and a fixed order alone could not support it.
 
 ## What a report contains
 

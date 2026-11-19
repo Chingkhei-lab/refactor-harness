@@ -54,3 +54,46 @@ def test_child_env_is_an_allowlist(tmp_path: Path) -> None:
 
 def test_frozen_epoch_is_a_fixed_instant() -> None:
     assert determinism.FROZEN_EPOCH == 1_700_000_000.0
+
+
+_RESET_PROBE = '''
+import random, uuid
+import sitecustomize
+for i in range(3):
+    print(i, random.random(), uuid.uuid4())
+    sitecustomize.reset_controls()
+'''
+
+
+def _run_script(tmp_path: Path, script: str, *, reset_script: str | None) -> str:
+    import subprocess
+
+    shim = tmp_path / "shim"
+    shim.mkdir(parents=True, exist_ok=True)
+    source = reset_script or determinism.SHIM_SOURCE
+    (shim / "sitecustomize.py").write_text(source, encoding="utf-8")
+    env = determinism.child_env(tmp_path, shim, [])
+    return subprocess.run(
+        [sys.executable, "-c", script], cwd=str(tmp_path), env=env,
+        capture_output=True, text=True, timeout=60,
+    ).stdout
+
+
+def test_per_case_reset_makes_values_independent_of_position(tmp_path: Path) -> None:
+    """The coupling per-case reset exists to remove.
+
+    `random` and the uuid counter are process state. Without a reset, the value a
+    case sees depends on how many draws the cases before it made — so a refactor
+    that changes one case's draw count shifts every later case and looks like a
+    flood of behaviour changes.
+    """
+    with_reset = _run_script(tmp_path / "a", _RESET_PROBE, reset_script=None)
+    first = [line.split(" ", 1)[1] for line in with_reset.splitlines()]
+    assert first[0] == first[1] == first[2], "every case must start from the same state"
+
+    no_reset = determinism.SHIM_SOURCE.replace(
+        '    _random.seed(0)\n    _counter["n"] = 0\n', "    pass\n"
+    )
+    without = _run_script(tmp_path / "b", _RESET_PROBE, reset_script=no_reset)
+    values = [line.split(" ", 1)[1] for line in without.splitlines()]
+    assert len(set(values)) > 1, "without reset the values must drift with position"

@@ -19,6 +19,7 @@ whatever the code under test actually did.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import random
 from collections import Counter
@@ -216,6 +217,7 @@ def build_parse_cases(hypothesis_examples: int = 40, seed: int = 1234) -> list[C
 def save_cases(path: Path, cases: list[Case], target: str, version: str) -> None:
     payload = {
         "case_set_version": CASE_SET_VERSION,
+        "case_set_hash": case_set_hash(cases),
         "target": target,
         "version": version,
         "cases": [case.body() for case in cases],
@@ -236,6 +238,17 @@ def load_cases(path: Path) -> list[Case]:
         )
         for item in payload["cases"]
     ]
+
+
+def case_set_hash(cases: list[Case]) -> str:
+    """sha256 of the case set itself.
+
+    `case_set_version` is a schema number, not an identity: two different sets
+    can share it. The hash goes into every observation, every blob path and
+    every report, and comparing two runs with different hashes is refused.
+    """
+    payload = json.dumps([case.body() for case in cases], sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def counts_by_source(cases: list[Case]) -> dict[str, int]:

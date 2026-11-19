@@ -1,1 +1,0 @@
-{"case_id":"0269-parse-grammar-random","controls":["clock_frozen","random_seeded","uuid_frozen","hash_seed_0","tz_utc","locale_c","cwd_fixed","env_scrubbed"],"entry":"parse","exception":null,"inputs":{"args":["{:tt}","2_5"],"kwargs":{}},"outcome":"return","stderr":"","stdout":"","value":null}

@@ -1,1 +1,0 @@
-{"case_id":"0213-parse-hypothesis","controls":["clock_frozen","random_seeded","uuid_frozen","hash_seed_0","tz_utc","locale_c","cwd_fixed","env_scrubbed"],"entry":"parse","exception":null,"inputs":{"args":["{}-{}","7"],"kwargs":{}},"outcome":"return","stderr":"","stdout":"","value":null}

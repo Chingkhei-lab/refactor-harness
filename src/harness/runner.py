@@ -10,6 +10,7 @@ harness must report it rather than let it be blamed on the change under test.
 from __future__ import annotations
 
 import json
+import random
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -30,6 +31,8 @@ class Pass:
     controls: tuple[str, ...]
     stdout: str
     stderr: str
+    case_set_hash: str = ""
+    order: str = "fixed"
 
     def by_case(self) -> dict[str, Observation]:
         return {observation.case_id: observation for observation in self.observations}
@@ -49,7 +52,24 @@ def run_pass(
     coverage: bool = False,
     case_budget_seconds: float = 20.0,
     attempts: int = 3,
+    order: str = "fixed",
+    shuffle_seed: int = 0,
+    expected_case_set_hash: str = "",
 ) -> Pass:
+    from harness.cases import case_set_hash as compute_case_set_hash
+
+    set_hash = compute_case_set_hash(list(cases))
+    if expected_case_set_hash and expected_case_set_hash != set_hash:
+        raise RuntimeError(
+            "case set changed between the golden run and this pass: "
+            f"expected {expected_case_set_hash[:12]}, computed {set_hash[:12]}. "
+            "Refusing to compare observations from different case sets."
+        )
+    execution = list(cases)
+    if order == "shuffled":
+        # Same cases, different order per pass: if any case's result depends on
+        # what earlier cases consumed, this is what exposes it.
+        random.Random(shuffle_seed + index).shuffle(execution)
     workdir = workdir or Path.cwd()
     workdir.mkdir(parents=True, exist_ok=True)
     plan_path = workdir / f"plan-{index}.json"
@@ -65,6 +85,7 @@ def run_pass(
             "coverage",
             "run",
             f"--data-file={workdir / 'coverage.data'}",
+            "--branch",
             f"--source={module}",
             "-m",
             "harness.child",
@@ -78,11 +99,17 @@ def run_pass(
     # timeout the harness can see exactly where it stopped, record that case as
     # unsupported, and resume from the next one.
     done: dict[str, Observation] = {}
-    remaining = list(cases)
+    remaining = list(execution)
     last_stderr = ""
     for _ in range(attempts):
         plan_path.write_text(
-            json.dumps({"module": module, "cases": [case.body() for case in remaining]}),
+            json.dumps(
+                {
+                    "module": module,
+                    "case_set_hash": set_hash,
+                    "cases": [case.body() for case in remaining],
+                }
+            ),
             encoding="utf-8",
         )
         try:
@@ -134,6 +161,8 @@ def run_pass(
         controls=controls,
         stdout="",
         stderr=last_stderr[-2000:],
+        case_set_hash=set_hash,
+        order=order,
     )
 
 
@@ -148,6 +177,8 @@ def _to_observation(body: dict[str, Any]) -> Observation:
         stdout=body.get("stdout", ""),
         stderr=body.get("stderr", ""),
         controls=tuple(body.get("controls") or ()),
+        flags=dict(body.get("flags") or {}),
+        case_set_hash=body.get("case_set_hash", ""),
     )
 
 

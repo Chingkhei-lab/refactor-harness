@@ -6,17 +6,16 @@ imported and cannot be skipped by the target. `PYTHONHASHSEED=0` is the one
 control that must be in the *environment* rather than the shim, because Python
 reads it before any of our code runs.
 
-Controls, all recorded in every report (`shim_controls()` reads them back from
-the child, so the report shows what actually applied, not what we intended):
+**Per-case reset.** `reset_controls()` reseeds `random` and rewinds the UUID
+counter before every case. Without it a case's result depends on what earlier
+cases consumed, the A/A baseline (which uses one case order) cannot see that
+coupling, and a refactor that changes how many random/uuid calls one case makes
+would shift every later case and produce a flood of false "different" results.
 
-    clock_frozen          time.time / datetime.now / utcnow / today
-    random_seeded         random.seed(0)
-    uuid_frozen           uuid.uuid4/uuid1 -> a deterministic counter
-    hash_seed_0           PYTHONHASHSEED=0 in the environment
-    tz_utc                TZ=UTC + time.tzset where available
-    locale_c              LC_ALL=C.UTF-8 / LANG=C.UTF-8
-    cwd_fixed             the checkout root, same for both versions
-    env_scrubbed          a minimal allowlisted environment
+**Clock coverage.** CPython's `time.localtime()`, `gmtime()`, `ctime()` and
+no-argument `strftime()` read the C clock directly; patching `time.time` alone
+does not affect them. They are patched explicitly here, and the probe prints
+each one so the report can say which controls actually applied.
 """
 
 from __future__ import annotations
@@ -51,6 +50,13 @@ ORIGINAL_DATETIME = _dt.datetime
 ORIGINAL_DATE = _dt.date
 ORIGINAL_TIME = _dt.time
 
+_REAL_TIME = {{
+    name: getattr(_time, name)
+    for name in ("time", "time_ns", "monotonic", "perf_counter", "localtime",
+                 "gmtime", "ctime", "strftime")
+    if hasattr(_time, name)
+}}
+
 
 class _FrozenDateTime(_dt.datetime):
     @classmethod
@@ -78,7 +84,49 @@ _dt.datetime = _FrozenDateTime  # type: ignore[misc]
 _dt.date = _FrozenDate  # type: ignore[misc]
 _CONTROLS.append("clock_frozen")
 
+# time.time() and friends. localtime/gmtime/ctime/strftime read the C clock when
+# called with no argument, so they are patched explicitly rather than assumed.
 _time.time = lambda: _FROZEN_EPOCH  # type: ignore[assignment]
+if hasattr(_time, "time_ns"):
+    _time.time_ns = lambda: int(_FROZEN_EPOCH * 1_000_000_000)  # type: ignore[assignment]
+_CONTROLS.append("time_time_frozen")
+
+_FROZEN_STRUCT = _REAL_TIME["localtime"](_FROZEN_EPOCH)
+_FROZEN_TUPLE = _REAL_TIME["gmtime"](_FROZEN_EPOCH)
+
+
+def _localtime(secs=None):
+    return _FROZEN_STRUCT if secs is None else _REAL_TIME["localtime"](secs)
+
+
+def _gmtime(secs=None):
+    return _FROZEN_TUPLE if secs is None else _REAL_TIME["gmtime"](secs)
+
+
+def _ctime(secs=None):
+    return _REAL_TIME["ctime"](_FROZEN_EPOCH if secs is None else secs)
+
+
+def _strftime(fmt, t=None):
+    return _REAL_TIME["strftime"](fmt, _FROZEN_TUPLE if t is None else t)
+
+
+_time.localtime = _localtime  # type: ignore[assignment]
+_time.gmtime = _gmtime  # type: ignore[assignment]
+_time.ctime = _ctime  # type: ignore[assignment]
+_time.strftime = _strftime  # type: ignore[assignment]
+_CONTROLS.append("struct_time_frozen")
+
+# Monotonic counters are frozen rather than counted: a counter would still make
+# a value depend on how many calls the target makes, which is exactly the
+# coupling per-case reset is meant to remove.
+_time.monotonic = lambda: 0.0  # type: ignore[assignment]
+_time.perf_counter = lambda: 0.0  # type: ignore[assignment]
+if hasattr(_time, "monotonic_ns"):
+    _time.monotonic_ns = lambda: 0  # type: ignore[assignment]
+if hasattr(_time, "perf_counter_ns"):
+    _time.perf_counter_ns = lambda: 0  # type: ignore[assignment]
+_CONTROLS.append("monotonic_frozen")
 
 _random.seed(0)
 _CONTROLS.append("random_seeded")
@@ -99,6 +147,20 @@ _uuid.uuid4 = _uuid4  # type: ignore[assignment]
 _uuid.uuid1 = _uuid1  # type: ignore[assignment]
 _CONTROLS.append("uuid_frozen")
 
+
+def reset_controls():
+    """Per-case reset: the SAME starting state for every case.
+
+    Without this, `random` and the uuid counter carry over between cases, so a
+    result depends on what earlier cases consumed and a refactor that changes
+    the call count shifts every later case.
+    """
+    _random.seed(0)
+    _counter["n"] = 0
+
+
+_CONTROLS.append("per_case_reset")
+
 if _os.environ.get("PYTHONHASHSEED") == "0":
     _CONTROLS.append("hash_seed_0")
 if _os.environ.get("TZ") == "UTC":
@@ -117,13 +179,36 @@ if _os.environ.get("HARNESS_ENV_SCRUBBED") == "1":
 CONTROLS = tuple(_CONTROLS)
 '''
 
+# The probe names one clock surface per line, so a report can say which ones the
+# shim actually controls instead of asserting that it controls "the clock".
+PROBE_LINES: tuple[tuple[str, str], ...] = (
+    ("time.time", "time.time()"),
+    ("time.time_ns", "time.time_ns()"),
+    ("time.monotonic", "time.monotonic()"),
+    ("time.perf_counter", "time.perf_counter()"),
+    ("time.localtime", "time.localtime()"),
+    ("time.gmtime", "time.gmtime()"),
+    ("time.ctime", "time.ctime()"),
+    ("time.strftime", "time.strftime('%Y-%m-%d %H:%M:%S')"),
+    ("datetime.now", "datetime.datetime.now().isoformat()"),
+    ("datetime.utcnow", "datetime.datetime.utcnow().isoformat()"),
+    ("date.today", "datetime.date.today().isoformat()"),
+    ("random", "random.random()"),
+    ("uuid4", "uuid.uuid4()"),
+    ("hash", "hash('x')"),
+)
+
 
 def shim_controls() -> list[str]:
     """The control names the shim applies, in the order it reports them."""
     return [
         "clock_frozen",
+        "time_time_frozen",
+        "struct_time_frozen",
+        "monotonic_frozen",
         "random_seeded",
         "uuid_frozen",
+        "per_case_reset",
         "hash_seed_0",
         "tz_utc",
         "locale_c",
@@ -169,18 +254,37 @@ def child_env(checkout: Path, shim_dir: Path, pythonpath: list[Path]) -> dict[st
 
 
 def probe_script() -> str:
-    """The self-test: every frozen control, printed in a stable order."""
-    return (
-        "import datetime, hashlib, random, time, uuid\n"
-        "print('time', time.time())\n"
-        "print('datetime', datetime.datetime.now().isoformat())\n"
-        "print('date', datetime.date.today().isoformat())\n"
-        "print('random', random.random())\n"
-        "print('uuid4', uuid.uuid4())\n"
-        "print('hash', hashlib.sha256(b'x').hexdigest(), hash('x'))\n"
-        "import sitecustomize\n"
-        "print('controls', ','.join(sitecustomize.CONTROLS))\n"
+    """The self-test: every clock surface and every stochastic control."""
+    # The probe must also run with NO shim: that is the control arm, and without
+    # it "the shim controls this surface" would be an unfalsifiable claim. So the
+    # import is optional and the reset loop only runs when a shim is present.
+    body = [
+        "import datetime, hashlib, random, time, uuid",
+        "try:",
+        "    import sitecustomize",
+        "except ModuleNotFoundError:",
+        "    sitecustomize = None",
+        "if sitecustomize is not None:",
+        "    for _ in range(2):",
+        "        print('reset', sitecustomize.reset_controls())",
+    ]
+    for name, call in PROBE_LINES:
+        body.append(f"print({name!r}, {call})")
+    body.append(
+        "print('controls', ','.join(sitecustomize.CONTROLS) if sitecustomize else '')"
     )
+    return "\n".join(body) + "\n"
+
+
+def parse_probe(stdout: str) -> dict[str, str]:
+    """`{surface: value}` from the probe output (the report's evidence)."""
+    values: dict[str, str] = {}
+    for line in stdout.splitlines():
+        if " " not in line:
+            continue
+        name, value = line.split(" ", 1)
+        values[name] = value
+    return values
 
 
 def run_probe(
