@@ -1,0 +1,1 @@
+{"case_id":"malformed-0008","controls":["clock_frozen","random_seeded","uuid_frozen","hash_seed_0","tz_utc","locale_c","cwd_fixed","env_scrubbed"],"entry":"search","exception":null,"inputs":{"args":["{:d","sample"],"kwargs":{}},"outcome":"return","stderr":"","stdout":"","value":null}

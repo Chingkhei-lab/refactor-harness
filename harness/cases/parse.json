@@ -1,0 +1,2803 @@
+{
+  "case_set_version": 1,
+  "cases": [
+    {
+      "args": [
+        "{}",
+        "hello"
+      ],
+      "entry": "parse",
+      "id": "0001-parse-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{}",
+        "hello"
+      ],
+      "entry": "search",
+      "id": "0002-search-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{}",
+        "hello"
+      ],
+      "entry": "findall",
+      "id": "0003-findall-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{}",
+        "42"
+      ],
+      "entry": "parse",
+      "id": "0004-parse-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{}",
+        "42"
+      ],
+      "entry": "search",
+      "id": "0005-search-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{}",
+        "42"
+      ],
+      "entry": "findall",
+      "id": "0006-findall-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "Hi {}",
+        "Hi Alice"
+      ],
+      "entry": "parse",
+      "id": "0007-parse-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "Hi {}",
+        "Hi Alice"
+      ],
+      "entry": "search",
+      "id": "0008-search-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "Hi {}",
+        "Hi Alice"
+      ],
+      "entry": "findall",
+      "id": "0009-findall-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{name}",
+        "bob"
+      ],
+      "entry": "parse",
+      "id": "0010-parse-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{name}",
+        "bob"
+      ],
+      "entry": "search",
+      "id": "0011-search-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{name}",
+        "bob"
+      ],
+      "entry": "findall",
+      "id": "0012-findall-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{a} {b}",
+        "one two"
+      ],
+      "entry": "parse",
+      "id": "0013-parse-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{a} {b}",
+        "one two"
+      ],
+      "entry": "search",
+      "id": "0014-search-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{a} {b}",
+        "one two"
+      ],
+      "entry": "findall",
+      "id": "0015-findall-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{:d}",
+        "12345"
+      ],
+      "entry": "parse",
+      "id": "0016-parse-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{:d}",
+        "12345"
+      ],
+      "entry": "search",
+      "id": "0017-search-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{:d}",
+        "12345"
+      ],
+      "entry": "findall",
+      "id": "0018-findall-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{:w}",
+        "hello world"
+      ],
+      "entry": "parse",
+      "id": "0019-parse-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{:w}",
+        "hello world"
+      ],
+      "entry": "search",
+      "id": "0020-search-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{:w}",
+        "hello world"
+      ],
+      "entry": "findall",
+      "id": "0021-findall-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{:S}",
+        "ABC"
+      ],
+      "entry": "parse",
+      "id": "0022-parse-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{:S}",
+        "ABC"
+      ],
+      "entry": "search",
+      "id": "0023-search-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{:S}",
+        "ABC"
+      ],
+      "entry": "findall",
+      "id": "0024-findall-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{}",
+        ""
+      ],
+      "entry": "parse",
+      "id": "0025-parse-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{}",
+        ""
+      ],
+      "entry": "search",
+      "id": "0026-search-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{}",
+        ""
+      ],
+      "entry": "findall",
+      "id": "0027-findall-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{:d}",
+        "notdigits"
+      ],
+      "entry": "parse",
+      "id": "0028-parse-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{:d}",
+        "notdigits"
+      ],
+      "entry": "search",
+      "id": "0029-search-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{:d}",
+        "notdigits"
+      ],
+      "entry": "findall",
+      "id": "0030-findall-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{}",
+        "  padded  "
+      ],
+      "entry": "parse",
+      "id": "0031-parse-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{}",
+        "  padded  "
+      ],
+      "entry": "search",
+      "id": "0032-search-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{}",
+        "  padded  "
+      ],
+      "entry": "findall",
+      "id": "0033-findall-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{a}-{b}",
+        "x-y"
+      ],
+      "entry": "parse",
+      "id": "0034-parse-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{a}-{b}",
+        "x-y"
+      ],
+      "entry": "search",
+      "id": "0035-search-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{a}-{b}",
+        "x-y"
+      ],
+      "entry": "findall",
+      "id": "0036-findall-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{:.2f}",
+        "3.14"
+      ],
+      "entry": "parse",
+      "id": "0037-parse-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{:.2f}",
+        "3.14"
+      ],
+      "entry": "search",
+      "id": "0038-search-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{:.2f}",
+        "3.14"
+      ],
+      "entry": "findall",
+      "id": "0039-findall-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{:>5}",
+        "ab"
+      ],
+      "entry": "parse",
+      "id": "0040-parse-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{:>5}",
+        "ab"
+      ],
+      "entry": "search",
+      "id": "0041-search-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{:>5}",
+        "ab"
+      ],
+      "entry": "findall",
+      "id": "0042-findall-docs",
+      "kwargs": {},
+      "source": "docs"
+    },
+    {
+      "args": [
+        "{}",
+        "abc"
+      ],
+      "entry": "parse",
+      "id": "0043-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{}",
+        "abc"
+      ],
+      "entry": "parse",
+      "id": "0044-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{}",
+        "abc"
+      ],
+      "entry": "search",
+      "id": "0045-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{}",
+        "abc"
+      ],
+      "entry": "findall",
+      "id": "0046-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{}",
+        "123"
+      ],
+      "entry": "parse",
+      "id": "0047-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{}",
+        "123"
+      ],
+      "entry": "parse",
+      "id": "0048-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{}",
+        "123"
+      ],
+      "entry": "search",
+      "id": "0049-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{}",
+        "123"
+      ],
+      "entry": "findall",
+      "id": "0050-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{}",
+        "-1.5"
+      ],
+      "entry": "parse",
+      "id": "0051-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{}",
+        "-1.5"
+      ],
+      "entry": "parse",
+      "id": "0052-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{}",
+        "-1.5"
+      ],
+      "entry": "search",
+      "id": "0053-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{}",
+        "-1.5"
+      ],
+      "entry": "findall",
+      "id": "0054-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{}",
+        "\u00fcn\u00efcode"
+      ],
+      "entry": "parse",
+      "id": "0055-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{}",
+        "\u00fcn\u00efcode"
+      ],
+      "entry": "parse",
+      "id": "0056-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{}",
+        "\u00fcn\u00efcode"
+      ],
+      "entry": "search",
+      "id": "0057-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{}",
+        "\u00fcn\u00efcode"
+      ],
+      "entry": "findall",
+      "id": "0058-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{x}",
+        "value"
+      ],
+      "entry": "parse",
+      "id": "0059-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{x}",
+        "value"
+      ],
+      "entry": "parse",
+      "id": "0060-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{x}",
+        "value"
+      ],
+      "entry": "search",
+      "id": "0061-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{x}",
+        "value"
+      ],
+      "entry": "findall",
+      "id": "0062-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{x}{y}",
+        "ab"
+      ],
+      "entry": "parse",
+      "id": "0063-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{x}{y}",
+        "ab"
+      ],
+      "entry": "parse",
+      "id": "0064-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{x}{y}",
+        "ab"
+      ],
+      "entry": "search",
+      "id": "0065-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{x}{y}",
+        "ab"
+      ],
+      "entry": "findall",
+      "id": "0066-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:d}",
+        "007"
+      ],
+      "entry": "parse",
+      "id": "0067-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:d}",
+        "007"
+      ],
+      "entry": "parse",
+      "id": "0068-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:d}",
+        "007"
+      ],
+      "entry": "search",
+      "id": "0069-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:d}",
+        "007"
+      ],
+      "entry": "findall",
+      "id": "0070-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:d}",
+        "-12"
+      ],
+      "entry": "parse",
+      "id": "0071-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:d}",
+        "-12"
+      ],
+      "entry": "parse",
+      "id": "0072-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:d}",
+        "-12"
+      ],
+      "entry": "search",
+      "id": "0073-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:d}",
+        "-12"
+      ],
+      "entry": "findall",
+      "id": "0074-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:w}",
+        "word"
+      ],
+      "entry": "parse",
+      "id": "0075-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:w}",
+        "word"
+      ],
+      "entry": "parse",
+      "id": "0076-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:w}",
+        "word"
+      ],
+      "entry": "search",
+      "id": "0077-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:w}",
+        "word"
+      ],
+      "entry": "findall",
+      "id": "0078-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:W}",
+        "word"
+      ],
+      "entry": "parse",
+      "id": "0079-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:W}",
+        "word"
+      ],
+      "entry": "parse",
+      "id": "0080-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:W}",
+        "word"
+      ],
+      "entry": "search",
+      "id": "0081-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:W}",
+        "word"
+      ],
+      "entry": "findall",
+      "id": "0082-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:l}",
+        "letters"
+      ],
+      "entry": "parse",
+      "id": "0083-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:l}",
+        "letters"
+      ],
+      "entry": "parse",
+      "id": "0084-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:l}",
+        "letters"
+      ],
+      "entry": "search",
+      "id": "0085-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:l}",
+        "letters"
+      ],
+      "entry": "findall",
+      "id": "0086-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:s}",
+        " \t spaced"
+      ],
+      "entry": "parse",
+      "id": "0087-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:s}",
+        " \t spaced"
+      ],
+      "entry": "parse",
+      "id": "0088-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:s}",
+        " \t spaced"
+      ],
+      "entry": "search",
+      "id": "0089-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:s}",
+        " \t spaced"
+      ],
+      "entry": "findall",
+      "id": "0090-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:S}",
+        "UPPER"
+      ],
+      "entry": "parse",
+      "id": "0091-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:S}",
+        "UPPER"
+      ],
+      "entry": "parse",
+      "id": "0092-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:S}",
+        "UPPER"
+      ],
+      "entry": "search",
+      "id": "0093-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:S}",
+        "UPPER"
+      ],
+      "entry": "findall",
+      "id": "0094-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:f}",
+        "1.5"
+      ],
+      "entry": "parse",
+      "id": "0095-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:f}",
+        "1.5"
+      ],
+      "entry": "parse",
+      "id": "0096-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:f}",
+        "1.5"
+      ],
+      "entry": "search",
+      "id": "0097-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:f}",
+        "1.5"
+      ],
+      "entry": "findall",
+      "id": "0098-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:n}",
+        "1,000"
+      ],
+      "entry": "parse",
+      "id": "0099-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:n}",
+        "1,000"
+      ],
+      "entry": "parse",
+      "id": "0100-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:n}",
+        "1,000"
+      ],
+      "entry": "search",
+      "id": "0101-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:n}",
+        "1,000"
+      ],
+      "entry": "findall",
+      "id": "0102-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:x}",
+        "deadbeef"
+      ],
+      "entry": "parse",
+      "id": "0103-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:x}",
+        "deadbeef"
+      ],
+      "entry": "parse",
+      "id": "0104-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:x}",
+        "deadbeef"
+      ],
+      "entry": "search",
+      "id": "0105-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:x}",
+        "deadbeef"
+      ],
+      "entry": "findall",
+      "id": "0106-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:o}",
+        "755"
+      ],
+      "entry": "parse",
+      "id": "0107-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:o}",
+        "755"
+      ],
+      "entry": "parse",
+      "id": "0108-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:o}",
+        "755"
+      ],
+      "entry": "search",
+      "id": "0109-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:o}",
+        "755"
+      ],
+      "entry": "findall",
+      "id": "0110-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:b}",
+        "1010"
+      ],
+      "entry": "parse",
+      "id": "0111-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:b}",
+        "1010"
+      ],
+      "entry": "parse",
+      "id": "0112-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:b}",
+        "1010"
+      ],
+      "entry": "search",
+      "id": "0113-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:b}",
+        "1010"
+      ],
+      "entry": "findall",
+      "id": "0114-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:.1f}",
+        "2.5"
+      ],
+      "entry": "parse",
+      "id": "0115-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:.1f}",
+        "2.5"
+      ],
+      "entry": "parse",
+      "id": "0116-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:.1f}",
+        "2.5"
+      ],
+      "entry": "search",
+      "id": "0117-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:.1f}",
+        "2.5"
+      ],
+      "entry": "findall",
+      "id": "0118-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:.3f}",
+        "1.23456"
+      ],
+      "entry": "parse",
+      "id": "0119-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:.3f}",
+        "1.23456"
+      ],
+      "entry": "parse",
+      "id": "0120-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:.3f}",
+        "1.23456"
+      ],
+      "entry": "search",
+      "id": "0121-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:.3f}",
+        "1.23456"
+      ],
+      "entry": "findall",
+      "id": "0122-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:5}",
+        "ab"
+      ],
+      "entry": "parse",
+      "id": "0123-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:5}",
+        "ab"
+      ],
+      "entry": "parse",
+      "id": "0124-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:5}",
+        "ab"
+      ],
+      "entry": "search",
+      "id": "0125-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:5}",
+        "ab"
+      ],
+      "entry": "findall",
+      "id": "0126-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{a:a}",
+        "a"
+      ],
+      "entry": "parse",
+      "id": "0127-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{a:a}",
+        "a"
+      ],
+      "entry": "parse",
+      "id": "0128-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{a:a}",
+        "a"
+      ],
+      "entry": "search",
+      "id": "0129-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{a:a}",
+        "a"
+      ],
+      "entry": "findall",
+      "id": "0130-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:ti}",
+        "2023-11-14"
+      ],
+      "entry": "parse",
+      "id": "0131-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:ti}",
+        "2023-11-14"
+      ],
+      "entry": "parse",
+      "id": "0132-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:ti}",
+        "2023-11-14"
+      ],
+      "entry": "search",
+      "id": "0133-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:ti}",
+        "2023-11-14"
+      ],
+      "entry": "findall",
+      "id": "0134-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:tg}",
+        "14.11.2023"
+      ],
+      "entry": "parse",
+      "id": "0135-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:tg}",
+        "14.11.2023"
+      ],
+      "entry": "parse",
+      "id": "0136-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:tg}",
+        "14.11.2023"
+      ],
+      "entry": "search",
+      "id": "0137-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:tg}",
+        "14.11.2023"
+      ],
+      "entry": "findall",
+      "id": "0138-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:ta}",
+        "Tue Nov 14 2023"
+      ],
+      "entry": "parse",
+      "id": "0139-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:ta}",
+        "Tue Nov 14 2023"
+      ],
+      "entry": "parse",
+      "id": "0140-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:ta}",
+        "Tue Nov 14 2023"
+      ],
+      "entry": "search",
+      "id": "0141-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:ta}",
+        "Tue Nov 14 2023"
+      ],
+      "entry": "findall",
+      "id": "0142-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:te}",
+        "14 Nov 2023"
+      ],
+      "entry": "parse",
+      "id": "0143-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:te}",
+        "14 Nov 2023"
+      ],
+      "entry": "parse",
+      "id": "0144-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:te}",
+        "14 Nov 2023"
+      ],
+      "entry": "search",
+      "id": "0145-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:te}",
+        "14 Nov 2023"
+      ],
+      "entry": "findall",
+      "id": "0146-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:th}",
+        "Nov 14 2023"
+      ],
+      "entry": "parse",
+      "id": "0147-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:th}",
+        "Nov 14 2023"
+      ],
+      "entry": "parse",
+      "id": "0148-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:th}",
+        "Nov 14 2023"
+      ],
+      "entry": "search",
+      "id": "0149-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:th}",
+        "Nov 14 2023"
+      ],
+      "entry": "findall",
+      "id": "0150-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:tc}",
+        "Tue Nov 14 22:13:20 2023"
+      ],
+      "entry": "parse",
+      "id": "0151-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:tc}",
+        "Tue Nov 14 22:13:20 2023"
+      ],
+      "entry": "parse",
+      "id": "0152-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:tc}",
+        "Tue Nov 14 22:13:20 2023"
+      ],
+      "entry": "search",
+      "id": "0153-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:tc}",
+        "Tue Nov 14 22:13:20 2023"
+      ],
+      "entry": "findall",
+      "id": "0154-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:tt}",
+        "22:13:20"
+      ],
+      "entry": "parse",
+      "id": "0155-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:tt}",
+        "22:13:20"
+      ],
+      "entry": "parse",
+      "id": "0156-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:tt}",
+        "22:13:20"
+      ],
+      "entry": "search",
+      "id": "0157-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:tt}",
+        "22:13:20"
+      ],
+      "entry": "findall",
+      "id": "0158-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:ts}",
+        "2023-11-14 22:13:20"
+      ],
+      "entry": "parse",
+      "id": "0159-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:ts}",
+        "2023-11-14 22:13:20"
+      ],
+      "entry": "parse",
+      "id": "0160-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:ts}",
+        "2023-11-14 22:13:20"
+      ],
+      "entry": "search",
+      "id": "0161-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:ts}",
+        "2023-11-14 22:13:20"
+      ],
+      "entry": "findall",
+      "id": "0162-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:tl}",
+        "Tue, 14 Nov 2023 22:13:20 +0000"
+      ],
+      "entry": "parse",
+      "id": "0163-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:tl}",
+        "Tue, 14 Nov 2023 22:13:20 +0000"
+      ],
+      "entry": "parse",
+      "id": "0164-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:tl}",
+        "Tue, 14 Nov 2023 22:13:20 +0000"
+      ],
+      "entry": "search",
+      "id": "0165-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:tl}",
+        "Tue, 14 Nov 2023 22:13:20 +0000"
+      ],
+      "entry": "findall",
+      "id": "0166-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:%b %d}",
+        "Nov 14"
+      ],
+      "entry": "parse",
+      "id": "0167-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:%b %d}",
+        "Nov 14"
+      ],
+      "entry": "parse",
+      "id": "0168-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:%b %d}",
+        "Nov 14"
+      ],
+      "entry": "search",
+      "id": "0169-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:%b %d}",
+        "Nov 14"
+      ],
+      "entry": "findall",
+      "id": "0170-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:%H:%M}",
+        "22:13"
+      ],
+      "entry": "parse",
+      "id": "0171-parse-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:%H:%M}",
+        "22:13"
+      ],
+      "entry": "parse",
+      "id": "0172-parse-grammar",
+      "kwargs": {
+        "evaluate_result": false
+      },
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:%H:%M}",
+        "22:13"
+      ],
+      "entry": "search",
+      "id": "0173-search-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{:%H:%M}",
+        "22:13"
+      ],
+      "entry": "findall",
+      "id": "0174-findall-grammar",
+      "kwargs": {},
+      "source": "grammar"
+    },
+    {
+      "args": [
+        "{",
+        "sample"
+      ],
+      "entry": "parse",
+      "id": "0175-parse-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "{",
+        "sample"
+      ],
+      "entry": "search",
+      "id": "0176-search-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "}",
+        "sample"
+      ],
+      "entry": "parse",
+      "id": "0177-parse-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "}",
+        "sample"
+      ],
+      "entry": "search",
+      "id": "0178-search-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "{} {",
+        "sample"
+      ],
+      "entry": "parse",
+      "id": "0179-parse-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "{} {",
+        "sample"
+      ],
+      "entry": "search",
+      "id": "0180-search-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "{:z}",
+        "sample"
+      ],
+      "entry": "parse",
+      "id": "0181-parse-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "{:z}",
+        "sample"
+      ],
+      "entry": "search",
+      "id": "0182-search-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "{name",
+        "sample"
+      ],
+      "entry": "parse",
+      "id": "0183-parse-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "{name",
+        "sample"
+      ],
+      "entry": "search",
+      "id": "0184-search-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "{ }",
+        "sample"
+      ],
+      "entry": "parse",
+      "id": "0185-parse-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "{ }",
+        "sample"
+      ],
+      "entry": "search",
+      "id": "0186-search-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "{} {} {}",
+        "sample"
+      ],
+      "entry": "parse",
+      "id": "0187-parse-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "{} {} {}",
+        "sample"
+      ],
+      "entry": "search",
+      "id": "0188-search-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "{0}",
+        "sample"
+      ],
+      "entry": "parse",
+      "id": "0189-parse-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "{0}",
+        "sample"
+      ],
+      "entry": "search",
+      "id": "0190-search-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "{:d",
+        "sample"
+      ],
+      "entry": "parse",
+      "id": "0191-parse-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "{:d",
+        "sample"
+      ],
+      "entry": "search",
+      "id": "0192-search-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "{{}}",
+        "sample"
+      ],
+      "entry": "parse",
+      "id": "0193-parse-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "{{}}",
+        "sample"
+      ],
+      "entry": "search",
+      "id": "0194-search-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "{:}",
+        "sample"
+      ],
+      "entry": "parse",
+      "id": "0195-parse-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "{:}",
+        "sample"
+      ],
+      "entry": "search",
+      "id": "0196-search-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "{:-}",
+        "sample"
+      ],
+      "entry": "parse",
+      "id": "0197-parse-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "{:-}",
+        "sample"
+      ],
+      "entry": "search",
+      "id": "0198-search-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "{:.}",
+        "sample"
+      ],
+      "entry": "parse",
+      "id": "0199-parse-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "{:.}",
+        "sample"
+      ],
+      "entry": "search",
+      "id": "0200-search-malformed",
+      "kwargs": {},
+      "source": "malformed"
+    },
+    {
+      "args": [
+        "{}-{}",
+        ""
+      ],
+      "entry": "parse",
+      "id": "0201-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{a}",
+        "c"
+      ],
+      "entry": "parse",
+      "id": "0202-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{}",
+        "Y_89b5_c7"
+      ],
+      "entry": "parse",
+      "id": "0203-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{}",
+        ":6c::X3"
+      ],
+      "entry": "parse",
+      "id": "0204-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{}",
+        "1X5_X2_b43."
+      ],
+      "entry": "parse",
+      "id": "0205-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{}-{}",
+        "_2/-3"
+      ],
+      "entry": "parse",
+      "id": "0206-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{:.2f}",
+        "1"
+      ],
+      "entry": "parse",
+      "id": "0207-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{}",
+        " a2.7"
+      ],
+      "entry": "parse",
+      "id": "0208-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{:S}",
+        "5a"
+      ],
+      "entry": "parse",
+      "id": "0209-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{:S}",
+        ".-"
+      ],
+      "entry": "parse",
+      "id": "0210-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{}",
+        "Z"
+      ],
+      "entry": "parse",
+      "id": "0211-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{}",
+        "-c4Z8"
+      ],
+      "entry": "parse",
+      "id": "0212-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{}-{}",
+        "7"
+      ],
+      "entry": "parse",
+      "id": "0213-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{:w}",
+        "84433_Y:/ac"
+      ],
+      "entry": "parse",
+      "id": "0214-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{:d}",
+        " Y::Za"
+      ],
+      "entry": "parse",
+      "id": "0215-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{}",
+        "a-Z"
+      ],
+      "entry": "parse",
+      "id": "0216-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{}",
+        "3 :8X/47:9-465"
+      ],
+      "entry": "parse",
+      "id": "0217-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{}-{}",
+        "Y481Y"
+      ],
+      "entry": "parse",
+      "id": "0218-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{}",
+        "78"
+      ],
+      "entry": "parse",
+      "id": "0219-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{:w}",
+        "39"
+      ],
+      "entry": "parse",
+      "id": "0220-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{:S}",
+        "Y-4c"
+      ],
+      "entry": "parse",
+      "id": "0221-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{:.2f}",
+        "0"
+      ],
+      "entry": "parse",
+      "id": "0222-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{a}",
+        "36-4.08b: -"
+      ],
+      "entry": "parse",
+      "id": "0223-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{:.2f}",
+        "Y.444_"
+      ],
+      "entry": "parse",
+      "id": "0224-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{a}",
+        "55:6-"
+      ],
+      "entry": "parse",
+      "id": "0225-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{:d}",
+        "2.5"
+      ],
+      "entry": "parse",
+      "id": "0226-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{}",
+        "4bZ4b6ba4Y2_"
+      ],
+      "entry": "parse",
+      "id": "0227-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{:d}",
+        "61."
+      ],
+      "entry": "parse",
+      "id": "0228-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{:S}",
+        "/"
+      ],
+      "entry": "parse",
+      "id": "0229-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{}",
+        " Y/_706"
+      ],
+      "entry": "parse",
+      "id": "0230-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{}-{}",
+        ":"
+      ],
+      "entry": "parse",
+      "id": "0231-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{}",
+        "7798"
+      ],
+      "entry": "parse",
+      "id": "0232-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{:.2f}",
+        "_ ac43Ybb 2_4"
+      ],
+      "entry": "parse",
+      "id": "0233-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{a}",
+        "0..0"
+      ],
+      "entry": "parse",
+      "id": "0234-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{:d}",
+        "3.:59"
+      ],
+      "entry": "parse",
+      "id": "0235-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{}",
+        "931_Z60Y:1"
+      ],
+      "entry": "parse",
+      "id": "0236-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{:S}",
+        "1X19c3Z0:-1"
+      ],
+      "entry": "parse",
+      "id": "0237-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{:.2f}",
+        "b1_Y06"
+      ],
+      "entry": "parse",
+      "id": "0238-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{a}",
+        ":0/"
+      ],
+      "entry": "parse",
+      "id": "0239-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{}",
+        "_/.9"
+      ],
+      "entry": "parse",
+      "id": "0240-parse-hypothesis",
+      "kwargs": {},
+      "source": "hypothesis"
+    },
+    {
+      "args": [
+        "{}",
+        ":c9_b1-c/"
+      ],
+      "entry": "parse",
+      "id": "0241-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{}",
+        "8410"
+      ],
+      "entry": "parse",
+      "id": "0242-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{}",
+        " 79:a9ca3Y"
+      ],
+      "entry": "parse",
+      "id": "0243-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{}",
+        "8:5Zbc_8Zc-"
+      ],
+      "entry": "parse",
+      "id": "0244-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{x}",
+        "Ya4"
+      ],
+      "entry": "parse",
+      "id": "0245-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{x}{y}",
+        "9"
+      ],
+      "entry": "parse",
+      "id": "0246-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:d}",
+        ":2"
+      ],
+      "entry": "parse",
+      "id": "0247-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:d}",
+        "b61:bZ1"
+      ],
+      "entry": "parse",
+      "id": "0248-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:w}",
+        "2Y"
+      ],
+      "entry": "parse",
+      "id": "0249-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:W}",
+        "b_5483_"
+      ],
+      "entry": "parse",
+      "id": "0250-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:l}",
+        "8b8.Z79"
+      ],
+      "entry": "parse",
+      "id": "0251-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:s}",
+        "21XZ66X"
+      ],
+      "entry": "parse",
+      "id": "0252-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:S}",
+        "X85:1/ 4"
+      ],
+      "entry": "parse",
+      "id": "0253-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:f}",
+        "Z"
+      ],
+      "entry": "parse",
+      "id": "0254-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:n}",
+        "1Y37cc5 b"
+      ],
+      "entry": "parse",
+      "id": "0255-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:x}",
+        "b09c"
+      ],
+      "entry": "parse",
+      "id": "0256-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:o}",
+        "327c_1c6 X5"
+      ],
+      "entry": "parse",
+      "id": "0257-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:b}",
+        "790"
+      ],
+      "entry": "parse",
+      "id": "0258-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:.1f}",
+        " 96Z_"
+      ],
+      "entry": "parse",
+      "id": "0259-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:.3f}",
+        "2b4"
+      ],
+      "entry": "parse",
+      "id": "0260-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:5}",
+        "Y8-83YYb"
+      ],
+      "entry": "parse",
+      "id": "0261-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{a:a}",
+        "ZY-c3Za::"
+      ],
+      "entry": "parse",
+      "id": "0262-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:ti}",
+        ""
+      ],
+      "entry": "parse",
+      "id": "0263-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:tg}",
+        "cY b653 :5"
+      ],
+      "entry": "parse",
+      "id": "0264-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:ta}",
+        "-/26"
+      ],
+      "entry": "parse",
+      "id": "0265-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:te}",
+        ":_Y-c"
+      ],
+      "entry": "parse",
+      "id": "0266-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:th}",
+        "165_"
+      ],
+      "entry": "parse",
+      "id": "0267-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:tc}",
+        "9X51"
+      ],
+      "entry": "parse",
+      "id": "0268-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:tt}",
+        "2_5"
+      ],
+      "entry": "parse",
+      "id": "0269-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:ts}",
+        ""
+      ],
+      "entry": "parse",
+      "id": "0270-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:tl}",
+        "708Z5"
+      ],
+      "entry": "parse",
+      "id": "0271-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:%b %d}",
+        "ac85"
+      ],
+      "entry": "parse",
+      "id": "0272-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    },
+    {
+      "args": [
+        "{:%H:%M}",
+        "6:8Z"
+      ],
+      "entry": "parse",
+      "id": "0273-parse-grammar-random",
+      "kwargs": {},
+      "source": "grammar-random"
+    }
+  ],
+  "target": "parse",
+  "version": "1.22.4"
+}
