@@ -74,6 +74,25 @@ become first-class, and effects are deduplicated by `effect_key`. Chaos v2 is
 that proof: under 59 hard kills, 122 redelivered executions were absorbed by
 idempotency keys and 0 duplicate effects appeared.
 
+## Releases
+
+[v0.2.2](https://github.com/Chingkhei-lab/refactor-harness/releases/tag/v0.2.2) —
+checkpoint 9 review rounds 1–2 (corrected concurrency finding, demo/test
+database split, self-reporting CI, install network probe). Supersedes
+[v0.2.1](https://github.com/Chingkhei-lab/refactor-harness/releases/tag/v0.2.1).
+
+## Behavior harness (Phase 4)
+
+Design: [`docs/design-harness.md`](docs/design-harness.md) · ADR:
+[`docs/adr/004-harness.md`](docs/adr/004-harness.md) · first baseline:
+[`docs/results/harness-parse-20261119.md`](docs/results/harness-parse-20261119.md).
+
+The harness gives **evidence, not a proof of equivalence**. Stage 1 runs
+against `parse` 1.22.4 — a **calibration target for the harness, not a legacy
+codebase**: 1 106 lines, zero dependencies, wheels only, deliberately boring so
+that a misbehaving harness cannot hide behind an interesting target. The
+legacy-modernisation story starts at stage 2/3, chosen after the harness works.
+
 ## Sandbox (Phase 3, checkpoint 7)
 
 Untrusted code runs in Docker containers: read-only rootfs, non-root,
