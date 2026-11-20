@@ -191,8 +191,14 @@ CI skipped 28 tests, up from 25. The three new ones are the three tests in
 | `test_a_target_that_sigkills_itself_is_a_behaviour_not_a_resource_kill` | needs the container cgroup to read `memory.events` |
 
 They are new *tests*, not new skips: nothing that used to run stopped running.
-The count on the run that closed this checkpoint (`0ca5fa4`) is
-**402 collected / 373 passed / 29 skipped / 0 failed**, and the 29 break down as:
+Final verified run: **`0c469bc`**, both jobs green.
+
+* `ci` — **402 collected / 373 passed / 29 skipped / 0 failed**
+* `sandbox-hostile` — **28 collected / 28 passed / 0 skipped / 0 failed**,
+  gate `60/60, byte-identical True, 15.07 s/pass`, oracle canaries and the
+  case-set freshness check both green.
+
+The 29 skips break down as:
 
 | file | count | gate |
 | --- | --- | --- |
@@ -201,8 +207,9 @@ The count on the run that closed this checkpoint (`0ca5fa4`) is
 | `tests/test_harness_sandbox_hostile.py` | 3 | `ENGINE_SANDBOX_TESTS=1` |
 | one mutator test | 1 | needs `.harness/mutation/plan.json`, which CI does not produce |
 
-All 28 run in the `sandbox-hostile` job, which reports **27/27 passed, 0
-skipped** — the counts do not line up because the hostile job runs a subset
+All 28 docker-gated ones run in the `sandbox-hostile` job, which reports
+**28/28 passed, 0 skipped** — the counts do not line up because the hostile job
+runs a subset
 (`tests/test_sandbox_hostile.py`, `tests/test_install_hostile.py`,
 `tests/test_harness_sandbox_hostile.py`, `tests/test_harness_sandbox_transport.py`)
 and the `ci` job runs everything else. A test that skips in one job and passes in
