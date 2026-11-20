@@ -217,3 +217,23 @@ def test_the_local_executor_keeps_each_run_in_its_own_directory(
     assert first.exit_code == 0
     assert "a.txt" in first.files and "a.txt" not in second.files
     assert os.path.isdir(tmp_path / "local")
+
+
+def test_the_docker_executor_wraps_a_raw_sdk_client(tmp_path: Path) -> None:
+    """`sandbox.run` needs the adapter, not `docker.from_env()`.
+
+    The first version passed the raw client and CI failed on `client.create`
+    immediately; this pins the wrapping without needing a daemon.
+    """
+    from harness.sandbox_transport import DockerExecutor
+
+    class FakeSdk:
+        def __init__(self) -> None:
+            self.containers = object()
+
+    raw = FakeSdk()
+    executor = DockerExecutor(raw, "python:3.12-slim")  # type: ignore[arg-type]
+    assert hasattr(executor.client, "create")
+    assert executor.client is not raw
+    already_wrapped = executor.client
+    assert DockerExecutor(already_wrapped, "x").client is already_wrapped  # type: ignore[arg-type]

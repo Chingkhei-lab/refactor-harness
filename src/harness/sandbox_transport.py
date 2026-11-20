@@ -34,7 +34,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol
 
-from engine.sandbox import SandboxLimits, SandboxSpec
+from engine.sandbox import DockerSandboxAdapter, SandboxLimits, SandboxSpec
 from engine.sandbox import run as sandbox_run
 
 WORKSPACE = "/workspace"
@@ -152,7 +152,12 @@ class DockerExecutor:
     python = "python3"
 
     def __init__(self, client: Any, image: str) -> None:
-        self.client = client
+        # `sandbox.run` speaks the runner's own small protocol, not the SDK:
+        # passing the raw docker client fails at the first `client.create(...)`,
+        # which is exactly what a red CI run taught this transport.
+        self.client = (
+            client if hasattr(client, "create") else DockerSandboxAdapter(client)
+        )
         self.image = image
 
     def run(
