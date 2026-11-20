@@ -1,0 +1,233 @@
+--- a/pycodestyle.py
++++ b/pycodestyle.py
+@@ -46,6 +46,7 @@
+ 700 statements
+ 900 syntax error
+ """
++import argparse
+ import bisect
+ import configparser
+ import inspect
+@@ -60,7 +61,6 @@
+ from fnmatch import fnmatch
+ from functools import lru_cache
+ from itertools import pairwise
+-from optparse import OptionParser
+ 
+ __version__ = '2.15.0'
+ 
+@@ -2481,67 +2481,108 @@
+ 
+ def get_parser(prog='pycodestyle', version=__version__):
+     """Create the parser for the program."""
+-    parser = OptionParser(prog=prog, version=version,
+-                          usage="%prog [options] input ...")
++    parser = argparse.ArgumentParser(
++        prog=prog,
++        usage="%(prog)s [options] input ...",
++        add_help=True,
++    )
++    # optparse printed the version string verbatim (`2.15.0`) and
++    # argparse does too, so it is passed through unchanged. An
++    # earlier draft prefixed the program name and changed the
++    # output; the CLI case set caught it.
++    parser.add_argument('--version', action='version', version=version)
++    parser.add_argument('args', nargs='*', metavar='input',
++                        help="files or directories to check")
+     parser.config_options = [
+         'exclude', 'filename', 'select', 'ignore', 'max-line-length',
+         'max-doc-length', 'indent-size', 'hang-closing', 'count', 'format',
+         'quiet', 'show-pep8', 'show-source', 'statistics', 'verbose']
+-    parser.add_option('-v', '--verbose', default=0, action='count',
+-                      help="print status messages, or debug with -vv")
+-    parser.add_option('-q', '--quiet', default=0, action='count',
+-                      help="report only file names, or nothing with -qq")
+-    parser.add_option('-r', '--repeat', default=True, action='store_true',
+-                      help="(obsolete) show all occurrences of the same error")
+-    parser.add_option('--first', action='store_false', dest='repeat',
+-                      help="show first occurrence of each error")
+-    parser.add_option('--exclude', metavar='patterns', default=DEFAULT_EXCLUDE,
+-                      help="exclude files or directories which match these "
+-                           "comma separated patterns (default: %default)")
+-    parser.add_option('--filename', metavar='patterns', default='*.py',
+-                      help="when parsing directories, only check filenames "
+-                           "matching these comma separated patterns "
+-                           "(default: %default)")
+-    parser.add_option('--select', metavar='errors', default='',
+-                      help="select errors and warnings (e.g. E,W6)")
+-    parser.add_option('--ignore', metavar='errors', default='',
+-                      help="skip errors and warnings (e.g. E4,W) "
+-                           "(default: %s)" % DEFAULT_IGNORE)
+-    parser.add_option('--show-source', action='store_true',
+-                      help="show source code for each error")
+-    parser.add_option('--show-pep8', action='store_true',
+-                      help="show text of PEP 8 for each error "
+-                           "(implies --first)")
+-    parser.add_option('--statistics', action='store_true',
+-                      help="count errors and warnings")
+-    parser.add_option('--count', action='store_true',
+-                      help="print total number of errors and warnings "
+-                           "to standard error and set exit code to 1 if "
+-                           "total is not null")
+-    parser.add_option('--max-line-length', type='int', metavar='n',
+-                      default=MAX_LINE_LENGTH,
+-                      help="set maximum allowed line length "
+-                           "(default: %default)")
+-    parser.add_option('--max-doc-length', type='int', metavar='n',
+-                      default=None,
+-                      help="set maximum allowed doc line length and perform "
+-                           "these checks (unchecked if not set)")
+-    parser.add_option('--indent-size', type='int', metavar='n',
+-                      default=INDENT_SIZE,
+-                      help="set how many spaces make up an indent "
+-                           "(default: %default)")
+-    parser.add_option('--hang-closing', action='store_true',
+-                      help="hang closing bracket instead of matching "
+-                           "indentation of opening bracket's line")
+-    parser.add_option('--format', metavar='format', default='default',
+-                      help="set the error format [default|pylint|<custom>]")
+-    parser.add_option('--diff', action='store_true',
+-                      help="report changes only within line number ranges in "
+-                           "the unified diff received on STDIN")
+-    group = parser.add_option_group("Testing Options")
+-    group.add_option('--benchmark', action='store_true',
+-                     help="measure processing speed")
++    parser.add_argument('-v', '--verbose', default=0, action='count',
++                        help="print status messages, or debug with -vv")
++    parser.add_argument(
++        '-q', '--quiet', default=0, action='count',
++        help="report only file names, or nothing with -qq")
++    parser.add_argument(
++        '-r', '--repeat', default=True, action='store_true',
++        help="(obsolete) show all occurrences of the same error")
++    parser.add_argument('--first', action='store_false', dest='repeat',
++                        help="show first occurrence of each error")
++    parser.add_argument(
++        '--exclude', metavar='patterns', default=DEFAULT_EXCLUDE,
++        help="exclude files or directories which match these "
++             "comma separated patterns (default: %(default)s)")
++    parser.add_argument('--filename', metavar='patterns', default='*.py',
++                        help="when parsing directories, only check filenames "
++                             "matching these comma separated patterns "
++                             "(default: %(default)s)")
++    parser.add_argument('--select', metavar='errors', default='',
++                        help="select errors and warnings (e.g. E,W6)")
++    parser.add_argument('--ignore', metavar='errors', default='',
++                        help="skip errors and warnings (e.g. E4,W) "
++                             "(default: %s)" % DEFAULT_IGNORE)
++    parser.add_argument('--show-source', action='store_true',
++                        help="show source code for each error")
++    parser.add_argument('--show-pep8', action='store_true',
++                        help="show text of PEP 8 for each error "
++                             "(implies --first)")
++    parser.add_argument('--statistics', action='store_true',
++                        help="count errors and warnings")
++    parser.add_argument('--count', action='store_true',
++                        help="print total number of errors and warnings "
++                             "to standard error and set exit code to 1 if "
++                             "total is not null")
++    parser.add_argument('--max-line-length', type=int, metavar='n',
++                        default=MAX_LINE_LENGTH,
++                        help="set maximum allowed line length "
++                             "(default: %(default)s)")
++    parser.add_argument('--max-doc-length', type=int, metavar='n',
++                        default=None,
++                        help="set maximum allowed doc line length and perform "
++                             "these checks (unchecked if not set)")
++    parser.add_argument('--indent-size', type=int, metavar='n',
++                        default=INDENT_SIZE,
++                        help="set how many spaces make up an indent "
++                             "(default: %(default)s)")
++    parser.add_argument('--hang-closing', action='store_true',
++                        help="hang closing bracket instead of matching "
++                             "indentation of opening bracket's line")
++    parser.add_argument('--format', metavar='format', default='default',
++                        help="set the error format [default|pylint|<custom>]")
++    parser.add_argument(
++        '--diff', action='store_true',
++        help="report changes only within line number ranges in "
++             "the unified diff received on STDIN")
++    group = parser.add_argument_group("Testing Options")
++    group.add_argument('--benchmark', action='store_true',
++                       help="measure processing speed")
+     return parser
++
++
++def _option_kinds(parser):
++    """dest -> how to read a config value for each config option.
++
++    optparse exposed this as `o.type or o.action` over
++    `parser.option_list`. The same information lives on the
++    argparse actions, so it is derived rather than stored.
++    """
++    kinds = {}
++    # `config_options` is spelled with hyphens, dests with underscores.
++    wanted = {name.replace('-', '_') for name in parser.config_options}
++    wanted.add('config')
++    for action in parser._actions:
++        if action.dest not in wanted:
++            continue
++        if action.type is int:
++            kinds[action.dest] = 'int'
++        elif action.dest == 'verbose' or action.dest == 'quiet':
++            kinds[action.dest] = 'count'
++        elif isinstance(action, argparse._StoreTrueAction):
++            kinds[action.dest] = 'store_true'
++        elif isinstance(action, argparse._StoreFalseAction):
++            kinds[action.dest] = 'store_false'
++        else:
++            kinds[action.dest] = 'store'
++    return kinds
+ 
+ 
+ def read_config(options, args, arglist, parser):
+@@ -2588,10 +2629,10 @@
+         warnings.warn('[pep8] section is deprecated. Use [pycodestyle].')
+ 
+     if pycodestyle_section:
+-        option_list = {o.dest: o.type or o.action for o in parser.option_list}
++        option_list = _option_kinds(parser)
+ 
+         # First, read the default values
+-        (new_options, __) = parser.parse_args([])
++        new_options = parser.parse_args([])
+ 
+         # Second, parse the configuration
+         for opt in config.options(pycodestyle_section):
+@@ -2614,7 +2655,7 @@
+             setattr(new_options, normalized_opt, value)
+ 
+         # Third, overwrite with the command-line options
+-        (options, __) = parser.parse_args(arglist, values=new_options)
++        options = parser.parse_args(arglist, namespace=new_options)
+     return options
+ 
+ 
+@@ -2627,20 +2668,22 @@
+     """
+     if not parser:
+         parser = get_parser()
+-    if not parser.has_option('--config'):
+-        group = parser.add_option_group("Configuration", description=(
++    if not getattr(parser, '_has_config_option', False):
++        group = parser.add_argument_group("Configuration", description=(
+             "The project options are read from the [%s] section of the "
+             "tox.ini file or the setup.cfg file located in any parent folder "
+             "of the path(s) being processed.  Allowed options are: %s." %
+             (parser.prog, ', '.join(parser.config_options))))
+-        group.add_option('--config', metavar='path', default=config_file,
+-                         help="user config file location")
++        group.add_argument('--config', metavar='path', default=config_file,
++                           help="user config file location")
++        parser._has_config_option = True
+     # Don't read the command line if the module is used as a library.
+     if not arglist and not parse_argv:
+         arglist = []
+     # If parse_argv is True and arglist is None, arguments are
+     # parsed from the command line (sys.argv)
+-    (options, args) = parser.parse_args(arglist)
++    options = parser.parse_args(arglist)
++    args = options.args
+     options.reporter = None
+ 
+     # If explicitly specified verbosity, override any `-v` CLI flag

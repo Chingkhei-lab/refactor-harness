@@ -1,0 +1,20 @@
+[
+  {
+    "target": "parse",
+    "mutant": "compare_swap@71:11",
+    "clean_suite": "passes",
+    "clean_note": "109 passed, 1 skipped in 1.62s",
+    "broken_mutant": "killed",
+    "broken_note": "1 failed, 2 passed in 1.99s",
+    "ok": true
+  },
+  {
+    "target": "pycodestyle",
+    "mutant": "compare_swap@70:7",
+    "clean_suite": "passes",
+    "clean_note": "763 passed, 12 skipped in 5.31s",
+    "broken_mutant": "killed",
+    "broken_note": "1 failed, 3 passed in 2.51s",
+    "ok": true
+  }
+]

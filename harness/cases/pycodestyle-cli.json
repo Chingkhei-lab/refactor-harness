@@ -1,0 +1,1000 @@
+{
+ "case_set_hash": "5b86bc8dab70b2f136e4d8e45f7de3dcbd5e5506f8f70de7bd123cf5d576d382",
+ "cases": [
+  {
+   "args": [],
+   "argv": [
+    "crlf.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "crlf.py": "'''\\\ntest\n'''\n"
+   },
+   "id": "fixture-crlf",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E10.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E10.py": "#: E101 E122 W191 W191\nif True:\n\tpass\n\nchange_2_log = \\\n\"\"\"Change 2 by slamb@testclient on 2006/04/13 21:46:23\n\n\tcreation\n\"\"\"\n\np4change = {\n    2: change_2_log,\n}\n\n\nclass TestP4Poller(unittest.TestCase):\n    def setUp(self):\n        self.setUpGetProcessOutput()\n        return self.setUpChangeSource()\n\n    def tearDown(self):\n        pass\n\n#\n#: E101 W191 W191\nif True:\n\tfoo(1,\n\t    2)\n#: E101 E101 W191 W191\ndef test_keys(self):\n    \"\"\"areas.json - All regions are accounted for.\"\"\"\n    expected = set([\n\tu'Norrbotten',\n\tu'V\\xe4sterbotten',\n    ])\n#: E101 W191\nif True:\n    print(\"\"\"\n\ttab at start of this line\n\"\"\")\n"
+   },
+   "id": "fixture-e10",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E11.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E11.py": "#: E111\nif x > 2:\n  print x\n#: E111 E117\nif True:\n     print\n#: E112\nif False:\nprint\n#: E113\nprint\n    print\n#: E114 E116\nmimetype = 'application/x-directory'\n     # 'httpd/unix-directory'\ncreate_date = False\n#: E116 E116 E116\ndef start(self):\n    if True:\n        self.master.start()\n        # try:\n            # self.master.start()\n        # except MasterExit:\n            # self.shutdown()\n        # finally:\n            # sys.exit()\n#: E115 E115 E115 E115 E115 E115\ndef start(self):\n    if True:\n#       try:\n#           self.master.start()\n#       except MasterExit:\n#           self.shutdown()\n#       finally:\n#           sys.exit()\n        self.master.start()\n#: E117\ndef start():\n        print\n#: E117 W191\n"
+   },
+   "id": "fixture-e11",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E12.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E12.py": "#: E121\nprint \"E121\", (\n  \"dent\")\n#: E122\nprint \"E122\", (\n\"dent\")\n#: E123\nmy_list = [\n    1, 2, 3,\n    4, 5, 6,\n    ]\n#: E124\nprint \"E124\", (\"visual\",\n               \"indent_two\"\n              )\n#: E124\nprint \"E124\", (\"visual\",\n               \"indent_five\"\n)\n#: E124\na = (123,\n)\n#: E129 W503\nif (row < 0 or self.moduleCount <= row\n    or col < 0 or self.moduleCount <= col):\n    raise Exception(\"%s,%s - %s\" % (row, col, self.moduleCount))\n#: E126\nprint \"E126\", (\n            \"dent\")\n#: E126\nprint \"E126\", (\n        \"dent\")\n#: E127\nprint \"E127\", (\"over-\",\n                  \"over-indent\")\n#: E128\nprint \"E128\", (\"visual\",\n    \"hanging\")\n#: E128\nprint \"E128\", (\"under-\",\n"
+   },
+   "id": "fixture-e12",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E12not.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E12not.py": "if (\n        x == (\n            3\n        ) or y == 4):\n    pass\n\ny = x == 2 \\\n    or x == 3\n\nif x == 2 \\\n    or y > 1 \\\n        or x == 3:\n    pass\n\nif x == 2 \\\n        or y > 1 \\\n        or x == 3:\n    pass\n#: W503\nif (foo == bar\n        and baz == frop):\n    pass\n#: W503\nif (\n    foo == bar\n    and baz == frop\n):\n    pass\n\n\na = (\n)\n\na = (123,\n     )\n\n\n#\n\n\n"
+   },
+   "id": "fixture-e12not",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E20.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E20.py": "#: E201:1:6\nspam( ham[1], {eggs: 2})\n#: E201:1:10\nspam(ham[ 1], {eggs: 2})\n#: E201:1:15\nspam(ham[1], { eggs: 2})\n#: E201:1:6\nspam(\tham[1], {eggs: 2})\n#: E201:1:10\nspam(ham[\t1], {eggs: 2})\n#: E201:1:15\nspam(ham[1], {\teggs: 2})\n#: Okay\nspam(ham[1], {eggs: 2})\n#:\n\n\n#: E202:1:23\nspam(ham[1], {eggs: 2} )\n#: E202:1:22\nspam(ham[1], {eggs: 2 })\n#: E202:1:11\nspam(ham[1 ], {eggs: 2})\n#: E202:1:23\nspam(ham[1], {eggs: 2}\t)\n#: E202:1:22\nspam(ham[1], {eggs: 2\t})\n#: E202:1:11\nspam(ham[1\t], {eggs: 2})\n#: Okay\nspam(ham[1], {eggs: 2})\n\nresult = func(\n    arg1='some value',\n    arg2='another value',\n)\n\nresult = func(\n    arg1='some value',\n    arg2='another value'\n"
+   },
+   "id": "fixture-e20",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E21.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E21.py": "#: E211\nspam (1)\n#: E211 E211\ndict ['key'] = list [index]\n#: E211\ndict['key'] ['subkey'] = list[index]\n#: Okay\nspam(1)\ndict['key'] = list[index]\n\n\n# This is not prohibited by PEP8, but avoid it.\nclass Foo (Bar, Baz):\n    pass\n"
+   },
+   "id": "fixture-e21",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E22.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E22.py": "#: E221\na = 12 + 3\nb = 4  + 5\n#: E221 E221\nx             = 1\ny             = 2\nlong_variable = 3\n#: E221 E221\nx[0]          = 1\nx[1]          = 2\nlong_variable = 3\n#: E221 E221\nx = f(x)          + 1\ny = long_variable + 2\nz = x[0]          + 3\n#: E221:3:14\ntext = \"\"\"\n    bar\n    foo %s\"\"\"  % rofl\n#: Okay\nx = 1\ny = 2\nlong_variable = 3\n#:\n\n\n#: E222\na = a +  1\nb = b + 10\n#: E222 E222\nx =            -1\ny =            -2\nlong_variable = 3\n#: E222 E222\nx[0] =          1\nx[1] =          2\nlong_variable = 3\n#:\n\n\n"
+   },
+   "id": "fixture-e22",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E23.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E23.py": "#: E231\na = (1,2)\n#: E231\na[b1,:]\n#: E231\na = [{'a':''}]\n#: Okay\na = (4,)\nb = (5, )\nc = {'text': text[5:]}\n\nresult = {\n    'key1': 'value',\n    'key2': 'value',\n}\n"
+   },
+   "id": "fixture-e23",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E24.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E24.py": "#: E241\na = (1,  2)\n#: Okay\nb = (1, 20)\n#: E242\na = (1,\t2)  # tab before 2\n#: Okay\nb = (1, 20)  # space before 20\n#: E241 E241 E241\n# issue 135\nmore_spaces = [a,    b,\n               ef,  +h,\n               c,   -d]\n"
+   },
+   "id": "fixture-e24",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E25.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E25.py": "#: E251 E251\ndef foo(bar = False):\n    '''Test function with an error in declaration'''\n    pass\n#: E251\nfoo(bar= True)\n#: E251\nfoo(bar =True)\n#: E251 E251\nfoo(bar = True)\n#: E251\ny = bar(root= \"sdasd\")\n#: E251:2:29\nparser.add_argument('--long-option',\n                    default=\n                    \"/rather/long/filesystem/path/here/blah/blah/blah\")\n#: E251:1:45\nparser.add_argument('--long-option', default\n                    =\"/rather/long/filesystem/path/here/blah/blah/blah\")\n#: E251:3:8 E251:3:10\nfoo(True,\n    baz=(1, 2),\n    biz = 'foo'\n    )\n#: Okay\nfoo(bar=(1 == 1))\nfoo(bar=(1 != 1))\nfoo(bar=(1 >= 1))\nfoo(bar=(1 <= 1))\n(options, args) = parser.parse_args()\nd[type(None)] = _deepcopy_atomic\n\n# Annotated Function Definitions\n#: Okay\ndef munge(input: AnyStr, sep: AnyStr = None, limit=1000,\n          extra: Union[str, dict] = None) -> AnyStr:\n    pass\n#: Okay\nasync def add(a: int = 0, b: int = 0) -> int:\n    return a + b\n"
+   },
+   "id": "fixture-e25",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E26.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E26.py": "#: E261:1:5\npass # an inline comment\n#: E262:1:12\nx = x + 1  #Increment x\n#: E262:1:12\nx = x + 1  #  Increment x\n#: E262:1:12\nx = y + 1  #:  Increment x\n#: E265:1:1\n#Block comment\na = 1\n#: E265:2:1\nm = 42\n#! This is important\nmx = 42 - 42\n#: E266:3:5 E266:6:5\ndef how_it_feel(r):\n\n    ### This is a variable ###\n    a = 42\n\n    ### Of course it is unused\n    return\n#: E265:1:1 E266:2:1\n##if DEBUG:\n##    logging.error()\n#: W291:1:42\n######################################### \n#:\n\n#: Okay\n#!/usr/bin/env python\n\npass  # an inline comment\nx = x + 1   # Increment x\ny = y + 1   #: Increment x\n\n# Block comment\na = 1\n\n"
+   },
+   "id": "fixture-e26",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E27.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E27.py": "#: Okay\nTrue and False\n#: E271\nTrue and  False\n#: E272\nTrue  and False\n#: E271\nif   1:\n#: E273\nTrue and\t\tFalse\n#: E273 E274\nTrue\t\tand\tFalse\n#: E271\na and  b\n#: E271\n1 and  b\n#: E271\na and  2\n#: E271 E272\n1  and  b\n#: E271 E272\na  and  2\n#: E272\nthis  and False\n#: E273\na and\tb\n#: E274\na\t\tand b\n#: E273 E274\nthis\t\tand\tFalse\n#: Okay\nfrom u import (a, b)\nfrom v import c, d\n#: E271\nfrom w import  (e, f)\n#: E275\nfrom w import(e, f)\n#: E275\nfrom importable.module import(e, f)\n#: E275\n"
+   },
+   "id": "fixture-e27",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E30.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E30.py": "#: E301:5:5\nclass X:\n\n    def a():\n        pass\n    def b():\n        pass\n#: E301:6:5\nclass X:\n\n    def a():\n        pass\n    # comment\n    def b():\n        pass\n#:\n\n\n#: E302:2:1\n\"\"\"Main module.\"\"\"\ndef _main():\n    pass\n#: E302:2:1\nimport sys\ndef get_sys_path():\n    return sys.path\n#: E302:4:1\ndef a():\n    pass\n\ndef b():\n    pass\n#: E302:6:1\ndef a():\n    pass\n\n# comment\n\ndef b():\n    pass\n"
+   },
+   "id": "fixture-e30",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E30not.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E30not.py": "#: Okay\nclass X:\n    pass\n#: Okay\n\ndef foo():\n    pass\n#: Okay\n# -*- coding: utf-8 -*-\nclass X:\n    pass\n#: Okay\n# -*- coding: utf-8 -*-\ndef foo():\n    pass\n#: Okay\nclass X:\n\n    def a():\n        pass\n\n    # comment\n    def b():\n        pass\n\n    # This is a\n    # ... multi-line comment\n\n    def c():\n        pass\n\n\n# This is a\n# ... multi-line comment\n\n@some_decorator\nclass Y:\n\n    def a():\n        pass\n"
+   },
+   "id": "fixture-e30not",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E40.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E40.py": "#: E401\nimport os, sys\n#: Okay\nimport os\nimport sys\n\nfrom subprocess import Popen, PIPE\n\nfrom myclass import MyClass\nfrom foo.bar.yourclass import YourClass\n\nimport myclass\nimport foo.bar.yourclass\n#: Okay\n__all__ = ['abc']\n\nimport foo\n#: Okay\n__version__ = \"42\"\n\nimport foo\n#: Okay\n__author__ = \"Simon Gomizelj\"\n\nimport foo\n#: Okay\ntry:\n    import foo\nexcept ImportError:\n    pass\nelse:\n    print('imported foo')\nfinally:\n    print('made attempt to import foo')\n\nimport bar\n#: Okay\nwith warnings.catch_warnings():\n    warnings.filterwarnings(\"ignore\", DeprecationWarning)\n    import foo\n"
+   },
+   "id": "fixture-e40",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E50.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E50.py": "#: E501\na = '12345678901234567890123456789012345678901234567890123456789012345678901234567890'\n#: E501\na = '1234567890123456789012345678901234567890123456789012345678901234567890' or \\\n    6\n#: E501\na = 7 or \\\n    '1234567890123456789012345678901234567890123456789012345678901234567890' or \\\n    6\n#: E501 E501\na = 7 or \\\n    '1234567890123456789012345678901234567890123456789012345678901234567890' or \\\n    '1234567890123456789012345678901234567890123456789012345678901234567890' or \\\n    6\n#: E501\na = '1234567890123456789012345678901234567890123456789012345678901234567890'  # \\\n#: E502\na = ('123456789012345678901234567890123456789012345678901234567890123456789'  \\\n     '01234567890')\n#: E502\na = ('AAA  \\\n      BBB' \\\n     'CCC')\n#: E502\nif (foo is None and bar is \"e000\" and \\\n        blah == 'yeah'):\n    blah = 'yeahnah'\n#: E502 W503 W503\ny = (\n    2 + 2  # \\\n    + 3  # \\\n    + 4 \\\n    + 3\n)\n#\n#: Okay\na = ('AAA'\n     'BBB')\n\na = ('AAA  \\\n"
+   },
+   "id": "fixture-e50",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E70.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E70.py": "#: E701:1:5\nif a: a = False\n#: E701:1:40\nif not header or header[:6] != 'bytes=': return\n#: E702:1:10\na = False; b = True\n#: E702:1:17\nimport bdist_egg; bdist_egg.write_safety_flag(cmd.egg_info, safe)\n#: E703:1:13\nimport shlex;\n#: E702:1:9 E703:1:23\ndel a[:]; a.append(42);\n#: E704:1:1\ndef f(x): return 2\n#: E704:1:1\nasync def f(x): return 2\n#: E704:1:1 E271:1:6\nasync  def f(x): return 2\n#: E704:1:1 E226:1:19\ndef f(x): return 2*x\n#: E704:2:5 E226:2:23\nwhile all is round:\n    def f(x): return 2*x\n#:\n"
+   },
+   "id": "fixture-e70",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E71.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E71.py": "#: E711\nif res == None:\n    pass\n#: E711\nif res != None:\n    pass\n#: E711\nif None == res:\n    pass\n#: E711\nif None != res:\n    pass\n#: E711\nif res[1] == None:\n    pass\n#: E711\nif res[1] != None:\n    pass\n#: E711\nif None != res[1]:\n    pass\n#: E711\nif None == res[1]:\n    pass\n\n#\n#: E712\nif res == True:\n    pass\n#: E712\nif res != False:\n    pass\n#: E712\nif True != res:\n    pass\n#: E712\nif False == res:\n    pass\n#: E712\nif res[1] == True:\n"
+   },
+   "id": "fixture-e71",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E72.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E72.py": "#: E721\nif type(res) == type(42):\n    pass\n#: E721\nif type(res) != type(\"\"):\n    pass\n#: Okay\nres.type(\"\") == \"\"\n#: Okay\nimport types\n\nif res == types.IntType:\n    pass\n#: Okay\nimport types\n\nif type(res) is not types.ListType:\n    pass\n#: E721\nassert type(res) == type(False) or type(res) == type(None)\n#: E721\nassert type(res) == type([])\n#: E721\nassert type(res) == type(())\n#: E721\nassert type(res) == type((0,))\n#: E721\nassert type(res) == type((0))\n#: E721\nassert type(res) != type((1, ))\n#: Okay\nassert type(res) is type((1, ))\n#: Okay\nassert type(res) is not type((1, ))\n#: E211 E721\nassert type(res) == type ([2, ])\n#: E201 E201 E202 E721\nassert type(res) == type( ( ) )\n#: E201 E202 E721\nassert type(res) == type( (0, ) )\n"
+   },
+   "id": "fixture-e72",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E73.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E73.py": "#: E731:1:1\nf = lambda x: 2 * x\n#: E731:1:1 E226:1:16\nf = lambda x: 2*x\n#: E731:2:5\nwhile False:\n    this = lambda y, z: 2 * x\n#: Okay\nf = object()\nf.method = lambda: 'Method'\n\nf = {}\nf['a'] = lambda x: x ** 2\n\nf = []\nf.append(lambda x: x ** 2)\n\nlambda: 'no-op'\n"
+   },
+   "id": "fixture-e73",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E74.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E74.py": "#: E741:1:8\nlambda l: dict(zip(l, range(len(l))))\n#: E741:1:7 E704:1:1\ndef f(l): print(l, l, l)\n#: E741:2:12\nx = (\n    lambda l: dict(zip(l, range(len(l)))),\n)\n#: E741:2:12 E741:3:12\nx = (\n    lambda l: dict(zip(l, range(len(l)))),\n    lambda l: dict(zip(l, range(len(l)))),\n)\n"
+   },
+   "id": "fixture-e74",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E90.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E90.py": "#: E901\n= [x\n#: E901 E101 W191\nwhile True:\n    try:\n\t    pass\n\texcept:\n\t\tprint 'Whoops'\n#: Okay\n\n# Issue #119\n# Do not crash with Python2 if the line endswith '\\r\\r\\n'\nEMPTY_SET = set()\nSET_TYPE = type(EMPTY_SET)\n\ntoto = 0 + 0\n#:\n"
+   },
+   "id": "fixture-e90",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "latin-1.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "latin-1.py": "# -*- coding: latin-1 -*-\n# Test non-UTF8 encoding\nlatin1 = ('\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd'\n          '\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd')\n\nc = (\"w\ufffd\")\n"
+   },
+   "id": "fixture-latin-1",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "noqa.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "noqa.py": "#: Okay\n# silence E501\nurl = 'https://api.github.com/repos/sigmavirus24/Todo.txt-python/branches/master?client_id=xxxxxxxxxxxxxxxxxxxxxxxxxxxx&?client_secret=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'  # noqa\n\n# silence E128\nfrom functools import (partial, reduce, wraps,  # noqa\n    cmp_to_key)\n\nfrom functools import (partial, reduce, wraps,\n    cmp_to_key)   # noqa\n\na = 1\nif a == None:   # noqa\n    pass\n\n# should silence E501\ns = f'''\nloong {y} looooooooooooooong loooooooooooooong looooooooong loooooooong looooooooong\n{x}\n'''  # noqa\n#:\n"
+   },
+   "id": "fixture-noqa",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "python3.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "python3.py": "#!/usr/bin/env python3\nfrom typing import ClassVar, List\n\n\n# Annotated function (Issue #29)\ndef foo(x: int) -> int:\n    return x + 1\n\n\n# Annotated variables #575\nCONST: int = 42\nmatch: int = 42\ncase: int = 42\n\n\nclass Class:\n    # Camel-caes\n    cls_var: ClassVar[str]\n    for_var: ClassVar[str]\n    while_var: ClassVar[str]\n    def_var: ClassVar[str]\n    if_var: ClassVar[str]\n    elif_var: ClassVar[str]\n    else_var: ClassVar[str]\n    try_var: ClassVar[str]\n    except_var: ClassVar[str]\n    finally_var: ClassVar[str]\n    with_var: ClassVar[str]\n    forVar: ClassVar[str]\n    whileVar: ClassVar[str]\n    defVar: ClassVar[str]\n    ifVar: ClassVar[str]\n    elifVar: ClassVar[str]\n    elseVar: ClassVar[str]\n    tryVar: ClassVar[str]\n    exceptVar: ClassVar[str]\n    finallyVar: ClassVar[str]\n    withVar: ClassVar[str]\n\n    def m(self):\n"
+   },
+   "id": "fixture-python3",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "python310.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "python310.py": "#: Okay\nvar, var2 = 1, 2\nmatch (var, var2):\n    case [2, 3]:\n        pass\n    case (1, 2):\n        pass\n    case _:\n        print(\"Default\")\n#: Okay\nvar = 0, 1, 2\nmatch var:\n    case *_, 1, 2:\n        pass\n    case 0, *_, 2:\n        pass\n    case 0, 1, *_:\n        pass\n    case (*_, 1, 2):\n        pass\n    case (0, *_, 2):\n        pass\n    case (0, 1, *_):\n        pass\n"
+   },
+   "id": "fixture-python310",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "python311.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "python311.py": "#: Okay\ntry:\n    ...\nexcept* OSError as e:\n    pass\n#: Okay\nfrom typing import Generic\nfrom typing import TypeVarTuple\n\n\nTs = TypeVarTuple('Ts')\n\n\nclass Shape(Generic[*Ts]):\n    pass\n\n\ndef f(*args: *Ts) -> None:\n    ...\n\n\ndef g(x: Shape[*Ts]) -> Shape[*Ts]:\n    ...\n"
+   },
+   "id": "fixture-python311",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "python312.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "python312.py": "#: Okay\n# https://github.com/python/cpython/issues/90432: fixed in 3.12\ndef foo():\n    pas\n\n\\\n\ndef bar():\n    pass\n#: Okay\n# new type aliases\ntype X = int | str\ntype Y[T] = list[T]\ntype Z[T: str] = list[T]\n#: Okay\n# new generics\ndef f[T](x: T) -> T:\n    pass\n\n\ndef g[T: str, U: int](x: T, y: U) -> dict[T, U]:\n    pass\n#: Okay\n# new nested f-strings\nf'{\n    thing\n} {f'{other} {thing}'}'\n#: E201:1:4 E202:1:17\nf'{ an_error_now }'\n#: Okay\nf'{x:02x}'\n"
+   },
+   "id": "fixture-python312",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "python313.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "python313.py": "type Alias[T: (int, str) = str] = list[T]\ntype Alias2[T = str] = list[T]\n\n\nclass C[T: (int, str) = str]:\n    pass\n\n\nclass C2[T = str]:\n    pass\n\n\nclass C3[T, U: str = str]:\n    pass\n\n\ndef f[T: (int, str) = str](t: T) -> T:\n    pass\n\n\ndef f2[T = str](t: T) -> T:\n    pass\n"
+   },
+   "id": "fixture-python313",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "python314.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "python314.py": "#: Okay\ntry:\n    raise AssertionError('hi')\nexcept AssertionError, ValueError:\n    pass\n\nt'hello {world}'\nt'{hello}:{world}'\nt'in{x}'\nt'hello{world=}'\n#: Okay\n# new nested f-strings\nt'{\n    thing\n} {t'{other} {thing}'}'\n#: E201:1:4 E202:1:17\nt'{ an_error_now }'\n#: Okay\nt'{x:02x}'\n"
+   },
+   "id": "fixture-python314",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "python315.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "python315.py": "import os\nlazy from typing import LiteralString\nimport sys\nlazy import asyncio\n\n[*y for y in x]\n{*y for y in x}\n(*y for y in x)\n{**y for y in x}\n"
+   },
+   "id": "fixture-python315",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "python35.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "python35.py": "#: E225\ndef bar(a, b)->int:\n    pass\n#: Okay\ndef baz(a, b) -> int:\n    pass\n"
+   },
+   "id": "fixture-python35",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "python36.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "python36.py": "#: Okay\nf'{hello}:{world}'\nf'in{x}'\n"
+   },
+   "id": "fixture-python36",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "python38.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "python38.py": "#: Okay\ndef f1(a, /, b):\n    pass\n\n\ndef f2(a, b, /):\n    pass\n\n\ndef f3(\n        a,\n        /,\n        b,\n):\n    pass\n\n\nlambda a, /: None\n#: Okay\nif x := 1:\n    print(x)\nif m and (token := m.group(1)):\n    pass\nstuff = [[y := f(x), x / y] for x in range(5)]\n#: E225:1:5\nif x:= 1:\n    pass\n#: E225:1:18\nif False or (x :=1):\n    pass\n#: Okay\nimport typing as t\n\n__all__: t.List[str] = []\n\nimport logging\n\nlogging.getLogger(__name__)\n#: E402\nimport typing as t\n"
+   },
+   "id": "fixture-python38",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "python39.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "python39.py": "#: W292:1:70 noeol\n# This line doesn't have a linefeed (in 3.8 this is reported thrice!)\n"
+   },
+   "id": "fixture-python39",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "utf-8-bom.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "utf-8-bom.py": "\ufeff#!/usr/bin/env python\n# -*- coding: utf-8 -*-\n\nhello = '\u3053\u3093\u306b\u3061\u308f'\n\n# EOF\n"
+   },
+   "id": "fixture-utf-8-bom",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "utf-8.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "utf-8.py": "# -*- coding: utf-8 -*-\n\n# Some random text with multi-byte characters (utf-8 encoded)\n#\n# \u0395\u03b4\u03ce \u03bc\u03ac\u03c4\u03c3\u03bf \u03ba\u03b5\u03b9\u03bc\u03ad\u03bd\u03c9\u03bd \u03c4\u03b7, \u03c4\u03c1\u03cc\u03c0\u03bf \u03c0\u03b9\u03b8\u03b1\u03bd\u03cc \u03b4\u03b9\u03b5\u03c5\u03b8\u03c5\u03bd\u03c4\u03ad\u03c2 \u03ce\u03c1\u03b1 \u03bc\u03b7. \u039d\u03ad\u03c9\u03bd \u03b1\u03c0\u03bb\u03cc \u03c0 \u03c1\u03bf\u03ae\n# \u03ba\u03b9, \u03c4\u03bf \u03b5\u03c0\u03af \u03b4\u03b5\u03b4\u03bf\u03bc\u03ad\u03bd\u03b7 \u03ba\u03b1\u03b8\u03bf\u03c1\u03af\u03b6\u03bf\u03c5\u03bd. \u03a0\u03ac\u03bd\u03c4\u03c9\u03c2 \u03b6\u03b7\u03c4\u03ae\u03c3\u03b5\u03b9\u03c2 \u03c0\u03b5\u03c1\u03b9\u03b2\u03ac\u03bb\u03bb\u03bf\u03bd\u03c4\u03bf\u03c2 \u03ad\u03bd\u03b1 \u03bc\u03b5,\n# \u03be\u03ad\u03c7\u03b1\u03c3\u03b5 \u03b1\u03c1\u03c0\u03ac\u03b6\u03b5\u03b9\u03c2 \u03c6\u03b1\u03b9\u03bd\u03cc\u03bc\u03b5\u03bd\u03bf \u03cc\u03bb\u03b7. \u03a4\u03c1\u03ad\u03be\u03b5\u03b9 \u03b5\u03c3\u03c6\u03b1\u03bb\u03bc\u03ad\u03bd\u03b7 \u03c7\u03c1\u03b7\u03c3\u03b9\u03bc\u03bf\u03c0\u03bf\u03af\u03b7\u03c3\u03ad \u03bd\u03ad\u03b1 \u03c4\u03b9.\n# \u03c0\u03b5\u03c4\u03ac\u03bd\u03b5 \u03c6\u03b1\u03ba\u03ad\u03bb\u03bf\u03c5\u03c2, \u03ac\u03c1\u03b1 \u03bc\u03b5 \u03b4\u03b9\u03b1\u03ba\u03bf\u03c0\u03ae\u03c2 \u03bb\u03b1\u03bc\u03b2\u03ac\u03bd\u03bf\u03c5\u03bd \u03b5\u03c6\u03b1\u03bc\u03bf\u03c1\u03b3\u03ae\u03c2. \u039b\u03b5\u03c2 \u03ba\u03b9 \u03bc\u03b5\u03b9\u03ce\u03c3\u03b5\u03b9\n# \u03ba\u03b1\u03b8\u03c5\u03c3\u03c4\u03b5\u03c1\u03b5\u03af.\n\n# 79 narrow chars\n# 01 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3[79]\n\n# 78 narrow chars (Na) + 1 wide char (W)\n# 01 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 \u60c5\n\n# 3 narrow chars (Na) + 40 wide chars (W)\n# \u60c5 \u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\n\n# 3 narrow chars (Na) + 69 wide chars (W)\n# \u60c5 \u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\n\n#\n#: E501 W505\n# 80 narrow chars (Na)\n# 01 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6  [80]\n#\n#: E501 W505\n# 78 narrow chars (Na) + 2 wide char (W)\n# 01 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8\u60c5\u60c5\n#\n#: E501 W505\n# 3 narrow chars (Na) + 77 wide chars (W)\n# \u60c5 \u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\n#\n"
+   },
+   "id": "fixture-utf-8",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "W19.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "W19.py": "#: W191\nif False:\n\tprint  # indented with 1 tab\n#:\n\n\n#: W191\ny = x == 2 \\\n\tor x == 3\n#: E101 W191 W504\nif (\n        x == (\n            3\n        ) or\n        y == 4):\n\tpass\n#: E101 W191\nif x == 2 \\\n    or y > 1 \\\n        or x == 3:\n\tpass\n#: E101 W191\nif x == 2 \\\n        or y > 1 \\\n        or x == 3:\n\tpass\n#:\n\n#: E101 W191 W504\nif (foo == bar and\n        baz == frop):\n\tpass\n#: E101 W191 W504\nif (\n    foo == bar and\n    baz == frop\n):\n\tpass\n#:\n\n"
+   },
+   "id": "fixture-w19",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "W29.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "W29.py": "#: Okay\n# \u60c5\n#: W291:1:6\nprint \n#: W293:2:1\nclass Foo(object):\n    \n    bang = 12\n#: W291:2:35\n'''multiline\nstring with trailing whitespace'''   \n#: W291 W292 noeol\nx = 1   \n#: W191 W292 noeol\nif False:\n\tpass  # indented with tabs\n#: W292:1:5 E225:1:2 noeol\n1+ 1\n#: W292:1:27 E261:1:12 noeol\nimport this # no line feed\n#: W292:3:22 noeol\nclass Test(object):\n    def __repr__(self):\n        return 'test'\n"
+   },
+   "id": "fixture-w29",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "W39.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "W39.py": "#: W391:2:1\n# The next line is blank\n\n#: W391:3:1\n# Two additional empty lines\n\n\n#: W292:4:5 W293:3:1 W293:4:1 noeol\n# The last lines contain space\n\n    \n    \n#: Okay\n'''there is nothing wrong\nwith a multiline string at EOF\n\nthat happens to have a blank line in it\n'''\n"
+   },
+   "id": "fixture-w39",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "W60.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "W60.py": "#: W605:1:10\nregex = '\\.png$'\n#: W605:2:1\nregex = '''\n\\.png$\n'''\n#: W605:2:6\nf(\n    '\\_'\n)\n#: W605:4:6\n\"\"\"\nmulti-line\nliteral\nwith \\_ somewhere\nin the middle\n\"\"\"\n#: W605:1:3\nf\"\\d\"\n#: Okay\nregex = r'\\.png$'\nregex = '\\\\.png$'\nregex = r'''\n\\.png$\n'''\nregex = r'''\n\\\\.png$\n'''\ns = '\\\\'\nregex = '\\w'  # noqa\nregex = '''\n\\w\n'''  # noqa\n"
+   },
+   "id": "fixture-w60",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--help"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {},
+   "id": "probe-help",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/long-help",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--version"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {},
+   "id": "probe-version",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/version",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--max-line-len=79",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x = 1\n"
+   },
+   "id": "probe-abbreviation",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/abbreviated-long-option",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--",
+    "--not-an-option.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "--not-an-option.py": "x=1\n"
+   },
+   "id": "probe-separator",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/double-dash-then-filename",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--max-line-length=-1",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x = 1\n"
+   },
+   "id": "probe-negative",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/negative-number-as-value",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--select=E1",
+    "--select=E2",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x=1\ny =2\n"
+   },
+   "id": "probe-repeat",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/repeated-option-last-wins",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "-qq",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x=1\n"
+   },
+   "id": "probe-cluster",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/clustered-short-flags",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--format=not-a-format",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x = 1\n"
+   },
+   "id": "probe-invalid-choice",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/invalid-value-for-choice",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--max-line-length=abc",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x = 1\n"
+   },
+   "id": "probe-int-error",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/non-integer-where-int-expected",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x=1\n"
+   },
+   "id": "probe-defaults",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/no-options-default-behaviour",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "-"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {},
+   "id": "probe-stdin",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/dash-reads-stdin",
+   "stdin": "x=1\n"
+  },
+  {
+   "args": [],
+   "argv": [
+    "--no-such-option",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x = 1\n"
+   },
+   "id": "probe-unknown",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/unknown-option",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "absent.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {},
+   "id": "probe-missing-file",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/file-does-not-exist",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--max-blank-lines=0",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x = 1\n\n\ny = 2\n"
+   },
+   "id": "probe-blank-lines",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/max-blank-lines",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--indent-size=3",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "if True:\n   x = 1\n"
+   },
+   "id": "probe-indent",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/indent-size",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--max-doc-length=20",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "\"\"\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"\"\"\n"
+   },
+   "id": "probe-doc-length",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/max-doc-length",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--statistics",
+    "--count",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x=1\ny=2\n"
+   },
+   "id": "probe-statistics",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/statistics-and-count",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--benchmark",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x = 1\n"
+   },
+   "id": "probe-benchmark",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/declared-unstable-benchmark",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--jobs=1",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x = 1\n"
+   },
+   "id": "probe-jobs",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/declared-unordered-jobs",
+   "stdin": ""
+  }
+ ],
+ "counts_by_source": {
+  "fixtures": 42,
+  "probes": 19
+ },
+ "excerpt": "first 40 lines",
+ "inputs_only": "expected codes in the data files are never read",
+ "kind": "cli",
+ "schema": "harness-cases/1",
+ "source_tree": "https://codeload.github.com/PyCQA/pycodestyle/tar.gz/refs/tags/2.15.0",
+ "source_tree_sha256": "3cb6afba1667f13b4ca7884154299108ef8e633a36526e29412a5cec7b5db4bd",
+ "target": "pycodestyle 2.15.0"
+}

@@ -77,8 +77,55 @@ def test_a_hostile_target_is_contained_and_recorded(tmp_path: Path) -> None:
     assert outcome["write"] != "wrote", outcome
     assert outcome["net"] != "connected", outcome
     assert outcome["fork"] != "forked", outcome
+    # Evidence that the cgroup pids limit is what stopped it: some children were
+    # created, and far fewer than the 200 the loop asked for.
+    assert 0 < outcome["forks_created"] < 200, outcome
     # And the workspace is the container's tmpfs, not a host path.
     assert outcome["workdir"] == "/workspace"
+
+
+def test_a_target_that_sigkills_itself_is_a_behaviour_not_a_resource_kill(
+    tmp_path: Path,
+) -> None:
+    """137 with a readable zero oom count is the target's own doing.
+
+    Inside the container the cgroup counter is readable, so the ladder decides:
+    a self-kill is recorded as `ProcessSignal` and compared, which is what makes
+    "old returned, new SIGKILLs itself" a difference rather than an excuse.
+    """
+    import docker
+
+    from harness.sandbox_transport import DockerExecutor
+
+    checkout = tmp_path / "target"
+    checkout.mkdir()
+    (checkout / "suicide.py").write_text(
+        "import os, signal" + chr(10) + chr(10)
+        + "def die(_x):" + chr(10)
+        + "    os.kill(os.getpid(), signal.SIGKILL)" + chr(10),
+        encoding="utf-8",
+    )
+    cases = [Case(id="0001-die", source="suicide", entry="die", args=(0,))]
+    result = run_pass(
+        python=sys.executable,
+        checkout=checkout,
+        shim_dir=determinism.write_shim(tmp_path / "shim"),
+        src_dir=REPO / "src",
+        target_paths=[checkout],
+        cases=cases,
+        index=1,
+        module="suicide",
+        workdir=tmp_path / "work",
+        case_budget_seconds=60.0,
+        expected_case_set_hash=case_set_hash(cases),
+        executor=DockerExecutor(docker.from_env(), "python:3.12-slim"),
+    )
+    observation = result.by_case()["0001-die"]  # type: ignore[attr-defined]
+    assert observation.outcome == "exception", observation.exception
+    process = observation.exception["__process__"]
+    assert process["kind"] == "ProcessSignal"
+    assert process["signal_name"] == "SIGKILL"
+    assert process["oom_counter"] == 0
 
 
 def test_observations_survive_a_payload_killed_by_its_budget(tmp_path: Path) -> None:

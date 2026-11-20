@@ -12,6 +12,9 @@ import time
 
 def escape(_arg):
     outcome = {"workdir": os.getcwd()}
+    # Reported as evidence: the count proves pids_limit is what stopped the storm,
+    # rather than the loop having finished early.
+    outcome["forks_created"] = 0
 
     try:
         with open("/etc/harness-escape", "w", encoding="utf-8") as handle:
@@ -36,9 +39,11 @@ def escape(_arg):
                 time.sleep(5)
                 os._exit(0)
             children.append(pid)
+            outcome["forks_created"] = len(children)
         outcome["fork"] = "forked"
     except OSError as exc:
         outcome["fork"] = type(exc).__name__
+        outcome["forks_created"] = len(children)
     for pid in children:
         try:
             os.waitpid(pid, 0)

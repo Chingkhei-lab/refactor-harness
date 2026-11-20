@@ -266,3 +266,32 @@ def test_a_shell_reported_signal_classifies_like_a_negative_returncode() -> None
         assert process["kind"] == kind, (returncode, process)
         assert process["signal_name"] == signal_name, (returncode, process)
         assert observation.outcome == "unsupported"
+
+
+def test_sigkill_is_decided_by_the_cgroup_evidence_not_by_the_number() -> None:
+    """137 is ambiguous: the counter decides, and a readable zero means "self".
+
+    The Phase 3 runner's ladder, applied to the harness: a positive oom_kill
+    count is a resource kill (the limits), a readable zero is the target killing
+    itself (a behaviour, so it is compared), and no evidence falls back to the
+    documented resource-kill reading.
+    """
+    from harness.runner import _death_observation
+
+    case = Case(id="0001", source="x", entry="e", args=())
+    cases = [
+        (137, None, "ResourceKill", "unsupported"),
+        (137, 0, "ProcessSignal", "exception"),
+        (137, 3, "ResourceKill", "unsupported"),
+        (-9, 0, "ProcessSignal", "exception"),
+        (-9, 1, "ResourceKill", "unsupported"),
+    ]
+    for returncode, counter, kind, outcome in cases:
+        observation = _death_observation(case, returncode, "", oom_counter=counter)
+        process = observation.exception["__process__"]
+        assert (process["kind"], observation.outcome) == (kind, outcome), (
+            returncode,
+            counter,
+            process,
+        )
+        assert process["oom_counter"] == counter

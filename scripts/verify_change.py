@@ -31,6 +31,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(_REPO_ROOT / "src"))
 
 from harness import determinism  # noqa: E402
+from harness.approvals import apply_approvals, load_approvals  # noqa: E402
 from harness.cases import Case, case_set_hash, counts_by_source, load_cases  # noqa: E402
 from harness.compare import CLASS_FLAKY, compare_sets, summarise  # noqa: E402
 from harness.observation import OBSERVATION_SCHEMA_VERSION  # noqa: E402
@@ -84,6 +85,7 @@ def verify(
     coverage: bool,
     cpu_budget_seconds: float = 0.0,
     label: str = "",
+    approvals_path: Path | None = None,
 ) -> dict[str, Any]:
     cases = load_cases(cases_path)
     set_hash = case_set_hash(cases)
@@ -166,6 +168,48 @@ def verify(
         "observation_schema_version": OBSERVATION_SCHEMA_VERSION,
         "rounds": len(pairs),
     }
+    # Approvals are applied to the observed differences last, so a difference is
+    # `different` unless a human accepted *that* diff. An approval never turns a
+    # difference into an `equivalent`: the two versions really did differ.
+    difference_records = [
+        {"case_id": verdict.case_id, "path": verdict.path,
+         "left": verdict.left, "right": verdict.right}
+        for verdict in verdicts
+        if verdict.report_class == "different"
+    ]
+    approved: list[dict[str, Any]] = []
+    stale: list[dict[str, Any]] = []
+    unapproved: list[dict[str, Any]] = difference_records
+    approvals_meta: dict[str, Any] = {"path": None, "sha256": None, "count": 0}
+    if approvals_path is not None and approvals_path.exists():
+        approvals = load_approvals(approvals_path)
+        applied = apply_approvals(approvals, difference_records)
+        approved = applied.approved
+        stale = applied.stale
+        unapproved = [
+            item for item in difference_records
+            if not any(
+                item["case_id"] == a["case_id"] and item["path"] == a["path"]
+                for a in approved
+            )
+        ]
+        approvals_meta = {
+            "path": str(approvals_path),
+            "sha256": approvals.sha256,
+            "count": len(approvals.approvals),
+            "target": approvals.target,
+            "stale": stale,
+            "matched_nothing": [
+                item for item in applied.unmatched if item.get("note")
+            ],
+        }
+    report["approvals"] = approvals_meta
+    report["approved_differences"] = approved
+    report["unapproved_differences"] = unapproved
+    report["summary"]["different_approved"] = len(approved)
+    report["summary"]["different_unapproved"] = len(unapproved)
+    report["summary"]["approvals_stale"] = len(stale)
+
     out_dir.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(UTC).strftime("%Y%m%d")
     slug = f"verify-change-{module}-{stamp}" + (f"-{label}" if label else "")
@@ -217,6 +261,28 @@ def _write_markdown(path: Path, report: dict[str, Any]) -> None:
             )
     else:
         lines.append("No case differed.")
+    lines += ["", "## Approved differences (different, and accepted as such)", ""]
+    approved = report.get("approved_differences") or []
+    if approved:
+        lines += ["| Case | Path | Reviewer | Reason |", "| --- | --- | --- | --- |"]
+        for item in approved:
+            lines.append(
+                f"| `{item['case_id']}` | `{item['path']}` | {item['reviewer']} | "
+                f"{item['reason']} |"
+            )
+    else:
+        lines.append("None: every difference is unapproved.")
+    if report.get("approvals", {}).get("stale"):
+        lines += [
+            "",
+            "**Stale approvals** (recorded diff no longer matches; counted as different):",
+            "",
+        ]
+        lines += [
+            f"- `{item['case_id']}` `{item['path']}`: expected `{item['expected'][:12]}`, "
+            f"observed `{item['observed'][:12]}`"
+            for item in report["approvals"]["stale"]
+        ]
     lines += ["", "## Unsupported (counted with unsupported, reasons listed)", ""]
     lines.append(
         "\n".join(f"- `{item['case_id']}`: {item['reason']}" for item in report["unsupported"])
@@ -236,11 +302,13 @@ def _write_markdown(path: Path, report: dict[str, Any]) -> None:
         for rule_id, stat in sorted(report["rules_usage"].items()):
             delta = stat["max_delta"]
             ratio = stat["max_ratio"]
+            tolerance = stat["tolerance"]
+            delta_text = "-" if delta is None else f"{delta:.3g}"
+            tolerance_text = "-" if tolerance is None else f"{tolerance:.3g}"
+            ratio_text = "-" if ratio is None else f"{ratio:.1%}"
             lines.append(
                 f"| `{rule_id}` | {stat['type']} | {stat['matched']} | "
-                f"{'-' if delta is None else f'{delta:.3g}'} | "
-                f"{'-' if stat['tolerance'] is None else f'{stat['tolerance']:.3g}'} | "
-                f"{'-' if ratio is None else f'{ratio:.1%}'} |"
+                f"{delta_text} | {tolerance_text} | {ratio_text} |"
             )
     if report["summary"].get("flaky_cases"):
         lines += ["", "## Flaky cases (a case that disagrees with itself)", ""]
@@ -258,6 +326,8 @@ def main() -> int:
     parser.add_argument("--out", default="docs/results")
     parser.add_argument("--coverage", action="store_true")
     parser.add_argument("--label", default="", help="suffix for the report file name")
+    parser.add_argument("--approvals", default="",
+                        help="approvals file (default harness/approvals/<module>.json)")
     parser.add_argument("--cpu-budget", type=float, default=0.0,
                         help="CPU seconds per case (POSIX); 0 disables")
     args = parser.parse_args()
@@ -277,6 +347,9 @@ def main() -> int:
         coverage=args.coverage,
         cpu_budget_seconds=args.cpu_budget,
         label=args.label,
+        approvals_path=Path(args.approvals).resolve() if args.approvals else (
+            _REPO_ROOT / "harness" / "approvals" / f"{args.module}.json"
+        ),
     )
     print(json.dumps(report["summary"], indent=2, sort_keys=True))
     return 0

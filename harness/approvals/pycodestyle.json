@@ -1,0 +1,47 @@
+{
+  "schema": "harness-approvals/1",
+  "target": "pycodestyle 2.15.0",
+  "note": "Approved differences for the optparse->argparse migration: parser text only. Approval is bound to the observed diff; a changed diff is stale and goes back to `different`. Nothing here is counted as `equivalent`.",
+  "approvals": [
+    {
+      "case_id": "probe-blank-lines",
+      "path": "$.value.stderr",
+      "reason": "same 'unrecognized arguments' wording for an option that does not exist (--max-blank-lines). Exit status is still 2.",
+      "reviewer": "yumkh (maintainer)",
+      "date": "2026-11-20",
+      "sha256": "64e2195adcff582dde97b1400a2e1b3d99901a78cc94280eafb62f6837c8bff8"
+    },
+    {
+      "case_id": "probe-help",
+      "path": "$.value.stdout",
+      "reason": "argparse renders usage/help differently: lower-case 'usage:', a positional-arguments section, and 'options:' instead of 'Options:'. The option set and defaults are unchanged; this is the parser swap showing through and cannot be normalised away without hiding it.",
+      "reviewer": "yumkh (maintainer)",
+      "date": "2026-11-20",
+      "sha256": "505ef1e27c759dcd424ce8a6783f9a3639d94426ea63baf49752809961854e1e"
+    },
+    {
+      "case_id": "probe-int-error",
+      "path": "$.value.stderr",
+      "reason": "argparse words an invalid integer differently: 'argument --max-line-length: invalid int value' rather than 'option ... invalid integer value'. Exit status is still 2 and the offending value is still named.",
+      "reviewer": "yumkh (maintainer)",
+      "date": "2026-11-20",
+      "sha256": "7267dbf5c2e5915daeb69e058f9bf8513baeb0a69be2125f52eb9d8a790bd7db"
+    },
+    {
+      "case_id": "probe-jobs",
+      "path": "$.value.stderr",
+      "reason": "an unsupported option name is now reported by argparse's 'unrecognized arguments' path, which echoes the value too (--jobs=1). Exit status is still 2. This case is declared unordered, so only the error text is compared.",
+      "reviewer": "yumkh (maintainer)",
+      "date": "2026-11-20",
+      "sha256": "29a2f62804bdaf268098ad4947ea6fe90b6d29393d0717a38a06851854009b87"
+    },
+    {
+      "case_id": "probe-unknown",
+      "path": "$.value.stderr",
+      "reason": "argparse reports an unknown long option as 'unrecognized arguments: --no-such-option' instead of 'no such option'. Exit status is still 2.",
+      "reviewer": "yumkh (maintainer)",
+      "date": "2026-11-20",
+      "sha256": "0f2bab29418ef25403f12aeab9741c23a7516e15813124c768b6e77fcaddd509"
+    }
+  ]
+}

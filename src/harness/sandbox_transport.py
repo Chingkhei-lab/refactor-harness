@@ -38,6 +38,8 @@ from engine.sandbox import DockerSandboxAdapter, SandboxLimits, SandboxSpec
 from engine.sandbox import run as sandbox_run
 
 WORKSPACE = "/workspace"
+# The container is always Linux, so its PATH is fixed here and never inherited.
+SANDBOX_PATH = "/usr/local/bin:/usr/bin:/bin"
 PLAN_NAME = "plan.json"
 OUT_NAME = "out.jsonl"
 
@@ -53,6 +55,8 @@ class SandboxOutcome:
     container_id: str | None = None
     duration: float = 0.0
     oom_killed: bool = False
+    # cgroup evidence for a 137 exit: None means "not readable", not "no OOM".
+    oom_counter: int | None = None
     limits_note: str = ""
 
 
@@ -105,7 +109,10 @@ def workspace_files(
         /workspace/checkout/*     the target tree under test
     """
     files: dict[str, bytes] = {}
-    files.update(_tree(src_dir, "src", skip=("__pycache__",)))
+    # Only the harness package is copied in. The engine, migrations and SQL are
+    # not imported by `harness.child`, so sending them is pure copy-in cost on
+    # every mutant — measured as part of the gate's phase breakdown.
+    files.update(_tree(src_dir / "harness", "src/harness", skip=("__pycache__",)))
     files.update(_tree(shim_dir, "shim"))
     files.update(_tree(checkout, "checkout"))
     files[PLAN_NAME] = plan
@@ -135,10 +142,13 @@ def sandbox_env(base_env: dict[str, str]) -> dict[str, str]:
             "LC_ALL",
             "HARNESS_SHIM_DISABLE",
             "PYTHONIOENCODING",
-            "PATH",
         }
     }
-    env.setdefault("PATH", "/usr/local/bin:/usr/bin:/bin")
+    # Override, never default: on a Windows host the base PATH is
+    # `C:\Windows\...`, and handing that to a Linux container makes the
+    # wrapper's own `sleep` unfindable (measured: the container logged
+    # "sleep: not found" and the copy-in tar exited 127).
+    env["PATH"] = SANDBOX_PATH
     env["PYTHONPATH"] = f"{WORKSPACE}/shim:{WORKSPACE}/src:{WORKSPACE}/checkout"
     env["PYTHONDONTWRITEBYTECODE"] = "1"
     env["HOME"] = "/tmp"
@@ -191,6 +201,7 @@ class DockerExecutor:
             container_id=result.container_id,
             duration=round(time.monotonic() - started, 3),
             oom_killed=result.oom_killed,
+            oom_counter=result.oom_counter,
         )
 
 

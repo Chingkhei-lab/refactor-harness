@@ -21,7 +21,11 @@ from __future__ import annotations
 import importlib
 import io
 import json
+import os
+import shutil
 import sys
+import tempfile
+import time
 import traceback
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
@@ -109,6 +113,146 @@ def _reset(shim: Any) -> None:
         reset()
 
 
+# One directory for every CLI case of this pass: it lives inside the pass
+# workdir, so in the sandbox it is the tmpfs and never a host path.
+_CASE_ROOT = Path(tempfile.gettempdir()) / "harness-cli"
+_CLI_TIMEOUT_SECONDS = 60.0
+
+CLI_ENV_ALLOWLIST = (
+    "PATH",
+    "PYTHONPATH",
+    "PYTHONHASHSEED",
+    "TZ",
+    "LANG",
+    "LC_ALL",
+    "PYTHONIOENCODING",
+    "HARNESS_CWD_FIXED",
+    "HARNESS_ENV_SCRUBBED",
+    "HARNESS_SHIM_DISABLE",
+)
+CLI_COLUMNS = "80"
+
+
+def _cli_env(home: Path) -> dict[str, str]:
+    """The environment a CLI case runs under: an allowlist plus fixed knobs.
+
+    `HOME` and `XDG_CONFIG_HOME` point at an empty directory inside the case's own
+    sandbox directory, so a tool that reads user config (pycodestyle reads
+    `~/.pycodestyle` and `$XDG_CONFIG_HOME/pycodestyle`) sees nothing. `COLUMNS`
+    is fixed because help text wraps by terminal width, and stdin is closed so a
+    tool waiting on input fails instead of hanging.
+    """
+    env = {key: os.environ[key] for key in CLI_ENV_ALLOWLIST if key in os.environ}
+    env["HOME"] = str(home)
+    env["XDG_CONFIG_HOME"] = str(home / ".config")
+    env["COLUMNS"] = CLI_COLUMNS
+    env.setdefault("LANG", "C.UTF-8")
+    env["PYTHONIOENCODING"] = "utf-8"
+    env["TMPDIR"] = str(home / "tmp")
+    return env
+
+
+def run_cli_case(
+    case: dict[str, Any],
+    controls: tuple[str, ...],
+    case_set_hash: str,
+    shim: Any,
+) -> Observation:
+    """Run `entry` as a program and observe what a user would see.
+
+    The case gets a fresh working directory with its input files, an empty HOME,
+    no TTY, closed stdin, and a fixed COLUMNS. The observation is a value, not an
+    exception, so it compares through the ordinary machinery: exit status, stdout,
+    stderr, and a manifest of the files the program wrote (relative path, size,
+    sha256). A signal death is part of the value too — for a CLI, "killed by
+    SIGSEGV" is behaviour, not a harness problem.
+    """
+    import subprocess
+
+    entry = case["entry"]
+    # Resolve before chdir: on the host the child's cwd IS the checkout, so a
+    # relative "." is meaningful here and only here.
+    program = Path(entry)
+    if not program.is_absolute():
+        program = Path(case.get("program_root") or ".").resolve() / entry
+    argv = [str(item) for item in case.get("argv") or ()]
+    inputs = {"argv": argv, "stdin": case.get("stdin") or ""}
+    _CASE_ROOT.mkdir(parents=True, exist_ok=True)
+    cwd = Path(tempfile.mkdtemp(prefix="case-", dir=_CASE_ROOT))
+    home = cwd / "home"
+    (home / ".config").mkdir(parents=True, exist_ok=True)
+    (home / "tmp").mkdir(parents=True, exist_ok=True)
+    for name, content in (case.get("files") or {}).items():
+        target = cwd / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(str(content), encoding="utf-8")
+    before = _file_manifest(cwd)
+    command = [sys.executable, str(program), *argv]
+    stdin_text = str(case.get("stdin") or "")
+    env = _cli_env(home)
+    started = time.monotonic()
+    try:
+        completed = subprocess.run(  # noqa: S603 - argv list, no shell
+            command,
+            cwd=str(cwd),
+            env=env,
+            input=stdin_text.encode(),
+            capture_output=True,
+            timeout=_CLI_TIMEOUT_SECONDS,
+        )
+        exit_code: int | None = completed.returncode
+        stdout = completed.stdout.decode("utf-8", "replace")
+        stderr = completed.stderr.decode("utf-8", "replace")
+        signal_number = None
+        if exit_code is not None and exit_code < 0:
+            signal_number, exit_code = -exit_code, None
+    except subprocess.TimeoutExpired:
+        exit_code, stdout, stderr, signal_number = None, "", "timeout", None
+    after = _file_manifest(cwd)
+    written = {
+        name: meta for name, meta in after.items() if before.get(name) != meta
+    }
+    # No timing in the value: a duration is nondeterministic by construction and
+    # would need a rule on every CLI case. The pass duration is in the report.
+    del started
+    value = {
+        "exit": exit_code,
+        "signal": signal_number,
+        "stdout": stdout,
+        "stderr": stderr,
+        "files": written,
+    }
+    shutil.rmtree(cwd, ignore_errors=True)
+    encoded, _meta = encode_with_meta(value)
+    return Observation(
+        case_id=case["id"],
+        entry=entry,
+        inputs=inputs,
+        outcome="return",
+        value=EncodedValue(encoded),
+        controls=controls,
+        case_set_hash=case_set_hash,
+    )
+
+
+def _file_manifest(root: Path) -> dict[str, dict[str, Any]]:
+    import hashlib
+
+    manifest: dict[str, dict[str, Any]] = {}
+    for path in sorted(root.rglob("*")):
+        if not path.is_file() or path.is_symlink():
+            continue
+        rel = path.relative_to(root).as_posix()
+        if rel.startswith(("home/", "tmp/")) or rel in ("home", "tmp"):
+            continue
+        data = path.read_bytes()
+        manifest[rel] = {
+            "size": len(data),
+            "sha256": hashlib.sha256(data).hexdigest(),
+        }
+    return manifest
+
+
 def run_case(
     module: Any,
     case: dict[str, Any],
@@ -116,6 +260,8 @@ def run_case(
     case_set_hash: str,
     shim: Any,
 ) -> Observation:
+    if case.get("kind") == "cli":
+        return run_cli_case(case, controls, case_set_hash, shim)
     entry = case["entry"]
     args = tuple(case.get("args") or ())
     kwargs = dict(case.get("kwargs") or {})
@@ -208,8 +354,15 @@ def main(argv: list[str] | None = None) -> int:
     argv = argv if argv is not None else sys.argv[1:]
     plan_path, out_path = Path(argv[0]), Path(argv[1])
     plan = json.loads(plan_path.read_text(encoding="utf-8"))
+    # A CLI-only pass has nothing to import: `entry` is a program, not a symbol.
+    # Importing an empty module name would turn every case into an import error.
+    needs_module = any(case.get("kind") != "cli" for case in plan["cases"])
     try:
-        module = importlib.import_module(plan.get("module", "parse"))
+        module = (
+            importlib.import_module(plan.get("module", "parse"))
+            if needs_module
+            else None
+        )
     except BaseException as exc:  # noqa: BLE001 - a target that cannot import IS a finding
         # A target that fails at import time has changed behaviour just as much
         # as one that crashes inside a call: a mutant that deletes a module-level

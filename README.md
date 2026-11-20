@@ -143,6 +143,30 @@ cross-target generalisation), and 32 of the 41 both-missed mutants sit on a line
 case executes. Both are in `docs/results/mutation-tuning-20261120.md` and
 `docs/results/mutation-both-missed-20261120.md`.
 
+### Stage 2: a CLI migration, and the parser swap it approves
+
+Stage 2 changes a command line, so its cases run a program. `pycodestyle` 2.15.0
+(`optparse`) migrates to `argparse`; the change under test is
+[`harness/migrations/pycodestyle-argparse.patch`](harness/migrations/pycodestyle-argparse.patch).
+
+| Measurement | Value |
+| --- | --- |
+| CLI case set | **61 cases** (42 fixture excerpts + 19 option probes), hash `5b86bc8dab70b2f1` |
+| A/A over that set (2 fixed + 2 shuffled passes) | **0 differences** |
+| verify-change, 2 rounds × 61 cases | 112 identical, **10 different (approved)**, **0 unapproved**, 0 unsupported, 0 flaky |
+| Upstream suite on the migrated tree | 4 failures: 3 usage-text assertions, 1 test calling the optparse-only `add_option` |
+| Unintended change found by the cases | `--version` printed `pycodestyle 2.15.0` instead of `2.15.0` — fixed, then re-verified |
+
+Approved differences are parser **text** (help layout, `invalid int value`,
+`unrecognized arguments`), each bound to the observed diff by sha256 and readable
+in `harness/approvals/pycodestyle.json`; a changed diff makes the approval stale
+and the case `different` again. Nothing approved is counted as `equivalent`.
+
+Stage-2 mutation, subprocess coverage and the final cross-target report are
+**not done** — see [`docs/results/stage2-cli-20261120.md`](docs/results/stage2-cli-20261120.md).
+`v0.3` is deliberately untagged: tagging now would put a release number on work
+whose own report says which numbers are missing.
+
 ### Known target bugs (not harness bugs)
 
 - **`parse.findall` never terminates when the format can match the empty

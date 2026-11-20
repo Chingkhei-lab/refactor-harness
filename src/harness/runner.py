@@ -111,6 +111,9 @@ def run_pass(
     # it must not eat the pass). The child flushes each observation, so on a
     # timeout the harness can see exactly where it stopped, record that case as
     # unsupported, and resume from the next one.
+    # What the child can see as the checkout: its own cwd on the host, the
+    # tmpfs path inside the sandbox. CLI cases resolve `entry` against it.
+    child_sees_checkout = "/workspace/checkout" if executor is not None else "."
     done: dict[str, Observation] = {}
     remaining = list(execution)
     last_stderr = ""
@@ -123,7 +126,10 @@ def run_pass(
                     "case_set_hash": set_hash,
                     "cpu_budget": cpu_budget_seconds,
                     "cpu_hard_seconds": _hard_cpu_seconds(cpu_budget_seconds, len(remaining)),
-                    "cases": [case.body() for case in remaining],
+                    "cases": [
+                        {**case.body(), "program_root": child_sees_checkout}
+                        for case in remaining
+                    ],
                 }
             ),
             encoding="utf-8",
@@ -140,6 +146,7 @@ def run_pass(
             if cpu_budget_seconds > 0
             else case_budget_seconds * max(1, len(remaining))
         )
+        oom_counter: int | None = None
         try:
             if executor is None:
                 timed_out, returncode, last_stderr = _supervise(
@@ -152,7 +159,7 @@ def run_pass(
                     wall_timeout=wall_timeout,
                 )
             else:
-                timed_out, returncode, last_stderr = _supervise_sandbox(
+                timed_out, returncode, last_stderr, oom_counter = _supervise_sandbox(
                     executor=executor,
                     plan_path=plan_path,
                     out_path=out_path,
@@ -209,7 +216,9 @@ def run_pass(
                 raise RuntimeError(
                     f"child exited without a status inside case {in_flight!r}"
                 )
-            done[stuck.id] = _death_observation(stuck, returncode, last_stderr)
+            done[stuck.id] = _death_observation(
+                stuck, returncode, last_stderr, oom_counter=oom_counter
+            )
             continue
         stuck, remaining = missing[0], missing[1:]
         done[stuck.id] = Observation(
@@ -277,8 +286,12 @@ def _supervise_sandbox(
     image: str,
     index: int,
     wall_seconds: float,
-) -> tuple[bool, int | None, str]:
+) -> tuple[bool, int | None, str, int | None]:
     """One attempt with the child inside the sandbox; same return contract.
+
+    The fourth element is the cgroup's oom_kill counter, which is what makes a
+    137 exit decidable: a target that SIGKILLs itself is a behaviour, a cgroup
+    OOM kill is a property of the limits.
 
     The workspace travels as copy-in bytes and the observations come back from
     the copy-out, so a child killed by its CPU budget still leaves both its
@@ -328,7 +341,7 @@ def _supervise_sandbox(
     stderr = outcome.stderr.decode("utf-8", "replace") if outcome.stderr else ""
     if outcome.oom_killed:
         stderr = (stderr + chr(10) + "sandbox: container was OOM-killed").strip()
-    return outcome.timed_out, outcome.exit_code, stderr[-2000:]
+    return outcome.timed_out, outcome.exit_code, stderr[-2000:], outcome.oom_counter
 
 
 def _line_count(path: Path) -> int:
@@ -428,7 +441,13 @@ def _signal_name(number: int) -> str:
         return f"signal {number}"
 
 
-def _death_observation(case: Case, returncode: int, stderr: str) -> Observation:
+def _death_observation(
+    case: Case,
+    returncode: int,
+    stderr: str,
+    *,
+    oom_counter: int | None = None,
+) -> Observation:
     """Classify how the child died: budget, resource, or the target crashing.
 
     Only the first two are `unsupported`. A crash is a behaviour, recorded with
@@ -457,9 +476,21 @@ def _death_observation(case: Case, returncode: int, stderr: str) -> Observation:
         if name == "SIGXCPU":
             kind, outcome = "CpuBudget", "unsupported"
         elif name == "SIGKILL":
-            # OOM killer or the pass-wide hard backstop: a property of the
-            # limits, not of the target's behaviour.
-            kind, outcome = "ResourceKill", "unsupported"
+            # SIGKILL is ambiguous, so it is decided by evidence, in the order
+            # the Phase 3 runner established: the cgroup's oom_kill counter is
+            # ground truth; a positive count is a resource kill (a property of
+            # the limits), a readable zero means the target killed itself — and
+            # that is a behaviour to compare, not an infrastructure problem.
+            if oom_counter is not None:
+                kind, outcome = (
+                    ("ResourceKill", "unsupported")
+                    if oom_counter > 0
+                    else ("ProcessSignal", "exception")
+                )
+            else:
+                # No cgroup evidence (host path, cgroup v1, container gone):
+                # the documented fallback treats it as a resource kill.
+                kind, outcome = "ResourceKill", "unsupported"
         else:
             kind, outcome = "ProcessSignal", "exception"
     exit_code = None
@@ -479,6 +510,7 @@ def _death_observation(case: Case, returncode: int, stderr: str) -> Observation:
                 "shell_exit_code": returncode if multiple_of_128 else None,
                 "signal": signal_number,
                 "signal_name": name,
+                "oom_counter": oom_counter,
                 "stderr_tail": stderr[-400:],
             }
         },

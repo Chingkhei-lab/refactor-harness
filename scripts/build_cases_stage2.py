@@ -1,0 +1,161 @@
+"""Build the stage-2 CLI case set for pycodestyle.
+
+Two sources of cases, both committed and hashed:
+
+  * **inputs** — the first 40 lines of every fixture in the target's own test
+    data (`testing/data/*.py`). Inputs only: the annotated expected codes in
+    those files are never read, so the case set cannot inherit the suite's
+    answers.
+  * **option probes** — one case per option-matrix dimension: abbreviation,
+    `--`, a negative number, a repeated option, a clustered short flag, an invalid
+    choice, a non-integer value, a default, `--help`, `--version`, stdin, and the
+    declared-unstable/`unordered` flags.
+
+The selection is fixed: no randomness, so the file and its hash are reproducible
+from the pinned tree.
+
+    python scripts/build_cases_stage2.py            # writes harness/cases/pycodestyle-cli.json
+    python scripts/build_cases_stage2.py --check     # fails if the file is stale
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO / "src"))
+
+from harness.cases import Case, case_set_hash  # noqa: E402
+
+TREE = REPO / ".harness" / "oracle" / "pycodestyle"
+OUT = REPO / "harness" / "cases" / "pycodestyle-cli.json"
+ENTRY = "pycodestyle.py"
+EXCERPT_LINES = 40
+
+# Each probe names the dimension it covers, so the report can say which parts of
+# the CLI surface are exercised rather than just how many cases there are.
+PROBES: list[tuple[str, str, tuple[str, ...], str, dict[str, str]]] = [
+    ("help", "long-help", ("--help",), "", {}),
+    ("version", "version", ("--version",), "", {}),
+    ("abbreviation", "abbreviated-long-option", ("--max-line-len=79", "sample.py"), "",
+     {"sample.py": "x = 1\n"}),
+    ("separator", "double-dash-then-filename", ("--", "--not-an-option.py"), "",
+     {"--not-an-option.py": "x=1\n"}),
+    ("negative", "negative-number-as-value", ("--max-line-length=-1", "sample.py"), "",
+     {"sample.py": "x = 1\n"}),
+    ("repeat", "repeated-option-last-wins", ("--select=E1", "--select=E2", "sample.py"), "",
+     {"sample.py": "x=1\ny =2\n"}),
+    ("cluster", "clustered-short-flags", ("-qq", "sample.py"), "", {"sample.py": "x=1\n"}),
+    ("invalid-choice", "invalid-value-for-choice", ("--format=not-a-format", "sample.py"), "",
+     {"sample.py": "x = 1\n"}),
+    ("int-error", "non-integer-where-int-expected", ("--max-line-length=abc", "sample.py"),
+     "", {"sample.py": "x = 1\n"}),
+    ("defaults", "no-options-default-behaviour", ("sample.py",), "", {"sample.py": "x=1\n"}),
+    ("stdin", "dash-reads-stdin", ("-",), "x=1\n", {}),
+    ("unknown", "unknown-option", ("--no-such-option", "sample.py"), "",
+     {"sample.py": "x = 1\n"}),
+    ("missing-file", "file-does-not-exist", ("absent.py",), "", {}),
+    ("blank-lines", "max-blank-lines", ("--max-blank-lines=0", "sample.py"), "",
+     {"sample.py": "x = 1\n\n\ny = 2\n"}),
+    ("indent", "indent-size", ("--indent-size=3", "sample.py"), "",
+     {"sample.py": "if True:\n   x = 1\n"}),
+    ("doc-length", "max-doc-length", ("--max-doc-length=20", "sample.py"), "",
+     {"sample.py": '"""' + "a" * 30 + '"""\n'}),
+    ("statistics", "statistics-and-count", ("--statistics", "--count", "sample.py"), "",
+     {"sample.py": "x=1\ny=2\n"}),
+    ("benchmark", "declared-unstable-benchmark", ("--benchmark", "sample.py"), "",
+     {"sample.py": "x = 1\n"}),
+    ("jobs", "declared-unordered-jobs", ("--jobs=1", "sample.py"), "",
+     {"sample.py": "x = 1\n"}),
+]
+
+
+def _excerpt(path: Path) -> str:
+    lines = path.read_text(encoding="utf-8", errors="replace").splitlines(keepends=True)
+    return "".join(lines[:EXCERPT_LINES])
+
+
+def build() -> tuple[dict[str, object], str]:
+    data = TREE / "testing" / "data"
+    if not data.is_dir():
+        raise SystemExit(
+            f"{data} missing: run scripts/fetch_target.py --target pycodestyle first"
+        )
+    cases: list[Case] = []
+    counts: dict[str, int] = {"fixtures": 0, "probes": 0}
+    for path in sorted(data.glob("*.py")):
+        name = path.name
+        cases.append(
+            Case(
+                id=f"fixture-{name.replace('.py', '').lower()}",
+                source="testing/data",
+                entry=ENTRY,
+                args=(),
+                kind="cli",
+                argv=(name,),
+                files={name: _excerpt(path)},
+            )
+        )
+        counts["fixtures"] += 1
+    for name, dimension, argv, stdin, files in PROBES:
+        cases.append(
+            Case(
+                id=f"probe-{name}",
+                source=f"options/{dimension}",
+                entry=ENTRY,
+                args=(),
+                kind="cli",
+                argv=argv,
+                stdin=stdin,
+                files=files,
+            )
+        )
+        counts["probes"] += 1
+    payload = {
+        "schema": "harness-cases/1",
+        "target": "pycodestyle 2.15.0",
+        "kind": "cli",
+        "source_tree": "https://codeload.github.com/PyCQA/pycodestyle/tar.gz/refs/tags/2.15.0",
+        "source_tree_sha256": (
+            "3cb6afba1667f13b4ca7884154299108ef8e633a36526e29412a5cec7b5db4bd"
+        ),
+        "excerpt": f"first {EXCERPT_LINES} lines",
+        "inputs_only": "expected codes in the data files are never read",
+        "counts_by_source": counts,
+        "case_set_hash": case_set_hash(cases),
+        "cases": [case.body() for case in cases],
+    }
+    return payload, case_set_hash(cases)
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--check", action="store_true")
+    args = parser.parse_args(argv)
+    payload, digest = build()
+    text = json.dumps(payload, indent=1, sort_keys=True) + "\n"
+    if args.check:
+        if not OUT.exists():
+            print("stale: case file does not exist")
+            return 1
+        current = json.loads(OUT.read_text(encoding="utf-8"))
+        if current != json.loads(text):
+            print("stale: case file differs from what the pinned tree produces")
+            return 1
+        print(f"fresh: {len(payload['cases'])} cases, hash {digest[:12]}")
+        return 0
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    OUT.write_text(text, encoding="utf-8")
+    print(
+        f"{len(payload['cases'])} cases "
+        f"({payload['counts_by_source']['fixtures']} fixtures + "
+        f"{payload['counts_by_source']['probes']} probes), hash {digest[:12]}"
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

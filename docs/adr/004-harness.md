@@ -666,6 +666,75 @@ unchanged.
 The lesson is the same one as D10l from the other side: an oracle that is not
 tested is an oracle you are guessing about.
 
+### D10p — A CLI case observes a program, and its environment is a fixed list
+
+Stage 2 changes a command line, so a stage-2 comparison has to run a command
+line. `Case` gained `kind: call | cli`, `argv`, `stdin` and `files`; a `cli` case
+runs the target program as a subprocess in a fresh directory holding exactly its
+input files, and the observation is a value: exit status, signal number, stdout,
+stderr, and a manifest of the files it wrote (relative path, size, sha256). A
+signal death is part of the value, not an exception, because for a program
+"killed by SIGSEGV" is behaviour.
+
+The environment is fixed rather than inherited: `HOME` and `XDG_CONFIG_HOME`
+point at empty directories inside the case directory (a linter reads
+`~/.pycodestyle`), the project config is the case directory, `COLUMNS=80`,
+`LANG/LC_ALL=C.UTF-8`, `PYTHONIOENCODING=utf-8`, stdin is the case's text or
+closed, there is no TTY, and `PATH` is `/usr/local/bin:/usr/bin:/bin`.
+`--benchmark` is declared `unstable` and `--jobs > 1` `unordered`; neither is
+normalised, because normalising them would hide exactly the kind of change stage
+2 exists to find.
+
+No timing goes into the value: a duration is nondeterministic by construction and
+would need a rule on every case. The pass duration belongs in the report.
+
+### D10q — An approval is bound to the diff, never to the case
+
+A migration changes some output on purpose. A rule would say "these two are
+equivalent", which is false for `--help`; an approval says "these two differ,
+here is the diff I accepted, here is who accepted it". So
+`harness/approvals/<target>.json` records `case_id`, `path`, `reason`,
+`reviewer`, `date` and the sha256 of the *difference*. A matching case and path
+with a different digest is a **stale approval** and the case goes back to
+`different`. Approvals are never counted as equivalents, the file's hash is in
+every report, and `verify-change` prints approved and unapproved differences
+separately, so "0 unapproved" is a claim a reader can check against the table.
+
+### D10r — An oracle is checked before its numbers are quoted
+
+`scripts/oracle_canary.py` asserts, for every pinned target, that the unmutated
+tree passes and that a known-broken mutant fails, and writes the result to
+`docs/results/oracle-canary-<date>.json`. A suite that is red to begin with
+"kills" everything; a suite that cannot fail kills nothing. Both are silent
+without this check.
+
+The same script documents a trap: `pycodestyle`'s **PyPI sdist ships `tests/` but
+not the `testing/` package those tests import**, so the sdist suite fails
+collection with 8 `ModuleNotFoundError`s. The oracle therefore uses the pinned
+GitHub tree at the release tag (`763 passed, 12 skipped`), while the module under
+test still comes from the sdist. Quoting the sdist as the oracle would have
+produced "every mutant survived", with the same shape as D10l: a number that
+looks like a finding and is an infrastructure error.
+
+`--import-mode=importlib` is required for the same class of reason: pytest's
+default `prepend` mode puts the tests directory first on `sys.path`, so a mutated
+module can be shadowed by an unmutated copy beside the tests and read as a
+survivor.
+
+### D10s — Nothing about the container's environment is inherited from the host
+
+`sandbox_env()` originally copied `PATH` from the host when present and defaulted
+it only when absent. On a Windows host that hands `C:\Windows\System32;...` to a
+Linux container, whose readiness loop then cannot find `sleep`; the copy-in exec
+exits 127 and the failure looks like a transport bug. On a Linux CI runner the
+host `PATH` is valid POSIX, so every CI run before this was green for the wrong
+reason.
+
+`PATH` is now `SANDBOX_PATH = "/usr/local/bin:/usr/bin:/bin"` — an override, never
+a default. A container is always Linux; nothing about its environment may be
+inherited from the machine that started it. Pinned by
+`test_the_container_path_is_never_inherited_from_the_host`.
+
 ## Consequences
 
 - A report must carry: class counts, masked fields + rules, unsupported cases,

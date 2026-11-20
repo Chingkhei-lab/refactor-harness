@@ -125,6 +125,14 @@ class Case:
     # bounded prefix is the honest observation and two matching prefixes are
     # `equivalent_bounded`, never `identical`.
     expect: str = "finite"
+    # "call": import `entry` and call it with args/kwargs (stage 1).
+    # "cli": run `entry` as a program with `argv`, a stdin, and input files in a
+    # fresh working directory, and observe exit status, stdout, stderr and the
+    # files it wrote (stage 2).
+    kind: str = "call"
+    argv: tuple[str, ...] = ()
+    stdin: str = ""
+    files: dict[str, str] = field(default_factory=dict)
 
     def body(self) -> dict[str, Any]:
         body = {
@@ -137,6 +145,11 @@ class Case:
         }
         if self.projection:
             body["projection"] = self.projection
+        if self.kind != "call":
+            body["kind"] = self.kind
+            body["argv"] = list(self.argv)
+            body["stdin"] = self.stdin
+            body["files"] = dict(self.files)
         return body
 
     @property
@@ -274,6 +287,15 @@ def load_cases(path: Path) -> list[Case]:
             raise ValueError(
                 f"case {entry['id']}: expect must be 'finite' or 'stream', not {expect!r}"
             )
+        kind = entry.get("kind", "call")
+        if kind not in ("call", "cli"):
+            raise ValueError(f"case {entry['id']}: kind must be 'call' or 'cli'")
+        files = dict(entry.get("files") or {})
+        for name in files:
+            if name.startswith("/") or ".." in Path(name).parts:
+                raise ValueError(
+                    f"case {entry['id']}: input file {name!r} escapes the case directory"
+                )
         cases.append(
             Case(
                 id=entry["id"],
@@ -283,6 +305,10 @@ def load_cases(path: Path) -> list[Case]:
                 kwargs=dict(entry.get("kwargs") or {}),
                 projection=projection,
                 expect=expect,
+                kind=kind,
+                argv=tuple(entry.get("argv") or ()),
+                stdin=str(entry.get("stdin") or ""),
+                files=files,
             )
         )
     return cases

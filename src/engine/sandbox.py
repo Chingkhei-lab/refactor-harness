@@ -162,6 +162,10 @@ class RunResult:
     files: dict[str, bytes]
     symlinks_skipped: int
     duration_seconds: float
+    # The cgroup's own oom_kill counter, read while the container was held open.
+    # None means "no cgroup evidence" (cgroup v1, exec refused, container gone) —
+    # callers must not read None as zero.
+    oom_counter: int | None = None
 
 
 @dataclass(frozen=True)
@@ -844,6 +848,7 @@ def run(
         # daemons a CHILD OOM leaves no marker-path counter and no daemon
         # flag (documented residual gap in ADR 003 D7).
         daemon_oom = bool(state.get("OOMKilled"))
+        oom_counter: int | None = None
         if done_kind == "marker":
             oom_counter = _read_oom_counter(client, container)
             if oom_counter is not None:
@@ -889,6 +894,7 @@ def run(
             files=files,
             symlinks_skipped=symlinks_skipped,
             duration_seconds=duration,
+            oom_counter=oom_counter,
         )
     except OSError as exc:
         raise SandboxError(f"sandbox infrastructure failed: {exc}") from exc

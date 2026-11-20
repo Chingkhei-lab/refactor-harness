@@ -21,7 +21,12 @@ import pytest
 from harness import determinism
 from harness.cases import Case, case_set_hash, load_cases
 from harness.runner import run_pass
-from harness.sandbox_transport import LocalExecutor, sandbox_env, workspace_files
+from harness.sandbox_transport import (
+    SANDBOX_PATH,
+    LocalExecutor,
+    sandbox_env,
+    workspace_files,
+)
 
 REPO = Path(__file__).resolve().parents[1]
 FIXTURE = REPO / "tests" / "fixtures" / "canary"
@@ -57,6 +62,18 @@ def test_the_workspace_carries_no_host_path(tmp_path: Path) -> None:
     leaked = [name for name in files if root in name]
     assert not leaked
     assert not [name for name in files if "__pycache__" in name]
+
+
+def test_the_container_path_is_never_inherited_from_the_host() -> None:
+    """A Windows host PATH gives a Linux container no `sleep` and no `tar`.
+
+    Measured: the wrapper's readiness loop logged "sleep: not found" and the
+    copy-in exec exited 127, which reads as a transport failure. The container is
+    always Linux, so its PATH is fixed by the harness and the host's is dropped.
+    """
+    env = sandbox_env({"PATH": r"C:\Windows\System32;C:\Pythonin"})
+    assert env["PATH"] == SANDBOX_PATH
+    assert "C:" not in env["PATH"]
 
 
 def test_the_child_environment_is_an_allowlist(tmp_path: Path) -> None:
