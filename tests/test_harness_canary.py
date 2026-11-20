@@ -27,6 +27,10 @@ from harness.runner import run_pass
 
 REPO = Path(__file__).resolve().parents[1]
 FIXTURE = REPO / "tests" / "fixtures" / "canary"
+# The suite file is named `suite_canary.py`, not `test_canary.py`, so the
+# repository-wide run does not collect it: it needs `canary` importable, and it
+# is passed to pytest explicitly by the oracle.
+SUITE = FIXTURE / "suite_canary.py"
 
 CASES = [
     Case(id="0001-absolute-negative", source="canary", entry="absolute", args=(-3,)),
@@ -101,7 +105,7 @@ def _harness_killed(tmp_path: Path, checkout: Path) -> bool:
 def test_an_obviously_broken_mutant_is_killed_by_both_oracles(tmp_path: Path) -> None:
     module = _mutate_script()
     checkout = _checkout(tmp_path, broken=True, comment=False)
-    tests_killed, note = module._run_tests(FIXTURE, checkout)
+    tests_killed, note = module._run_tests(FIXTURE / "suite_canary.py", checkout)
     assert tests_killed is True, note
     assert _harness_killed(tmp_path, checkout) is True
 
@@ -109,7 +113,7 @@ def test_an_obviously_broken_mutant_is_killed_by_both_oracles(tmp_path: Path) ->
 def test_a_comment_only_mutant_survives_both_oracles(tmp_path: Path) -> None:
     module = _mutate_script()
     checkout = _checkout(tmp_path, broken=False, comment=True)
-    tests_killed, note = module._run_tests(FIXTURE, checkout)
+    tests_killed, note = module._run_tests(FIXTURE / "suite_canary.py", checkout)
     assert tests_killed is False, note
     assert _harness_killed(tmp_path, checkout) is False
 
@@ -117,6 +121,6 @@ def test_a_comment_only_mutant_survives_both_oracles(tmp_path: Path) -> None:
 def test_the_oracle_is_not_inverted() -> None:
     """A passing suite must read as "not killed" — the 12a bug, pinned."""
     module = _mutate_script()
-    killed, note = module._run_tests(FIXTURE, FIXTURE)
+    killed, note = module._run_tests(FIXTURE / "suite_canary.py", FIXTURE)
     assert killed is False, f"an unmutated tree was reported killed: {note}"
     assert "passed" in note
