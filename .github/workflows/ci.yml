@@ -127,7 +127,7 @@ jobs:
         run: |
           set -o pipefail
           pytest tests/test_harness_sandbox_hostile.py -v -s             --junitxml=junit-harness-sandbox.xml 2>&1 | tee harness-sandbox.log || {
-              while IFS= read -r line; do echo "::error title=harness-sandbox::$line"; done < <(tail -40 harness-sandbox.log)
+              while IFS= read -r line; do echo "::error title=harness-sandbox::$line"; done < <(grep -E '^(E |FAILED|assert)' harness-sandbox.log | head -8)
               exit 1
             }
       - name: Fetch the pinned target (hash-checked)

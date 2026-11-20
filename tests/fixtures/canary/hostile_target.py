@@ -7,6 +7,7 @@ what the target managed to do, not on how the harness felt about it.
 
 import os
 import socket
+import time
 
 
 def escape(_arg):
@@ -25,11 +26,14 @@ def escape(_arg):
     except OSError as exc:
         outcome["net"] = type(exc).__name__
 
+    # Children sleep, so they accumulate: a fork storm that exits immediately is
+    # bounded by nothing and would "succeed" even with a tight pids_limit.
     children = []
     try:
         for _ in range(200):
             pid = os.fork()
             if pid == 0:
+                time.sleep(5)
                 os._exit(0)
             children.append(pid)
         outcome["fork"] = "forked"
