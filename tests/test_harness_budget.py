@@ -69,6 +69,10 @@ def test_a_cpu_bound_case_is_unsupported_and_the_pass_continues(tmp_path: Path) 
     by_case = result.by_case()
     assert set(by_case) == {case.id for case in cases}, "the pass must resume, not stop"
     assert by_case["0002-burn"].outcome == "unsupported"
-    assert by_case["0002-burn"].exception["__exception__"]["type"] == "CpuBudget"
+    # Every child death is recorded in the same shape: `__process__` with a kind.
+    # A budget kill is distinguished by `kind`, not by a different key.
+    process = by_case["0002-burn"].exception["__process__"]
+    assert process["kind"] == "CpuBudget"
+    assert process["signal_name"] == "SIGXCPU"
     assert by_case["0001-fast"].outcome == "return"
     assert by_case["0003-fast"].outcome == "return"
