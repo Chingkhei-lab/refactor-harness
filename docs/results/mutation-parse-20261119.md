@@ -29,6 +29,16 @@ Evidence, not proof: a kill rate says how often this case set noticed a seeded d
 | `delete_stmt` | 271 | 95 | 61 | 10 |
 | `slice_bound` | 17 | 8 | 1 | 1 |
 
+## Kill rates, all mutants vs covered mutants
+
+| Oracle | All mutants | Only mutants on a line the case set executes |
+| --- | --- | --- |
+| Harness | 139/300 = 46.3 % | 138/203 = 68.0 % |
+| Upstream test suite | 42/300 = 14.0 % | 10/203 = 4.9 % |
+| Either (union) | 181/300 = 60.3 % | 148/203 = 72.9 % |
+
+The covered-only column is the honest one: `97` of `300` mutants change a line the case set never reaches, so no observation could ever distinguish them. Both columns are reported because quoting only the covered one would hide how much of the file the cases miss.
+
 ## Survivors, three ways
 
 | Group | Count | What it means |

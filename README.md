@@ -100,6 +100,24 @@ Measurement, so far: 273 cases, 0 A/A noise over 5 fixed and 5 shuffled passes,
 **0 unsupported** (was 23), line coverage 426/554. Observation schema v2; the
 checkpoint-10 numbers reproduce exactly under it (238 / 12 / 23, 273 blobs).
 
+Does the harness actually catch wrong behaviour? Two evaluations answer that, and
+neither has a target number to hit:
+
+| Question | Answer |
+| --- | --- |
+| Mutants killed, all 300 sampled of 839 sites (seed 12) | **139 / 300 = 46.3 %** |
+| … of the 203 mutants on a line the cases execute | **138 / 203 = 68.0 %** |
+| Upstream test suite alone | 42 / 300 = 14.0 % (10 / 203 = 4.9 % on covered lines) |
+| Either signal | 181 / 300 = 60.3 % (148 / 203 = 72.9 %) |
+| Survivors | 96 on a line never executed, 63 covered-but-not-observed, 2 hand-confirmed equivalent |
+| 12 harmless refactors (mechanical + hand-written) | all identical/equivalent, **0 false positives** |
+| One hand-seeded bug inside a harmless refactor | **different on 4 cases** |
+
+The covered-only column is the one to quote: `parse` is a small library whose
+case set reaches 426 of 554 lines, so 97 mutants could not be observed by any
+case, and quoting 46.3 % alone would understate what the harness does where it
+can see.
+
 Architecture, in the order a comparison runs:
 
 1. **Case set** (`harness/cases/<target>.json`) — inputs only, sha256 hashed into

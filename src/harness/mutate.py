@@ -6,7 +6,9 @@ here rather than taken from a library for one reason — every operator has to b
 explainable, and a survivor has to be attributable to a specific edit at a
 specific line.
 
-Seven operators, each applied to ONE site:
+Seven operator families, each applied to ONE site (eight operators: the int +-1
+family is enumerated in both directions, because a `+1`-only mutator cannot reach
+an off-by-one that should have been a decrement):
 
     compare_swap     <  -> <=, == -> !=, is -> is not, in -> not in (and back)
     arith_swap       + <-> -, * <-> /, // <-> %

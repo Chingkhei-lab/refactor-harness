@@ -333,9 +333,32 @@ def _write_report(out_dir: Path, payload: dict[str, Any]) -> None:
             f"| `{name}` | {plan['sites_by_operator'].get(name, 0)} | {counts['total']} | "
             f"{counts['killed']} | {counts['tests_killed']} |"
         )
+    executed = _load_executed_lines()
+    covered = [item for item in results if item["line"] in executed]
+    with_either = [
+        dict(item, either=item["harness_killed"] or bool(item["tests_killed"]))
+        for item in results
+    ]
+    covered_either = [item for item in with_either if item["line"] in executed]
     verdicts, reasons = _load_verdicts()
     coverage = _load_survivor_split()
     lines += [
+        "",
+        "## Kill rates, all mutants vs covered mutants",
+        "",
+        "| Oracle | All mutants | Only mutants on a line the case set executes |",
+        "| --- | --- | --- |",
+        f"| Harness | {_rate(results, 'harness_killed')} "
+        f"| {_rate(covered, 'harness_killed')} |",
+        f"| Upstream test suite | {_rate(results, 'tests_killed')} "
+        f"| {_rate(covered, 'tests_killed')} |",
+        f"| Either (union) | {_rate(with_either, 'either')} "
+        f"| {_rate(covered_either, 'either')} |",
+        "",
+        f"The covered-only column is the honest one: `{len(results) - len(covered)}` of "
+        f"`{len(results)}` mutants change a line the case set never reaches, so no "
+        "observation could ever distinguish them. Both columns are reported because "
+        "quoting only the covered one would hide how much of the file the cases miss.",
         "",
         "## Survivors, three ways",
         "",
@@ -371,7 +394,10 @@ def _write_report(out_dir: Path, payload: dict[str, Any]) -> None:
         "",
     ]
     out_dir.mkdir(parents=True, exist_ok=True)
-    stamp = datetime.now(UTC).strftime("%Y%m%d")
+    # The stamp is the run's own date, not the regeneration date: a report that
+    # moves when it is rewritten cannot be cited.
+    written = str(plan.get("written_at") or plan.get("generated_at") or "")
+    stamp = written[:10].replace("-", "") or datetime.now(UTC).strftime("%Y%m%d")
     (out_dir / f"mutation-parse-{stamp}.md").write_text(
         chr(10).join(lines) + chr(10), encoding="utf-8"
     )
@@ -388,6 +414,21 @@ def _load_verdicts() -> tuple[dict[str, str], dict[str, str]]:
         return {}, {}
     payload = json.loads(path.read_text(encoding="utf-8"))
     return payload.get("verdicts", {}), payload.get("reasons", {})
+
+
+def _load_executed_lines() -> set[int]:
+    """Lines the case set actually reaches, from `mutation_analysis.py`."""
+    path = _REPO_ROOT / ".harness" / "mutation" / "coverage-lines.json"
+    if not path.exists():
+        return set()
+    return set(json.loads(path.read_text(encoding="utf-8"))["lines"])
+
+
+def _rate(rows: list[dict[str, Any]], hit: str) -> str:
+    if not rows:
+        return "n/a"
+    killed = len([row for row in rows if row[hit]])
+    return f"{killed}/{len(rows)} = {100 * killed / len(rows):.1f} %"
 
 
 def _load_survivor_split() -> dict[str, Any]:
