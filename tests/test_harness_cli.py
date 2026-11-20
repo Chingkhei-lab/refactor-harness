@@ -26,8 +26,10 @@ import os, sys
 text = sys.stdin.read()
 print("argv", sys.argv[1:])
 print("columns", os.environ.get("COLUMNS"))
-print("home-empty", os.listdir(os.environ["HOME"]) == [".config", "tmp"])
-print("xdg-empty", os.listdir(os.environ["XDG_CONFIG_HOME"]) == [])
+# sorted(): os.listdir order is filesystem-dependent, and this test failed
+# on CI because ext4 returned tmp before .config.
+print("home-empty", sorted(os.listdir(os.environ["HOME"])) == [".config", "tmp"])
+print("xdg-empty", sorted(os.listdir(os.environ["XDG_CONFIG_HOME"])) == [])
 print("tty", sys.stdout.isatty())
 print("stdin", text.strip())
 with open("written.txt", "w", encoding="utf-8") as handle:
@@ -163,3 +165,25 @@ def test_an_unknown_kind_is_refused(tmp_path: Path) -> None:
     path.write_text(__import__("json").dumps(payload), encoding="utf-8")
     with pytest.raises(ValueError, match="kind must be"):
         load_cases(path)
+
+
+def test_the_shipped_stage2_case_set_matches_its_recorded_hash() -> None:
+    """The committed case file is the one the reports cite.
+
+    A case file edited without regenerating its hash would compare observations
+    from one set against the hash of another; the runner refuses that at run time,
+    and this refuses it at test time.
+    """
+    path = REPO / "harness" / "cases" / "pycodestyle-cli.json"
+    payload = __import__("json").loads(path.read_text(encoding="utf-8"))
+    cases = load_cases(path)
+    assert len(cases) == 61
+    assert payload["case_set_hash"] == case_set_hash(cases)
+    assert payload["counts_by_source"] == {"fixtures": 42, "probes": 19}
+    assert all(case.kind == "cli" for case in cases)
+    for case in cases:
+        # Inputs only, and nothing that could write outside the case directory.
+        assert not any(name.startswith("/") or ".." in Path(name).parts
+                       for name in case.files)
+    unstable = {c.id for c in cases if "benchmark" in c.id or "jobs" in c.id}
+    assert unstable == {"probe-benchmark", "probe-jobs"}

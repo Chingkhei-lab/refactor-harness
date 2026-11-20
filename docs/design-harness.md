@@ -165,3 +165,27 @@ cases with the reason; coverage of the old version including the uncovered
 functions; the noise list from the A/A baseline; the sha256 of the case set and
 of the rule file; and the controls that were applied. A report without those
 seven things is not a report this harness produced.
+
+## Stage 2: the same contract, on a command line
+
+A CLI migration is not a change in one function's return value, so a stage-2 case
+is a **program run**, not a call: `kind: cli`, with `argv`, `stdin` and input
+files, in a fresh directory with an empty `HOME`, no TTY, fixed `COLUMNS` and a
+fixed `PATH`. What comes back is a value — exit status, signal number, stdout,
+stderr, and the manifest of files the program wrote (path, size, sha256) — so the
+comparator, rules, projections and approvals treat it exactly like a stage-1
+value. A signal death is part of the value: for a program, being killed *is*
+behaviour.
+
+Two differences from stage 1 follow from the target, and both are declared rather
+than normalised: `--benchmark` prints a measurement, so its cases are `unstable`;
+`--jobs > 1` prints in completion order, so those cases are `unordered`. A rule
+that hid either would hide the kind of change stage 2 exists to find.
+
+A migration changes some output on purpose. That is an **approval**, not a rule:
+`harness/approvals/<target>.json` records the case, the path, the reason, the
+reviewer, and the sha256 of the observed difference. A diff whose digest no
+longer matches is stale and the case is `different` again. Approvals are never
+counted as `equivalent`, and the report lists approved and unapproved differences
+in separate tables so "0 unapproved" can be checked rather than believed.
+
