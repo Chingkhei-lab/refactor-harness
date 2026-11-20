@@ -115,6 +115,18 @@ jobs:
         run: |
           set -o pipefail
           pytest tests/test_sandbox_hostile.py -v -s --junitxml=junit-hostile.xml 2>&1 | tee hostile.log
+      - name: Harness sandbox transport (hostile target, CPU kill recovery)
+        shell: bash
+        run: |
+          set -o pipefail
+          pytest tests/test_harness_sandbox_hostile.py -v -s             --junitxml=junit-harness-sandbox.xml 2>&1 | tee harness-sandbox.log
+      - name: Fetch the pinned target (hash-checked)
+        run: python scripts/fetch_target.py
+      - name: Sandbox regression gate (300 mutants, verdicts + bytes)
+        shell: bash
+        run: |
+          set -o pipefail
+          python scripts/sandbox_gate.py --mutants 300 2>&1 | tee sandbox-gate.log
       - name: Install-hostile suite (real pip + Docker)
         # The 6 install-phase cases used to run only on the author's machine.
         # They belong here: they assert the property the whole cache rests on
@@ -129,17 +141,32 @@ jobs:
         if: always()
         run: >-
           python scripts/ci_summary.py --job sandbox-hostile
-          junit-hostile.xml junit-install-hostile.xml >> "$GITHUB_STEP_SUMMARY"
+          junit-hostile.xml junit-install-hostile.xml junit-harness-sandbox.xml
+          >> "$GITHUB_STEP_SUMMARY"
       - name: Publish counts (commit status + tracking-issue comment)
         if: always()
         run: python scripts/ci_status.py --context junit/sandbox-hostile
           --file junit-hostile.xml --file junit-install-hostile.xml
-          --issue-title "CI reports"
+          --file junit-harness-sandbox.xml --issue-title "CI reports"
       - name: Publish counts as an annotation (no token needed to read)
         if: always()
         run: |
-          text=$(python scripts/ci_status.py --context junit/sandbox-hostile --file junit-hostile.xml --file junit-install-hostile.xml --dry-run)
+          text=$(python scripts/ci_status.py --context junit/sandbox-hostile --file junit-hostile.xml --file junit-install-hostile.xml --file junit-harness-sandbox.xml --dry-run)
           echo "::notice title=junit-sandbox-hostile::$text"
+      - name: Publish the sandbox gate result as an annotation
+        if: always()
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          path = pathlib.Path("docs/results/sandbox-gate-20261120.json")
+          if path.exists():
+              r = json.loads(path.read_text())
+              print(f"::notice title=sandbox-gate::verdicts {r['verdict_agreement']}, "
+                    f"byte-identical {r['byte_identical']}, "
+                    f"overhead {r['overhead_seconds_per_pass']}s/pass")
+          else:
+              print("::warning title=sandbox-gate::no gate report written")
+          PY
       - name: Upload JUnit reports
         if: always()
         uses: actions/upload-artifact@v4

@@ -35,6 +35,12 @@ mypy_path = "src"
 module = "pywintypes"
 ignore_missing_imports = true
 
+# The docker SDK ships no stubs and is optional at runtime (the sandbox job
+# installs it); scripts that use it are checked, not type-annotated against it.
+[[tool.mypy.overrides]]
+module = ["docker", "docker.*"]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]

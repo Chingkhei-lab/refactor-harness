@@ -515,36 +515,55 @@ The CPU-budget test is POSIX-only; it is skipped on Windows and **runs on CI** �
 the counts show 340 passed where the Windows run has 338, and an earlier red run
 failed inside that test, which a skipped test cannot do.
 
-## D10k — Where a pass actually executes (a gap, not a decision)
+## D10k — The sandbox transport: copy-in, copy-out, no host mounts
 
-A pass is a host subprocess: `runner.run_pass` builds `[sys.executable, "-m",
-"harness.child", plan, out]` and starts it with `subprocess.Popen` in the
-checkout directory. Mutation, refactor and verification runs all go through that
-one path. **Nothing in the harness goes through the Phase 3 sandbox** — no
-container, no `network_mode=none`, no memory/pids/capability limits, no read-only
-root. The only containment is a temporary work directory and the CPU budgets in
-D10g.
+A pass is `python -m harness.child plan.json out.jsonl`. Until this checkpoint it
+ran as a **host subprocess** (`subprocess.Popen` in the checkout directory, no
+container, no network isolation, no limits). Mutation, refactor and verification
+runs all went through that path, which contradicts ADR 003's claim that untrusted
+code runs in the sandbox. The transport closes that.
 
-That is a real gap in the project's own security claim, and it must be closed
-before the harness runs a target that is not a single pinned library:
+The design follows ADR 003 D4 exactly: **no host mounts**. The workspace is built
+in memory and copied in as a tar stream into the container's size-capped tmpfs
+(`/workspace`), the child runs there, and the results are copied out as a tar
+stream. Inside the tmpfs:
 
-1. Stage 2 runs a real CLI that reads `HOME`, `XDG_CONFIG_HOME`, `setup.cfg` and
-   `tox.ini`. A case that writes a config file outside its work directory changes
-   the environment for the next case, and no observation would show it.
-2. Phase 5 runs agent-generated code. "The sandbox is where untrusted code runs"
-   is the claim in ADR 003; a harness that runs the same code on the host
-   contradicts it.
+```
+/workspace/plan.json        the pass plan
+/workspace/src/harness/*    the child itself (so the harness version is pinned per run)
+/workspace/shim/*           sitecustomize, the determinism shim
+/workspace/checkout/*       the target tree under test
+```
 
-The planned transport is a `sandbox=` argument on `run_pass` that creates the
-same hardened container `engine.sandbox` already builds (network none, mem/pids/
-cpu limits, `cap_drop=ALL`, read-only root, tmpfs), mounts the checkout read-only,
-the work directory writable, and executes the identical `python -m harness.child`
-command inside it. The observation format does not change — that is the invariant
-that makes the move safe to verify: the same case set must produce byte-identical
-observations in the container, and the mutation numbers above become the
-regression test for the move.
+The container is the Phase 3 profile, unchanged: `network_mode=none`,
+`read_only` root, `cap_drop=ALL`, `no-new-privileges`, non-root `65534`, and
+cgroup limits (memory, pids, CPU quota, nofile, fsize). Nothing is mounted from
+the host in either direction.
 
-Until then, every report says "host subprocess" in its execution line.
+**How observations come out of a dead payload.** The sandbox runner's supervisor
+runs the payload as a *child* and prints its exit code on a nonced marker line
+before holding the container open for the copy-out. A child killed by its
+`RLIMIT_CPU` (SIGXCPU) therefore does not take the container with it: the marker
+arrives, the copy-out runs, and the harness gets the observations written before
+the kill **plus** the begin marker that names the in-flight case. That is the same
+attribution mechanism as the host path, and the reason the per-case bound is an
+in-container `RLIMIT_CPU` rather than a container wall-clock kill: the latter
+destroys the tmpfs and with it the evidence. Both cases are tested
+(`tests/test_harness_sandbox_transport.py` for the bookkeeping,
+`tests/test_harness_sandbox_hostile.py` for containment and kill recovery, in the
+`sandbox-hostile` CI job).
+
+**Regression gate.** Moving the harness must change nothing. `scripts/sandbox_gate.py`
+re-runs the sampled mutants through the container and compares, per mutant, with
+the verdicts the direct path recorded, and separately compares the observation
+stream for the unmutated case set byte for byte. It also reports the overhead per
+pass. The gate is a required step of the `sandbox-hostile` job; its result is
+published as an annotation because job logs need admin rights.
+
+**Hostile case.** A target that writes outside its workspace, opens a socket, and
+forks without limit must be contained *and* the attempt must be recorded as an
+ordinary observation — the point is not that the harness survives, it is that a
+hostile target is data, not an outage.
 
 ## D10l — The oracle was inverted, and the audit that caught it
 
@@ -594,6 +613,49 @@ tuning case was written with those sites in view; it is stratified by operator
 and drawn with its own recorded seed. The gain is +16.6 points held-out against
 +13.7 points on the tuning set — the intervals overlap, so the honest reading is
 "the new cases generalise", not "tuning doubled the kill rate".
+
+## D10n — The 41 mutants both oracles missed
+
+The 41 mutants that survived both the case set and the upstream suite are the only
+candidates for a true equivalent mutant, so each was read and probed by hand:
+build the mutant, call an API directly, compare the unmutated and mutated result.
+
+| Verdict | Count |
+| --- | --- |
+| Docstring deletion (`__doc__` only) | 7 |
+| Real behaviour, observed by neither oracle | 33 |
+| No difference found under any probe (candidate equivalent, **not** proven) | 1 |
+
+The probe evidence is in `docs/results/mutation-both-missed-20261120.md`: month
+names (`01/Feb/2024` → `01/Jan/2024`), `FixedTzOffset.__eq__`, `tzname`,
+`repr(Parser(...))` on a long format, `Parser.search`'s default `pos`, timezone
+minute 59, the fill-character escape, duplicated-name renaming. Every one is a gap
+in **both** oracles. 32 of the 41 sit on a line no case and no test executes, which
+is the honest backlog: writing cases for unexecuted lines is a different exercise
+from tuning a branch, and this sample cannot tell them apart.
+
+One survivor is labelled a *candidate* equivalent rather than an equivalent,
+because a probe is an experiment, not a proof.
+
+## D10o — A canary caught the test oracle shadowing the mutant
+
+The 12a polarity bug survived because nothing tested the evaluator end to end.
+`tests/test_harness_canary.py` now does: an obviously broken mutant must be killed
+by **both** oracles, a comment-only change must be survived by both, and an
+unmutated tree must not read as killed.
+
+Writing it immediately found a second bug. `_run_tests` invoked pytest on the
+tests directory, and pytest's default `prepend` import mode puts that directory at
+the front of `sys.path`. When the tests sit next to the module under test — the
+canary's layout — `import canary` resolved to the **unmutated** copy and the
+oracle silently graded the wrong tree. `parse` was unaffected only because its
+tests live in a subdirectory. The fix is `--import-mode=importlib`, which stops
+pytest touching `sys.path` at all, so the mutant on `PYTHONPATH` wins. The parse
+verdicts were re-checked against three known rows after the change and are
+unchanged.
+
+The lesson is the same one as D10l from the other side: an oracle that is not
+tested is an oracle you are guessing about.
 
 ## Consequences
 

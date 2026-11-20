@@ -114,12 +114,34 @@ neither has a target number to hit:
 | One hand-seeded bug inside a harmless refactor | **different on 4 cases** |
 | Tuning the case set for the survivor clusters | 46.3 % → 60.0 % on the same mutants (overfit), **38.7 % → 55.3 % held-out** |
 
-The contrarian result is the useful one: on this target **every harness kill is
-also an upstream-test kill**, so the case set adds nothing to the suite it ships
-with. It is a regression detector, not an oracle, and the 120 tests-only kills
-mark exactly where it is blind. The first version of this table claimed the
-opposite because the test-oracle verdict was stored inverted; the audit and the
-fix are in ADR 004 (D10l).
+The contrarian result is the useful one, and it is the first thing to say about
+stage 1: **on `parse` every harness kill is also an upstream-test kill**, so the
+case set adds no kill power to a library that already has 109 tests. The 120
+tests-only kills mark exactly where it is blind. Stage 1's job was to prove the
+harness sees a change at all — and that it can say "no change" without crying
+wolf — not to beat a mature suite.
+
+**The claim that matters is about the other kind of target.** Legacy code usually
+has **no suite**, so the honest statement of what this harness does is: *generated
+cases reach about half of the upstream suite's kill power with zero hand-written
+assertions, and on mutants the tuning never saw they reach 73 % of it.*
+
+| Evidence | Number |
+| --- | --- |
+| First pass, 300 mutants (seed 12) | 139/300 = 46.3 % (95 % CI 41-52) |
+| Upstream suite on the same 300 | 259/300 = 86.3 % — harness kills are a subset |
+| Tuned on those mutants (overfit by construction) | 180/300 = 60.0 % |
+| Held-out, 150 mutants from the 539 untouched sites | 58/150 = 38.7 % → **83/150 = 55.3 %** tuned |
+| Held-out with the suite as second oracle | harness 83, suite 113, **4 harness-only**, 79 both |
+| 12 harmless refactors | all clean, **0 false positives** |
+| One hand-seeded bug inside a harmless refactor | **different on 4 cases** |
+| 41 mutants both oracles missed, reviewed by hand | 7 docstring-only, 33 real gaps, 1 candidate equivalent |
+
+Two caveats are part of the claim, not footnotes: the held-out sites sit in the
+same functions as the tuned clusters (so it shows regional coverage, not
+cross-target generalisation), and 32 of the 41 both-missed mutants sit on a line no
+case executes. Both are in `docs/results/mutation-tuning-20261120.md` and
+`docs/results/mutation-both-missed-20261120.md`.
 
 ### Known target bugs (not harness bugs)
 

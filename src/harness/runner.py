@@ -14,6 +14,7 @@ import random
 import signal
 import subprocess
 import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -59,6 +60,9 @@ def run_pass(
     expected_case_set_hash: str = "",
     shim_disable: tuple[str, ...] = (),
     cpu_budget_seconds: float = 0.0,
+    executor: Any | None = None,
+    sandbox_image: str = "python:3.12-slim",
+    sandbox_limits: Any | None = None,
 ) -> Pass:
     from harness.cases import case_set_hash as compute_case_set_hash
 
@@ -137,15 +141,31 @@ def run_pass(
             else case_budget_seconds * max(1, len(remaining))
         )
         try:
-            timed_out, returncode, last_stderr = _supervise(
-                command,
-                cwd=checkout,
-                env=env,
-                out_path=out_path,
-                begin_path=begin_path,
-                stall_seconds=case_budget_seconds,
-                wall_timeout=wall_timeout,
-            )
+            if executor is None:
+                timed_out, returncode, last_stderr = _supervise(
+                    command,
+                    cwd=checkout,
+                    env=env,
+                    out_path=out_path,
+                    begin_path=begin_path,
+                    stall_seconds=case_budget_seconds,
+                    wall_timeout=wall_timeout,
+                )
+            else:
+                timed_out, returncode, last_stderr = _supervise_sandbox(
+                    executor=executor,
+                    plan_path=plan_path,
+                    out_path=out_path,
+                    begin_path=begin_path,
+                    checkout=checkout,
+                    shim_dir=shim_dir,
+                    src_dir=src_dir,
+                    env=env,
+                    limits=sandbox_limits,
+                    image=sandbox_image,
+                    index=index,
+                    wall_seconds=wall_timeout,
+                )
         except OSError as exc:
             raise RuntimeError(f"could not start the child: {exc}") from exc
         if out_path.exists():
@@ -241,6 +261,74 @@ def run_pass(
         order=order,
         restarts=restarts,
     )
+
+
+def _supervise_sandbox(
+    *,
+    executor: Any,
+    plan_path: Path,
+    out_path: Path,
+    begin_path: Path,
+    checkout: Path,
+    shim_dir: Path,
+    src_dir: Path,
+    env: dict[str, str],
+    limits: Any,
+    image: str,
+    index: int,
+    wall_seconds: float,
+) -> tuple[bool, int | None, str]:
+    """One attempt with the child inside the sandbox; same return contract.
+
+    The workspace travels as copy-in bytes and the observations come back from
+    the copy-out, so a child killed by its CPU budget still leaves both its
+    observations and its begin marker behind: the sandbox supervisor runs the
+    payload as a child and keeps the container alive for the copy-out.
+    """
+    from engine.sandbox import SandboxLimits
+    from harness.sandbox_transport import (
+        OUT_NAME,
+        PLAN_NAME,
+        sandbox_env,
+        workspace_files,
+    )
+
+    limits = limits or SandboxLimits(wall_seconds=max(30.0, wall_seconds))
+
+    files = workspace_files(
+        checkout=checkout,
+        shim_dir=shim_dir,
+        src_dir=src_dir,
+        plan=plan_path.read_bytes(),
+    )
+    env = sandbox_env(env)
+    argv = [
+        str(getattr(executor, "python", "python3")),
+        "-m",
+        "harness.child",
+        PLAN_NAME,
+        OUT_NAME,
+    ]
+    started = time.monotonic()
+    outcome = executor.run(
+        argv=argv,
+        env=env,
+        files=files,
+        limits=limits,
+        image=image,
+        job_id=f"harness-{index}",
+    )
+    del started, wall_seconds  # the sandbox runner owns the wall clock
+    # Copy the results back to the host paths the retry loop already reads.
+    begin_name = OUT_NAME.replace(".jsonl", ".begin")
+    for name, path in ((OUT_NAME, out_path), (begin_name, begin_path)):
+        data = outcome.files.get(name)
+        if data is not None:
+            path.write_bytes(data)
+    stderr = outcome.stderr.decode("utf-8", "replace") if outcome.stderr else ""
+    if outcome.oom_killed:
+        stderr = (stderr + chr(10) + "sandbox: container was OOM-killed").strip()
+    return outcome.timed_out, outcome.exit_code, stderr[-2000:]
 
 
 def _line_count(path: Path) -> int:

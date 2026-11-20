@@ -113,7 +113,14 @@ def _run_tests(tests: Path, checkout: Path) -> tuple[bool, str]:
     try:
         result = subprocess.run(
             [sys.executable, "-m", "pytest", "-x", "-q", "--no-header",
-             "-o", "addopts=", "-p", "no:cacheprovider", str(tests)],
+             "-o", "addopts=", "-p", "no:cacheprovider",
+             # importlib mode stops pytest inserting the tests directory at the
+             # front of sys.path. With the default "prepend" mode a checkout
+             # whose tests sit next to the module under test shadows the mutant
+             # with the unmutated copy, and the oracle silently tests the wrong
+             # tree — the canary fixture is exactly that layout, and it caught it.
+             "--import-mode=importlib",
+             str(tests)],
             cwd=str(checkout),
             capture_output=True,
             text=True,

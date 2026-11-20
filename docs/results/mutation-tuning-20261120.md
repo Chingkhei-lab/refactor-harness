@@ -8,6 +8,7 @@ Evidence, not proof. The first pass is the headline; the tuned run on the same m
 | Tuned, same mutants (overfit) | 307 cases, `4dcdd838` | 300 | 180/300 = 60.0 % (95 % CI 54-65 %) | 163/203 = 80.3 % (95 % CI 74-85 %) |
 | Held-out, original cases | 273 cases | 150 (seed 99, sites excluded: 300) | 58/150 = 38.7 % (95 % CI 31-47 %) | 56/86 = 65.1 % (95 % CI 55-74 %) |
 | Held-out, tuned cases | 307 cases | 150 | 83/150 = 55.3 % (95 % CI 47-63 %) | 72/86 = 83.7 % (95 % CI 75-90 %) |
+| Held-out, tuned cases + upstream tests | 307 cases | 150 | harness 83/150 = 55.3 % (95 % CI 47-63 %); tests 75.3 % (90.7 % on covered lines) |
 
 The held-out mutants are drawn from the 539 sites the first sample did not touch, stratified by operator and seeded (99), so no tuning case was written with those sites in view. The gain there is +16.7 percentage points, against +13.7 on the tuning set. The two intervals overlap, so the honest reading is "the new cases help, and the tuning set does not overstate by much" — not "tuning doubled the kill rate".
 
@@ -27,8 +28,12 @@ Newly killed on the tuning set: **41**; lost: **0**.
 
 `{:10.3}` is not a working format — the target raises `NotImplementedError` on it. It is kept because the exception is a deterministic observation and the width-with-precision branch is otherwise unreachable.
 
+## The ratio to the upstream suite on held-out mutants
+
+On the held-out sample the case set kills 83 mutants and the upstream suite kills 113: the generated cases reach 73 % of the suite's kill power with zero hand-written assertions. The overlap is 79; the case set finds **4** mutants the suite misses, and the suite finds 34 the cases miss. On the first pass the harness kills were a strict subset of the suite's; on mutants the tuning never saw, they are not.
+
 ## What this does not say
 
-- The held-out sample is another 150 of the same 839 sites on the same file; it tests generalisation across *sites*, not across targets.
-- Upstream tests were not re-run on the held-out mutants, so the held-out table has no test-oracle column.
+- The held-out sample is another 150 of the same 839 sites on the same file, and those sites sit inside the same functions as the tuned clusters (`date_convert`, `extract_format`, `int_convert`). It therefore shows that the new cases cover those *regions* better; it does **not** show that tuning generalises to code it has never seen. A cross-target held-out sample (stage 2) is the only thing that would.
+- The test-oracle column is only on the tuned held-out run (the test verdict does not depend on the case set), not on the original-case held-out run.
 - A gain here is not a claim that the case set is complete: 96 of the first pass's survivors sit on lines no case executes, and writing cases for those lines is a different exercise from writing cases for a branch.

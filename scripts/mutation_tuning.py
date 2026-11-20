@@ -51,6 +51,9 @@ def main() -> int:
     tuned, tuned_plan = load("tuned")
     held_old, held_plan = load("heldout-original")
     held_new, _ = load("heldout-tuned")
+    held_tests, held_tests_plan = load("heldout-tuned-tests")
+    harness_kills = sum(1 for row in held_tests if row["harness_killed"])
+    test_kills = sum(1 for row in held_tests if row["tests_killed"])
     assert [row["site"] for row in first] == [row["site"] for row in tuned]
     assert [row["site"] for row in held_old] == [row["site"] for row in held_new]
 
@@ -68,6 +71,9 @@ def main() -> int:
     ]
     held_cov_old = [row for row in held_old if row["line"] in executed]
     held_cov_new = [row for row in held_new if row["line"] in executed]
+    held_cov_tests = [row for row in held_tests if row["line"] in executed]
+    both = [row for row in held_tests if row["harness_killed"] and row["tests_killed"]]
+    harness_only = [row for row in held_tests if row["harness_killed"] and not row["tests_killed"]]
 
     def pct(rows: list[dict[str, Any]]) -> float:
         return 100 * sum(1 for row in rows if row["harness_killed"]) / len(rows)
@@ -94,6 +100,10 @@ def main() -> int:
         f"| {rate(held_old)} | {rate(held_cov_old)} |",
         f"| Held-out, tuned cases | 307 cases | {len(held_new)} | {rate(held_new)} "
         f"| {rate(held_cov_new)} |",
+        f"| Held-out, tuned cases + upstream tests | 307 cases | {len(held_tests)} "
+        f"| harness {rate(held_tests)}; tests {100 * test_kills / len(held_tests):.1f} % "
+        f"({100 * sum(1 for r in held_cov_tests if r['tests_killed']) / len(held_cov_tests):.1f} % "
+        "on covered lines) |",
         "",
         "The held-out mutants are drawn from the 539 sites the first sample did not "
         "touch, stratified by operator and seeded (99), so no tuning case was written "
@@ -123,12 +133,28 @@ def main() -> int:
         "on it. It is kept because the exception is a deterministic observation and "
         "the width-with-precision branch is otherwise unreachable.",
         "",
+        "## The ratio to the upstream suite on held-out mutants",
+        "",
+        f"On the held-out sample the case set kills {harness_kills} mutants and the "
+        f"upstream suite kills {test_kills}: the generated cases reach "
+        f"{100 * harness_kills / max(1, test_kills):.0f} % of the suite's kill power "
+        "with zero hand-written assertions. The overlap is "
+        f"{len(both)}; the case set finds **{len(harness_only)}** mutants the suite "
+        "misses, and the suite finds "
+        f"{test_kills - len(both)} the cases miss. On the first pass the harness kills "
+        "were a strict subset of the suite's; on mutants the tuning never saw, they "
+        "are not.",
+        "",
         "## What this does not say",
         "",
-        "- The held-out sample is another 150 of the same 839 sites on the same file; "
-        "it tests generalisation across *sites*, not across targets.",
-        "- Upstream tests were not re-run on the held-out mutants, so the held-out "
-        "table has no test-oracle column.",
+        "- The held-out sample is another 150 of the same 839 sites on the same file, "
+        "and those sites sit inside the same functions as the tuned clusters "
+        "(`date_convert`, `extract_format`, `int_convert`). It therefore shows that the "
+        "new cases cover those *regions* better; it does **not** show that tuning "
+        "generalises to code it has never seen. A cross-target held-out sample (stage 2) "
+        "is the only thing that would.",
+        "- The test-oracle column is only on the tuned held-out run (the test verdict "
+        "does not depend on the case set), not on the original-case held-out run.",
         "- A gain here is not a claim that the case set is complete: 96 of the first "
         "pass's survivors sit on lines no case executes, and writing cases for those "
         "lines is a different exercise from writing cases for a branch.",
