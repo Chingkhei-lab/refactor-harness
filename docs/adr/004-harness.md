@@ -735,6 +735,50 @@ a default. A container is always Linux; nothing about its environment may be
 inherited from the machine that started it. Pinned by
 `test_the_container_path_is_never_inherited_from_the_host`.
 
+### D10t — Two fixed waits were 94 % of the sandbox overhead
+
+The first overhead measurement said 15 s per pass and blamed the tar transport.
+It was two waits, and the breakdown that "explained" them did not add up — which
+was the clue.
+
+* `container.wait(timeout=5)` in `_wait_for_done`. docker-py passes `timeout` to
+  `_post(url, timeout=...)`: a **client** request timeout, not a daemon wait. The
+  supervisor holds the container open on purpose (so the tmpfs workspace survives
+  for copy-out), so every call blocked the full slice and the marker event was
+  only examined afterwards. Cost: 5 s, or 10 s when the payload crossed a slice.
+* `reader.join()` **before** closing the attach socket. The socket stays open as
+  long as the container is alive, so `join` waited its whole 10 s timeout.
+
+The wait is now on the local event (`0.02 s` granularity) with a `0.5 s` liveness
+re-read of the container state as the fallback exit detector, and the reader's
+stream is closed before it is joined. Overhead went **15.12 s → 0.91 s per pass**
+(300-mutant gate: 76 min → 13 min, still 300/300 and byte-identical), and a
+sandboxed `/bin/true` run with the real workspace went 11–16 s → 1.45 s.
+
+Two rules came out of it:
+
+* **A timing breakdown must decompose one measured total.** Three independent runs
+  of overlapping work are three measurements, not a decomposition; `-X importtime`
+  put the child import at 1.33 s, not the 5.02 s the subtraction suggested.
+* **A stub must model the state the code reads.** The exit detector now reads
+  `State.Status`, so `FakeContainer` had to grow a `Status` and say whether it
+  models a running container — the alternative was a suite that passes while the
+  detector is wrong.
+
+### D10u — Coverage of a grandchild needs `COVERAGE_PROCESS_START`
+
+A CLI case runs the target as a subprocess of the harness child, so coverage of the
+child sees none of the target's lines. The hook lives in the shim's
+`sitecustomize` (already on `PYTHONPATH`), guarded by the environment variable, and
+the runner writes an explicit `--rcfile` because the target's own `setup.cfg`
+configures coverage (`plugins = covdefaults` in `pycodestyle`) and would otherwise
+be read from `cwd=checkout`. Data files are `parallel` and merged with
+`coverage combine`, whose data-file **prefix** must match what the subprocesses
+wrote — pointing it at a different name silently merges nothing and reads one
+subprocess's file as if it were the whole run. The report states the check that
+catches this: one case must be strictly lower than the full set, and `_main` must
+appear.
+
 ## Consequences
 
 - A report must carry: class counts, masked fields + rules, unsupported cases,

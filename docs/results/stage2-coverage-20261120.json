@@ -1,0 +1,823 @@
+{
+  "case_count": 77,
+  "case_set_hash": "be70731d8c084343af84746f977cc5292de262c05fe2e11eaa5895d7e1f76901",
+  "checks": {
+    "empty_is_zero": true,
+    "one_case_is_lower": true,
+    "subprocess_reached": true
+  },
+  "empty": {
+    "branch_percent": 0.0,
+    "branches": 0,
+    "combined_percent": 0.0,
+    "covered_branches": 0,
+    "covered_statements": 0,
+    "function_count": 0,
+    "line_percent": 0.0,
+    "never_entered_functions": [],
+    "partially_covered_functions": [],
+    "statements": 0,
+    "surface": {}
+  },
+  "full": {
+    "branch_percent": 82.5,
+    "branches": 800,
+    "combined_percent": 87.07,
+    "covered_branches": 660,
+    "covered_statements": 1225,
+    "function_count": 89,
+    "line_percent": 89.74,
+    "never_entered_functions": [
+      {
+        "executed_lines": 0,
+        "function": "pycodestyle.py::BaseReport.get_count",
+        "missing_lines": 1,
+        "start_line": 2241
+      },
+      {
+        "executed_lines": 0,
+        "function": "pycodestyle.py::Checker.check_ast",
+        "missing_lines": 9,
+        "start_line": 2053
+      }
+    ],
+    "partially_covered_functions": [
+      {
+        "executed_lines": 195,
+        "function": "pycodestyle.py::",
+        "missing_lines": 9,
+        "start_line": 1
+      },
+      {
+        "executed_lines": 12,
+        "function": "pycodestyle.py::BaseReport.error",
+        "missing_lines": 2,
+        "start_line": 2218
+      },
+      {
+        "executed_lines": 2,
+        "function": "pycodestyle.py::BaseReport.print_benchmark",
+        "missing_lines": 2,
+        "start_line": 2262
+      },
+      {
+        "executed_lines": 33,
+        "function": "pycodestyle.py::Checker.__init__",
+        "missing_lines": 8,
+        "start_line": 1888
+      },
+      {
+        "executed_lines": 30,
+        "function": "pycodestyle.py::Checker.build_tokens_line",
+        "missing_lines": 3,
+        "start_line": 1980
+      },
+      {
+        "executed_lines": 33,
+        "function": "pycodestyle.py::Checker.check_all",
+        "missing_lines": 5,
+        "start_line": 2136
+      },
+      {
+        "executed_lines": 27,
+        "function": "pycodestyle.py::Checker.check_logical",
+        "missing_lines": 1,
+        "start_line": 2018
+      },
+      {
+        "executed_lines": 18,
+        "function": "pycodestyle.py::Checker.maybe_check_physical",
+        "missing_lines": 5,
+        "start_line": 2082
+      },
+      {
+        "executed_lines": 5,
+        "function": "pycodestyle.py::Checker.report_invalid_syntax",
+        "missing_lines": 2,
+        "start_line": 1935
+      },
+      {
+        "executed_lines": 2,
+        "function": "pycodestyle.py::DiffReport.error",
+        "missing_lines": 1,
+        "start_line": 2339
+      },
+      {
+        "executed_lines": 12,
+        "function": "pycodestyle.py::StandardReport.get_file_results",
+        "missing_lines": 1,
+        "start_line": 2303
+      },
+      {
+        "executed_lines": 23,
+        "function": "pycodestyle.py::StyleGuide.__init__",
+        "missing_lines": 3,
+        "start_line": 2348
+      },
+      {
+        "executed_lines": 13,
+        "function": "pycodestyle.py::StyleGuide.check_files",
+        "missing_lines": 2,
+        "start_line": 2390
+      },
+      {
+        "executed_lines": 8,
+        "function": "pycodestyle.py::StyleGuide.excluded",
+        "missing_lines": 1,
+        "start_line": 2440
+      },
+      {
+        "executed_lines": 2,
+        "function": "pycodestyle.py::StyleGuide.ignore_code",
+        "missing_lines": 1,
+        "start_line": 2455
+      },
+      {
+        "executed_lines": 13,
+        "function": "pycodestyle.py::StyleGuide.input_dir",
+        "missing_lines": 4,
+        "start_line": 2416
+      },
+      {
+        "executed_lines": 13,
+        "function": "pycodestyle.py::_break_around_binary_operators",
+        "missing_lines": 1,
+        "start_line": 1345
+      },
+      {
+        "executed_lines": 18,
+        "function": "pycodestyle.py::_is_one_liner",
+        "missing_lines": 3,
+        "start_line": 306
+      },
+      {
+        "executed_lines": 5,
+        "function": "pycodestyle.py::_is_string_literal",
+        "missing_lines": 1,
+        "start_line": 1160
+      },
+      {
+        "executed_lines": 32,
+        "function": "pycodestyle.py::ambiguous_identifier",
+        "missing_lines": 6,
+        "start_line": 1535
+      },
+      {
+        "executed_lines": 4,
+        "function": "pycodestyle.py::bare_except",
+        "missing_lines": 1,
+        "start_line": 1518
+      },
+      {
+        "executed_lines": 27,
+        "function": "pycodestyle.py::blank_lines",
+        "missing_lines": 2,
+        "start_line": 342
+      },
+      {
+        "executed_lines": 5,
+        "function": "pycodestyle.py::break_after_binary_operator",
+        "missing_lines": 1,
+        "start_line": 1402
+      },
+      {
+        "executed_lines": 3,
+        "function": "pycodestyle.py::break_before_binary_operator",
+        "missing_lines": 1,
+        "start_line": 1372
+      },
+      {
+        "executed_lines": 2,
+        "function": "pycodestyle.py::comparison_negative",
+        "missing_lines": 4,
+        "start_line": 1474
+      },
+      {
+        "executed_lines": 5,
+        "function": "pycodestyle.py::comparison_type",
+        "missing_lines": 1,
+        "start_line": 1496
+      },
+      {
+        "executed_lines": 109,
+        "function": "pycodestyle.py::continued_indentation",
+        "missing_lines": 9,
+        "start_line": 556
+      },
+      {
+        "executed_lines": 11,
+        "function": "pycodestyle.py::extraneous_whitespace",
+        "missing_lines": 1,
+        "start_line": 428
+      },
+      {
+        "executed_lines": 2,
+        "function": "pycodestyle.py::filename_match",
+        "missing_lines": 1,
+        "start_line": 1858
+      },
+      {
+        "executed_lines": 21,
+        "function": "pycodestyle.py::maximum_doc_length",
+        "missing_lines": 7,
+        "start_line": 1709
+      },
+      {
+        "executed_lines": 8,
+        "function": "pycodestyle.py::maximum_line_length",
+        "missing_lines": 2,
+        "start_line": 269
+      },
+      {
+        "executed_lines": 64,
+        "function": "pycodestyle.py::missing_whitespace",
+        "missing_lines": 8,
+        "start_line": 831
+      },
+      {
+        "executed_lines": 18,
+        "function": "pycodestyle.py::module_imports_on_top_of_file",
+        "missing_lines": 1,
+        "start_line": 1174
+      },
+      {
+        "executed_lines": 8,
+        "function": "pycodestyle.py::normalize_paths",
+        "missing_lines": 3,
+        "start_line": 1840
+      },
+      {
+        "executed_lines": 16,
+        "function": "pycodestyle.py::parse_udiff",
+        "missing_lines": 1,
+        "start_line": 1811
+      },
+      {
+        "executed_lines": 25,
+        "function": "pycodestyle.py::process_options",
+        "missing_lines": 2,
+        "start_line": 2621
+      },
+      {
+        "executed_lines": 37,
+        "function": "pycodestyle.py::read_config",
+        "missing_lines": 9,
+        "start_line": 2547
+      },
+      {
+        "executed_lines": 4,
+        "function": "pycodestyle.py::readlines",
+        "missing_lines": 2,
+        "start_line": 1761
+      },
+      {
+        "executed_lines": 8,
+        "function": "pycodestyle.py::register_check",
+        "missing_lines": 3,
+        "start_line": 172
+      },
+      {
+        "executed_lines": 2,
+        "function": "pycodestyle.py::register_check._add_check",
+        "missing_lines": 1,
+        "start_line": 174
+      },
+      {
+        "executed_lines": 5,
+        "function": "pycodestyle.py::trailing_blank_lines",
+        "missing_lines": 1,
+        "start_line": 252
+      },
+      {
+        "executed_lines": 2,
+        "function": "pycodestyle.py::whitespace_around_comma",
+        "missing_lines": 4,
+        "start_line": 999
+      },
+      {
+        "executed_lines": 38,
+        "function": "pycodestyle.py::whitespace_around_named_parameter_equals",
+        "missing_lines": 2,
+        "start_line": 1018
+      },
+      {
+        "executed_lines": 8,
+        "function": "pycodestyle.py::whitespace_around_operator",
+        "missing_lines": 2,
+        "start_line": 807
+      }
+    ],
+    "statements": 1365,
+    "surface": {
+      "_main": {
+        "executed": 16,
+        "missing": 0,
+        "missing_lines": [],
+        "start_line": 2689
+      },
+      "get_parser": {
+        "executed": 23,
+        "missing": 0,
+        "missing_lines": [],
+        "start_line": 2482
+      },
+      "process_options": {
+        "executed": 25,
+        "missing": 2,
+        "missing_lines": [
+          2640,
+          2648
+        ],
+        "start_line": 2621
+      },
+      "read_config": {
+        "executed": 37,
+        "missing": 9,
+        "missing_lines": [
+          2565,
+          2566,
+          2567,
+          2580,
+          2608,
+          2609,
+          2611,
+          2612,
+          2613
+        ],
+        "start_line": 2547
+      }
+    }
+  },
+  "one_case": {
+    "branch_percent": 52.75,
+    "branches": 800,
+    "combined_percent": 62.08,
+    "covered_branches": 422,
+    "covered_statements": 922,
+    "function_count": 89,
+    "line_percent": 67.55,
+    "never_entered_functions": [
+      {
+        "executed_lines": 0,
+        "function": "pycodestyle.py::BaseReport.get_count",
+        "missing_lines": 1,
+        "start_line": 2241
+      },
+      {
+        "executed_lines": 0,
+        "function": "pycodestyle.py::BaseReport.get_file_results",
+        "missing_lines": 1,
+        "start_line": 2237
+      },
+      {
+        "executed_lines": 0,
+        "function": "pycodestyle.py::BaseReport.get_statistics",
+        "missing_lines": 1,
+        "start_line": 2246
+      },
+      {
+        "executed_lines": 0,
+        "function": "pycodestyle.py::BaseReport.print_benchmark",
+        "missing_lines": 4,
+        "start_line": 2262
+      },
+      {
+        "executed_lines": 0,
+        "function": "pycodestyle.py::BaseReport.print_statistics",
+        "missing_lines": 2,
+        "start_line": 2257
+      },
+      {
+        "executed_lines": 0,
+        "function": "pycodestyle.py::Checker.check_ast",
+        "missing_lines": 9,
+        "start_line": 2053
+      },
+      {
+        "executed_lines": 0,
+        "function": "pycodestyle.py::Checker.report_invalid_syntax",
+        "missing_lines": 7,
+        "start_line": 1935
+      },
+      {
+        "executed_lines": 0,
+        "function": "pycodestyle.py::DiffReport.__init__",
+        "missing_lines": 2,
+        "start_line": 2335
+      },
+      {
+        "executed_lines": 0,
+        "function": "pycodestyle.py::DiffReport.error",
+        "missing_lines": 3,
+        "start_line": 2339
+      },
+      {
+        "executed_lines": 0,
+        "function": "pycodestyle.py::StyleGuide.input_dir",
+        "missing_lines": 17,
+        "start_line": 2416
+      },
+      {
+        "executed_lines": 0,
+        "function": "pycodestyle.py::_break_around_binary_operators",
+        "missing_lines": 14,
+        "start_line": 1345
+      },
+      {
+        "executed_lines": 0,
+        "function": "pycodestyle.py::_is_binary_operator",
+        "missing_lines": 1,
+        "start_line": 1336
+      },
+      {
+        "executed_lines": 0,
+        "function": "pycodestyle.py::break_after_binary_operator",
+        "missing_lines": 6,
+        "start_line": 1402
+      },
+      {
+        "executed_lines": 0,
+        "function": "pycodestyle.py::break_before_binary_operator",
+        "missing_lines": 4,
+        "start_line": 1372
+      },
+      {
+        "executed_lines": 0,
+        "function": "pycodestyle.py::parse_udiff",
+        "missing_lines": 17,
+        "start_line": 1811
+      },
+      {
+        "executed_lines": 0,
+        "function": "pycodestyle.py::stdin_get_value",
+        "missing_lines": 1,
+        "start_line": 1772
+      },
+      {
+        "executed_lines": 0,
+        "function": "pycodestyle.py::whitespace_around_comma",
+        "missing_lines": 6,
+        "start_line": 999
+      }
+    ],
+    "partially_covered_functions": [
+      {
+        "executed_lines": 195,
+        "function": "pycodestyle.py::",
+        "missing_lines": 9,
+        "start_line": 1
+      },
+      {
+        "executed_lines": 11,
+        "function": "pycodestyle.py::BaseReport.error",
+        "missing_lines": 3,
+        "start_line": 2218
+      },
+      {
+        "executed_lines": 27,
+        "function": "pycodestyle.py::Checker.__init__",
+        "missing_lines": 14,
+        "start_line": 1888
+      },
+      {
+        "executed_lines": 30,
+        "function": "pycodestyle.py::Checker.build_tokens_line",
+        "missing_lines": 3,
+        "start_line": 1980
+      },
+      {
+        "executed_lines": 31,
+        "function": "pycodestyle.py::Checker.check_all",
+        "missing_lines": 7,
+        "start_line": 2136
+      },
+      {
+        "executed_lines": 25,
+        "function": "pycodestyle.py::Checker.check_logical",
+        "missing_lines": 3,
+        "start_line": 2018
+      },
+      {
+        "executed_lines": 11,
+        "function": "pycodestyle.py::Checker.generate_tokens",
+        "missing_lines": 3,
+        "start_line": 2065
+      },
+      {
+        "executed_lines": 17,
+        "function": "pycodestyle.py::Checker.maybe_check_physical",
+        "missing_lines": 6,
+        "start_line": 2082
+      },
+      {
+        "executed_lines": 7,
+        "function": "pycodestyle.py::StandardReport.get_file_results",
+        "missing_lines": 6,
+        "start_line": 2303
+      },
+      {
+        "executed_lines": 22,
+        "function": "pycodestyle.py::StyleGuide.__init__",
+        "missing_lines": 4,
+        "start_line": 2348
+      },
+      {
+        "executed_lines": 12,
+        "function": "pycodestyle.py::StyleGuide.check_files",
+        "missing_lines": 3,
+        "start_line": 2390
+      },
+      {
+        "executed_lines": 6,
+        "function": "pycodestyle.py::StyleGuide.excluded",
+        "missing_lines": 3,
+        "start_line": 2440
+      },
+      {
+        "executed_lines": 2,
+        "function": "pycodestyle.py::StyleGuide.ignore_code",
+        "missing_lines": 1,
+        "start_line": 2455
+      },
+      {
+        "executed_lines": 3,
+        "function": "pycodestyle.py::StyleGuide.input_file",
+        "missing_lines": 1,
+        "start_line": 2408
+      },
+      {
+        "executed_lines": 14,
+        "function": "pycodestyle.py::_is_one_liner",
+        "missing_lines": 7,
+        "start_line": 306
+      },
+      {
+        "executed_lines": 4,
+        "function": "pycodestyle.py::_is_string_literal",
+        "missing_lines": 2,
+        "start_line": 1160
+      },
+      {
+        "executed_lines": 13,
+        "function": "pycodestyle.py::_main",
+        "missing_lines": 3,
+        "start_line": 2689
+      },
+      {
+        "executed_lines": 28,
+        "function": "pycodestyle.py::ambiguous_identifier",
+        "missing_lines": 10,
+        "start_line": 1535
+      },
+      {
+        "executed_lines": 3,
+        "function": "pycodestyle.py::bare_except",
+        "missing_lines": 2,
+        "start_line": 1518
+      },
+      {
+        "executed_lines": 14,
+        "function": "pycodestyle.py::blank_lines",
+        "missing_lines": 15,
+        "start_line": 342
+      },
+      {
+        "executed_lines": 2,
+        "function": "pycodestyle.py::comparison_negative",
+        "missing_lines": 4,
+        "start_line": 1474
+      },
+      {
+        "executed_lines": 2,
+        "function": "pycodestyle.py::comparison_to_singleton",
+        "missing_lines": 10,
+        "start_line": 1437
+      },
+      {
+        "executed_lines": 2,
+        "function": "pycodestyle.py::comparison_type",
+        "missing_lines": 4,
+        "start_line": 1496
+      },
+      {
+        "executed_lines": 12,
+        "function": "pycodestyle.py::compound_statements",
+        "missing_lines": 14,
+        "start_line": 1223
+      },
+      {
+        "executed_lines": 90,
+        "function": "pycodestyle.py::continued_indentation",
+        "missing_lines": 28,
+        "start_line": 556
+      },
+      {
+        "executed_lines": 20,
+        "function": "pycodestyle.py::explicit_line_join",
+        "missing_lines": 1,
+        "start_line": 1288
+      },
+      {
+        "executed_lines": 8,
+        "function": "pycodestyle.py::extraneous_whitespace",
+        "missing_lines": 4,
+        "start_line": 428
+      },
+      {
+        "executed_lines": 2,
+        "function": "pycodestyle.py::filename_match",
+        "missing_lines": 1,
+        "start_line": 1858
+      },
+      {
+        "executed_lines": 2,
+        "function": "pycodestyle.py::imports_on_separate_lines",
+        "missing_lines": 3,
+        "start_line": 1138
+      },
+      {
+        "executed_lines": 10,
+        "function": "pycodestyle.py::indentation",
+        "missing_lines": 4,
+        "start_line": 514
+      },
+      {
+        "executed_lines": 2,
+        "function": "pycodestyle.py::maximum_doc_length",
+        "missing_lines": 26,
+        "start_line": 1709
+      },
+      {
+        "executed_lines": 3,
+        "function": "pycodestyle.py::maximum_line_length",
+        "missing_lines": 7,
+        "start_line": 269
+      },
+      {
+        "executed_lines": 37,
+        "function": "pycodestyle.py::missing_whitespace",
+        "missing_lines": 35,
+        "start_line": 831
+      },
+      {
+        "executed_lines": 2,
+        "function": "pycodestyle.py::missing_whitespace_after_keyword",
+        "missing_lines": 1,
+        "start_line": 491
+      },
+      {
+        "executed_lines": 12,
+        "function": "pycodestyle.py::module_imports_on_top_of_file",
+        "missing_lines": 7,
+        "start_line": 1174
+      },
+      {
+        "executed_lines": 8,
+        "function": "pycodestyle.py::normalize_paths",
+        "missing_lines": 3,
+        "start_line": 1840
+      },
+      {
+        "executed_lines": 18,
+        "function": "pycodestyle.py::process_options",
+        "missing_lines": 9,
+        "start_line": 2621
+      },
+      {
+        "executed_lines": 15,
+        "function": "pycodestyle.py::python_3000_invalid_escape_sequence",
+        "missing_lines": 6,
+        "start_line": 1658
+      },
+      {
+        "executed_lines": 14,
+        "function": "pycodestyle.py::read_config",
+        "missing_lines": 32,
+        "start_line": 2547
+      },
+      {
+        "executed_lines": 3,
+        "function": "pycodestyle.py::readlines",
+        "missing_lines": 3,
+        "start_line": 1761
+      },
+      {
+        "executed_lines": 8,
+        "function": "pycodestyle.py::register_check",
+        "missing_lines": 3,
+        "start_line": 172
+      },
+      {
+        "executed_lines": 2,
+        "function": "pycodestyle.py::register_check._add_check",
+        "missing_lines": 1,
+        "start_line": 174
+      },
+      {
+        "executed_lines": 4,
+        "function": "pycodestyle.py::trailing_blank_lines",
+        "missing_lines": 2,
+        "start_line": 252
+      },
+      {
+        "executed_lines": 3,
+        "function": "pycodestyle.py::trailing_whitespace",
+        "missing_lines": 3,
+        "start_line": 228
+      },
+      {
+        "executed_lines": 6,
+        "function": "pycodestyle.py::whitespace_around_keywords",
+        "missing_lines": 4,
+        "start_line": 467
+      },
+      {
+        "executed_lines": 26,
+        "function": "pycodestyle.py::whitespace_around_named_parameter_equals",
+        "missing_lines": 14,
+        "start_line": 1018
+      },
+      {
+        "executed_lines": 6,
+        "function": "pycodestyle.py::whitespace_around_operator",
+        "missing_lines": 4,
+        "start_line": 807
+      },
+      {
+        "executed_lines": 11,
+        "function": "pycodestyle.py::whitespace_before_comment",
+        "missing_lines": 8,
+        "start_line": 1093
+      },
+      {
+        "executed_lines": 7,
+        "function": "pycodestyle.py::whitespace_before_parameters",
+        "missing_lines": 1,
+        "start_line": 767
+      }
+    ],
+    "statements": 1365,
+    "surface": {
+      "_main": {
+        "executed": 13,
+        "missing": 3,
+        "missing_lines": [
+          2705,
+          2708,
+          2712
+        ],
+        "start_line": 2689
+      },
+      "get_parser": {
+        "executed": 23,
+        "missing": 0,
+        "missing_lines": [],
+        "start_line": 2482
+      },
+      "process_options": {
+        "executed": 18,
+        "missing": 9,
+        "missing_lines": [
+          2640,
+          2648,
+          2651,
+          2653,
+          2655,
+          2665,
+          2666,
+          2667,
+          2668
+        ],
+        "start_line": 2621
+      },
+      "read_config": {
+        "executed": 14,
+        "missing": 32,
+        "missing_lines": [
+          2565,
+          2566,
+          2567,
+          2572,
+          2573,
+          2574,
+          2575,
+          2579,
+          2580,
+          2581,
+          2585,
+          2587,
+          2588,
+          2591,
+          2594,
+          2597,
+          2598,
+          2599,
+          2600,
+          2601
+        ],
+        "start_line": 2547
+      }
+    }
+  },
+  "target": "pycodestyle 2.15.0"
+}

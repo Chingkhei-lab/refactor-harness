@@ -1,0 +1,2601 @@
+{
+  "plan": {
+    "written_at": "2026-11-20T18:29:04.576132+00:00",
+    "observation_schema_version": 2,
+    "case_set_hash": "be70731d8c084343af84746f977cc5292de262c05fe2e11eaa5895d7e1f76901",
+    "case_count": 77,
+    "target": "C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify-trees\\old",
+    "source_lines": 2717,
+    "sites_total": 2108,
+    "sites_by_operator": {
+      "compare_swap": 337,
+      "arith_swap": 132,
+      "int_plus": 374,
+      "int_minus": 374,
+      "bool_flip": 211,
+      "return_none": 59,
+      "delete_stmt": 599,
+      "slice_bound": 22
+    },
+    "baseline_seconds": 24.69,
+    "estimated_seconds_per_mutant": 26.69,
+    "seed": 21,
+    "sample_size": 100,
+    "sample": [
+      "bool_flip@74:12",
+      "delete_stmt@80:0",
+      "delete_stmt@134:0",
+      "delete_stmt@173:4",
+      "bool_flip@181:11",
+      "compare_swap@186:11",
+      "bool_flip@286:11",
+      "int_minus@292:28",
+      "int_minus@293:41",
+      "int_plus@334:24",
+      "delete_stmt@374:4",
+      "int_plus@406:55",
+      "compare_swap@503:12",
+      "delete_stmt@535:4",
+      "bool_flip@545:9",
+      "int_plus@584:26",
+      "arith_swap@585:12",
+      "compare_swap@596:36",
+      "bool_flip@662:17",
+      "compare_swap@669:17",
+      "int_plus@671:38",
+      "int_minus@710:31",
+      "bool_flip@712:36",
+      "compare_swap@730:35",
+      "int_plus@732:58",
+      "int_minus@751:37",
+      "bool_flip@786:12",
+      "int_plus@791:44",
+      "int_plus@820:30",
+      "compare_swap@884:45",
+      "compare_swap@887:15",
+      "compare_swap@895:20",
+      "bool_flip@916:21",
+      "delete_stmt@927:16",
+      "delete_stmt@955:16",
+      "compare_swap@956:46",
+      "delete_stmt@995:8",
+      "arith_swap@1012:25",
+      "compare_swap@1066:17",
+      "compare_swap@1077:48",
+      "compare_swap@1120:19",
+      "slice_bound@1124:68",
+      "int_minus@1128:60",
+      "int_plus@1317:33",
+      "delete_stmt@1366:12",
+      "int_plus@1458:50",
+      "compare_swap@1462:11",
+      "delete_stmt@1507:8",
+      "compare_swap@1508:44",
+      "int_minus@1600:27",
+      "delete_stmt@1683:16",
+      "arith_swap@1688:31",
+      "int_minus@1692:57",
+      "bool_flip@1736:23",
+      "int_minus@1741:43",
+      "int_minus@1788:13",
+      "delete_stmt@1803:4",
+      "int_plus@1820:25",
+      "delete_stmt@1823:12",
+      "slice_bound@1827:24",
+      "slice_bound@1830:20",
+      "return_none@1833:4",
+      "delete_stmt@1855:4",
+      "return_none@1864:8",
+      "int_minus@1925:34",
+      "int_minus@1927:27",
+      "int_plus@1927:27",
+      "int_plus@1928:31",
+      "int_plus@1928:47",
+      "int_minus@1930:50",
+      "slice_bound@1937:41",
+      "compare_swap@1974:15",
+      "slice_bound@1977:24",
+      "compare_swap@1987:15",
+      "compare_swap@1996:17",
+      "compare_swap@2029:11",
+      "delete_stmt@2051:8",
+      "bool_flip@2062:19",
+      "int_minus@2068:33",
+      "compare_swap@2123:17",
+      "int_plus@2132:61",
+      "int_minus@2154:25",
+      "delete_stmt@2168:24",
+      "int_plus@2191:23",
+      "int_plus@2227:39",
+      "return_none@2239:8",
+      "int_minus@2309:71",
+      "arith_swap@2320:22",
+      "return_none@2329:8",
+      "compare_swap@2340:11",
+      "int_minus@2428:39",
+      "bool_flip@2466:16",
+      "int_plus@2490:49",
+      "return_none@2544:4",
+      "bool_flip@2591:31",
+      "arith_swap@2632:12",
+      "delete_stmt@2659:4",
+      "delete_stmt@2670:4",
+      "int_plus@2695:69",
+      "int_minus@2713:17"
+    ],
+    "sampling": "stratified: min(3, available) per operator, rest proportional, one seed",
+    "tag": "stage2",
+    "excluded_from_sampling": [],
+    "baseline_unsupported": 0,
+    "baseline_flaky": 0
+  },
+  "results": [
+    {
+      "position": 1,
+      "site": "bool_flip@74:12",
+      "operator": "bool_flip",
+      "line": 74,
+      "column": 12,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.76s",
+      "seconds": 33.0
+    },
+    {
+      "position": 2,
+      "site": "delete_stmt@80:0",
+      "operator": "delete_stmt",
+      "line": 80,
+      "column": 0,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-crlf",
+        "fixture-e10",
+        "fixture-e11",
+        "fixture-e12",
+        "fixture-e12not",
+        "fixture-e20"
+      ],
+      "differing_count": 71,
+      "classes": {
+        "identical": 6,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 71,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.87s",
+      "seconds": 32.6
+    },
+    {
+      "position": 3,
+      "site": "delete_stmt@134:0",
+      "operator": "delete_stmt",
+      "line": 134,
+      "column": 0,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e70",
+        "fixture-python3",
+        "fixture-python38",
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 5,
+      "classes": {
+        "identical": 72,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 5,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 2 passed in 2.17s",
+      "seconds": 31.8
+    },
+    {
+      "position": 4,
+      "site": "delete_stmt@173:4",
+      "operator": "delete_stmt",
+      "line": 173,
+      "column": 4,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.54s",
+      "seconds": 32.2
+    },
+    {
+      "position": 5,
+      "site": "bool_flip@181:11",
+      "operator": "bool_flip",
+      "line": 181,
+      "column": 11,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.68s",
+      "seconds": 33.3
+    },
+    {
+      "position": 6,
+      "site": "compare_swap@186:11",
+      "operator": "compare_swap",
+      "line": 186,
+      "column": 11,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.77s",
+      "seconds": 34.3
+    },
+    {
+      "position": 7,
+      "site": "bool_flip@286:11",
+      "operator": "bool_flip",
+      "line": 286,
+      "column": 11,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section",
+        "probe-negative"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.50s",
+      "seconds": 33.0
+    },
+    {
+      "position": 8,
+      "site": "int_minus@292:28",
+      "operator": "int_minus",
+      "line": 292,
+      "column": 28,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.61s",
+      "seconds": 34.5
+    },
+    {
+      "position": 9,
+      "site": "int_minus@293:41",
+      "operator": "int_minus",
+      "line": 293,
+      "column": 41,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.75s",
+      "seconds": 35.1
+    },
+    {
+      "position": 10,
+      "site": "int_plus@334:24",
+      "operator": "int_plus",
+      "line": 334,
+      "column": 24,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-w29",
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.66s",
+      "seconds": 35.0
+    },
+    {
+      "position": 11,
+      "site": "delete_stmt@374:4",
+      "operator": "delete_stmt",
+      "line": 374,
+      "column": 4,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-crlf",
+        "fixture-e10",
+        "fixture-e11",
+        "fixture-e12",
+        "fixture-e12not",
+        "fixture-e20"
+      ],
+      "differing_count": 65,
+      "classes": {
+        "identical": 12,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 65,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed in 2.52s",
+      "seconds": 33.4
+    },
+    {
+      "position": 12,
+      "site": "int_plus@406:55",
+      "operator": "int_plus",
+      "line": 406,
+      "column": 55,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.66s",
+      "seconds": 32.5
+    },
+    {
+      "position": 13,
+      "site": "compare_swap@503:12",
+      "operator": "compare_swap",
+      "line": 503,
+      "column": 12,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e10",
+        "fixture-e11",
+        "fixture-e12",
+        "fixture-e12not",
+        "fixture-e21",
+        "fixture-e25"
+      ],
+      "differing_count": 32,
+      "classes": {
+        "identical": 45,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 32,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed in 2.16s",
+      "seconds": 32.1
+    },
+    {
+      "position": 14,
+      "site": "delete_stmt@535:4",
+      "operator": "delete_stmt",
+      "line": 535,
+      "column": 4,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e11",
+        "fixture-e27",
+        "probe-config-int-error",
+        "probe-deprecated-section",
+        "probe-hang-closing"
+      ],
+      "differing_count": 5,
+      "classes": {
+        "identical": 72,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 5,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.63s",
+      "seconds": 32.3
+    },
+    {
+      "position": 15,
+      "site": "bool_flip@545:9",
+      "operator": "bool_flip",
+      "line": 545,
+      "column": 9,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e10",
+        "fixture-e11",
+        "fixture-e12",
+        "fixture-e12not",
+        "fixture-e21",
+        "fixture-e25"
+      ],
+      "differing_count": 30,
+      "classes": {
+        "identical": 47,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 30,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed in 2.09s",
+      "seconds": 31.6
+    },
+    {
+      "position": 16,
+      "site": "int_plus@584:26",
+      "operator": "int_plus",
+      "line": 584,
+      "column": 26,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.56s",
+      "seconds": 32.1
+    },
+    {
+      "position": 17,
+      "site": "arith_swap@585:12",
+      "operator": "arith_swap",
+      "line": 585,
+      "column": 12,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.83s",
+      "seconds": 32.8
+    },
+    {
+      "position": 18,
+      "site": "compare_swap@596:36",
+      "operator": "compare_swap",
+      "line": 596,
+      "column": 36,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.54s",
+      "seconds": 32.6
+    },
+    {
+      "position": 19,
+      "site": "bool_flip@662:17",
+      "operator": "bool_flip",
+      "line": 662,
+      "column": 17,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e12",
+        "fixture-e12not",
+        "fixture-e20",
+        "fixture-e50",
+        "fixture-e74",
+        "fixture-e90"
+      ],
+      "differing_count": 9,
+      "classes": {
+        "identical": 68,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 9,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 2 passed in 2.08s",
+      "seconds": 31.6
+    },
+    {
+      "position": 20,
+      "site": "compare_swap@669:17",
+      "operator": "compare_swap",
+      "line": 669,
+      "column": 17,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e10",
+        "fixture-e12",
+        "fixture-e24",
+        "fixture-e25",
+        "fixture-e50",
+        "fixture-e90"
+      ],
+      "differing_count": 10,
+      "classes": {
+        "identical": 67,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 10,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 2 passed in 2.17s",
+      "seconds": 31.8
+    },
+    {
+      "position": 21,
+      "site": "int_plus@671:38",
+      "operator": "int_plus",
+      "line": 671,
+      "column": 38,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e12",
+        "fixture-e24",
+        "fixture-e25",
+        "fixture-e50",
+        "fixture-latin-1",
+        "probe-config-int-error"
+      ],
+      "differing_count": 7,
+      "classes": {
+        "identical": 70,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 7,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.61s",
+      "seconds": 32.9
+    },
+    {
+      "position": 22,
+      "site": "int_minus@710:31",
+      "operator": "int_minus",
+      "line": 710,
+      "column": 31,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.80s",
+      "seconds": 32.1
+    },
+    {
+      "position": 23,
+      "site": "bool_flip@712:36",
+      "operator": "bool_flip",
+      "line": 712,
+      "column": 36,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.58s",
+      "seconds": 32.2
+    },
+    {
+      "position": 24,
+      "site": "compare_swap@730:35",
+      "operator": "compare_swap",
+      "line": 730,
+      "column": 35,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 2 passed in 2.24s",
+      "seconds": 31.5
+    },
+    {
+      "position": 25,
+      "site": "int_plus@732:58",
+      "operator": "int_plus",
+      "line": 732,
+      "column": 58,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e10",
+        "fixture-e12",
+        "fixture-e12not",
+        "fixture-e20",
+        "fixture-e23",
+        "fixture-e50"
+      ],
+      "differing_count": 14,
+      "classes": {
+        "identical": 63,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 14,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.47s",
+      "seconds": 32.1
+    },
+    {
+      "position": 26,
+      "site": "int_minus@751:37",
+      "operator": "int_minus",
+      "line": 751,
+      "column": 37,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.49s",
+      "seconds": 31.4
+    },
+    {
+      "position": 27,
+      "site": "bool_flip@786:12",
+      "operator": "bool_flip",
+      "line": 786,
+      "column": 12,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-crlf",
+        "fixture-e10",
+        "fixture-e11",
+        "fixture-e12",
+        "fixture-e12not",
+        "fixture-e20"
+      ],
+      "differing_count": 65,
+      "classes": {
+        "identical": 12,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 65,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed in 2.11s",
+      "seconds": 31.3
+    },
+    {
+      "position": 28,
+      "site": "int_plus@791:44",
+      "operator": "int_plus",
+      "line": 791,
+      "column": 44,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e21",
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.57s",
+      "seconds": 31.6
+    },
+    {
+      "position": 29,
+      "site": "int_plus@820:30",
+      "operator": "int_plus",
+      "line": 820,
+      "column": 30,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.48s",
+      "seconds": 31.5
+    },
+    {
+      "position": 30,
+      "site": "compare_swap@884:45",
+      "operator": "compare_swap",
+      "line": 884,
+      "column": 45,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-cluster",
+        "probe-config-file",
+        "probe-config-int-error",
+        "probe-config-unknown-key",
+        "probe-defaults",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 15,
+      "classes": {
+        "identical": 62,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 15,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.72s",
+      "seconds": 32.1
+    },
+    {
+      "position": 31,
+      "site": "compare_swap@887:15",
+      "operator": "compare_swap",
+      "line": 887,
+      "column": 15,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.50s",
+      "seconds": 32.0
+    },
+    {
+      "position": 32,
+      "site": "compare_swap@895:20",
+      "operator": "compare_swap",
+      "line": 895,
+      "column": 20,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.61s",
+      "seconds": 32.7
+    },
+    {
+      "position": 33,
+      "site": "bool_flip@916:21",
+      "operator": "bool_flip",
+      "line": 916,
+      "column": 21,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e23",
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.54s",
+      "seconds": 32.0
+    },
+    {
+      "position": 34,
+      "site": "delete_stmt@927:16",
+      "operator": "delete_stmt",
+      "line": 927,
+      "column": 16,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e10",
+        "fixture-e11",
+        "fixture-e12",
+        "fixture-e12not",
+        "fixture-e20",
+        "fixture-e21"
+      ],
+      "differing_count": 31,
+      "classes": {
+        "identical": 46,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 31,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 2 passed in 2.07s",
+      "seconds": 30.9
+    },
+    {
+      "position": 35,
+      "site": "delete_stmt@955:16",
+      "operator": "delete_stmt",
+      "line": 955,
+      "column": 16,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-python38",
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.54s",
+      "seconds": 31.8
+    },
+    {
+      "position": 36,
+      "site": "compare_swap@956:46",
+      "operator": "compare_swap",
+      "line": 956,
+      "column": 46,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e30not",
+        "fixture-python35",
+        "fixture-python38",
+        "fixture-w29",
+        "probe-cluster",
+        "probe-config-file"
+      ],
+      "differing_count": 19,
+      "classes": {
+        "identical": 58,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 19,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.50s",
+      "seconds": 31.8
+    },
+    {
+      "position": 37,
+      "site": "delete_stmt@995:8",
+      "operator": "delete_stmt",
+      "line": 995,
+      "column": 8,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-python35",
+        "fixture-python38",
+        "fixture-w29",
+        "probe-cluster",
+        "probe-config-file",
+        "probe-config-int-error"
+      ],
+      "differing_count": 18,
+      "classes": {
+        "identical": 59,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 18,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.56s",
+      "seconds": 32.4
+    },
+    {
+      "position": 38,
+      "site": "arith_swap@1012:25",
+      "operator": "arith_swap",
+      "line": 1012,
+      "column": 25,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.64s",
+      "seconds": 32.1
+    },
+    {
+      "position": 39,
+      "site": "compare_swap@1066:17",
+      "operator": "compare_swap",
+      "line": 1066,
+      "column": 17,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e25",
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.66s",
+      "seconds": 34.0
+    },
+    {
+      "position": 40,
+      "site": "compare_swap@1077:48",
+      "operator": "compare_swap",
+      "line": 1077,
+      "column": 48,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e25",
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.73s",
+      "seconds": 34.0
+    },
+    {
+      "position": 41,
+      "site": "compare_swap@1120:19",
+      "operator": "compare_swap",
+      "line": 1120,
+      "column": 19,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e26",
+        "fixture-w29",
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 4,
+      "classes": {
+        "identical": 73,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 4,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.62s",
+      "seconds": 32.3
+    },
+    {
+      "position": 42,
+      "site": "slice_bound@1124:68",
+      "operator": "slice_bound",
+      "line": 1124,
+      "column": 68,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-python3",
+        "fixture-utf-8-bom",
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 4,
+      "classes": {
+        "identical": 73,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 4,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.63s",
+      "seconds": 32.7
+    },
+    {
+      "position": 43,
+      "site": "int_minus@1128:60",
+      "operator": "int_minus",
+      "line": 1128,
+      "column": 60,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e26",
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.61s",
+      "seconds": 32.5
+    },
+    {
+      "position": 44,
+      "site": "int_plus@1317:33",
+      "operator": "int_plus",
+      "line": 1317,
+      "column": 33,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e50",
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.59s",
+      "seconds": 32.3
+    },
+    {
+      "position": 45,
+      "site": "delete_stmt@1366:12",
+      "operator": "delete_stmt",
+      "line": 1366,
+      "column": 12,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.72s",
+      "seconds": 32.1
+    },
+    {
+      "position": 46,
+      "site": "int_plus@1458:50",
+      "operator": "int_plus",
+      "line": 1458,
+      "column": 50,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e71",
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.53s",
+      "seconds": 32.8
+    },
+    {
+      "position": 47,
+      "site": "compare_swap@1462:11",
+      "operator": "compare_swap",
+      "line": 1462,
+      "column": 11,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e71",
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.54s",
+      "seconds": 32.2
+    },
+    {
+      "position": 48,
+      "site": "delete_stmt@1507:8",
+      "operator": "delete_stmt",
+      "line": 1507,
+      "column": 8,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e72",
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.54s",
+      "seconds": 33.2
+    },
+    {
+      "position": 49,
+      "site": "compare_swap@1508:44",
+      "operator": "compare_swap",
+      "line": 1508,
+      "column": 44,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.77s",
+      "seconds": 33.0
+    },
+    {
+      "position": 50,
+      "site": "int_minus@1600:27",
+      "operator": "int_minus",
+      "line": 1600,
+      "column": 27,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e74",
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.53s",
+      "seconds": 32.0
+    },
+    {
+      "position": 51,
+      "site": "delete_stmt@1683:16",
+      "operator": "delete_stmt",
+      "line": 1683,
+      "column": 16,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-w60",
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.57s",
+      "seconds": 32.3
+    },
+    {
+      "position": 52,
+      "site": "arith_swap@1688:31",
+      "operator": "arith_swap",
+      "line": 1688,
+      "column": 31,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-w60",
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.54s",
+      "seconds": 32.3
+    },
+    {
+      "position": 53,
+      "site": "int_minus@1692:57",
+      "operator": "int_minus",
+      "line": 1692,
+      "column": 57,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-w60",
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.70s",
+      "seconds": 32.5
+    },
+    {
+      "position": 54,
+      "site": "bool_flip@1736:23",
+      "operator": "bool_flip",
+      "line": 1736,
+      "column": 23,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section",
+        "probe-doc-length"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.65s",
+      "seconds": 33.0
+    },
+    {
+      "position": 55,
+      "site": "int_minus@1741:43",
+      "operator": "int_minus",
+      "line": 1741,
+      "column": 43,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.52s",
+      "seconds": 33.4
+    },
+    {
+      "position": 56,
+      "site": "int_minus@1788:13",
+      "operator": "int_minus",
+      "line": 1788,
+      "column": 13,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e10",
+        "fixture-e90",
+        "fixture-w19",
+        "fixture-w29",
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 6,
+      "classes": {
+        "identical": 71,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 6,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed in 2.15s",
+      "seconds": 31.8
+    },
+    {
+      "position": 57,
+      "site": "delete_stmt@1803:4",
+      "operator": "delete_stmt",
+      "line": 1803,
+      "column": 4,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-crlf",
+        "fixture-e10",
+        "fixture-e11",
+        "fixture-e12",
+        "fixture-e20",
+        "fixture-e21"
+      ],
+      "differing_count": 31,
+      "classes": {
+        "identical": 46,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 31,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 2 passed in 2.36s",
+      "seconds": 32.2
+    },
+    {
+      "position": 58,
+      "site": "int_plus@1820:25",
+      "operator": "int_plus",
+      "line": 1820,
+      "column": 25,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.66s",
+      "seconds": 32.3
+    },
+    {
+      "position": 59,
+      "site": "delete_stmt@1823:12",
+      "operator": "delete_stmt",
+      "line": 1823,
+      "column": 12,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section",
+        "probe-diff-stdin"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.51s",
+      "seconds": 32.4
+    },
+    {
+      "position": 60,
+      "site": "slice_bound@1827:24",
+      "operator": "slice_bound",
+      "line": 1827,
+      "column": 24,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section",
+        "probe-diff-stdin"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.57s",
+      "seconds": 32.2
+    },
+    {
+      "position": 61,
+      "site": "slice_bound@1830:20",
+      "operator": "slice_bound",
+      "line": 1830,
+      "column": 20,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.65s",
+      "seconds": 32.1
+    },
+    {
+      "position": 62,
+      "site": "return_none@1833:4",
+      "operator": "return_none",
+      "line": 1833,
+      "column": 4,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section",
+        "probe-diff-stdin"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.64s",
+      "seconds": 32.1
+    },
+    {
+      "position": 63,
+      "site": "delete_stmt@1855:4",
+      "operator": "delete_stmt",
+      "line": 1855,
+      "column": 4,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section",
+        "probe-exclude-and-filename"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.58s",
+      "seconds": 32.2
+    },
+    {
+      "position": 64,
+      "site": "return_none@1864:8",
+      "operator": "return_none",
+      "line": 1864,
+      "column": 8,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.57s",
+      "seconds": 32.3
+    },
+    {
+      "position": 65,
+      "site": "int_minus@1925:34",
+      "operator": "int_minus",
+      "line": 1925,
+      "column": 34,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.64s",
+      "seconds": 32.5
+    },
+    {
+      "position": 66,
+      "site": "int_minus@1927:27",
+      "operator": "int_minus",
+      "line": 1927,
+      "column": 27,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.64s",
+      "seconds": 32.5
+    },
+    {
+      "position": 67,
+      "site": "int_plus@1927:27",
+      "operator": "int_plus",
+      "line": 1927,
+      "column": 27,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.78s",
+      "seconds": 32.4
+    },
+    {
+      "position": 68,
+      "site": "int_plus@1928:31",
+      "operator": "int_plus",
+      "line": 1928,
+      "column": 31,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.64s",
+      "seconds": 34.1
+    },
+    {
+      "position": 69,
+      "site": "int_plus@1928:47",
+      "operator": "int_plus",
+      "line": 1928,
+      "column": 47,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.70s",
+      "seconds": 32.4
+    },
+    {
+      "position": 70,
+      "site": "int_minus@1930:50",
+      "operator": "int_minus",
+      "line": 1930,
+      "column": 50,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.66s",
+      "seconds": 32.2
+    },
+    {
+      "position": 71,
+      "site": "slice_bound@1937:41",
+      "operator": "slice_bound",
+      "line": 1937,
+      "column": 41,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e12",
+        "fixture-e20",
+        "fixture-e50",
+        "fixture-e90",
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 7,
+      "classes": {
+        "identical": 70,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 7,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 1 passed in 2.29s",
+      "seconds": 32.1
+    },
+    {
+      "position": 72,
+      "site": "compare_swap@1974:15",
+      "operator": "compare_swap",
+      "line": 1974,
+      "column": 15,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-crlf",
+        "fixture-e10",
+        "fixture-e11",
+        "fixture-e12",
+        "fixture-e12not",
+        "fixture-e20"
+      ],
+      "differing_count": 66,
+      "classes": {
+        "identical": 11,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 66,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed in 2.24s",
+      "seconds": 32.0
+    },
+    {
+      "position": 73,
+      "site": "slice_bound@1977:24",
+      "operator": "slice_bound",
+      "line": 1977,
+      "column": 24,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e10",
+        "fixture-e90",
+        "fixture-w19",
+        "fixture-w29",
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 6,
+      "classes": {
+        "identical": 71,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 6,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.61s",
+      "seconds": 32.5
+    },
+    {
+      "position": 74,
+      "site": "compare_swap@1987:15",
+      "operator": "compare_swap",
+      "line": 1987,
+      "column": 15,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e10",
+        "fixture-e11",
+        "fixture-e12",
+        "fixture-e12not",
+        "fixture-e20",
+        "fixture-e21"
+      ],
+      "differing_count": 36,
+      "classes": {
+        "identical": 41,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 36,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed in 2.26s",
+      "seconds": 31.9
+    },
+    {
+      "position": 75,
+      "site": "compare_swap@1996:17",
+      "operator": "compare_swap",
+      "line": 1996,
+      "column": 17,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e10",
+        "fixture-e11",
+        "fixture-e12",
+        "fixture-e12not",
+        "fixture-e20",
+        "fixture-e21"
+      ],
+      "differing_count": 34,
+      "classes": {
+        "identical": 43,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 34,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed in 2.24s",
+      "seconds": 32.4
+    },
+    {
+      "position": 76,
+      "site": "compare_swap@2029:11",
+      "operator": "compare_swap",
+      "line": 2029,
+      "column": 11,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.56s",
+      "seconds": 32.1
+    },
+    {
+      "position": 77,
+      "site": "delete_stmt@2051:8",
+      "operator": "delete_stmt",
+      "line": 2051,
+      "column": 8,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e10",
+        "fixture-e11",
+        "fixture-e12",
+        "fixture-e12not",
+        "fixture-e20",
+        "fixture-e21"
+      ],
+      "differing_count": 60,
+      "classes": {
+        "identical": 17,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 60,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed in 2.24s",
+      "seconds": 33.3
+    },
+    {
+      "position": 78,
+      "site": "bool_flip@2062:19",
+      "operator": "bool_flip",
+      "line": 2062,
+      "column": 19,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.70s",
+      "seconds": 31.8
+    },
+    {
+      "position": 79,
+      "site": "int_minus@2068:33",
+      "operator": "int_minus",
+      "line": 2068,
+      "column": 33,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section",
+        "probe-diff-stdin",
+        "probe-missing-file"
+      ],
+      "differing_count": 4,
+      "classes": {
+        "identical": 73,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 4,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.62s",
+      "seconds": 32.7
+    },
+    {
+      "position": 80,
+      "site": "compare_swap@2123:17",
+      "operator": "compare_swap",
+      "line": 2123,
+      "column": 17,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e10",
+        "fixture-e50",
+        "fixture-w29",
+        "fixture-w39",
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 6,
+      "classes": {
+        "identical": 71,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 6,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.97s",
+      "seconds": 32.6
+    },
+    {
+      "position": 81,
+      "site": "int_plus@2132:61",
+      "operator": "int_plus",
+      "line": 2132,
+      "column": 61,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e10",
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.62s",
+      "seconds": 32.1
+    },
+    {
+      "position": 82,
+      "site": "int_minus@2154:25",
+      "operator": "int_minus",
+      "line": 2154,
+      "column": 25,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.69s",
+      "seconds": 32.2
+    },
+    {
+      "position": 83,
+      "site": "delete_stmt@2168:24",
+      "operator": "delete_stmt",
+      "line": 2168,
+      "column": 24,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e10",
+        "fixture-e11",
+        "fixture-e12",
+        "fixture-e12not",
+        "fixture-e20",
+        "fixture-e21"
+      ],
+      "differing_count": 40,
+      "classes": {
+        "identical": 37,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 40,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed in 2.18s",
+      "seconds": 32.2
+    },
+    {
+      "position": 84,
+      "site": "int_plus@2191:23",
+      "operator": "int_plus",
+      "line": 2191,
+      "column": 23,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.56s",
+      "seconds": 32.4
+    },
+    {
+      "position": 85,
+      "site": "int_plus@2227:39",
+      "operator": "int_plus",
+      "line": 2227,
+      "column": 39,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section",
+        "probe-statistics"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.74s",
+      "seconds": 32.7
+    },
+    {
+      "position": 86,
+      "site": "return_none@2239:8",
+      "operator": "return_none",
+      "line": 2239,
+      "column": 8,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.94s",
+      "seconds": 34.2
+    },
+    {
+      "position": 87,
+      "site": "int_minus@2309:71",
+      "operator": "int_minus",
+      "line": 2309,
+      "column": 71,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e10",
+        "fixture-e11",
+        "fixture-e12",
+        "fixture-e12not",
+        "fixture-e20",
+        "fixture-e21"
+      ],
+      "differing_count": 47,
+      "classes": {
+        "identical": 30,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 47,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.79s",
+      "seconds": 35.1
+    },
+    {
+      "position": 88,
+      "site": "arith_swap@2320:22",
+      "operator": "arith_swap",
+      "line": 2320,
+      "column": 22,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section",
+        "probe-show-source-and-pep8"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.57s",
+      "seconds": 32.0
+    },
+    {
+      "position": 89,
+      "site": "return_none@2329:8",
+      "operator": "return_none",
+      "line": 2329,
+      "column": 8,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.62s",
+      "seconds": 31.5
+    },
+    {
+      "position": 90,
+      "site": "compare_swap@2340:11",
+      "operator": "compare_swap",
+      "line": 2340,
+      "column": 11,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section",
+        "probe-diff-stdin"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.57s",
+      "seconds": 31.5
+    },
+    {
+      "position": 91,
+      "site": "int_minus@2428:39",
+      "operator": "int_minus",
+      "line": 2428,
+      "column": 39,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.61s",
+      "seconds": 31.6
+    },
+    {
+      "position": 92,
+      "site": "bool_flip@2466:16",
+      "operator": "bool_flip",
+      "line": 2466,
+      "column": 16,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e12",
+        "fixture-e12not",
+        "fixture-e24",
+        "fixture-e50",
+        "fixture-e70",
+        "fixture-e73"
+      ],
+      "differing_count": 12,
+      "classes": {
+        "identical": 65,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 12,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed in 2.13s",
+      "seconds": 31.3
+    },
+    {
+      "position": 93,
+      "site": "int_plus@2490:49",
+      "operator": "int_plus",
+      "line": 2490,
+      "column": 49,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-crlf",
+        "fixture-e10",
+        "fixture-e11",
+        "fixture-e12",
+        "fixture-e12not",
+        "fixture-e20"
+      ],
+      "differing_count": 70,
+      "classes": {
+        "identical": 7,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 70,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.55s",
+      "seconds": 31.8
+    },
+    {
+      "position": 94,
+      "site": "return_none@2544:4",
+      "operator": "return_none",
+      "line": 2544,
+      "column": 4,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-crlf",
+        "fixture-e10",
+        "fixture-e11",
+        "fixture-e12",
+        "fixture-e12not",
+        "fixture-e20"
+      ],
+      "differing_count": 77,
+      "classes": {
+        "identical": 0,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 77,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed in 2.16s",
+      "seconds": 30.8
+    },
+    {
+      "position": 95,
+      "site": "bool_flip@2591:31",
+      "operator": "bool_flip",
+      "line": 2591,
+      "column": 31,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-file",
+        "probe-config-int-error",
+        "probe-deprecated-section",
+        "probe-local-config",
+        "probe-very-verbose"
+      ],
+      "differing_count": 5,
+      "classes": {
+        "identical": 72,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 5,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.57s",
+      "seconds": 31.6
+    },
+    {
+      "position": 96,
+      "site": "arith_swap@2632:12",
+      "operator": "arith_swap",
+      "line": 2632,
+      "column": 12,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-crlf",
+        "fixture-e10",
+        "fixture-e11",
+        "fixture-e12",
+        "fixture-e12not",
+        "fixture-e20"
+      ],
+      "differing_count": 77,
+      "classes": {
+        "identical": 0,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 77,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed in 2.20s",
+      "seconds": 31.2
+    },
+    {
+      "position": 97,
+      "site": "delete_stmt@2659:4",
+      "operator": "delete_stmt",
+      "line": 2659,
+      "column": 4,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section",
+        "probe-no-args-with-config"
+      ],
+      "differing_count": 3,
+      "classes": {
+        "identical": 74,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 3,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.63s",
+      "seconds": 31.8
+    },
+    {
+      "position": 98,
+      "site": "delete_stmt@2670:4",
+      "operator": "delete_stmt",
+      "line": 2670,
+      "column": 4,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-crlf",
+        "fixture-e10",
+        "fixture-e11",
+        "fixture-e12",
+        "fixture-e12not",
+        "fixture-e20"
+      ],
+      "differing_count": 70,
+      "classes": {
+        "identical": 7,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 70,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed in 2.18s",
+      "seconds": 30.7
+    },
+    {
+      "position": 99,
+      "site": "int_plus@2695:69",
+      "operator": "int_plus",
+      "line": 2695,
+      "column": 69,
+      "harness_killed": true,
+      "differing_cases": [
+        "probe-config-int-error",
+        "probe-deprecated-section"
+      ],
+      "differing_count": 2,
+      "classes": {
+        "identical": 75,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 2,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.59s",
+      "seconds": 31.6
+    },
+    {
+      "position": 100,
+      "site": "int_minus@2713:17",
+      "operator": "int_minus",
+      "line": 2713,
+      "column": 17,
+      "harness_killed": true,
+      "differing_cases": [
+        "fixture-e10",
+        "fixture-e11",
+        "fixture-e12",
+        "fixture-e12not",
+        "fixture-e20",
+        "fixture-e21"
+      ],
+      "differing_count": 50,
+      "classes": {
+        "identical": 27,
+        "equivalent": 0,
+        "equivalent_bounded": 0,
+        "different": 50,
+        "unsupported": 0
+      },
+      "tests_killed": true,
+      "tests_note": "1 failed, 3 passed in 2.54s",
+      "seconds": 31.6
+    }
+  ],
+  "summary": {
+    "total": 100,
+    "killed": 100,
+    "survived": 0,
+    "tests_killed": 100
+  }
+}

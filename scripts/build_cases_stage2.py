@@ -70,6 +70,45 @@ PROBES: list[tuple[str, str, tuple[str, ...], str, dict[str, str]]] = [
      {"sample.py": "x = 1\n"}),
     ("jobs", "declared-unordered-jobs", ("--jobs=1", "sample.py"), "",
      {"sample.py": "x = 1\n"}),
+    # --- the argument-handling surface a parser swap rewrites ----------------
+    # Added after the first coverage run showed `read_config` at 14/46 lines and
+    # `process_options` at 18/27: config files, `--diff`, reporters and the
+    # multi-option parsers live there, and they are exactly where optparse and
+    # argparse behave differently.
+    ("config-file", "explicit-config-file",
+     ("--config=cfg.ini", "sample.py"), "",
+     {"sample.py": "x=1\n", "cfg.ini": "[pycodestyle]\nmax-line-length = 10\n"}),
+    ("local-config", "project-config-in-case-dir", ("sample.py",), "",
+     {"sample.py": "x=1\n", "setup.cfg": "[pycodestyle]\nmax-line-length = 10\n"}),
+    ("deprecated-section", "deprecated-pep8-section", ("sample.py",), "",
+     {"sample.py": "x=1\n", "setup.cfg": "[pep8]\nmax-line-length = 10\n"}),
+    ("config-unknown-key", "unknown-key-in-config", ("sample.py",), "",
+     {"sample.py": "x=1\n", "setup.cfg": "[pycodestyle]\nnot-a-real-option = 1\n"}),
+    ("config-int-error", "bad-integer-in-config", ("sample.py",), "",
+     {"sample.py": "x=1\n", "setup.cfg": "[pycodestyle]\nmax-line-length = abc\n"}),
+    ("verbose", "single-verbose", ("-v", "sample.py"), "", {"sample.py": "x = 1\n"}),
+    ("very-verbose", "double-verbose", ("-vv", "sample.py"), "",
+     {"sample.py": "x = 1\n", "setup.cfg": "[pycodestyle]\nmax-line-length = 10\n"}),
+    ("no-args-with-config", "no-args-and-project-config", (), "",
+     {"setup.cfg": "[pycodestyle]\nmax-line-length = 10\n"}),
+    ("diff-stdin", "unified-diff-on-stdin", ("--diff", "sample.py"),
+     "--- sample.py\n+++ sample.py\n@@ -1 +1 @@\n-x=1\n+x=2\n", {"sample.py": "x=1\n"}),
+    ("format-pylint", "pylint-report-format", ("--format=pylint", "sample.py"), "",
+     {"sample.py": "x=1\n"}),
+    ("format-custom", "custom-report-format",
+     ("--format=%(path)s:%(row)d:%(code)s", "sample.py"), "", {"sample.py": "x=1\n"}),
+    ("show-source-and-pep8", "source-and-pep8-text",
+     ("--show-source", "--show-pep8", "sample.py"), "", {"sample.py": "x=1\n"}),
+    ("exclude-and-filename", "exclude-and-filename-patterns",
+     ("--exclude=sample.py", "--filename=*.py", "."), "", {"sample.py": "x=1\n"}),
+    ("hang-closing", "hang-closing-indent", ("--hang-closing", "sample.py"), "",
+     {"sample.py": "print('x')\n        )\n"}),
+    ("select-ignore", "select-and-ignore-together",
+     ("--select=E,W", "--ignore=E501", "sample.py"), "", {"sample.py": "x=1\n"}),
+    # No arguments and no project config: `parser.error('input not specified')`.
+    # The upstream suite asserts this text exactly, so the case exists to make the
+    # upstream-vs-harness comparison table complete rather than inferred.
+    ("no-args", "no-arguments-no-config", (), "", {}),
 ]
 
 

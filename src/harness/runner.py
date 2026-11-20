@@ -92,11 +92,37 @@ def run_pass(
         checkout, shim_dir, [src_dir, *target_paths], shim_disable=shim_disable
     )
     if coverage:
+        # `parallel` so the child AND every CLI subprocess it starts write their
+        # own data file that `coverage combine` merges. Without it the last
+        # writer wins, and a stage-2 report would quote only the lines the
+        # harness itself ran — the target's own code would be missing from the
+        # numerator and the denominator.
+        rc_path = workdir / "coveragerc"
+        rc_path.write_text(
+            chr(10).join(
+                [
+                    "[run]",
+                    "branch = True",
+                    "parallel = True",
+                    f"source = {module}",
+                    f"data_file = {workdir / 'coverage.data'}",
+                    "",
+                ]
+            ),
+            encoding="utf-8",
+        )
+        env["COVERAGE_PROCESS_START"] = str(rc_path)
+        env["COVERAGE_FILE"] = str(workdir / "coverage.data")
         command = [
             python,
             "-m",
             "coverage",
             "run",
+            # The target's own setup.cfg can configure coverage (pycodestyle's
+            # does: `plugins = covdefaults`). The child runs with cwd=checkout, so
+            # without an explicit rc coverage would read that file and fail on a
+            # plugin the harness does not install.
+            f"--rcfile={rc_path}",
             f"--data-file={workdir / 'coverage.data'}",
             "--branch",
             f"--source={module}",

@@ -47,6 +47,24 @@ def _target_version(path: Path, module: str) -> str:
     return "unknown"
 
 
+def _stage(checkout: Path, tree_dir: Path) -> Path:
+    """Copy a tree to a FIXED path, so both versions run at the same location.
+
+    A program prints its own path: a warning names `pycodestyle.py:2588`, a
+    traceback names the file, and `--verbose` prints the config directory. If the
+    old tree lives at `.../old` and the new at `.../new`, every such line differs
+    for a reason that has nothing to do with the change — the two-container design
+    avoids it by copying each tree to the same path inside its container, and this
+    is the host-side equivalent.
+    """
+    import shutil
+
+    shutil.rmtree(tree_dir, ignore_errors=True)
+    tree_dir.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(checkout, tree_dir, ignore=shutil.ignore_patterns("__pycache__", ".git"))
+    return tree_dir
+
+
 def _run(
     *,
     checkout: Path,
@@ -99,8 +117,9 @@ def verify(
 
     # 1 + 2: A/A on the old tree, then the alternating old/new pairs.
     old_passes = [
-        _run(checkout=old, module=module, cases=cases, shim=shim, index=index,
-             workdir=work / f"old-{index}", set_hash=set_hash, cpu_budget=cpu_budget_seconds)
+        _run(checkout=_stage(old, work / "tree"), module=module, cases=cases,
+             shim=shim, index=index, workdir=work / f"old-{index}", set_hash=set_hash,
+             cpu_budget=cpu_budget_seconds)
         for index in (1, 2)
     ]
     noise = baseline_noise(old_passes)
@@ -108,10 +127,15 @@ def verify(
 
     pairs: list[tuple[Pass, Pass, str]] = []
     for round_index in (1, 2):
-        old_pass = _run(checkout=old, module=module, cases=cases, shim=shim,
+        # ONE staging path for every pass in every round: a program that prints
+        # its own path must print the same text in both versions AND in both
+        # rounds, or `tree-r1` vs `tree-r2` becomes a difference nobody can act
+        # on. Passes are sequential, so the directory is reused safely.
+        tree = work / "tree"
+        old_pass = _run(checkout=_stage(old, tree), module=module, cases=cases, shim=shim,
                         index=10 + round_index, workdir=work / f"old-r{round_index}",
                         set_hash=set_hash, cpu_budget=cpu_budget_seconds)
-        new_pass = _run(checkout=new, module=module, cases=cases, shim=shim,
+        new_pass = _run(checkout=_stage(new, tree), module=module, cases=cases, shim=shim,
                         index=20 + round_index, workdir=work / f"new-r{round_index}",
                         set_hash=set_hash, cpu_budget=cpu_budget_seconds)
         pairs.append((old_pass, new_pass, f"old,new #{round_index}"))

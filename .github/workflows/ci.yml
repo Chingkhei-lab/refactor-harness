@@ -136,10 +136,11 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          # 60 by default: measured 15.15 s of overhead per pass, so 300 mutants
-          # cost ~76 minutes and 60 cost ~15. Sample is seeded (7) and balanced
-          # 30 killed / 30 survived; see docs/results/checkpoint12b-findings-20261120.md.
-          python scripts/sandbox_gate.py --mutants "${GATE_MUTANTS:-60}" 2>&1 | tee sandbox-gate.log || {
+          # 300 by default: two fixed waits in the transport used to cost 15 s per
+          # pass (76 minutes for the sample). With them removed an overhead pass
+          # is 0.91 s, so the full seeded sample (7, 139 killed / 161 survived)
+          # costs what 60 used to. See docs/results/checkpoint12b-findings-20261120.md.
+          python scripts/sandbox_gate.py --mutants "${GATE_MUTANTS:-300}" 2>&1 | tee sandbox-gate.log || {
             while IFS= read -r line; do echo "::error title=sandbox-gate::$line"; done < <(tail -40 sandbox-gate.log)
             exit 1
           }
@@ -149,6 +150,11 @@ jobs:
         # pycodestyle. Also documents that the pycodestyle sdist ships no
         # `testing/` package, so the oracle uses the pinned tag tarball.
         run: python scripts/oracle_canary.py
+      - name: Pin the oracle (tarball hashes, and module identical to the sdist)
+        # The suite comes from the tag tarball and the module from the sdist; the
+        # only thing that makes that sound is the two module files being byte
+        # identical. Fails if either hash or the comparison changes.
+        run: python scripts/pin_oracle.py
       - name: Stage-2 case set is not stale
         # The case file is generated from the pinned tree; a stale file would
         # silently compare against inputs the report does not describe.

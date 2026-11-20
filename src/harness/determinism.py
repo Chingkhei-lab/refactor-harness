@@ -230,8 +230,27 @@ def shim_source(epoch: float = FROZEN_EPOCH) -> str:
     WHICH cases read it: two same-epoch runs agree even for time-dependent cases,
     so agreement alone proves nothing about the clock control.
     """
-    return SHIM_TEMPLATE.replace("__FROZEN_EPOCH__", repr(epoch))
+    source = SHIM_TEMPLATE.replace("__FROZEN_EPOCH__", repr(epoch))
+    return source + _COVERAGE_HOOK
 
+
+# Coverage for a program under test has to start in the CHILD, and a CLI case is a
+# grandchild: the harness starts `python -m harness.child`, and that process runs
+# the target as a subprocess. `COVERAGE_PROCESS_START` is the only hook that
+# reaches an arbitrary grandchild without touching the target's code, and this is
+# where it has to be installed — `sitecustomize` on PYTHONPATH is already ours.
+# Guarded by the env var, so a normal pass pays one `os.environ` lookup.
+_COVERAGE_HOOK = '''
+
+# --- coverage hook (harness) -------------------------------------------------
+if _os.environ.get("COVERAGE_PROCESS_START"):
+    try:  # pragma: no cover - only active when a coverage run is requested
+        import coverage as _coverage
+
+        _coverage.process_startup()
+    except Exception:  # noqa: BLE001 - coverage must never change the target's behaviour
+        pass
+'''
 
 SHIM_SOURCE = shim_source()
 

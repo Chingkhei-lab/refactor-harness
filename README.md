@@ -76,16 +76,61 @@ idempotency keys and 0 duplicate effects appeared.
 
 ## Releases
 
+[v0.3](https://github.com/Chingkhei-lab/refactor-harness/releases/tag/v0.3) —
+checkpoint 12: CLI observation layer, approvals, the optparse→argparse migration
+and the final cross-target report
+([`docs/results/harness-20261120.md`](docs/results/harness-20261120.md)).
+
 [v0.2.2](https://github.com/Chingkhei-lab/refactor-harness/releases/tag/v0.2.2) —
 checkpoint 9 review rounds 1–2 (corrected concurrency finding, demo/test
 database split, self-reporting CI, install network probe). Supersedes
 [v0.2.1](https://github.com/Chingkhei-lab/refactor-harness/releases/tag/v0.2.1).
 
+## Architecture
+
+Two things live in this repository: a **job engine** (`src/engine`, Postgres,
+Phase 1–3) and a **behaviour harness** (`src/harness`, Phase 4). The harness is the
+part that answers "did this refactor change behaviour", and it is built as a
+pipeline where every stage can refuse to produce a number.
+
+```
+ target tree (old) ─┐
+                    ├─► run_pass ─► observations ─┐
+ target tree (new) ─┘        │                    │
+                             │                    ├─► compare_sets ─► verdicts
+   cases + shim ─────────────┘                    │        │
+   (determinism controls,                         │        ├─ rules  (mask a field,
+    fixed environment)                            │        │         with a reason)
+                                                  │        └─ approvals (accept a diff,
+   sandbox: copy-in tar → tmpfs →                 │                   bound to its sha256)
+   container → copy-out tar                       │
+                                                  └─► report: counts, unsupported,
+                                                      coverage, A/A noise, hashes
+```
+
+| stage | module | the rule it enforces |
+| --- | --- | --- |
+| cases | `harness/cases.py`, `harness/cases/*.json` | a case is data; the set has a sha256 and every report carries it |
+| determinism | `harness/determinism.py` | clock, hash seed, uuid, random, cwd, locale, timezone are controlled before the target is imported |
+| entry kinds | `harness/child.py` | `call` observes a function's value; `cli` observes a program's exit, streams and written files |
+| execution | `harness/runner.py`, `engine/sandbox.py` | sandboxed by default: no network, read-only rootfs, dropped caps, cgroup limits; workspace as tar in/out, never a host mount |
+| observation | `harness/observation.py` | one canonical encoding, schema-versioned, opaque values are `unsupported` and counted |
+| comparison | `harness/compare.py` | `identical` / `equivalent` / `equivalent_bounded` / `different` / `undecidable`; nothing is "maybe equal" |
+| normalisation | `harness/rules.py`, `harness/rules/*.json` | a rule is data, schema-validated, justified, hash-pinned; a refused rule never stops the walk |
+| approvals | `harness/approvals.py`, `harness/approvals/*.json` | an accepted difference is bound to the observed diff; a changed diff makes the approval stale |
+| report | `scripts/verify_change.py` | a report without counts, unsupported cases, coverage, A/A noise and both hashes is not a report |
+
+The **second oracle** is the target's own test suite, run untouched. It is checked
+before its numbers are quoted (`scripts/oracle_canary.py`: the clean tree passes, a
+known-broken mutant fails) and pinned so the suite and the module come from the
+same release (`scripts/pin_oracle.py`).
+
 ## Behavior harness (Phase 4)
 
 Design: [`docs/design-harness.md`](docs/design-harness.md) · ADR:
 [`docs/adr/004-harness.md`](docs/adr/004-harness.md) · first baseline:
-[`docs/results/harness-parse-20261119.md`](docs/results/harness-parse-20261119.md).
+[`docs/results/harness-parse-20261119.md`](docs/results/harness-parse-20261119.md) ·
+**final report: [`docs/results/harness-20261120.md`](docs/results/harness-20261120.md)**.
 
 The harness gives **evidence, not a proof of equivalence**. Stage 1 runs
 against `parse` 1.22.4 — a **calibration target for the harness, not a legacy
@@ -143,7 +188,7 @@ cross-target generalisation), and 32 of the 41 both-missed mutants sit on a line
 case executes. Both are in `docs/results/mutation-tuning-20261120.md` and
 `docs/results/mutation-both-missed-20261120.md`.
 
-### Stage 2: a CLI migration, and the parser swap it approves
+### Stage 2: a CLI migration, and what each oracle sees
 
 Stage 2 changes a command line, so its cases run a program. `pycodestyle` 2.15.0
 (`optparse`) migrates to `argparse`; the change under test is
@@ -151,21 +196,18 @@ Stage 2 changes a command line, so its cases run a program. `pycodestyle` 2.15.0
 
 | Measurement | Value |
 | --- | --- |
-| CLI case set | **61 cases** (42 fixture excerpts + 19 option probes), hash `d2f78454511f64aa` |
-| A/A over that set (2 fixed + 2 shuffled passes) | **0 differences** |
-| verify-change, 2 rounds × 61 cases | 112 identical, **10 different (approved)**, **0 unapproved**, 0 unsupported, 0 flaky |
-| Upstream suite on the migrated tree | 4 failures: 3 usage-text assertions, 1 test calling the optparse-only `add_option` |
-| Unintended change found by the cases | `--version` printed `pycodestyle 2.15.0` instead of `2.15.0` — fixed, then re-verified |
+| CLI case set | **77 cases** (42 fixture excerpts + 35 option probes), hash `be70731d8c08…` |
+| A/A over that set | **0 differences, 5 fixed + 5 shuffled passes** |
+| Coverage incl. subprocess | lines **89.74 %**, branches **82.5 %**, combined **87.07 %**; `get_parser` 23/23 |
+| verify-change, 2 rounds × 77 | **138 identical, 16 different (8 approved), 0 unapproved**, 0 unsupported, 0 flaky |
+| Upstream suite on the migrated tree | 4 failures: 3 usage-text assertions, 1 `add_option` API break |
+| Mutation, 100 mutants seed 21, both oracles | **100/100 killed by each — saturated**, reported as such |
+| Unintended change the cases caught | `--version` printed `pycodestyle 2.15.0` — fixed, **not approved**; pre-fix report kept |
 
-Approved differences are parser **text** (help layout, `invalid int value`,
-`unrecognized arguments`), each bound to the observed diff by sha256 and readable
-in `harness/approvals/pycodestyle.json`; a changed diff makes the approval stale
-and the case `different` again. Nothing approved is counted as `equivalent`.
-
-Stage-2 mutation, subprocess coverage and the final cross-target report are
-**not done** — see [`docs/results/stage2-cli-20261120.md`](docs/results/stage2-cli-20261120.md).
-`v0.3` is deliberately untagged: tagging now would put a release number on work
-whose own report says which numbers are missing.
+The most useful stage-2 number is not a kill rate but the comparison in §3 of the
+report: the harness sees 6 behavioural differences the suite does not assert, and
+**misses one API break the suite catches** — `get_parser().add_option` no longer
+exists, on lines that are fully covered. Coverage is a prior, not a detector.
 
 ### Known target bugs (not harness bugs)
 

@@ -1,10 +1,10 @@
 {
   "aa_noise": [],
   "approvals": {
-    "count": 5,
+    "count": 8,
     "matched_nothing": [],
     "path": "C:\\Users\\yumkh\\Documents\\Refactor-harness\\harness\\approvals\\pycodestyle.json",
-    "sha256": "e7a7d5cfbee02798d39b3c67519bef01a849a1cd5d7402fe6d2abd554810da49",
+    "sha256": "dc2990d01e608dc156d099546667a94c6931837ccb6d03feb341193ca53b8aa1",
     "stale": [],
     "target": "pycodestyle 2.15.0"
   },
@@ -16,6 +16,24 @@
       "observed": "64e2195adcff582dde97b1400a2e1b3d99901a78cc94280eafb62f6837c8bff8",
       "path": "$.value.stderr",
       "reason": "same 'unrecognized arguments' wording for an option that does not exist (--max-blank-lines). Exit status is still 2.",
+      "reviewer": "yumkh (maintainer)"
+    },
+    {
+      "case_id": "probe-config-int-error",
+      "date": "2026-11-20",
+      "expected": "8b131eae9d88102567930d1baff5e708cfebccbd73930773693b974d85f09d00",
+      "observed": "8b131eae9d88102567930d1baff5e708cfebccbd73930773693b974d85f09d00",
+      "path": "$.value.stderr",
+      "reason": "Uncaught ValueError from configparser.getint on a non-integer config value: same exception, same frames, same message in both versions. Only the traceback's line numbers differ, because the patch adds 41 lines above read_config. Approving the line numbers, not the failure: it is a pre-existing crash in both versions and is reported as such.",
+      "reviewer": "yumkh (maintainer)"
+    },
+    {
+      "case_id": "probe-deprecated-section",
+      "date": "2026-11-20",
+      "expected": "bd981c6451394c5dc7a4716682a0d2fc5809f898ef5947fcecf8f188653bebe6",
+      "observed": "bd981c6451394c5dc7a4716682a0d2fc5809f898ef5947fcecf8f188653bebe6",
+      "path": "$.value.stderr",
+      "reason": "[pep8] section deprecation warning: identical text in both versions; the warning's reported line number moved by 41 lines because the patch adds lines above it.",
       "reviewer": "yumkh (maintainer)"
     },
     {
@@ -43,6 +61,15 @@
       "observed": "29a2f62804bdaf268098ad4947ea6fe90b6d29393d0717a38a06851854009b87",
       "path": "$.value.stderr",
       "reason": "an unsupported option name is now reported by argparse's 'unrecognized arguments' path, which echoes the value too (--jobs=1). Exit status is still 2. This case is declared unordered, so only the error text is compared.",
+      "reviewer": "yumkh (maintainer)"
+    },
+    {
+      "case_id": "probe-no-args",
+      "date": "2026-11-20",
+      "expected": "657407936b8d2df958570a6aeb3195fa7928f1492749d5a2eadd101a0faff1df",
+      "observed": "657407936b8d2df958570a6aeb3195fa7928f1492749d5a2eadd101a0faff1df",
+      "path": "$.value.stderr",
+      "reason": "Empty command line: argparse prints 'usage:' in lower case and omits the blank line before 'error:', so `pycodestyle: error: input not specified` is preceded by different text. The error line itself, the exit status (2) and the condition are unchanged.",
       "reviewer": "yumkh (maintainer)"
     },
     {
@@ -64,6 +91,24 @@
       "reviewer": "yumkh (maintainer)"
     },
     {
+      "case_id": "probe-config-int-error",
+      "date": "2026-11-20",
+      "expected": "8b131eae9d88102567930d1baff5e708cfebccbd73930773693b974d85f09d00",
+      "observed": "8b131eae9d88102567930d1baff5e708cfebccbd73930773693b974d85f09d00",
+      "path": "$.value.stderr",
+      "reason": "Uncaught ValueError from configparser.getint on a non-integer config value: same exception, same frames, same message in both versions. Only the traceback's line numbers differ, because the patch adds 41 lines above read_config. Approving the line numbers, not the failure: it is a pre-existing crash in both versions and is reported as such.",
+      "reviewer": "yumkh (maintainer)"
+    },
+    {
+      "case_id": "probe-deprecated-section",
+      "date": "2026-11-20",
+      "expected": "bd981c6451394c5dc7a4716682a0d2fc5809f898ef5947fcecf8f188653bebe6",
+      "observed": "bd981c6451394c5dc7a4716682a0d2fc5809f898ef5947fcecf8f188653bebe6",
+      "path": "$.value.stderr",
+      "reason": "[pep8] section deprecation warning: identical text in both versions; the warning's reported line number moved by 41 lines because the patch adds lines above it.",
+      "reviewer": "yumkh (maintainer)"
+    },
+    {
       "case_id": "probe-help",
       "date": "2026-11-20",
       "expected": "505ef1e27c759dcd424ce8a6783f9a3639d94426ea63baf49752809961854e1e",
@@ -88,6 +133,15 @@
       "observed": "29a2f62804bdaf268098ad4947ea6fe90b6d29393d0717a38a06851854009b87",
       "path": "$.value.stderr",
       "reason": "an unsupported option name is now reported by argparse's 'unrecognized arguments' path, which echoes the value too (--jobs=1). Exit status is still 2. This case is declared unordered, so only the error text is compared.",
+      "reviewer": "yumkh (maintainer)"
+    },
+    {
+      "case_id": "probe-no-args",
+      "date": "2026-11-20",
+      "expected": "657407936b8d2df958570a6aeb3195fa7928f1492749d5a2eadd101a0faff1df",
+      "observed": "657407936b8d2df958570a6aeb3195fa7928f1492749d5a2eadd101a0faff1df",
+      "path": "$.value.stderr",
+      "reason": "Empty command line: argparse prints 'usage:' in lower case and omits the blank line before 'error:', so `pycodestyle: error: input not specified` is preceded by different text. The error line itself, the exit status (2) and the condition are unchanged.",
       "reviewer": "yumkh (maintainer)"
     },
     {
@@ -104,26 +158,42 @@
     "cpu_seconds_per_case": 0.0,
     "kind": "wall clock"
   },
-  "case_count": 61,
-  "case_set_hash": "d2f78454511f64aa88cbba72bb9abc0223f63b2c2c4824a076914ef733a083bd",
+  "case_count": 77,
+  "case_set_hash": "be70731d8c084343af84746f977cc5292de262c05fe2e11eaa5895d7e1f76901",
   "cases_by_source": {
     "options/abbreviated-long-option": 1,
+    "options/bad-integer-in-config": 1,
     "options/clustered-short-flags": 1,
+    "options/custom-report-format": 1,
     "options/dash-reads-stdin": 1,
     "options/declared-unordered-jobs": 1,
     "options/declared-unstable-benchmark": 1,
+    "options/deprecated-pep8-section": 1,
     "options/double-dash-then-filename": 1,
+    "options/double-verbose": 1,
+    "options/exclude-and-filename-patterns": 1,
+    "options/explicit-config-file": 1,
     "options/file-does-not-exist": 1,
+    "options/hang-closing-indent": 1,
     "options/indent-size": 1,
     "options/invalid-value-for-choice": 1,
     "options/long-help": 1,
     "options/max-blank-lines": 1,
     "options/max-doc-length": 1,
     "options/negative-number-as-value": 1,
+    "options/no-args-and-project-config": 1,
+    "options/no-arguments-no-config": 1,
     "options/no-options-default-behaviour": 1,
     "options/non-integer-where-int-expected": 1,
+    "options/project-config-in-case-dir": 1,
+    "options/pylint-report-format": 1,
     "options/repeated-option-last-wins": 1,
+    "options/select-and-ignore-together": 1,
+    "options/single-verbose": 1,
+    "options/source-and-pep8-text": 1,
     "options/statistics-and-count": 1,
+    "options/unified-diff-on-stdin": 1,
+    "options/unknown-key-in-config": 1,
     "options/unknown-option": 1,
     "options/version": 1,
     "testing/data": 42
@@ -151,6 +221,20 @@
       "right": "usage: pycodestyle [options] input ...\r\npycodestyle: error: unrecognized arguments: --max-blank-lines=0\r\n"
     },
     {
+      "case_id": "probe-config-int-error",
+      "left": "Traceback (most recent call last):\r\n  File \"C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify\\tree\\pycodestyle.py\", line 2717, in <module>\r\n    _main()\r\n  File \"C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify\\tree\\pycodestyle.py\", line 2699, in _main\r\n    style_guide = StyleGuide(parse_argv=True)\r\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify\\tree\\pycodestyle.py\", line 2358, in __init__\r\n    options, self.paths = process_options(\r\n                          ^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify\\tree\\pycodestyle.py\", line 2656, in process_options\r\n    options = read_config(options, args, arglist, parser)\r\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify\\tree\\pycodestyle.py\", line 2607, in read_config\r\n    value = config.getint(pycodestyle_section, opt)\r\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\yumkh\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\configparser.py\", line 834, in getint\r\n    return self._get_conv(section, option, int, raw=raw, vars=vars,\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\yumkh\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\configparser.py\", line 824, in _get_conv\r\n    return self._get(section, conv, option, raw=raw, vars=vars,\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\yumkh\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\configparser.py\", line 819, in _get\r\n    return conv(self.get(section, option, **kwargs))\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nValueError: invalid literal for int() with base 10: 'abc'\r\n",
+      "path": "$.value.stderr",
+      "reason": "",
+      "right": "Traceback (most recent call last):\r\n  File \"C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify\\tree\\pycodestyle.py\", line 2760, in <module>\r\n    _main()\r\n  File \"C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify\\tree\\pycodestyle.py\", line 2742, in _main\r\n    style_guide = StyleGuide(parse_argv=True)\r\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify\\tree\\pycodestyle.py\", line 2358, in __init__\r\n    options, self.paths = process_options(\r\n                          ^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify\\tree\\pycodestyle.py\", line 2699, in process_options\r\n    options = read_config(options, args, arglist, parser)\r\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify\\tree\\pycodestyle.py\", line 2648, in read_config\r\n    value = config.getint(pycodestyle_section, opt)\r\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\yumkh\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\configparser.py\", line 834, in getint\r\n    return self._get_conv(section, option, int, raw=raw, vars=vars,\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\yumkh\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\configparser.py\", line 824, in _get_conv\r\n    return self._get(section, conv, option, raw=raw, vars=vars,\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\yumkh\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\configparser.py\", line 819, in _get\r\n    return conv(self.get(section, option, **kwargs))\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nValueError: invalid literal for int() with base 10: 'abc'\r\n"
+    },
+    {
+      "case_id": "probe-deprecated-section",
+      "left": "C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify\\tree\\pycodestyle.py:2588: UserWarning: [pep8] section is deprecated. Use [pycodestyle].\r\n  warnings.warn('[pep8] section is deprecated. Use [pycodestyle].')\r\n",
+      "path": "$.value.stderr",
+      "reason": "",
+      "right": "C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify\\tree\\pycodestyle.py:2629: UserWarning: [pep8] section is deprecated. Use [pycodestyle].\r\n  warnings.warn('[pep8] section is deprecated. Use [pycodestyle].')\r\n"
+    },
+    {
       "case_id": "probe-help",
       "left": "Usage: pycodestyle [options] input ...\r\n\r\nOptions:\r\n  --version            show program's version number and exit\r\n  -h, --help           show this help message and exit\r\n  -v, --verbose        print status messages, or debug with -vv\r\n  -q, --quiet          report only file names, or nothing with -qq\r\n  -r, --repeat         (obsolete) show all occurrences of the same error\r\n  --first              show first occurrence of each error\r\n  --exclude=patterns   exclude files or directories which match these comma\r\n                       separated patterns (default:\r\n                       .svn,CVS,.bzr,.hg,.git,__pycache__,.tox)\r\n  --filename=patterns  when parsing directories, only check filenames matching\r\n                       these comma separated patterns (default: *.py)\r\n  --select=errors      select errors and warnings (e.g. E,W6)\r\n  --ignore=errors      skip errors and warnings (e.g. E4,W) (default:\r\n                       E121,E123,E126,E226,E24,E704,W503,W504)\r\n  --show-source        show source code for each error\r\n  --show-pep8          show text of PEP 8 for each error (implies --first)\r\n  --statistics         count errors and warnings\r\n  --count              print total number of errors and warnings to standard\r\n                       error and set exit code to 1 if total is not null\r\n  --max-line-length=n  set maximum allowed line length (default: 79)\r\n  --max-doc-length=n   set maximum allowed doc line length and perform these\r\n                       checks (unchecked if not set)\r\n  --indent-size=n      set how many spaces make up an indent (default: 4)\r\n  --hang-closing       hang closing bracket instead of matching indentation of\r\n                       opening bracket's line\r\n  --format=format      set the error format [default|pylint|<custom>]\r\n  --diff               report changes only within line number ranges in the\r\n                       unified diff received on STDIN\r\n\r\n  Testing Options:\r\n    --benchmark        measure processing speed\r\n\r\n  Configuration:\r\n    The project options are read from the [pycodestyle] section of the\r\n    tox.ini file or the setup.cfg file located in any parent folder of the\r\n    path(s) being processed.  Allowed options are: exclude, filename,\r\n    select, ignore, max-line-length, max-doc-length, indent-size, hang-\r\n    closing, count, format, quiet, show-pep8, show-source, statistics,\r\n    verbose.\r\n\r\n    --config=path      user config file location\r\n",
       "path": "$.value.stdout",
@@ -170,6 +254,13 @@
       "path": "$.value.stderr",
       "reason": "",
       "right": "usage: pycodestyle [options] input ...\r\npycodestyle: error: unrecognized arguments: --jobs=1\r\n"
+    },
+    {
+      "case_id": "probe-no-args",
+      "left": "Usage: pycodestyle [options] input ...\r\n\r\npycodestyle: error: input not specified\r\n",
+      "path": "$.value.stderr",
+      "reason": "",
+      "right": "usage: pycodestyle [options] input ...\r\npycodestyle: error: input not specified\r\n"
     },
     {
       "case_id": "probe-unknown",
@@ -186,6 +277,20 @@
       "right": "usage: pycodestyle [options] input ...\r\npycodestyle: error: unrecognized arguments: --max-blank-lines=0\r\n"
     },
     {
+      "case_id": "probe-config-int-error",
+      "left": "Traceback (most recent call last):\r\n  File \"C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify\\tree\\pycodestyle.py\", line 2717, in <module>\r\n    _main()\r\n  File \"C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify\\tree\\pycodestyle.py\", line 2699, in _main\r\n    style_guide = StyleGuide(parse_argv=True)\r\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify\\tree\\pycodestyle.py\", line 2358, in __init__\r\n    options, self.paths = process_options(\r\n                          ^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify\\tree\\pycodestyle.py\", line 2656, in process_options\r\n    options = read_config(options, args, arglist, parser)\r\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify\\tree\\pycodestyle.py\", line 2607, in read_config\r\n    value = config.getint(pycodestyle_section, opt)\r\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\yumkh\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\configparser.py\", line 834, in getint\r\n    return self._get_conv(section, option, int, raw=raw, vars=vars,\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\yumkh\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\configparser.py\", line 824, in _get_conv\r\n    return self._get(section, conv, option, raw=raw, vars=vars,\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\yumkh\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\configparser.py\", line 819, in _get\r\n    return conv(self.get(section, option, **kwargs))\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nValueError: invalid literal for int() with base 10: 'abc'\r\n",
+      "path": "$.value.stderr",
+      "reason": "",
+      "right": "Traceback (most recent call last):\r\n  File \"C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify\\tree\\pycodestyle.py\", line 2760, in <module>\r\n    _main()\r\n  File \"C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify\\tree\\pycodestyle.py\", line 2742, in _main\r\n    style_guide = StyleGuide(parse_argv=True)\r\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify\\tree\\pycodestyle.py\", line 2358, in __init__\r\n    options, self.paths = process_options(\r\n                          ^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify\\tree\\pycodestyle.py\", line 2699, in process_options\r\n    options = read_config(options, args, arglist, parser)\r\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify\\tree\\pycodestyle.py\", line 2648, in read_config\r\n    value = config.getint(pycodestyle_section, opt)\r\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\yumkh\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\configparser.py\", line 834, in getint\r\n    return self._get_conv(section, option, int, raw=raw, vars=vars,\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\yumkh\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\configparser.py\", line 824, in _get_conv\r\n    return self._get(section, conv, option, raw=raw, vars=vars,\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\yumkh\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\configparser.py\", line 819, in _get\r\n    return conv(self.get(section, option, **kwargs))\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nValueError: invalid literal for int() with base 10: 'abc'\r\n"
+    },
+    {
+      "case_id": "probe-deprecated-section",
+      "left": "C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify\\tree\\pycodestyle.py:2588: UserWarning: [pep8] section is deprecated. Use [pycodestyle].\r\n  warnings.warn('[pep8] section is deprecated. Use [pycodestyle].')\r\n",
+      "path": "$.value.stderr",
+      "reason": "",
+      "right": "C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify\\tree\\pycodestyle.py:2629: UserWarning: [pep8] section is deprecated. Use [pycodestyle].\r\n  warnings.warn('[pep8] section is deprecated. Use [pycodestyle].')\r\n"
+    },
+    {
       "case_id": "probe-help",
       "left": "Usage: pycodestyle [options] input ...\r\n\r\nOptions:\r\n  --version            show program's version number and exit\r\n  -h, --help           show this help message and exit\r\n  -v, --verbose        print status messages, or debug with -vv\r\n  -q, --quiet          report only file names, or nothing with -qq\r\n  -r, --repeat         (obsolete) show all occurrences of the same error\r\n  --first              show first occurrence of each error\r\n  --exclude=patterns   exclude files or directories which match these comma\r\n                       separated patterns (default:\r\n                       .svn,CVS,.bzr,.hg,.git,__pycache__,.tox)\r\n  --filename=patterns  when parsing directories, only check filenames matching\r\n                       these comma separated patterns (default: *.py)\r\n  --select=errors      select errors and warnings (e.g. E,W6)\r\n  --ignore=errors      skip errors and warnings (e.g. E4,W) (default:\r\n                       E121,E123,E126,E226,E24,E704,W503,W504)\r\n  --show-source        show source code for each error\r\n  --show-pep8          show text of PEP 8 for each error (implies --first)\r\n  --statistics         count errors and warnings\r\n  --count              print total number of errors and warnings to standard\r\n                       error and set exit code to 1 if total is not null\r\n  --max-line-length=n  set maximum allowed line length (default: 79)\r\n  --max-doc-length=n   set maximum allowed doc line length and perform these\r\n                       checks (unchecked if not set)\r\n  --indent-size=n      set how many spaces make up an indent (default: 4)\r\n  --hang-closing       hang closing bracket instead of matching indentation of\r\n                       opening bracket's line\r\n  --format=format      set the error format [default|pylint|<custom>]\r\n  --diff               report changes only within line number ranges in the\r\n                       unified diff received on STDIN\r\n\r\n  Testing Options:\r\n    --benchmark        measure processing speed\r\n\r\n  Configuration:\r\n    The project options are read from the [pycodestyle] section of the\r\n    tox.ini file or the setup.cfg file located in any parent folder of the\r\n    path(s) being processed.  Allowed options are: exclude, filename,\r\n    select, ignore, max-line-length, max-doc-length, indent-size, hang-\r\n    closing, count, format, quiet, show-pep8, show-source, statistics,\r\n    verbose.\r\n\r\n    --config=path      user config file location\r\n",
       "path": "$.value.stdout",
@@ -207,6 +312,13 @@
       "right": "usage: pycodestyle [options] input ...\r\npycodestyle: error: unrecognized arguments: --jobs=1\r\n"
     },
     {
+      "case_id": "probe-no-args",
+      "left": "Usage: pycodestyle [options] input ...\r\n\r\npycodestyle: error: input not specified\r\n",
+      "path": "$.value.stderr",
+      "reason": "",
+      "right": "usage: pycodestyle [options] input ...\r\npycodestyle: error: input not specified\r\n"
+    },
+    {
       "case_id": "probe-unknown",
       "left": "Usage: pycodestyle [options] input ...\r\n\r\npycodestyle: error: no such option: --no-such-option\r\n",
       "path": "$.value.stderr",
@@ -214,7 +326,7 @@
       "right": "usage: pycodestyle [options] input ...\r\npycodestyle: error: unrecognized arguments: --no-such-option\r\n"
     }
   ],
-  "generated_at": "2026-11-20T15:11:18.351320+00:00",
+  "generated_at": "2026-11-20T18:24:21.775212+00:00",
   "masked": [],
   "new": {
     "path": "C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify-trees\\new",
@@ -230,19 +342,19 @@
   "rules": {
     "count": 0,
     "path": "C:\\Users\\yumkh\\Documents\\Refactor-harness\\harness\\rules\\pycodestyle.json",
-    "sha256": "88da6e232b01da7539a1646990ea10cb8c71c1dfd7eece543689e45e3b1ba1f4"
+    "sha256": "3a52f3abfc1d5f9a77d241ee1b99dcae7195720d6d77eb2f1b8b1d26ad37a8d3"
   },
   "rules_usage": {},
   "summary": {
     "approvals_stale": 0,
-    "different": 10,
-    "different_approved": 10,
+    "different": 16,
+    "different_approved": 16,
     "different_unapproved": 0,
     "equivalent": 0,
     "equivalent_bounded": 0,
     "flaky": 0,
     "flaky_cases": [],
-    "identical": 112,
+    "identical": 138,
     "undecidable_reasons": [],
     "unsupported": 0
   },

@@ -71,8 +71,11 @@ class FakeContainer:
             oom_exit = int(self._wait_result["StatusCode"])
         else:
             oom_exit = int(self._wait_result)
-        # real Docker: State mirrors the wait result
-        self.attrs: dict[str, Any] = {"State": {"OOMKilled": oom, "ExitCode": oom_exit}}
+        # real Docker: State mirrors the wait result, including the status the
+        # liveness poll reads (a container whose payload has already finished).
+        self.attrs: dict[str, Any] = {
+            "State": {"OOMKilled": oom, "ExitCode": oom_exit, "Status": "exited"}
+        }
         self._wait_delay = 0.0
         self.killed = 0
         self.removed = 0
@@ -455,6 +458,7 @@ def test_copy_in_fails_when_flag_missing_from_workspace() -> None:
 
 def test_run_times_out_kills_and_returns() -> None:
     container = FakeContainer()
+    container.attrs["State"]["Status"] = "running"  # never finishes on its own
     container._wait_delay = 30.0  # every wait() raises TimeoutError until kill
     started = time.monotonic()
     result = run(_spec(), FakeClient(next=[container]), _limits(wall_seconds=0.4))
@@ -491,6 +495,7 @@ class SupervisedContainer(FakeContainer):
 
     def __init__(self, frames: list[bytes]) -> None:
         super().__init__()
+        self.attrs["State"]["Status"] = "running"  # held open by the supervisor
         self._frames = frames
 
     def logs(self, **kwargs: Any) -> Any:
@@ -936,3 +941,80 @@ def test_demux_thread_never_grows_past_cap() -> None:
     stdout, _stderr, out_trunc, _err_trunc = reader.join()
     assert len(stdout) == 8192
     assert out_trunc is True
+
+
+def test_the_marker_is_seen_without_waiting_out_a_request_timeout() -> None:
+    """A fixed wait hid here: `container.wait(timeout=...)` is a CLIENT request
+    timeout, not a daemon one, and the supervisor holds the container open, so
+    every call blocked for the whole slice and the marker event was only looked
+    at afterwards. Measured cost: 5 s per pass (10 s when a payload crossed a
+    slice boundary). The wait is now on the local event, so the marker is seen
+    in milliseconds and `wait()` is not called at all.
+    """
+    from engine.sandbox import _wait_for_done
+
+    class Counting(SupervisedContainer):
+        def __init__(self) -> None:
+            super().__init__([])
+            self.waits = 0
+
+        def wait(self, timeout: float | None = None) -> Any:
+            self.waits += 1
+            time.sleep(5.0)  # what the old code actually paid
+            raise TimeoutError("still running")
+
+    container = Counting()
+    event = threading.Event()
+
+    def report() -> None:
+        time.sleep(0.05)
+        event.set()
+
+    threading.Thread(target=report, daemon=True).start()
+    started = time.monotonic()
+    kind = _wait_for_done(container, event, time.monotonic() + 30.0)
+    elapsed = time.monotonic() - started
+    assert kind == "marker"
+    assert elapsed < 1.0, elapsed
+    assert container.waits == 0
+
+
+def test_the_log_reader_is_stopped_before_it_is_joined() -> None:
+    """The other fixed wait: the attach socket stays open while the container is
+    held open, so joining the reader before closing its stream waited the whole
+    join timeout — a fixed 10 s per pass. `stop()` closes first, which unblocks
+    the blocked read."""
+    from engine.sandbox import _LogReader
+
+    class Blocking:
+        def __init__(self) -> None:
+            self.closed = False
+            self._unblock = threading.Event()
+
+        def recv(self, size: int) -> bytes:
+            self._unblock.wait(10.0)
+            return b""
+
+        def close(self) -> None:
+            self.closed = True
+            self._unblock.set()
+
+    class Stub:
+        id = "abc"
+
+        def reload(self) -> None:
+            return None
+
+        attrs = {"State": {"Status": "running"}}
+
+    sock = Blocking()
+    reader = _LogReader(Stub(), 1024, done_nonce="", socket=sock)  # type: ignore[arg-type]
+    reader.start()
+    time.sleep(0.05)
+    started = time.monotonic()
+    reader.stop()
+    stdout, stderr, _, _ = reader.join()
+    elapsed = time.monotonic() - started
+    assert sock.closed is True
+    assert stdout == b"" and stderr == b""
+    assert elapsed < 1.0, elapsed

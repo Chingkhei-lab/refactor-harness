@@ -47,7 +47,13 @@ MODULE = "parse"
 
 
 def _one_pass(
-    checkout: Path, *, cases: list[Any], shim: Path, workdir: Path, index: int
+    checkout: Path,
+    *,
+    cases: list[Any],
+    shim: Path,
+    workdir: Path,
+    index: int,
+    module: str = MODULE,
 ) -> Pass:
     return run_pass(
         python=sys.executable,
@@ -57,9 +63,9 @@ def _one_pass(
         target_paths=[checkout],
         cases=cases,
         index=index,
-        module=MODULE,
+        module=module,
         workdir=workdir,
-        case_budget_seconds=10.0,
+        case_budget_seconds=30.0 if module != MODULE else 10.0,
         cpu_budget_seconds=10.0,
         expected_case_set_hash=case_set_hash(cases),
     )
@@ -92,14 +98,29 @@ def _stratified_sample(sites: list[Site], size: int, seed: int) -> list[Site]:
     return sorted(chosen)[:size]
 
 
-def _write_mutant(target: Path, work: Path, site: Site, source: str) -> Path:
+def _module_file(target: Path, module: str) -> Path:
+    """Where the module under test lives, package or single file.
+
+    `parse` is a package (`parse/__init__.py`), `pycodestyle` is one module at the
+    tree root (`pycodestyle.py`). The rest of the protocol does not care which.
+    """
+    package = target / module / "__init__.py"
+    if package.exists():
+        return package
+    single = target / f"{module}.py"
+    if single.exists():
+        return single
+    raise SystemExit(f"{target}: no {module}/__init__.py and no {module}.py")
+
+
+def _write_mutant(
+    target: Path, work: Path, site: Site, source: str, module: str = MODULE
+) -> Path:
     if work.exists():
         shutil.rmtree(work)
     shutil.copytree(target, work)
-    package = work / MODULE
-    if not package.is_dir():
-        package.mkdir(parents=True)
-    (package / "__init__.py").write_text(mutate(source, site), encoding="utf-8")
+    destination = work / _module_file(target, module).relative_to(target)
+    destination.write_text(mutate(source, site), encoding="utf-8")
     return work
 
 
@@ -143,6 +164,10 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--target", default=".harness/target")
     parser.add_argument("--tests", default="")
+    parser.add_argument(
+        "--tests-subdir", default="", help="tests directory inside the tree"
+    )
+    parser.add_argument("--module", default=MODULE)
     parser.add_argument("--cases", default="harness/cases/parse.json")
     parser.add_argument("--seed", type=int, default=12)
     parser.add_argument("--time-budget", type=float, default=1800.0)
@@ -168,7 +193,7 @@ def main() -> int:
     args = parser.parse_args()
 
     target = (_REPO_ROOT / args.target).resolve()
-    source = (target / MODULE / "__init__.py").read_text(encoding="utf-8")
+    source = _module_file(target, args.module).read_text(encoding="utf-8")
     cases = load_cases(_REPO_ROOT / args.cases)
     set_hash = case_set_hash(cases)
     work_root = _REPO_ROOT / ".harness" / ("mutation" + (f"-{args.tag}" if args.tag else ""))
@@ -189,7 +214,10 @@ def main() -> int:
 
     # 1. baseline pass (cached: A/A noise is 0 for this target, measured 5+5 passes)
     started = time.monotonic()
-    baseline = _one_pass(target, cases=cases, shim=shim, workdir=work_root / "baseline", index=1)
+    baseline = _one_pass(
+        target, cases=cases, shim=shim, workdir=work_root / "baseline", index=1,
+        module=args.module,
+    )
     baseline_seconds = time.monotonic() - started
     # A/A noise for this target is 0 over 5 fixed and 5 shuffled passes
     # (docs/results/harness-parse-*.md), measured before this run.
@@ -243,7 +271,7 @@ def main() -> int:
         if position in done:
             continue
         started = time.monotonic()
-        mutant_dir = _write_mutant(target, work_root / "mutant", site, source)
+        mutant_dir = _write_mutant(target, work_root / "mutant", site, source, args.module)
         try:
             ran = _one_pass(
                 mutant_dir,
@@ -251,6 +279,7 @@ def main() -> int:
                 shim=shim,
                 workdir=work_root / f"run-{position}",
                 index=position,
+                module=args.module,
             )
             verdicts = compare_sets(base_by_case, ran.by_case())
         except Exception as exc:  # noqa: BLE001 - one bad mutant must not stop the run
@@ -281,7 +310,11 @@ def main() -> int:
         tests_killed: bool | None = None
         tests_note = ""
         if args.tests and not args.no_tests:
-            tests_killed, tests_note = _run_tests((_REPO_ROOT / args.tests).resolve(), mutant_dir)
+            # The tests come from the MUTANT copy, so `testing/support.py`
+            # resolves inside the tree being tested and cannot reach back to the
+            # unmutated one.
+            tests_dir = mutant_dir / (args.tests_subdir or "tests")
+            tests_killed, tests_note = _run_tests(tests_dir, mutant_dir)
         results.append(
             {
                 "position": position,

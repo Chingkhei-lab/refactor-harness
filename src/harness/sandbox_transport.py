@@ -142,6 +142,8 @@ def sandbox_env(base_env: dict[str, str]) -> dict[str, str]:
             "LC_ALL",
             "HARNESS_SHIM_DISABLE",
             "PYTHONIOENCODING",
+            "COVERAGE_PROCESS_START",
+            "COVERAGE_FILE",
         }
     }
     # Override, never default: on a Windows host the base PATH is

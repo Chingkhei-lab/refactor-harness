@@ -41,7 +41,17 @@ from collections.abc import Iterator, Mapping
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
-_WAIT_SLICE_SECONDS = 5.0
+# How often the supervisor-marker event is checked while a payload runs, and how
+# often the container's state is re-read when no marker has arrived. The marker
+# arrives on the log reader's thread, so waiting on the event costs nothing and
+# wakes instantly; `container.wait(timeout=...)` is a CLIENT-side request timeout
+# (docker-py passes it to `_post(url, timeout=...)`), and the container is held
+# open by the supervisor's sleep, so every call blocked for the full slice before
+# the event was looked at. Measured: 5.0 s of dead time per pass, 10.0 s when the
+# payload crossed a slice boundary.
+_MARKER_POLL_SECONDS = 0.02
+_LIVENESS_POLL_SECONDS = 0.5
+_WAIT_SLICE_SECONDS = 5.0  # retained for callers that pass their own deadline
 _REMOVE_RETRIES = 3
 _REMOVE_BACKOFF_SECONDS = 0.5
 _LOG_JOIN_TIMEOUT_SECONDS = 10.0
@@ -455,14 +465,35 @@ class _LogReader:
         # _demux intact and stdout/stderr stay separated. Without it (unit
         # stubs, older clients) the container.logs() stream is used as-is.
         self._socket = socket
+        self._stream: Any | None = None
 
     def start(self) -> None:
         if self._socket is not None:
             stream = _socket_chunks(self._socket)
         else:
             stream = self._container.logs(stream=True, follow=True, stdout=True, stderr=True)
+        self._stream = stream
         self._thread = threading.Thread(target=self._consume, args=(stream,), daemon=True)
         self._thread.start()
+
+    def stop(self) -> None:
+        """Unblock the reader, so join() does not wait for the container to die.
+
+        The attach socket stays open as long as the container runs, and the
+        supervisor holds the container open on purpose (so the tmpfs workspace
+        survives for copy-out). Joining before closing therefore waited the whole
+        join timeout — a fixed 10 s per pass, measured. The marker has already
+        given us the exit code, so the rest of the stream is not needed.
+        """
+        for target in (self._socket, self._stream):
+            if target is None:
+                continue
+            try:
+                target.close()
+            except _DRAIN_ERRORS:
+                pass
+            except Exception:  # noqa: BLE001 - a stream that refuses to close is not fatal
+                pass
 
     def _consume(self, stream: Any) -> None:
         try:
@@ -568,17 +599,37 @@ def _wait_for_done(
     ReadTimeout/ConnectionError and docker API errors all subclass OSError,
     so one except clause covers them all.
     """
+    next_liveness = 0.0  # check once immediately: a fast payload may be gone
     while True:
-        if done_event.is_set():
+        if done_event.wait(_MARKER_POLL_SECONDS):
             return "marker"
-        if time.monotonic() >= deadline:
+        now = time.monotonic()
+        if now >= next_liveness:
+            next_liveness = now + _LIVENESS_POLL_SECONDS
+            if _container_stopped(container):
+                return "exited"  # ended without a marker: State has the code
+        if now >= deadline:
             return "timeout"
-        remaining = deadline - time.monotonic()
-        try:
-            container.wait(timeout=min(_WAIT_SLICE_SECONDS, max(remaining, 0.05)))
-            return "exited"  # ended without a marker: State has the code
-        except OSError:
-            pass  # still running (requests timeout is an OSError)
+
+
+def _container_stopped(container: SandboxContainer) -> bool:
+    """True once the container is no longer running; False while it is.
+
+    A re-read that fails is treated as "still running": the deadline, not a
+    guessed state, is what ends the wait. This replaces the old wake-up path,
+    where `container.wait(timeout=...)` was both the exit detector and the
+    marker detector and cost the whole slice either way.
+    """
+    try:
+        container.reload()
+    except OSError:
+        return False
+    state = container.attrs.get("State") or {}
+    status = state.get("Status")
+    if status is None:
+        # No evidence either way: the deadline decides, never a guess.
+        return False
+    return status not in ("running", "created", "paused", "restarting")
 
 
 def _remove_with_retries(container: SandboxContainer) -> tuple[bool, bool]:
@@ -875,6 +926,7 @@ def run(
             }
             symlinks_skipped = copied.symlinks_skipped
 
+        reader.stop()  # before join: see _LogReader.stop
         stdout, stderr, stdout_truncated, stderr_truncated = reader.join()
         removed, kill_failed = _remove_with_retries(container)
         completed = True

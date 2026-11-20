@@ -129,6 +129,10 @@ CLI_ENV_ALLOWLIST = (
     "HARNESS_CWD_FIXED",
     "HARNESS_ENV_SCRUBBED",
     "HARNESS_SHIM_DISABLE",
+    # A CLI case is a grandchild of the harness: without these two the target's
+    # own code never contributes to the coverage report.
+    "COVERAGE_PROCESS_START",
+    "COVERAGE_FILE",
 )
 CLI_COLUMNS = "80"
 
@@ -177,8 +181,14 @@ def run_cli_case(
         program = Path(case.get("program_root") or ".").resolve() / entry
     argv = [str(item) for item in case.get("argv") or ()]
     inputs = {"argv": argv, "stdin": case.get("stdin") or ""}
+    # Deterministic path, not `mkdtemp`: `-vv` prints "local configuration: in
+    # <dir>", so a random directory name made a CLI case disagree with itself
+    # between two A/A passes. The name is the case id, so the path is identical in
+    # every pass on this machine and in both versions of the tree.
     _CASE_ROOT.mkdir(parents=True, exist_ok=True)
-    cwd = Path(tempfile.mkdtemp(prefix="case-", dir=_CASE_ROOT))
+    cwd = _CASE_ROOT / str(case["id"])
+    shutil.rmtree(cwd, ignore_errors=True)
+    cwd.mkdir(parents=True)
     home = cwd / "home"
     (home / ".config").mkdir(parents=True, exist_ok=True)
     (home / "tmp").mkdir(parents=True, exist_ok=True)

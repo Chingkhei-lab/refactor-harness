@@ -10,74 +10,105 @@ unless it says otherwise.
 
 ---
 
-## Finding 1 — the gate arithmetic, and where the time actually goes
+## Finding 1 — the overhead was two fixed waits, and the breakdown was wrong
 
-**The 50-minute figure was wrong. 76 minutes is right.**
+**You were right on both counts.** The arithmetic did not sum, and the cause was a
+poll interval, not a size effect. There were **two** fixed waits, and together
+they were ~94 % of the overhead:
 
-A sandboxed pass over the 273-case `parse` set costs **15.16 s more** than the
-direct pass on this host (measured, `scripts/sandbox_gate.py`, 6 mutants, seed 7):
-
-```
-direct pass                 1.16 s
-sandboxed pass             16.31 s
-overhead per pass          15.16 s
-300 mutants x 15.16 s    4548 s  =  75.8 min
- 60 mutants x 15.16 s     910 s  =  15.2 min
-```
-
-`300 × 15.12 s = 4536 s = 75.6 min`, so both of the previous numbers were
-inconsistent with each other and neither was 50 minutes. The arithmetic in the
-CI job description ("1 000 s ≈ 50 min") was wrong twice over: 1 000 s is 16.7
-minutes, and the real cost was 4 536 s.
-
-### Per-pass breakdown
-
-Three probes of the same code path separate the phases. Each probe uses
-`engine.sandbox.run` directly with the same image and limits as a pass; the
-workspace is the real one a pass copies in (23 files, 212 951 bytes).
-
-| phase | seconds | how it was isolated |
-| --- | --- | --- |
-| container create + start + teardown | **0.75** | empty workspace, `/bin/true` |
-| copy-in + copy-out | **10.49** | real workspace, `/bin/true`, minus the line above |
-| child import (`import harness.child`) | **5.02** | real workspace, `python3 -c`, minus both above |
-| total overhead | **15.16** | sandboxed pass minus direct pass |
-
-The child import is 5 s because it pulls `harness.child` → `harness.observation`
-→ `harness.projections` → the `parse` shim off the tmpfs through the exec
-transport; it is paid once per pass, not once per case.
-
-### Copy-in is latency-bound, not size-bound — this matters for stage 2
-
-The finding asked for the copy-in overhead by size, because stage 2 pays it per
-mutant. It does not scale with the payload in the range measured:
-
-| workspace | files | bytes | best of 3 |
+| fixed wait | where | why it cost the full slice | cost |
 | --- | --- | --- | --- |
-| full (checkout + shim + `src/harness` + plan) | 23 | 212 948 | 11.25 s |
-| only `parse/__init__.py` + plan | 3 | 42 041 | 16.22 s |
+| `container.wait(timeout=5)` | `_wait_for_done` | docker-py passes `timeout` to `_post(url, timeout=...)` — a **client** request timeout, not a daemon wait. The supervisor holds the container open on purpose, so every call blocked the whole 5 s before the marker event was looked at | 5 s, or 10 s when the payload crossed a slice boundary |
+| `reader.join()` before closing the attach socket | `run()` tail | the attach socket stays open while the container is alive (same supervisor sleep), so `join` waited its whole timeout | 10 s |
 
-Repeating the full workspace four times gives `16.30, 16.41, 16.28, 11.41` — the
-cost is **bimodal and independent of bytes**. It is the tar-through-exec
-transport on the Docker Desktop named-pipe path (documented in ADR 003 D4: the
-daemon refuses archive PUTs into a read-only rootfs, so the workspace travels as
-a tar stream into `tar -xf -`), plus one container start.
+That is why the numbers fell into two groups 5 s apart (`11.25` vs `16.22`) and
+why "child import" also measured 5.02 s: **each probe paid one or two slices**,
+so the probes were measuring the same waits three times over, not three different
+phases. `0.75 + 10.49 + 5.02 + 1.16 = 17.42` did not have to equal 15.16, because
+only `control_direct_seconds` and `control_sandbox_seconds` were a matched pair;
+the rest were independent runs of overlapping work. Reporting them as a
+decomposition was the mistake.
 
-Consequences, stated plainly:
+### The fix
 
-* Sandboxing every mutant at the stage-1 scale costs **~76 min per 300**, of
-  which only ~1.2 s/mutant is the harness itself. The gate is an infrastructure
-  regression check, not the primary oracle, and CI runs it on 60 mutants.
-* **Stage 2 pays ~15 s per mutant pass.** A 200-mutant stage-2 run is therefore
-  ~50 minutes of pure transport. That is affordable once, not per iteration, so
-  the stage-2 protocol keeps its first pass small and runs the direct path for
-  iteration, with the sandbox as the closure check on the final sample.
-* A real fix (multiplexing the whole mutant plan through one container) is
-  deferred and written down as such in ADR 004 D10k rather than pretended away:
-  the current transport copies the *workspace* per pass, and the workspace is
-  the same for every mutant except one file.
+```python
+# src/engine/sandbox.py
+_MARKER_POLL_SECONDS = 0.02     # wait on the local event, which wakes instantly
+_LIVENESS_POLL_SECONDS = 0.5    # re-read container state only when no marker came
 
----
+def _wait_for_done(container, done_event, deadline):
+    next_liveness = 0.0
+    while True:
+        if done_event.wait(_MARKER_POLL_SECONDS):
+            return "marker"
+        now = time.monotonic()
+        if now >= next_liveness:
+            next_liveness = now + _LIVENESS_POLL_SECONDS
+            if _container_stopped(container):   # explicit evidence only
+                return "exited"
+        if now >= deadline:
+            return "timeout"
+```
+
+and `reader.stop()` closes the attach socket before `reader.join()`. The marker
+has already delivered the exit code, so the rest of the stream is not needed.
+
+### After
+
+| measurement | before | after |
+| --- | --- | --- |
+| one sandboxed `/bin/true` run with the real workspace | 11.3 - 16.3 s | **1.45 s** |
+| harness pass overhead (direct vs sandbox, 273 cases) | 15.12 s | **0.91 s** |
+| 300-mutant sandbox gate | 76 min | **13 min** |
+| gate verdicts / bytes | 300/300, identical | **300/300, identical** |
+
+The gate at 300 mutants now runs in the time 60 used to take, so CI runs the
+full 300 (`docs/results/sandbox-gate-20261120.json`:
+`verdict_agreement 300/300, byte_identical true, overhead 0.91 s/pass`).
+
+### Where the 1.45 s actually goes (instrumented, not inferred)
+
+| phase | seconds |
+| --- | --- |
+| container create + attach + start | ~0.55 |
+| copy-in (213 KB, 23 files) | 0.17 |
+| wait for the marker | 0.02 |
+| cgroup OOM counter read | 0.17 |
+| copy-out | 0.16 |
+| teardown (kill + remove) | 0.22 |
+
+Sums to ~1.3 s, and three consecutive `run()` calls measured 1.45 / 1.50 / 1.38 s.
+Copy-in is now demonstrably size-insensitive in the range that matters: 213 KB is
+0.17 s, and it was never the 10 s.
+
+### `-X importtime` on the child, as asked
+
+```
+import time:    54178 |   427511 |   harness.observation
+import time:   100630 |  1330798 | harness.child
+```
+
+`import harness.child` is **1.33 s** cumulative in a cold `python:3.12-slim`
+container, of which `harness.observation` is 0.43 s (`typing`, `pathlib`,
+`dataclasses`, `json`, `hashlib` are most of it). So the 5.02 s in the old table
+was one wait slice, not import cost. The honest import number is 1.33 s, paid once
+per pass, and it is the largest remaining fixed cost of a pass.
+
+### The derived image: measured, and deliberately not done
+
+The suggestion was to bake the harness, the shim and a clean target into a
+content-addressed derived image so each mutant copies in only the mutated file.
+With the waits fixed, the arithmetic has changed: copy-in is 0.17 s of a 1.45 s
+run, so an image would save at most ~0.2 s per mutant (14 %) and add a build
+pipeline, an image-reuse lifecycle and a cache invalidation rule. It is written
+down as a deferred optimisation in ADR 004 D10k with the safety requirement
+stated: a reused image is only safe with a **fresh container per pass** (what the
+harness does) or a **warm container with a wiped workspace and a fresh
+interpreter per mutant**, because a container whose workspace survives between
+mutants is a container where one mutant can see another's files.
+
+If it is done later, the number to beat is 0.91 s/pass, and the mechanism already
+exists: Phase 3's `engine/install.py` builds hashed, wheel-only derived images.
 
 ## Finding 2 — which 60 mutants CI runs, and were the 300 run on current code
 
@@ -110,11 +141,12 @@ would only ever have been checked against one kind of behaviour.
 
 Because of the second one, the 300/300 result is quoted as belonging to
 `7cd2afd`, and a fresh gate run is what the report cites for the current tree.
-A 6-mutant smoke run after the PATH fix gives `6/6`, `byte_identical: true`,
-`overhead 15.16 s`, and a full **60-mutant run on the current tree gives
-`60/60` verdict agreement, `byte_identical: true`, `overhead 15.15 s/pass`,
-60 mutants seeded 7 (30 killed / 30 survived)** — that is the number the CI job
-cites, and it is measured on this tree, not on `7cd2afd`.
+After the PATH fix and the removal of the two fixed waits (Finding 1), the full
+**300-mutant gate runs on the current tree**: `300/300` verdict agreement,
+`byte_identical: true`, **0.91 s/pass**, 139 killed / 161 survived — the whole
+sample, in 13 minutes. `docs/results/sandbox-gate-20261120.json` is that run.
+CI's default is now 300 rather than 60, because the cost of the full sample is
+what 60 used to cost.
 
 ### The bug this run found: a Windows `PATH` inside a Linux container
 
@@ -266,6 +298,22 @@ usable, for every pinned target, and writes `docs/results/oracle-canary-20261120
 A suite that is red on the unmutated tree "kills" every mutant and inflates the
 rate; a suite that cannot fail deflates it. Both are now checked before any
 mutation number is quoted, and the script exits non-zero if either check fails.
+
+### Both artifacts are pinned, and the module is proved identical
+
+`scripts/pin_oracle.py` downloads both tarballs, checks each against its pinned
+sha256, and compares the module file byte for byte:
+
+| artifact | sha256 | `pycodestyle.py` |
+| --- | --- | --- |
+| PyPI sdist (module under test) | `318f5db0…b50e` | `04d95f31…55fe` |
+| GitHub tag tarball (runnable suite) | `3cb6afba…b4bd` | `04d95f31…55fe` |
+
+`module_identical: true` — the oracle tree and the sdist ship the same module, so
+the suite is an oracle for the code under test rather than for a near neighbour.
+`harness/oracle/pycodestyle.json` is the record, regenerated by the script, and
+the script exits non-zero if either hash or the module comparison changes. It runs
+in CI next to the canaries.
 
 ### The sdist trap
 

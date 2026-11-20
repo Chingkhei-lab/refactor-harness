@@ -1,6 +1,6 @@
 {
   "target": "pycodestyle",
-  "case_set_hash": "d2f78454511f64aa88cbba72bb9abc0223f63b2c2c4824a076914ef733a083bd",
+  "case_set_hash": "be70731d8c084343af84746f977cc5292de262c05fe2e11eaa5895d7e1f76901",
   "notes": "No CLI case needs masking under the shim: four passes (two fixed, two shuffled) over the 61-case set produced 0 A/A noise. Paths in stderr would need a rule if they leaked; the environment controls (empty HOME/XDG_CONFIG_HOME, project config pinned to the case dir) keep them out.",
   "rules": []
 }

@@ -1,0 +1,17 @@
+{
+  "module_identical": true,
+  "note": "The suite comes from the tag tarball because the sdist ships tests/ without the testing/ package they import. The module files are compared byte for byte: if they ever differ, the oracle is testing a different release and the numbers are void.",
+  "runnable_suite": "tests",
+  "sdist": {
+    "module_sha256": "04d95f3133ff3f8f0d8f1f38f8a8c5f8ec7ec965ebf7d54a43ffdd4cc3a155fe",
+    "sha256": "318f5db083869b4c4dad922d0b11124fb27ab181b6730b93371da671e31bd50e",
+    "url": "https://files.pythonhosted.org/packages/source/p/pycodestyle/pycodestyle-2.15.0.tar.gz"
+  },
+  "target": "pycodestyle",
+  "tests": {
+    "module_sha256": "04d95f3133ff3f8f0d8f1f38f8a8c5f8ec7ec965ebf7d54a43ffdd4cc3a155fe",
+    "sha256": "3cb6afba1667f13b4ca7884154299108ef8e633a36526e29412a5cec7b5db4bd",
+    "url": "https://codeload.github.com/PyCQA/pycodestyle/tar.gz/refs/tags/2.15.0"
+  },
+  "version": "2.15.0"
+}

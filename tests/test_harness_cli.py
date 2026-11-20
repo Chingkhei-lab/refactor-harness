@@ -177,9 +177,16 @@ def test_the_shipped_stage2_case_set_matches_its_recorded_hash() -> None:
     path = REPO / "harness" / "cases" / "pycodestyle-cli.json"
     payload = __import__("json").loads(path.read_text(encoding="utf-8"))
     cases = load_cases(path)
-    assert len(cases) == 61
+    assert len(cases) == 77
     assert payload["case_set_hash"] == case_set_hash(cases)
-    assert payload["counts_by_source"] == {"fixtures": 42, "probes": 19}
+    # A literal. The hash must be the same on Windows and on the Linux runner —
+    # it was not, because `sorted(Path)` is case-normalised on one platform and
+    # case-sensitive on the other, and this test is what makes that drift fail
+    # here instead of in a report.
+    assert payload["case_set_hash"] == (
+        "be70731d8c084343af84746f977cc5292de262c05fe2e11eaa5895d7e1f76901"
+    )
+    assert payload["counts_by_source"] == {"fixtures": 42, "probes": 35}
     assert all(case.kind == "cli" for case in cases)
     for case in cases:
         # Inputs only, and nothing that could write outside the case directory.
@@ -187,3 +194,35 @@ def test_the_shipped_stage2_case_set_matches_its_recorded_hash() -> None:
                        for name in case.files)
     unstable = {c.id for c in cases if "benchmark" in c.id or "jobs" in c.id}
     assert unstable == {"probe-benchmark", "probe-jobs"}
+    assert len({c.id for c in cases}) == len(cases), "case ids must be unique"
+
+
+def test_the_shim_can_start_coverage_but_is_inert_without_the_variable() -> None:
+    """Stage-2 coverage needs a hook in the grandchild, and it must be harmless.
+
+    A CLI case runs the target as a subprocess of the harness child, so ordinary
+    coverage of the child never sees the target's lines. `COVERAGE_PROCESS_START`
+    is the only hook that reaches an arbitrary grandchild; it is installed in the
+    shim's `sitecustomize` and guarded by the variable, so a normal pass pays one
+    lookup. This test pins both halves: the hook is there, and without the
+    variable the shim imports nothing extra.
+    """
+    from harness.determinism import shim_source
+
+    source = shim_source()
+    assert "COVERAGE_PROCESS_START" in source
+    assert "process_startup" in source
+    compile(source, "sitecustomize", "exec")
+
+    shim = Path(__file__).resolve().parents[1] / ".harness" / "shim-hook-test"
+    shim.mkdir(parents=True, exist_ok=True)
+    (shim / "sitecustomize.py").write_text(source, encoding="utf-8")
+    import subprocess
+
+    env = {"PYTHONPATH": str(shim), "PATH": str(Path(sys.executable).parent)}
+    clean = subprocess.run(
+        [sys.executable, "-c", "import sitecustomize, sys; print('coverage' in sys.modules)"],
+        capture_output=True, text=True, env=env,
+    )
+    assert clean.returncode == 0, clean.stderr[-400:]
+    assert clean.stdout.strip() == "False", "coverage must not load without the variable"

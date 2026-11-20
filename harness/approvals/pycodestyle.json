@@ -1,7 +1,7 @@
 {
   "schema": "harness-approvals/1",
   "target": "pycodestyle 2.15.0",
-  "note": "Approved differences for the optparse->argparse migration: parser text only. Approval is bound to the observed diff; a changed diff is stale and goes back to `different`. Nothing here is counted as `equivalent`.",
+  "note": "Approved differences for the optparse->argparse migration. Two kinds: parser text (help layout, error wording) and line numbers inside stderr that moved because the patch adds lines. Nothing here is counted as `equivalent`, and an approval whose diff changes is stale and goes back to `different`.",
   "approvals": [
     {
       "case_id": "probe-blank-lines",
@@ -42,6 +42,30 @@
       "reviewer": "yumkh (maintainer)",
       "date": "2026-11-20",
       "sha256": "0f2bab29418ef25403f12aeab9741c23a7516e15813124c768b6e77fcaddd509"
+    },
+    {
+      "case_id": "probe-config-int-error",
+      "path": "$.value.stderr",
+      "reason": "Uncaught ValueError from configparser.getint on a non-integer config value: same exception, same frames, same message in both versions. Only the traceback's line numbers differ, because the patch adds 41 lines above read_config. Approving the line numbers, not the failure: it is a pre-existing crash in both versions and is reported as such.",
+      "reviewer": "yumkh (maintainer)",
+      "date": "2026-11-20",
+      "sha256": "8b131eae9d88102567930d1baff5e708cfebccbd73930773693b974d85f09d00"
+    },
+    {
+      "case_id": "probe-deprecated-section",
+      "path": "$.value.stderr",
+      "reason": "[pep8] section deprecation warning: identical text in both versions; the warning's reported line number moved by 41 lines because the patch adds lines above it.",
+      "reviewer": "yumkh (maintainer)",
+      "date": "2026-11-20",
+      "sha256": "bd981c6451394c5dc7a4716682a0d2fc5809f898ef5947fcecf8f188653bebe6"
+    },
+    {
+      "case_id": "probe-no-args",
+      "path": "$.value.stderr",
+      "reason": "Empty command line: argparse prints 'usage:' in lower case and omits the blank line before 'error:', so `pycodestyle: error: input not specified` is preceded by different text. The error line itself, the exit status (2) and the condition are unchanged.",
+      "reviewer": "yumkh (maintainer)",
+      "date": "2026-11-20",
+      "sha256": "657407936b8d2df958570a6aeb3195fa7928f1492749d5a2eadd101a0faff1df"
     }
   ]
 }

@@ -1,5 +1,5 @@
 {
- "case_set_hash": "d2f78454511f64aa88cbba72bb9abc0223f63b2c2c4824a076914ef733a083bd",
+ "case_set_hash": "be70731d8c084343af84746f977cc5292de262c05fe2e11eaa5895d7e1f76901",
  "cases": [
   {
    "args": [],
@@ -984,11 +984,280 @@
    "kwargs": {},
    "source": "options/declared-unordered-jobs",
    "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--config=cfg.ini",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "cfg.ini": "[pycodestyle]\nmax-line-length = 10\n",
+    "sample.py": "x=1\n"
+   },
+   "id": "probe-config-file",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/explicit-config-file",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x=1\n",
+    "setup.cfg": "[pycodestyle]\nmax-line-length = 10\n"
+   },
+   "id": "probe-local-config",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/project-config-in-case-dir",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x=1\n",
+    "setup.cfg": "[pep8]\nmax-line-length = 10\n"
+   },
+   "id": "probe-deprecated-section",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/deprecated-pep8-section",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x=1\n",
+    "setup.cfg": "[pycodestyle]\nnot-a-real-option = 1\n"
+   },
+   "id": "probe-config-unknown-key",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/unknown-key-in-config",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x=1\n",
+    "setup.cfg": "[pycodestyle]\nmax-line-length = abc\n"
+   },
+   "id": "probe-config-int-error",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/bad-integer-in-config",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "-v",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x = 1\n"
+   },
+   "id": "probe-verbose",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/single-verbose",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "-vv",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x = 1\n",
+    "setup.cfg": "[pycodestyle]\nmax-line-length = 10\n"
+   },
+   "id": "probe-very-verbose",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/double-verbose",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "setup.cfg": "[pycodestyle]\nmax-line-length = 10\n"
+   },
+   "id": "probe-no-args-with-config",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/no-args-and-project-config",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--diff",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x=1\n"
+   },
+   "id": "probe-diff-stdin",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/unified-diff-on-stdin",
+   "stdin": "--- sample.py\n+++ sample.py\n@@ -1 +1 @@\n-x=1\n+x=2\n"
+  },
+  {
+   "args": [],
+   "argv": [
+    "--format=pylint",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x=1\n"
+   },
+   "id": "probe-format-pylint",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/pylint-report-format",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--format=%(path)s:%(row)d:%(code)s",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x=1\n"
+   },
+   "id": "probe-format-custom",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/custom-report-format",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--show-source",
+    "--show-pep8",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x=1\n"
+   },
+   "id": "probe-show-source-and-pep8",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/source-and-pep8-text",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--exclude=sample.py",
+    "--filename=*.py",
+    "."
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x=1\n"
+   },
+   "id": "probe-exclude-and-filename",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/exclude-and-filename-patterns",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--hang-closing",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "print('x')\n        )\n"
+   },
+   "id": "probe-hang-closing",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/hang-closing-indent",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--select=E,W",
+    "--ignore=E501",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x=1\n"
+   },
+   "id": "probe-select-ignore",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/select-and-ignore-together",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {},
+   "id": "probe-no-args",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/no-arguments-no-config",
+   "stdin": ""
   }
  ],
  "counts_by_source": {
   "fixtures": 42,
-  "probes": 19
+  "probes": 35
  },
  "excerpt": "first 40 lines",
  "inputs_only": "expected codes in the data files are never read",
