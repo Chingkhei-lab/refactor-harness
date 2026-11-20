@@ -37,7 +37,7 @@ pytestmark = [
     pytest.mark.skipif(sys.platform == "win32", reason="container tests run on Linux"),
 ]
 
-CASES = [Case(id="0001-hostile", source="hostile", entry="escape", args=())]
+CASES = [Case(id="0001-hostile", source="hostile", entry="escape", args=(0,))]
 
 
 def _sandbox_pass(tmp_path: Path) -> object:
