@@ -92,3 +92,48 @@
 - Both jobs publish their JUnit counts as `::notice` annotations and as a commit
   status, because job logs need admin rights and the uploaded artifacts need a
   token. A red run also names the failing tests in a `::error` annotation.
+
+## Unreleased — 12a corrections
+
+### The test oracle was inverted
+
+`_run_tests` returned `returncode == 0` and the caller stored it as `tests_killed`,
+so a *passing* suite was recorded as a kill. Every 12a number derived from it was
+wrong. Corrected from the same 300 rows, each row's pytest note asserted against
+the flipped value before the migration was written:
+
+| | Tests killed it | Tests missed it |
+| --- | --- | --- |
+| Harness killed it | 139 | 0 |
+| Harness missed it | 120 | 41 |
+
+Harness 46.3 %, upstream 86.3 %, union 86.3 % — the harness is a **subset** of the
+suite, not an addition to it. The two "equivalent" survivors were also refuted by
+this cross-check (one is killed by the suite), so the sample has **no** equivalent
+mutant and all 65 covered survivors are case-set gaps.
+
+### Everything is now interval-shaped
+
+`_rate` prints a Wilson 95 % interval beside each proportion and the sampling
+method (stratified, seed) is stated in the plan and the report.
+
+### Tuning protocol
+
+- 34 cases added for the seven survivor clusters (`harness/cases/parse-tuned.json`,
+  307 cases, hash `4dcdd838`).
+- First pass unchanged as the headline: 139/300 = 46.3 %.
+- Tuned on the same 300 (overfit): 180/300 = 60.0 %; 41 newly killed, 0 lost.
+- Held-out, 150 mutants from the 539 untouched sites (seed 99): 58/150 = 38.7 %
+  with the original cases, 83/150 = 55.3 % with the tuned ones. The gain
+  generalises; `docs/results/mutation-tuning-20261120.md`.
+
+### Other
+
+- The mutator test no longer needs the git-ignored `.harness/` tree: a vendored
+  fixture (`tests/fixtures/mutate_module.py`) is mutated at every site on every
+  run, and a second test asserts the fixture reaches all eight operators.
+- `mutation-parse-20261119.md` gains a worked example of the one kill on a line
+  the cases never execute (`bool_flip@406:8`: making a guard true turns a
+  never-taken `raise` into a taken one, so the mutant changes which lines run).
+- `refactors-20261119.md`: one row per refactor with its class counts, plus the
+  false-positive count and the seeded-bug control.

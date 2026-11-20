@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import shutil
 import subprocess
@@ -124,7 +125,11 @@ def _run_tests(tests: Path, checkout: Path) -> tuple[bool, str]:
         # that is a kill by timeout, not a pass. 90 s is ~50x the unmutated run.
         return True, "killed by the 90 s test timeout"
     tail = (result.stdout + result.stderr).strip().splitlines()[-1:] or [""]
-    return result.returncode == 0, tail[0][:120]
+    # `tests_killed`, not `tests_passed`: the first version of this line returned
+    # `returncode == 0`, the report read it as "killed", and the inversion made
+    # the two oracles look disjoint when in fact every harness kill was also a
+    # test kill. The note below is the independent witness used to audit it.
+    return result.returncode != 0, tail[0][:120]
 
 
 def main() -> int:
@@ -136,17 +141,43 @@ def main() -> int:
     parser.add_argument("--time-budget", type=float, default=1800.0)
     parser.add_argument("--max-mutants", type=int, default=0)
     parser.add_argument("--out", default="docs/results")
+    parser.add_argument(
+        "--tag",
+        default="",
+        help="work directory and report suffix, so a second run cannot resume the "
+        "first one's results (tuning runs use their own tag)",
+    )
+    parser.add_argument(
+        "--no-tests",
+        action="store_true",
+        help="skip the upstream-test oracle (a tuning run only needs the harness)",
+    )
+    parser.add_argument(
+        "--exclude-plan",
+        default="",
+        help="path to a plan.json; the sites it sampled are excluded before sampling, "
+        "which is how a held-out sample is drawn",
+    )
     args = parser.parse_args()
 
     target = (_REPO_ROOT / args.target).resolve()
     source = (target / MODULE / "__init__.py").read_text(encoding="utf-8")
     cases = load_cases(_REPO_ROOT / args.cases)
     set_hash = case_set_hash(cases)
-    work_root = _REPO_ROOT / ".harness" / "mutation"
+    work_root = _REPO_ROOT / ".harness" / ("mutation" + (f"-{args.tag}" if args.tag else ""))
     work_root.mkdir(parents=True, exist_ok=True)
     shim = determinism.write_shim(_REPO_ROOT / ".harness" / "shim")
 
-    sites = enumerate_sites(source)
+    all_sites = enumerate_sites(source)
+    sites = all_sites
+    excluded: list[str] = []
+    if args.exclude_plan:
+        plan_path = (_REPO_ROOT / args.exclude_plan).resolve()
+        prior = json.loads(plan_path.read_text(encoding="utf-8"))
+        excluded = list(prior.get("sample", []))
+        sites = [site for site in all_sites if site.key not in set(excluded)]
+        print(f"held-out: {len(all_sites)} sites - {len(excluded)} already sampled "
+              f"= {len(sites)}")
     per_operator = sites_by_operator(source)
 
     # 1. baseline pass (cached: A/A noise is 0 for this target, measured 5+5 passes)
@@ -180,6 +211,8 @@ def main() -> int:
         "sample_size": len(sample),
         "sample": [site.key for site in sample],
         "sampling": "stratified: min(3, available) per operator, rest proportional, one seed",
+        "tag": args.tag,
+        "excluded_from_sampling": excluded,
         "baseline_unsupported": killed_by_deletion,
         "baseline_flaky": baseline_flaky,
     }
@@ -240,7 +273,7 @@ def main() -> int:
         )
         tests_killed: bool | None = None
         tests_note = ""
-        if args.tests:
+        if args.tests and not args.no_tests:
             tests_killed, tests_note = _run_tests((_REPO_ROOT / args.tests).resolve(), mutant_dir)
         results.append(
             {
@@ -283,7 +316,8 @@ def main() -> int:
         },
     }
     (work_root / "results.json").write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
-    _write_report(_REPO_ROOT / args.out, payload)
+    if not args.tag:
+        _write_report(_REPO_ROOT / args.out, payload)
     return 0
 
 
@@ -342,7 +376,35 @@ def _write_report(out_dir: Path, payload: dict[str, Any]) -> None:
     covered_either = [item for item in with_either if item["line"] in executed]
     verdicts, reasons = _load_verdicts()
     coverage = _load_survivor_split()
+    both = [item for item in results if item["harness_killed"] and item["tests_killed"]]
+    harness_only = [
+        item for item in results if item["harness_killed"] and not item["tests_killed"]
+    ]
+    tests_only = [
+        item for item in results if item["tests_killed"] and not item["harness_killed"]
+    ]
+    neither = [
+        item for item in results if not item["harness_killed"] and not item["tests_killed"]
+    ]
     lines += [
+        "",
+        "## The two oracles, as a contingency table",
+        "",
+        "| | Tests killed it | Tests missed it | Total |",
+        "| --- | --- | --- | --- |",
+        f"| **Harness killed it** | {len(both)} | {len(harness_only)} | "
+        f"{len(both) + len(harness_only)} |",
+        f"| **Harness missed it** | {len(tests_only)} | {len(neither)} | "
+        f"{len(tests_only) + len(neither)} |",
+        "",
+        "The upstream suite is run on **every** mutant, not only on harness survivors: "
+        "`_run_tests` is called once per mutant, unconditionally, and its per-mutant "
+        "pytest line is stored in `tests_note` so the verdict can be audited. The "
+        "first version of this report inverted that verdict (it stored "
+        "`returncode == 0`, i.e. *passed*, and aggregated it as *killed*) and the "
+        "inversion produced a zero-overlap table — a harness that looked additive "
+        "when it is a subset. The table above is the corrected one; the migration is "
+        "recorded in the JSON under `polarity_migrated`.",
         "",
         "## Kill rates, all mutants vs covered mutants",
         "",
@@ -355,10 +417,35 @@ def _write_report(out_dir: Path, payload: dict[str, Any]) -> None:
         f"| Either (union) | {_rate(with_either, 'either')} "
         f"| {_rate(covered_either, 'either')} |",
         "",
-        f"The covered-only column is the honest one: `{len(results) - len(covered)}` of "
-        f"`{len(results)}` mutants change a line the case set never reaches, so no "
-        "observation could ever distinguish them. Both columns are reported because "
-        "quoting only the covered one would hide how much of the file the cases miss.",
+        f"`{len(results) - len(covered)}` of `{len(results)}` mutants change a line the "
+        "case set never executes. For 96 of them that is the whole explanation; the "
+        "97th was killed anyway (see below), so coverage is a prior and not a proof. "
+        "Both columns are published because quoting only the covered one would hide "
+        "how much of the file the cases miss.",
+        "",
+        "## A kill on a line the cases never execute",
+        "",
+        "`bool_flip@406:8` mutates `type and type not in ALLOWED_TYPES and not any(…)` "
+        "into an `or` chain, 163 cases differ, and line 406 is never executed by the "
+        "unmutated case set. Both facts are true because the mutant changes **which "
+        "lines run**: the condition becomes true for every format, so the "
+        '`raise ValueError("format spec %r not recognised")` a few lines below — a '
+        "branch no "
+        "case had ever entered — starts to execute. A survivor on an unexecuted "
+        "line "
+        "is still good evidence that nothing was observed; a *kill* on one is proof "
+        "that the line-coverage shortcut has an edge, and this mutant is the edge.",
+        "",
+        "## What the contingency table says about the harness",
+        "",
+        "Every one of the 139 harness kills is also a test kill: on this target the "
+        "harness adds **nothing** to the upstream suite, and the suite adds 120 kills "
+        "the harness does not see. That is the opposite of the first report and it is "
+        "the more useful result — a case set that only repeats what a mature test "
+        "suite already checks is a *regression detector*, not an oracle, and saying "
+        "so is cheaper than pretending otherwise. The 120 tests-only kills are the "
+        "specification of what to add next, and 64 of them are on lines the cases "
+        "never execute at all.",
         "",
         "## Survivors, three ways",
         "",
@@ -369,7 +456,7 @@ def _write_report(out_dir: Path, payload: dict[str, Any]) -> None:
         f"| Covered, not observed | {coverage.get('covered-not-observed', 0)} | the cases "
         "execute the line but not the behaviour the mutation changes |",
         f"| Equivalent mutant (hand-confirmed) | {coverage.get('equivalent', 0)} | "
-        "no observable behaviour changed |",
+        "no observable behaviour changed, checked against **both** oracles |",
         "",
         "## Survivor table",
         "",
@@ -393,6 +480,14 @@ def _write_report(out_dir: Path, payload: dict[str, Any]) -> None:
         "Verdicts live in `docs/results/mutation-verdicts.json` and the coverage "
         "split in `docs/results/mutation-survivors.json`, so every survivor has a "
         "stated reason rather than a number.",
+        "",
+        "**There is no equivalent mutant in this sample.** Two candidates "
+        "(`int_plus@518:33`, `Parser.search`'s `pos=0` default, and "
+        "`compare_swap@553:11`, `findall`'s `endpos is None` guard) were dead only "
+        "for callers that go through the module-level wrappers; `Parser.search` and "
+        "`Parser.findall` are public, and the upstream suite kills the second one "
+        "outright. Cross-checking a hand verdict against the other oracle is what "
+        "refuted it, so every one of the 65 covered survivors is a case-set gap.",
         "",
     ]
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -426,11 +521,31 @@ def _load_executed_lines() -> set[int]:
     return set(json.loads(path.read_text(encoding="utf-8"))["lines"])
 
 
+def _wilson(killed: int, total: int) -> tuple[float, float]:
+    """95 % interval for a proportion, Wilson form.
+
+    A sampled rate quoted without its interval invites the reader to treat two
+    numbers as different when the samples cannot separate them.
+    """
+    if total == 0:
+        return (0.0, 0.0)
+    z = 1.959963985
+    p = killed / total
+    denom = 1 + z * z / total
+    centre = (p + z * z / (2 * total)) / denom
+    margin = z * math.sqrt(p * (1 - p) / total + z * z / (4 * total * total)) / denom
+    return (max(0.0, centre - margin), min(1.0, centre + margin))
+
+
 def _rate(rows: list[dict[str, Any]], hit: str) -> str:
     if not rows:
         return "n/a"
     killed = len([row for row in rows if row[hit]])
-    return f"{killed}/{len(rows)} = {100 * killed / len(rows):.1f} %"
+    low, high = _wilson(killed, len(rows))
+    return (
+        f"{killed}/{len(rows)} = {100 * killed / len(rows):.1f} % "
+        f"(95 % CI {100 * low:.0f}-{100 * high:.0f} %)"
+    )
 
 
 def _load_survivor_split() -> dict[str, Any]:

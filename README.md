@@ -105,37 +105,21 @@ neither has a target number to hit:
 
 | Question | Answer |
 | --- | --- |
-| Mutants killed, all 300 sampled of 839 sites (seed 12) | **139 / 300 = 46.3 %** |
-| … of the 203 mutants on a line the cases execute | **138 / 203 = 68.0 %** |
-| Upstream test suite alone | 42 / 300 = 14.0 % (10 / 203 = 4.9 % on covered lines) |
-| Either signal | 181 / 300 = 60.3 % (148 / 203 = 72.9 %) |
-| Survivors | 96 on a line never executed, 63 covered-but-not-observed, 2 hand-confirmed equivalent |
-| 12 harmless refactors (mechanical + hand-written) | all identical/equivalent, **0 false positives** |
+| Mutants killed, 300 sampled of 839 sites (seed 12) | **139 / 300 = 46.3 %** (95 % CI 41-52) |
+| … of the 203 mutants on a line the cases execute | **138 / 203 = 68.0 %** (95 % CI 61-74) |
+| Upstream test suite alone | 259 / 300 = 86.3 % |
+| … and the overlap between the two oracles | **139 both, 0 harness-only, 120 tests-only, 41 neither** |
+| Survivors | 96 on a line never executed, 65 covered-but-not-observed, 0 equivalent |
+| 12 harmless refactors (6 mechanical + 6 hand-written) | all clean, **0 false positives** |
 | One hand-seeded bug inside a harmless refactor | **different on 4 cases** |
+| Tuning the case set for the survivor clusters | 46.3 % → 60.0 % on the same mutants (overfit), **38.7 % → 55.3 % held-out** |
 
-The covered-only column is the one to quote: `parse` is a small library whose
-case set reaches 426 of 554 lines, so 97 mutants could not be observed by any
-case, and quoting 46.3 % alone would understate what the harness does where it
-can see.
-
-Architecture, in the order a comparison runs:
-
-1. **Case set** (`harness/cases/<target>.json`) — inputs only, sha256 hashed into
-   every observation. `projection` selects a named view from an allowlist;
-   `expect: finite | stream` decides whether truncation is a failure or the
-   observation.
-2. **Child** (`harness.child`) — one interpreter per pass, the determinism shim
-   injected as `sitecustomize`, state reset before every case, values encoded
-   in-child with cycle/depth/node bounds, one JSON observation per case.
-3. **Runner** (`harness.runner`) — A/A passes, then old/new alternation; CPU
-   budget per case and per pass, begin markers so a crash is attributed rather
-   than lost.
-4. **Comparator** (`harness.compare`) — `equal` / `different` / `equivalent` /
-   `equivalent_bounded` / `undecidable`, with a path to the first difference.
-5. **Rules** (`harness.rules`, `harness/rules/`) — schema-validated, every rule
-   justified, shape-checked, usage reported.
-6. **Workflow** (`scripts/verify_change.py`) and the evaluation tools
-   (`scripts/mutate.py`, `scripts/refactor_check.py`).
+The contrarian result is the useful one: on this target **every harness kill is
+also an upstream-test kill**, so the case set adds nothing to the suite it ships
+with. It is a regression detector, not an oracle, and the 120 tests-only kills
+mark exactly where it is blind. The first version of this table claimed the
+opposite because the test-oracle verdict was stored inverted; the audit and the
+fix are in ADR 004 (D10l).
 
 ### Known target bugs (not harness bugs)
 

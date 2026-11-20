@@ -9,6 +9,7 @@ original.
 from __future__ import annotations
 
 import ast
+from pathlib import Path
 
 from harness.mutate import (
     OPERATORS,
@@ -84,21 +85,38 @@ def test_a_delete_mutant_removes_the_named_statement() -> None:
     assert len(lines) == 3
 
 
-def test_mutating_a_real_module_keeps_every_mutant_parseable() -> None:
-    """The target is 1 106 lines: every enumerated site must still produce code."""
-    from pathlib import Path
+def _fixture_source() -> str:
+    path = Path(__file__).resolve().parent / "fixtures" / "mutate_module.py"
+    return path.read_text(encoding="utf-8")
 
-    source = (Path(__file__).resolve().parents[1] / ".harness" / "target" /
-              "parse" / "__init__.py")
-    if not source.exists():  # pragma: no cover - target is fetched by the harness
-        import pytest
 
-        pytest.skip("target not vendored in this checkout")
-    text = source.read_text(encoding="utf-8")
+def test_the_vendored_fixture_exercises_every_operator() -> None:
+    """A hermetic test is only as good as its sample: every operator must bite."""
+    seen = {site.operator for site in enumerate_sites(_fixture_source())}
+    assert seen == set(OPERATORS), sorted(set(OPERATORS) - seen)
+
+
+def test_every_mutant_of_the_vendored_fixture_parses_and_changes_something() -> None:
+    """The check that used to need a git-ignored target tree, now runs everywhere."""
+    source = _fixture_source()
+    original = compile(source, "fixture", "exec")
+    sites = enumerate_sites(source)
+    assert len(sites) >= 50, len(sites)
     failures = []
-    for site in enumerate_sites(text):
+    changed = 0
+    for site in sites:
+        mutant = mutate(source, site)
         try:
-            mutate(text, site)
-        except Exception as exc:  # noqa: BLE001 - the failure IS the assertion
+            compile(mutant, "fixture", "exec")
+        except SyntaxError as exc:  # the failure IS the assertion
             failures.append((site.key, str(exc)[:80]))
+            continue
+        if mutant != source:
+            changed += 1
+        try:
+            exec(original, {})
+            exec(compile(mutant, "fixture", "exec"), {})
+        except Exception:  # noqa: BLE001, S102 - runtime layout is not the point
+            pass
     assert not failures, failures[:5]
+    assert changed == len(sites), (changed, len(sites))

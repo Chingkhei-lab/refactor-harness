@@ -515,6 +515,86 @@ The CPU-budget test is POSIX-only; it is skipped on Windows and **runs on CI** �
 the counts show 340 passed where the Windows run has 338, and an earlier red run
 failed inside that test, which a skipped test cannot do.
 
+## D10k — Where a pass actually executes (a gap, not a decision)
+
+A pass is a host subprocess: `runner.run_pass` builds `[sys.executable, "-m",
+"harness.child", plan, out]` and starts it with `subprocess.Popen` in the
+checkout directory. Mutation, refactor and verification runs all go through that
+one path. **Nothing in the harness goes through the Phase 3 sandbox** — no
+container, no `network_mode=none`, no memory/pids/capability limits, no read-only
+root. The only containment is a temporary work directory and the CPU budgets in
+D10g.
+
+That is a real gap in the project's own security claim, and it must be closed
+before the harness runs a target that is not a single pinned library:
+
+1. Stage 2 runs a real CLI that reads `HOME`, `XDG_CONFIG_HOME`, `setup.cfg` and
+   `tox.ini`. A case that writes a config file outside its work directory changes
+   the environment for the next case, and no observation would show it.
+2. Phase 5 runs agent-generated code. "The sandbox is where untrusted code runs"
+   is the claim in ADR 003; a harness that runs the same code on the host
+   contradicts it.
+
+The planned transport is a `sandbox=` argument on `run_pass` that creates the
+same hardened container `engine.sandbox` already builds (network none, mem/pids/
+cpu limits, `cap_drop=ALL`, read-only root, tmpfs), mounts the checkout read-only,
+the work directory writable, and executes the identical `python -m harness.child`
+command inside it. The observation format does not change — that is the invariant
+that makes the move safe to verify: the same case set must produce byte-identical
+observations in the container, and the mutation numbers above become the
+regression test for the move.
+
+Until then, every report says "host subprocess" in its execution line.
+
+## D10l — The oracle was inverted, and the audit that caught it
+
+The first 12a report said the harness and the upstream suite had **zero**
+overlap and that the union was 60.3 %. That was an artefact: `_run_tests` returned
+`returncode == 0` and the caller stored it as `tests_killed`, so a passing suite
+was recorded as a kill. The corrected table:
+
+| | Tests killed it | Tests missed it |
+| --- | --- | --- |
+| Harness killed it | **139** | **0** |
+| Harness missed it | **120** | 41 |
+
+Three lessons, all now enforced:
+
+- **A verdict function must be named after its polarity.** The function is now
+  `_run_tests` returning `tests_killed`, and the docstring says which way the
+  boolean points.
+- **Every stored verdict carries its witness.** `tests_note` holds the pytest
+  line for that mutant, and the migration that flipped the stored values asserted
+  the note agreed with the flipped value on all 300 rows before writing.
+- **A surprising result is a bug report, not a finding.** Zero overlap between
+  two oracles drawn from the same inputs is not a plausible measurement; the
+  review caught it, and the check that would have caught it locally is now part
+  of the report: the contingency table is printed, not just the marginals.
+
+The corrected conclusion is the more useful one: **the harness adds nothing to
+the upstream suite on this target** (harness kills ⊂ test kills), and the 120
+tests-only kills say exactly where the case set is blind. A case set that only
+repeats a mature suite is a regression detector, and saying so is cheaper than
+pretending it is an oracle.
+
+## D10m — Tuning protocol: first pass, overfit run, held-out run
+
+Adding cases for the survivor clusters raises the kill rate by construction, so
+the measurement is not the tuned number. Three runs are reported separately:
+
+| Run | Case set | Mutants | Kill rate |
+| --- | --- | --- | --- |
+| First pass (headline) | 273 cases | 300 (seed 12) | 139/300 = 46.3 % |
+| Tuned, same mutants (overfit) | 307 cases | 300 | 180/300 = 60.0 % |
+| Held-out, original cases | 273 cases | 150 (seed 99, 539 sites) | 58/150 = 38.7 % |
+| Held-out, tuned cases | 307 cases | 150 | 83/150 = 55.3 % |
+
+The held-out sample excludes the 300 sites the first sample touched, so no
+tuning case was written with those sites in view; it is stratified by operator
+and drawn with its own recorded seed. The gain is +16.6 points held-out against
++13.7 points on the tuning set — the intervals overlap, so the honest reading is
+"the new cases generalise", not "tuning doubled the kill rate".
+
 ## Consequences
 
 - A report must carry: class counts, masked fields + rules, unsupported cases,

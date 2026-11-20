@@ -25,8 +25,8 @@
     "slice_bound@395:24": "covered-not-observed",
     "int_minus@400:32": "covered-not-observed",
     "int_plus@400:32": "covered-not-observed",
-    "int_plus@518:33": "equivalent",
-    "compare_swap@553:11": "equivalent",
+    "int_plus@518:33": "covered-not-observed",
+    "compare_swap@553:11": "covered-not-observed",
     "int_minus@640:12": "covered-not-observed",
     "int_plus@640:12": "covered-not-observed",
     "int_minus@723:33": "covered-not-observed",
@@ -92,8 +92,8 @@
     "slice_bound@395:24": "extract_format width/precision branches: the case formats do not take those paths",
     "int_minus@400:32": "extract_format width/precision branches: the case formats do not take those paths",
     "int_plus@400:32": "extract_format width/precision branches: the case formats do not take those paths",
-    "int_plus@518:33": "the public search() always passes pos explicitly, so the default is dead",
-    "compare_swap@553:11": "the public findall() always passes endpos explicitly, so the None check is dead through the public API",
+    "int_plus@518:33": "Parser.search(pos=0 -> 1): the cases call the module-level search(), which passes pos explicitly, so no case exercises the class default. Public API change, not an equivalent mutant - the upstream suite missed it too.",
+    "compare_swap@553:11": "findall(endpos is None -> is not None): a default call leaves endpos None and breaks iteration. Refuted as 'equivalent' by the other oracle (upstream tests kill it) - my first verdict looked at the module-level wrapper only.",
     "int_minus@640:12": "repeated named fields: no case repeats a field name",
     "int_plus@640:12": "repeated named fields: no case repeats a field name",
     "int_minus@723:33": "_handle_field group numbering and datetime converters: no case puts two datetime fields, a month name or a timezone in one format",
@@ -132,5 +132,6 @@
     "delete_stmt@937:8": "Result/ResultIterator attributes that only matter for explicit endpos or re-iteration",
     "delete_stmt@938:8": "Result/ResultIterator attributes that only matter for explicit endpos or re-iteration",
     "return_none@941:8": "Result/ResultIterator attributes that only matter for explicit endpos or re-iteration"
-  }
+  },
+  "note": "No survivor is labelled equivalent. The two candidates I had called equivalent were dead only for callers that go through the module-level wrappers; Parser.search/findall are public, and the upstream suite kills one of the two. Cross-checking each hand verdict against the other oracle is what caught it."
 }
