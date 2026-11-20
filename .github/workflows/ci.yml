@@ -9,6 +9,7 @@ on:
 permissions:
   contents: read
   statuses: write
+  issues: write
 
 jobs:
   ci:
@@ -47,9 +48,10 @@ jobs:
       - name: Report test counts in this run page
         if: always()
         run: python scripts/ci_summary.py --job ci junit-ci.xml >> "$GITHUB_STEP_SUMMARY"
-      - name: Publish counts as a commit status (readable without a token)
+      - name: Publish counts (commit status + tracking-issue comment)
         if: always()
         run: python scripts/ci_status.py --context junit/ci --file junit-ci.xml
+          --issue-title "CI reports"
       - name: Upload JUnit report
         if: always()
         uses: actions/upload-artifact@v4
@@ -106,10 +108,11 @@ jobs:
         run: >-
           python scripts/ci_summary.py --job sandbox-hostile
           junit-hostile.xml junit-install-hostile.xml >> "$GITHUB_STEP_SUMMARY"
-      - name: Publish counts as a commit status (readable without a token)
+      - name: Publish counts (commit status + tracking-issue comment)
         if: always()
         run: python scripts/ci_status.py --context junit/sandbox-hostile
           --file junit-hostile.xml --file junit-install-hostile.xml
+          --issue-title "CI reports"
       - name: Upload JUnit reports
         if: always()
         uses: actions/upload-artifact@v4
