@@ -377,14 +377,16 @@ def _write_report(out_dir: Path, payload: dict[str, Any]) -> None:
         "| --- | --- | --- | --- | --- | --- |",
     ]
     for item in survived:
-        verdict: str = str(MANUAL_VERDICTS.get(item["site"], "unjudged"))
+        verdict = str(verdicts.get(item["site"], "not-covered"))
         tests = (
             "killed" if item["tests_killed"]
             else "passed" if item["tests_killed"] is False else "n/a"
         )
+        reason = reasons.get(item["site"], "line never executed by the case set")
+        covered_cell = "yes" if item["line"] in executed else "no"
         lines.append(
-            f"| `{item['site']}` | {item['line']} | {item['differing_count']} | "
-            f"{tests} | {verdict} |"
+            f"| `{item['site']}` | {item['line']} | {covered_cell} | {tests} | "
+            f"{verdict} | {reason[:110]} |"
         )
     lines += [
         "",

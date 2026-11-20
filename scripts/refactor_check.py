@@ -315,6 +315,42 @@ def _pass(checkout: Path, cases: list[Any], shim: Path, workdir: Path, index: in
     )
 
 
+def _write_markdown(report: dict[str, Any], path: Path) -> None:
+    """A refactor run is evidence only if the false-positive count is visible."""
+    rows = report["rows"]
+    lines = [
+        "# Harmless refactors and one seeded bug",
+        "",
+        f"Target `parse` 1.22.4 at {report['generated_at']}; case set "
+        f"`{report['case_count']}` cases, sha256 `{report['case_set_hash'][:16]}…`.",
+        "",
+        "Evidence, not proof: this says these refactors did not change what the "
+        "cases observe. It does not say the code is equivalent, and a refactor "
+        "outside what the cases reach would look identical for the wrong reason.",
+        "",
+        "| Refactor | Kind | Verdict | identical | equivalent_bounded | different | Lines |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        classes = row.get("classes", {})
+        lines.append(
+            f"| `{row['name']}` | {row['kind']} | **{row['verdict']}** | "
+            f"{classes.get('identical', '-')} | {classes.get('equivalent_bounded', '-')} | "
+            f"{classes.get('different', '-')} | {row['line_delta']:+d} |"
+        )
+    lines += [
+        "",
+        f"False positives: **{len(report['false_positives'])}** "
+        f"({', '.join(report['false_positives']) or 'none'}).",
+        f"Seeded bug inside a harmless refactor: "
+        f"**{'caught' if report['seeded_bug_detected'] else 'MISSED'}** on "
+        f"{report['seeded_bug_differing_cases']} cases — a clean run of twelve "
+        "refactors means nothing without this control.",
+        "",
+    ]
+    path.write_text(NEWLINE.join(lines), encoding="utf-8")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--target", default=".harness/target")
@@ -383,6 +419,7 @@ def main() -> int:
         ],
         "seeded_bug_detected": seeded.get("verdict") == "different",
         "seeded_bug_differing_cases": seeded.get("classes", {}).get("different", 0),
+        "target": "parse 1.22.4",
         "not_applicable": [row["name"] for row in rows if not row.get("applied")],
     }
     out_dir = _REPO_ROOT / args.out
@@ -391,6 +428,7 @@ def main() -> int:
     (out_dir / f"refactors-{stamp}.json").write_text(
         json.dumps(report, indent=2) + NEWLINE, encoding="utf-8"
     )
+    _write_markdown(report, out_dir / f"refactors-{stamp}.md")
     print(
         f"clean refactors: {len(refactors)} | false positives: {len(report['false_positives'])}"
         f" | seeded bug detected: {report['seeded_bug_detected']} "
