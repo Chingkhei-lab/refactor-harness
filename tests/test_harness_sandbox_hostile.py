@@ -72,7 +72,7 @@ def test_a_hostile_target_is_contained_and_recorded(tmp_path: Path) -> None:
     observation = observations[0]
     assert observation.outcome == "return", observation.exception
 
-    outcome = observation.value_body()["value"]  # type: ignore[attr-defined]
+    outcome = observation.value_body()  # type: ignore[attr-defined]
     # Nothing succeeded. The exact exception type is the kernel's business.
     assert outcome["write"] != "wrote", outcome
     assert outcome["net"] != "connected", outcome
