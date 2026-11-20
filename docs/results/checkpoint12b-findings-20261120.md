@@ -62,9 +62,21 @@ has already delivered the exit code, so the rest of the stream is not needed.
 | 300-mutant sandbox gate | 76 min | **13 min** |
 | gate verdicts / bytes | 300/300, identical | **300/300, identical** |
 
-The gate at 300 mutants now runs in the time 60 used to take, so CI runs the
-full 300 (`docs/results/sandbox-gate-20261120.json`:
-`verdict_agreement 300/300, byte_identical true, overhead 0.91 s/pass`).
+The gate at 300 mutants now runs in the time 60 used to take
+(`docs/results/sandbox-gate-20261120.json`: `verdict_agreement 300/300,
+byte_identical true, overhead 0.91 s/pass`, 139 killed / 161 survived).
+
+That is on this host. On a cold GitHub runner the same code path measured
+**~12 s per mutant** (53 mutants in 10 min 43 s), ten times slower per pass than
+here, so CI runs a 30-mutant seeded sample and cites the 300-mutant artifact for
+the full number. The runner's per-pass cost is a fact about the runner, not about
+the transport change: the two fixed waits are gone in both.
+
+The first CI attempt at 300 exited with status 1 after 53 mutants **without a
+traceback**, and the job log is admin-only, so the cause was not visible. The gate
+now catches a failing mutant, prints its traceback and the site, and continues;
+it also prints `GATE FAILED: ...` with the first disagreements. A gate that can
+fail invisibly is not a gate.
 
 ### Where the 1.45 s actually goes (instrumented, not inferred)
 

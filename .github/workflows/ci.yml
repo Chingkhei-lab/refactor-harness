@@ -136,11 +136,12 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          # 300 by default: two fixed waits in the transport used to cost 15 s per
-          # pass (76 minutes for the sample). With them removed an overhead pass
-          # is 0.91 s, so the full seeded sample (7, 139 killed / 161 survived)
-          # costs what 60 used to. See docs/results/checkpoint12b-findings-20261120.md.
-          python scripts/sandbox_gate.py --mutants "${GATE_MUTANTS:-300}" 2>&1 | tee sandbox-gate.log || {
+          # 30 on CI, 300 in the report. Removing the two fixed waits made a pass
+          # 0.91 s on the author's host but ~12 s on a cold GitHub runner (measured:
+          # 53 mutants in 10m43s), so the full sample is a local artifact
+          # (docs/results/sandbox-gate-20261120.json) and CI checks the same code
+          # path on a smaller seeded sample.
+          python scripts/sandbox_gate.py --mutants "${GATE_MUTANTS:-30}" 2>&1 | tee sandbox-gate.log || {
             # Progress lines are noise; the reason is in the traceback. Grep for it
             # first, then fall back to the tail, so one annotation carries cause.
             grep -E "Traceback|Error|error:|raise |assert " sandbox-gate.log | tail -6 | sed 's/^/::error title=sandbox-gate::/' || true

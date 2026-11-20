@@ -235,16 +235,30 @@ def main(argv: list[str] | None = None) -> int:
         (mutant_dir / "parse" / "__init__.py").write_text(
             mutate(source, site), encoding="utf-8"
         )
-        ran, _ = _pass(
-            cases=cases,
-            checkout=mutant_dir.resolve(),
-            shim=shim,
-            workdir=work / f"m-{position}",
-            executor=executor,
-            index=1,
-            limits=limits,
-            image=args.image,
-        )
+        try:
+            ran, _ = _pass(
+                cases=cases,
+                checkout=mutant_dir.resolve(),
+                shim=shim,
+                workdir=work / f"m-{position}",
+                executor=executor,
+                index=1,
+                limits=limits,
+                image=args.image,
+            )
+        except Exception as exc:  # noqa: BLE001 - one bad mutant must not hide the rest
+            # A gate that dies without a cause is useless: CI logs are admin-only,
+            # so the failure has to be printed here to be visible at all. The run
+            # continues, and the mutant is reported as an infrastructure failure
+            # rather than silently counting as agreement.
+            import traceback
+
+            print(f"[{position}/{len(sample)}] {site.key:28} ERROR {type(exc).__name__}")
+            traceback.print_exc()
+            disagree.append(
+                {"site": site.key, "sandbox": "error", "error": f"{type(exc).__name__}: {exc}"}
+            )
+            continue
         verdicts = compare_sets(
             direct_pass.by_case(), ran.by_case()
         )
@@ -292,6 +306,11 @@ def main(argv: list[str] | None = None) -> int:
     (REPO / args.out).write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2))
     ok = byte_identical and not disagree
+    if not ok:
+        print(f"GATE FAILED: byte_identical={byte_identical} "
+              f"disagreements={len(disagree)} of {len(sample)}", flush=True)
+        for item in disagree[:5]:
+            print(f"  disagreement: {item}", flush=True)
     return 0 if ok else 1
 
 
