@@ -237,12 +237,15 @@ CI skipped 28 tests, up from 25. The three new ones are the three tests in
 | `test_a_target_that_sigkills_itself_is_a_behaviour_not_a_resource_kill` | needs the container cgroup to read `memory.events` |
 
 They are new *tests*, not new skips: nothing that used to run stopped running.
-Final verified run: **`0c469bc`**, both jobs green.
+Final verified run: **`4a6abdc`**, both jobs green.
 
-* `ci` — **402 collected / 373 passed / 29 skipped / 0 failed**
-* `sandbox-hostile` — **28 collected / 28 passed / 0 skipped / 0 failed**,
-  gate `60/60, byte-identical True, 15.07 s/pass`, oracle canaries and the
-  case-set freshness check both green.
+* `ci` — **406 collected / 377 passed / 29 skipped / 0 failed**
+* `sandbox-hostile` — **28 collected / 28 passed / 0 skipped / 0 failed**, gate
+  `30/30, byte-identical True, 10.36 s/pass` on the runner, oracle canaries, the
+  oracle pin and the case-set freshness check all green.
+
+(`0c469bc` was the same pair green earlier at 402/373/29/0 and a 60-mutant gate;
+the deltas are the four tests this checkpoint added and the CI gate size.)
 
 The 29 skips break down as:
 
