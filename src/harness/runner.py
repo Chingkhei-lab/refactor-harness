@@ -411,7 +411,17 @@ def _hard_cpu_seconds(per_case: float, cases: int) -> int:
     return max(60, int(2 * per_case * max(1, cases)))
 
 
+# The POSIX numbers, so a signal is classified the same on a host that lacks the
+# constant (Windows has no SIGXCPU, but the sandbox reports 128+24 for it).
+_SIGXCPU = getattr(signal, "SIGXCPU", 24)
+_SIGKILL = getattr(signal, "SIGKILL", 9)
+
+
 def _signal_name(number: int) -> str:
+    if number == _SIGXCPU:
+        return "SIGXCPU"
+    if number == _SIGKILL:
+        return "SIGKILL"
     try:
         return signal.Signals(number).name
     except ValueError:
@@ -424,10 +434,26 @@ def _death_observation(case: Case, returncode: int, stderr: str) -> Observation:
     Only the first two are `unsupported`. A crash is a behaviour, recorded with
     its exit status or signal so two versions can be compared on it: "old
     returned, new aborted" is a difference, not an infrastructure problem.
+
+    Two conventions reach here. A host subprocess reports a signal as a negative
+    return code; the sandbox supervisor is a shell, so it reports 128+n. Both must
+    classify the same way, or a CPU kill inside the container would be compared as
+    "the target exited 152" instead of recorded as a budget.
     """
+    signal_number = None
+    multiple_of_128 = False
     if returncode is not None and returncode < 0:
-        number = -returncode
-        name = _signal_name(number)
+        signal_number = -returncode
+    elif returncode is not None and 128 < returncode < 160:
+        candidate = returncode - 128
+        # A shell's 128+n is only a signal if n names one; otherwise it is just an
+        # exit status that happens to be large.
+        if candidate in (_SIGXCPU, _SIGKILL) or _signal_name(candidate).startswith("SIG"):
+            signal_number, multiple_of_128 = candidate, True
+    if signal_number is None:
+        name, kind, outcome = "", "ProcessExit", "exception"
+    else:
+        name = _signal_name(signal_number)
         if name == "SIGXCPU":
             kind, outcome = "CpuBudget", "unsupported"
         elif name == "SIGKILL":
@@ -436,8 +462,9 @@ def _death_observation(case: Case, returncode: int, stderr: str) -> Observation:
             kind, outcome = "ResourceKill", "unsupported"
         else:
             kind, outcome = "ProcessSignal", "exception"
-    else:
-        name, kind, outcome = "", "ProcessExit", "exception"
+    exit_code = None
+    if returncode is not None and signal_number is None:
+        exit_code = returncode
     return Observation(
         case_id=case.id,
         entry=case.entry,
@@ -446,8 +473,11 @@ def _death_observation(case: Case, returncode: int, stderr: str) -> Observation:
         exception={
             "__process__": {
                 "kind": kind,
-                "exit_code": None if returncode is None or returncode < 0 else returncode,
-                "signal": None if returncode is None or returncode >= 0 else -returncode,
+                # Keep the shell-convention code visible: a report reader can tell
+                # "exited 152" from "killed by signal 24" without guessing.
+                "exit_code": exit_code,
+                "shell_exit_code": returncode if multiple_of_128 else None,
+                "signal": signal_number,
                 "signal_name": name,
                 "stderr_tail": stderr[-400:],
             }

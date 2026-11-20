@@ -243,3 +243,26 @@ def test_an_import_failure_is_a_finding_for_every_case(tmp_path: Path) -> None:
         assert observation.exception["__import__"]["type"] == "NameError"
         verdict = compare(left.by_case()[case.id], observation)
         assert verdict.outcome == DIFFERENT
+
+
+def test_a_shell_reported_signal_classifies_like_a_negative_returncode() -> None:
+    """The sandbox reports 128+n; the host reports -n. Same classification.
+
+    This is the bug the sandbox-hostile CI job found: a CPU kill inside the
+    container arrives as exit 152, and without this mapping it was compared as
+    "the target exited 152" instead of recorded as a budget.
+    """
+    from harness.runner import _death_observation
+
+    case = Case(id="0001", source="x", entry="e", args=())
+    for returncode, kind, signal_name in (
+        (-24, "CpuBudget", "SIGXCPU"),
+        (152, "CpuBudget", "SIGXCPU"),
+        (-9, "ResourceKill", "SIGKILL"),
+        (137, "ResourceKill", "SIGKILL"),
+    ):
+        observation = _death_observation(case, returncode, "")
+        process = observation.exception["__process__"]
+        assert process["kind"] == kind, (returncode, process)
+        assert process["signal_name"] == signal_name, (returncode, process)
+        assert observation.outcome == "unsupported"
