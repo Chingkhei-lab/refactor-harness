@@ -69,6 +69,11 @@ jobs:
         if: always()
         run: python scripts/ci_status.py --context junit/ci --file junit-ci.xml
           --issue-title "CI reports"
+      - name: Publish counts as an annotation (no token needed to read)
+        if: always()
+        run: |
+          text=$(python scripts/ci_status.py --context junit/ci --file junit-ci.xml --dry-run)
+          echo "::notice title=junit-ci::$text"
       - name: Upload JUnit report
         if: always()
         uses: actions/upload-artifact@v4
@@ -130,6 +135,16 @@ jobs:
         run: python scripts/ci_status.py --context junit/sandbox-hostile
           --file junit-hostile.xml --file junit-install-hostile.xml
           --issue-title "CI reports"
+      - name: Publish counts as an annotation (no token needed to read)
+        if: always()
+        run: |
+          text=$(python scripts/ci_status.py --context junit/ci --file junit-ci.xml --dry-run)
+          echo "::notice title=junit-ci::$text"
+      - name: Publish counts as an annotation (no token needed to read)
+        if: always()
+        run: |
+          text=$(python scripts/ci_status.py --context junit/sandbox-hostile --file junit-hostile.xml --file junit-install-hostile.xml --dry-run)
+          echo "::notice title=junit-sandbox-hostile::$text"
       - name: Upload JUnit reports
         if: always()
         uses: actions/upload-artifact@v4
