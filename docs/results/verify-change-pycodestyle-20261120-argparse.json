@@ -105,7 +105,7 @@
     "kind": "wall clock"
   },
   "case_count": 61,
-  "case_set_hash": "5b86bc8dab70b2f136e4d8e45f7de3dcbd5e5506f8f70de7bd123cf5d576d382",
+  "case_set_hash": "d2f78454511f64aa88cbba72bb9abc0223f63b2c2c4824a076914ef733a083bd",
   "cases_by_source": {
     "options/abbreviated-long-option": 1,
     "options/clustered-short-flags": 1,
@@ -214,7 +214,7 @@
       "right": "usage: pycodestyle [options] input ...\r\npycodestyle: error: unrecognized arguments: --no-such-option\r\n"
     }
   ],
-  "generated_at": "2026-11-20T13:32:21.904472+00:00",
+  "generated_at": "2026-11-20T15:11:18.351320+00:00",
   "masked": [],
   "new": {
     "path": "C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify-trees\\new",
@@ -230,7 +230,7 @@
   "rules": {
     "count": 0,
     "path": "C:\\Users\\yumkh\\Documents\\Refactor-harness\\harness\\rules\\pycodestyle.json",
-    "sha256": "84b35c141be426b1a30597621a42f8cfcb5b8484dc76ebc020c7f4db3a57967f"
+    "sha256": "88da6e232b01da7539a1646990ea10cb8c71c1dfd7eece543689e45e3b1ba1f4"
   },
   "rules_usage": {},
   "summary": {

@@ -1,22 +1,6 @@
 {
- "case_set_hash": "5b86bc8dab70b2f136e4d8e45f7de3dcbd5e5506f8f70de7bd123cf5d576d382",
+ "case_set_hash": "d2f78454511f64aa88cbba72bb9abc0223f63b2c2c4824a076914ef733a083bd",
  "cases": [
-  {
-   "args": [],
-   "argv": [
-    "crlf.py"
-   ],
-   "entry": "pycodestyle.py",
-   "expect": "finite",
-   "files": {
-    "crlf.py": "'''\\\ntest\n'''\n"
-   },
-   "id": "fixture-crlf",
-   "kind": "cli",
-   "kwargs": {},
-   "source": "testing/data",
-   "stdin": ""
-  },
   {
    "args": [],
    "argv": [
@@ -372,6 +356,86 @@
   {
    "args": [],
    "argv": [
+    "W19.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "W19.py": "#: W191\nif False:\n\tprint  # indented with 1 tab\n#:\n\n\n#: W191\ny = x == 2 \\\n\tor x == 3\n#: E101 W191 W504\nif (\n        x == (\n            3\n        ) or\n        y == 4):\n\tpass\n#: E101 W191\nif x == 2 \\\n    or y > 1 \\\n        or x == 3:\n\tpass\n#: E101 W191\nif x == 2 \\\n        or y > 1 \\\n        or x == 3:\n\tpass\n#:\n\n#: E101 W191 W504\nif (foo == bar and\n        baz == frop):\n\tpass\n#: E101 W191 W504\nif (\n    foo == bar and\n    baz == frop\n):\n\tpass\n#:\n\n"
+   },
+   "id": "fixture-w19",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "W29.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "W29.py": "#: Okay\n# \u60c5\n#: W291:1:6\nprint \n#: W293:2:1\nclass Foo(object):\n    \n    bang = 12\n#: W291:2:35\n'''multiline\nstring with trailing whitespace'''   \n#: W291 W292 noeol\nx = 1   \n#: W191 W292 noeol\nif False:\n\tpass  # indented with tabs\n#: W292:1:5 E225:1:2 noeol\n1+ 1\n#: W292:1:27 E261:1:12 noeol\nimport this # no line feed\n#: W292:3:22 noeol\nclass Test(object):\n    def __repr__(self):\n        return 'test'\n"
+   },
+   "id": "fixture-w29",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "W39.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "W39.py": "#: W391:2:1\n# The next line is blank\n\n#: W391:3:1\n# Two additional empty lines\n\n\n#: W292:4:5 W293:3:1 W293:4:1 noeol\n# The last lines contain space\n\n    \n    \n#: Okay\n'''there is nothing wrong\nwith a multiline string at EOF\n\nthat happens to have a blank line in it\n'''\n"
+   },
+   "id": "fixture-w39",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "W60.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "W60.py": "#: W605:1:10\nregex = '\\.png$'\n#: W605:2:1\nregex = '''\n\\.png$\n'''\n#: W605:2:6\nf(\n    '\\_'\n)\n#: W605:4:6\n\"\"\"\nmulti-line\nliteral\nwith \\_ somewhere\nin the middle\n\"\"\"\n#: W605:1:3\nf\"\\d\"\n#: Okay\nregex = r'\\.png$'\nregex = '\\\\.png$'\nregex = r'''\n\\.png$\n'''\nregex = r'''\n\\\\.png$\n'''\ns = '\\\\'\nregex = '\\w'  # noqa\nregex = '''\n\\w\n'''  # noqa\n"
+   },
+   "id": "fixture-w60",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "crlf.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "crlf.py": "'''\\\ntest\n'''\n"
+   },
+   "id": "fixture-crlf",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "testing/data",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
     "latin-1.py"
    ],
    "entry": "pycodestyle.py",
@@ -604,70 +668,6 @@
     "utf-8.py": "# -*- coding: utf-8 -*-\n\n# Some random text with multi-byte characters (utf-8 encoded)\n#\n# \u0395\u03b4\u03ce \u03bc\u03ac\u03c4\u03c3\u03bf \u03ba\u03b5\u03b9\u03bc\u03ad\u03bd\u03c9\u03bd \u03c4\u03b7, \u03c4\u03c1\u03cc\u03c0\u03bf \u03c0\u03b9\u03b8\u03b1\u03bd\u03cc \u03b4\u03b9\u03b5\u03c5\u03b8\u03c5\u03bd\u03c4\u03ad\u03c2 \u03ce\u03c1\u03b1 \u03bc\u03b7. \u039d\u03ad\u03c9\u03bd \u03b1\u03c0\u03bb\u03cc \u03c0 \u03c1\u03bf\u03ae\n# \u03ba\u03b9, \u03c4\u03bf \u03b5\u03c0\u03af \u03b4\u03b5\u03b4\u03bf\u03bc\u03ad\u03bd\u03b7 \u03ba\u03b1\u03b8\u03bf\u03c1\u03af\u03b6\u03bf\u03c5\u03bd. \u03a0\u03ac\u03bd\u03c4\u03c9\u03c2 \u03b6\u03b7\u03c4\u03ae\u03c3\u03b5\u03b9\u03c2 \u03c0\u03b5\u03c1\u03b9\u03b2\u03ac\u03bb\u03bb\u03bf\u03bd\u03c4\u03bf\u03c2 \u03ad\u03bd\u03b1 \u03bc\u03b5,\n# \u03be\u03ad\u03c7\u03b1\u03c3\u03b5 \u03b1\u03c1\u03c0\u03ac\u03b6\u03b5\u03b9\u03c2 \u03c6\u03b1\u03b9\u03bd\u03cc\u03bc\u03b5\u03bd\u03bf \u03cc\u03bb\u03b7. \u03a4\u03c1\u03ad\u03be\u03b5\u03b9 \u03b5\u03c3\u03c6\u03b1\u03bb\u03bc\u03ad\u03bd\u03b7 \u03c7\u03c1\u03b7\u03c3\u03b9\u03bc\u03bf\u03c0\u03bf\u03af\u03b7\u03c3\u03ad \u03bd\u03ad\u03b1 \u03c4\u03b9.\n# \u03c0\u03b5\u03c4\u03ac\u03bd\u03b5 \u03c6\u03b1\u03ba\u03ad\u03bb\u03bf\u03c5\u03c2, \u03ac\u03c1\u03b1 \u03bc\u03b5 \u03b4\u03b9\u03b1\u03ba\u03bf\u03c0\u03ae\u03c2 \u03bb\u03b1\u03bc\u03b2\u03ac\u03bd\u03bf\u03c5\u03bd \u03b5\u03c6\u03b1\u03bc\u03bf\u03c1\u03b3\u03ae\u03c2. \u039b\u03b5\u03c2 \u03ba\u03b9 \u03bc\u03b5\u03b9\u03ce\u03c3\u03b5\u03b9\n# \u03ba\u03b1\u03b8\u03c5\u03c3\u03c4\u03b5\u03c1\u03b5\u03af.\n\n# 79 narrow chars\n# 01 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3[79]\n\n# 78 narrow chars (Na) + 1 wide char (W)\n# 01 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 \u60c5\n\n# 3 narrow chars (Na) + 40 wide chars (W)\n# \u60c5 \u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\n\n# 3 narrow chars (Na) + 69 wide chars (W)\n# \u60c5 \u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\n\n#\n#: E501 W505\n# 80 narrow chars (Na)\n# 01 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6  [80]\n#\n#: E501 W505\n# 78 narrow chars (Na) + 2 wide char (W)\n# 01 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8\u60c5\u60c5\n#\n#: E501 W505\n# 3 narrow chars (Na) + 77 wide chars (W)\n# \u60c5 \u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\n#\n"
    },
    "id": "fixture-utf-8",
-   "kind": "cli",
-   "kwargs": {},
-   "source": "testing/data",
-   "stdin": ""
-  },
-  {
-   "args": [],
-   "argv": [
-    "W19.py"
-   ],
-   "entry": "pycodestyle.py",
-   "expect": "finite",
-   "files": {
-    "W19.py": "#: W191\nif False:\n\tprint  # indented with 1 tab\n#:\n\n\n#: W191\ny = x == 2 \\\n\tor x == 3\n#: E101 W191 W504\nif (\n        x == (\n            3\n        ) or\n        y == 4):\n\tpass\n#: E101 W191\nif x == 2 \\\n    or y > 1 \\\n        or x == 3:\n\tpass\n#: E101 W191\nif x == 2 \\\n        or y > 1 \\\n        or x == 3:\n\tpass\n#:\n\n#: E101 W191 W504\nif (foo == bar and\n        baz == frop):\n\tpass\n#: E101 W191 W504\nif (\n    foo == bar and\n    baz == frop\n):\n\tpass\n#:\n\n"
-   },
-   "id": "fixture-w19",
-   "kind": "cli",
-   "kwargs": {},
-   "source": "testing/data",
-   "stdin": ""
-  },
-  {
-   "args": [],
-   "argv": [
-    "W29.py"
-   ],
-   "entry": "pycodestyle.py",
-   "expect": "finite",
-   "files": {
-    "W29.py": "#: Okay\n# \u60c5\n#: W291:1:6\nprint \n#: W293:2:1\nclass Foo(object):\n    \n    bang = 12\n#: W291:2:35\n'''multiline\nstring with trailing whitespace'''   \n#: W291 W292 noeol\nx = 1   \n#: W191 W292 noeol\nif False:\n\tpass  # indented with tabs\n#: W292:1:5 E225:1:2 noeol\n1+ 1\n#: W292:1:27 E261:1:12 noeol\nimport this # no line feed\n#: W292:3:22 noeol\nclass Test(object):\n    def __repr__(self):\n        return 'test'\n"
-   },
-   "id": "fixture-w29",
-   "kind": "cli",
-   "kwargs": {},
-   "source": "testing/data",
-   "stdin": ""
-  },
-  {
-   "args": [],
-   "argv": [
-    "W39.py"
-   ],
-   "entry": "pycodestyle.py",
-   "expect": "finite",
-   "files": {
-    "W39.py": "#: W391:2:1\n# The next line is blank\n\n#: W391:3:1\n# Two additional empty lines\n\n\n#: W292:4:5 W293:3:1 W293:4:1 noeol\n# The last lines contain space\n\n    \n    \n#: Okay\n'''there is nothing wrong\nwith a multiline string at EOF\n\nthat happens to have a blank line in it\n'''\n"
-   },
-   "id": "fixture-w39",
-   "kind": "cli",
-   "kwargs": {},
-   "source": "testing/data",
-   "stdin": ""
-  },
-  {
-   "args": [],
-   "argv": [
-    "W60.py"
-   ],
-   "entry": "pycodestyle.py",
-   "expect": "finite",
-   "files": {
-    "W60.py": "#: W605:1:10\nregex = '\\.png$'\n#: W605:2:1\nregex = '''\n\\.png$\n'''\n#: W605:2:6\nf(\n    '\\_'\n)\n#: W605:4:6\n\"\"\"\nmulti-line\nliteral\nwith \\_ somewhere\nin the middle\n\"\"\"\n#: W605:1:3\nf\"\\d\"\n#: Okay\nregex = r'\\.png$'\nregex = '\\\\.png$'\nregex = r'''\n\\.png$\n'''\nregex = r'''\n\\\\.png$\n'''\ns = '\\\\'\nregex = '\\w'  # noqa\nregex = '''\n\\w\n'''  # noqa\n"
-   },
-   "id": "fixture-w60",
    "kind": "cli",
    "kwargs": {},
    "source": "testing/data",

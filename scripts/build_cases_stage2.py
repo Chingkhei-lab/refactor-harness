@@ -86,7 +86,11 @@ def build() -> tuple[dict[str, object], str]:
         )
     cases: list[Case] = []
     counts: dict[str, int] = {"fixtures": 0, "probes": 0}
-    for path in sorted(data.glob("*.py")):
+    # Sort by name (a str), never by Path: PurePath comparison is case-normalised
+    # on Windows and case-sensitive on POSIX, so `sorted(Path)` puts `crlf.py`
+    # before `E10.py` on Windows and after it on Linux. The case-set hash then
+    # depends on the machine that built the file — measured, on CI.
+    for path in sorted(data.glob("*.py"), key=lambda item: item.name):
         name = path.name
         cases.append(
             Case(
@@ -142,8 +146,26 @@ def main(argv: list[str] | None = None) -> int:
             print("stale: case file does not exist")
             return 1
         current = json.loads(OUT.read_text(encoding="utf-8"))
-        if current != json.loads(text):
+        fresh = json.loads(text)
+        if current != fresh:
             print("stale: case file differs from what the pinned tree produces")
+            # Name the first difference: "stale" without a diff is a riddle.
+            for key in ("case_set_hash", "counts_by_source"):
+                if current.get(key) != fresh.get(key):
+                    print(f"  {key}: committed {current.get(key)!r} != fresh {fresh.get(key)!r}")
+            old_cases = {c["id"]: c for c in current.get("cases", [])}
+            new_cases = {c["id"]: c for c in fresh.get("cases", [])}
+            for case_id in sorted(set(old_cases) | set(new_cases)):
+                if old_cases.get(case_id) != new_cases.get(case_id):
+                    print(f"  first differing case: {case_id}")
+                    for field in ("argv", "stdin", "files"):
+                        before = old_cases.get(case_id, {}).get(field)
+                        after = new_cases.get(case_id, {}).get(field)
+                        if before != after:
+                            print(f"    {field} committed {before!r}")
+                            print(f"    {field} fresh     {after!r}")
+                            break
+                    break
             return 1
         print(f"fresh: {len(payload['cases'])} cases, hash {digest[:12]}")
         return 0

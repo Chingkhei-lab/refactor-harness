@@ -6,9 +6,9 @@ Evidence, not proof: this says what these cases did under this shim. It does not
 
 | Measurement | Value |
 | --- | --- |
-| Case set | 61 cases, sha256 `5b86bc8dab70b2f1...` |
+| Case set | 61 cases, sha256 `d2f78454511f64aa...` |
 | Order | old, new, old, new (alternating) |
-| Rules | 0 rule(s), sha256 `84b35c141be426b1` |
+| Rules | 0 rule(s), sha256 `88da6e232b01da75` |
 | Controls | clock_frozen, time_time_frozen, struct_time_frozen, monotonic_frozen, random_seeded, uuid_frozen, per_case_reset, hash_seed_0, tz_utc, locale_c, cwd_fixed, env_scrubbed |
 | Budget | wall clock |
 | A/A noise (old tree) | 0 |

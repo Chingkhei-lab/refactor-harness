@@ -191,13 +191,15 @@ CI skipped 28 tests, up from 25. The three new ones are the three tests in
 | `test_a_target_that_sigkills_itself_is_a_behaviour_not_a_resource_kill` | needs the container cgroup to read `memory.events` |
 
 They are new *tests*, not new skips: nothing that used to run stopped running.
-The full 28 in the `ci` job break down as:
+The count on the run that closed this checkpoint (`0ca5fa4`) is
+**402 collected / 373 passed / 29 skipped / 0 failed**, and the 29 break down as:
 
 | file | count | gate |
 | --- | --- | --- |
 | `tests/test_sandbox_hostile.py` | 18 | `ENGINE_SANDBOX_TESTS=1` |
 | `tests/test_install_hostile.py` | 7 | `ENGINE_SANDBOX_TESTS=1` |
 | `tests/test_harness_sandbox_hostile.py` | 3 | `ENGINE_SANDBOX_TESTS=1` |
+| one mutator test | 1 | needs `.harness/mutation/plan.json`, which CI does not produce |
 
 All 28 run in the `sandbox-hostile` job, which reports **27/27 passed, 0
 skipped** — the counts do not line up because the hostile job runs a subset
@@ -207,8 +209,10 @@ and the `ci` job runs everything else. A test that skips in one job and passes i
 another is visible in exactly that pair of numbers.
 
 Locally (Windows, no `ENGINE_SANDBOX_TESTS`) the run is **368 passed, 33
-skipped, 0 failed**: the 28 above plus 5 platform skips (`RLIMIT_CPU` twice,
-`SIGSEGV`, `SIGKILL`-by-number, `SIGTERM`), which pass on the Linux runner.
+skipped, 0 failed**: the 29 above plus platform skips (`RLIMIT_CPU` twice,
+`SIGSEGV`, `SIGKILL`-by-number, `SIGTERM`) that pass on the Linux runner. The
+counts are not expected to match — a test that skips in one job and passes in
+another is exactly what the pair is for.
 
 ---
 
@@ -291,6 +295,25 @@ this are worth stating:
   wrong number in a mutation report.
 
 ---
+
+## The lesson CI added: `sorted(Path)` is not portable
+
+Two failures came out of the first green-attempt runs, and both are worth keeping:
+
+* `os.listdir()` order was assumed in a test that checks the empty-`HOME` control.
+  NTFS and overlayfs happened to return creation order; ext4 on the runner did
+  not. Sorted now — a control check that is itself order-dependent is a control
+  you cannot cite.
+* `sorted(data.glob("*.py"))` sorts `Path` objects, and `PurePath.__lt__` is
+  **case-normalised on Windows and case-sensitive on POSIX**. The stage-2 case
+  file was built here in one order and rebuilt on the runner in another, giving a
+  different case-set hash for the same 61 cases; the freshness check caught it,
+  which is why the check exists. The key is `item.name` now, and `--check` passes
+  in a Linux container as well as here.
+
+Neither was caught locally because the local platform is one of the two. That is
+the argument for a freshness check paid in CI rather than a comment asking people
+to regenerate.
 
 ## What this does not answer
 

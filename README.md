@@ -151,7 +151,7 @@ Stage 2 changes a command line, so its cases run a program. `pycodestyle` 2.15.0
 
 | Measurement | Value |
 | --- | --- |
-| CLI case set | **61 cases** (42 fixture excerpts + 19 option probes), hash `5b86bc8dab70b2f1` |
+| CLI case set | **61 cases** (42 fixture excerpts + 19 option probes), hash `d2f78454511f64aa` |
 | A/A over that set (2 fixed + 2 shuffled passes) | **0 differences** |
 | verify-change, 2 rounds × 61 cases | 112 identical, **10 different (approved)**, **0 unapproved**, 0 unsupported, 0 flaky |
 | Upstream suite on the migrated tree | 4 failures: 3 usage-text assertions, 1 test calling the optparse-only `add_option` |
