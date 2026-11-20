@@ -1018,3 +1018,30 @@ def test_the_log_reader_is_stopped_before_it_is_joined() -> None:
     assert sock.closed is True
     assert stdout == b"" and stderr == b""
     assert elapsed < 1.0, elapsed
+
+
+def test_a_container_that_vanishes_is_not_an_oserror() -> None:
+    """The liveness re-read must tolerate SDK exceptions it cannot name.
+
+    `engine/sandbox.py` never imports the docker SDK, so it cannot catch
+    `docker.errors.NotFound` by name. A narrow `except OSError` let a daemon
+    `NotFound` escape from `reload()` and kill a whole gate run on CI; anything
+    the re-read raises means "no evidence the payload finished", and the deadline
+    stays the authority.
+    """
+    from engine.sandbox import _container_stopped, _wait_for_done
+
+    class Vanishing:
+        id = "gone"
+
+        attrs: dict[str, Any] = {}
+
+        def reload(self) -> None:
+            raise RuntimeError("404 Not Found: container gone")
+
+    event = threading.Event()
+    started = time.monotonic()
+    kind = _wait_for_done(Vanishing(), event, time.monotonic() + 0.3)  # type: ignore[arg-type]
+    assert kind == "timeout"
+    assert time.monotonic() - started < 2.0
+    assert _container_stopped(Vanishing()) is False  # type: ignore[arg-type]

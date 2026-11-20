@@ -141,7 +141,10 @@ jobs:
           # is 0.91 s, so the full seeded sample (7, 139 killed / 161 survived)
           # costs what 60 used to. See docs/results/checkpoint12b-findings-20261120.md.
           python scripts/sandbox_gate.py --mutants "${GATE_MUTANTS:-300}" 2>&1 | tee sandbox-gate.log || {
-            while IFS= read -r line; do echo "::error title=sandbox-gate::$line"; done < <(tail -40 sandbox-gate.log)
+            # Progress lines are noise; the reason is in the traceback. Grep for it
+            # first, then fall back to the tail, so one annotation carries cause.
+            grep -E "Traceback|Error|error:|raise |assert " sandbox-gate.log | tail -6 | sed 's/^/::error title=sandbox-gate::/' || true
+            while IFS= read -r line; do echo "::error title=sandbox-gate::$line"; done < <(tail -15 sandbox-gate.log)
             exit 1
           }
       - name: Oracle canaries (both targets must pass clean and kill a broken mutant)

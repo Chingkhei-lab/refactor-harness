@@ -512,8 +512,8 @@ class _LogReader:
                 else:
                     buf.extend(payload)
                 self._scan_for_done(payload)
-        except OSError:
-            pass  # socket torn down by the kill — expected
+        except Exception:  # noqa: BLE001 - a closed stream is the normal stop path
+            pass  # socket torn down by stop()/kill: OSError, ValueError, RuntimeError
 
     def _scan_for_done(self, payload: bytes) -> None:
         """Detect the supervisor's ENGINE_DONE marker across frame splits."""
@@ -622,7 +622,13 @@ def _container_stopped(container: SandboxContainer) -> bool:
     """
     try:
         container.reload()
-    except OSError:
+    except Exception:  # noqa: BLE001 - see below
+        # Deliberately broad: this module never imports the docker SDK, so it
+        # cannot name `docker.errors.APIError` or `NotFound`, and a reload can
+        # fail with a transport error, a 404 for a container the janitor removed,
+        # or an SDK-specific exception. None of those is evidence that the payload
+        # finished, so the deadline stays the authority. Measured on CI: a narrow
+        # `except OSError` let a daemon `NotFound` escape and killed the run.
         return False
     state = container.attrs.get("State") or {}
     status = state.get("Status")

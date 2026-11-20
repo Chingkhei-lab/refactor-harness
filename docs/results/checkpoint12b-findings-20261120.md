@@ -110,12 +110,14 @@ mutants is a container where one mutant can see another's files.
 If it is done later, the number to beat is 0.91 s/pass, and the mechanism already
 exists: Phase 3's `engine/install.py` builds hashed, wheel-only derived images.
 
-## Finding 2 — which 60 mutants CI runs, and were the 300 run on current code
+## Finding 2 — which mutants CI runs, and were the 300 run on current code
 
 **The sample is fixed, seeded and balanced.** `scripts/sandbox_gate.py` gained
-`--seed` (default 7) and `_stratified()`, which shuffles the 300 planned mutants
-with the seed and takes 30 of each verdict, then appends one canary of each
-verdict if the split did not already contain one. For `--mutants 60 --seed 7`:
+`--seed` (default 7) and `_stratified()`, which shuffles the planned mutants with
+the seed, takes half from each verdict and appends one canary of each verdict if
+the split did not already contain one. The size was 60 while a pass cost 15 s; it
+is now **300**, because a pass costs 0.91 s (Finding 1) and the full sample costs
+what 60 used to. For the smaller `--mutants 60 --seed 7` variant:
 
 ```
 size 60   tests-killed 30   survived 30
