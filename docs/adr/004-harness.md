@@ -553,6 +553,15 @@ destroys the tmpfs and with it the evidence. Both cases are tested
 `tests/test_harness_sandbox_hostile.py` for containment and kill recovery, in the
 `sandbox-hostile` CI job).
 
+**Measured (2026-11-20, `sandbox-hostile` CI job).** 300/300 mutants get the same
+verdict through the container as through the direct path; the observation stream
+for the 273-case set is byte-identical; overhead is **15.12 s per pass** against
+~1.2 s of work (~50 minutes for the full 300-mutant gate, so CI runs a smaller
+default and the full run is recorded in
+`docs/results/sandbox-transport-20261120.md`). The hostile target — write outside
+the workspace, socket connect, 200 sleeping children — is contained and recorded,
+and the suite reports 27/27 in that job.
+
 **Regression gate.** Moving the harness must change nothing. `scripts/sandbox_gate.py`
 re-runs the sampled mutants through the container and compares, per mutant, with
 the verdicts the direct path recorded, and separately compares the observation

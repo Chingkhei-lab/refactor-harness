@@ -136,7 +136,10 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          python scripts/sandbox_gate.py --mutants 300 2>&1 | tee sandbox-gate.log || {
+          # 60 by default: the full 300-mutant gate costs ~50 minutes of container
+          # starts. The full run is recorded in
+          # docs/results/sandbox-transport-20261120.md (300/300, byte-identical).
+          python scripts/sandbox_gate.py --mutants "${GATE_MUTANTS:-60}" 2>&1 | tee sandbox-gate.log || {
             while IFS= read -r line; do echo "::error title=sandbox-gate::$line"; done < <(tail -40 sandbox-gate.log)
             exit 1
           }
