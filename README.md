@@ -86,6 +86,53 @@ checkpoint 9 review rounds 1–2 (corrected concurrency finding, demo/test
 database split, self-reporting CI, install network probe). Supersedes
 [v0.2.1](https://github.com/Chingkhei-lab/refactor-harness/releases/tag/v0.2.1).
 
+## Model routing (Phase 5)
+
+The agent loop needs a model, and the listing numbers do not measure what matters
+for a loop: whether the tool calls arrive as well-formed JSON. So three finalists
+were chosen by one trait each — availability, generation speed, and raw capability
+— and measured on the same 20 tasks against the same tools.
+
+| step | result |
+| --- | --- |
+| Smoke test: one `read_file(path)` call, then a tool-result turn | **3/3 pass**; every model returned `read_file({"path":"calc/core.py"})` as a structured call |
+| Stage 1: 12 tasks × 2 runs | nemotron **91.7 %**, kimi 83.3 %, deepseek 70.8 % |
+| Stage 2: 20 tasks × 3 runs, top two | **nemotron 93.3 %** (95 % CI 84.1–97.4), **kimi 80.0 %** (68.2–88.2) |
+| Valid tool calls | **100 %** for all three, 639 calls, no malformed arguments |
+| Decision | **primary `nvidia/nemotron-3-ultra-550b-a55b:free`**, fallback `moonshotai/kimi-k3.1-pro:free` |
+| Provider fallback | `gemini-3.8-flash` passes both smoke turns; its free tier took **460 s** for one call |
+
+What separated them was not correctness but finishing: kimi used 341 tool calls
+where nemotron used 298 for the same 60 runs, and spent its budget on exploration
+(`multi-two-files`, `multi-rename`, one injection task: 3/3 failures each,
+"call budget exceeded"). Both fail the deliberately-tight 4-call budget task, so
+neither is disciplined enough to be given a hard cap without slack.
+
+Report: [`docs/results/model-bakeoff-20261122.md`](docs/results/model-bakeoff-20261122.md).
+Tasks, tools and scoring live in `scripts/bakeoff_tasks.py`,
+`scripts/bakeoff_tools.py` and `scripts/model_bakeoff.py`; `--self-check` proves
+every task fails before its reference fix and passes after, and `--analyse`
+rebuilds the report from cassettes without a network call.
+
+### Data policy for these calls
+
+**Assume every prompt and every response is logged and may be read by a human
+reviewer.**
+
+- Only open-source target code is sent: the `calc` fixture here, and
+  `parse`/`pycodestyle` sources that are already public. No secrets, keys, customer
+  data or private repository content goes into a prompt.
+- Keys live in `.harness/bakeoff/keys.env`, which is git-ignored; no cassette
+  records an `Authorization` header (`redact()`, plus a unit test).
+- Gemini's free tier, quoted from <https://ai.google.dev/gemini-api/terms>: for
+  Unpaid Services — "the unpaid quota on Gemini API" — Google "uses the content you
+  submit to the Services and any generated responses to provide, improve, and
+  develop Google products and services and machine learning technologies", and
+  "human reviewers may read, annotate, and process your API input and output". The
+  page's own instruction is "Do not submit sensitive, confidential, or personal
+  information." The same assumption is made for numes.ai, whose policy was not
+  available to check.
+
 ## Architecture
 
 Two things live in this repository: a **job engine** (`src/engine`, Postgres,

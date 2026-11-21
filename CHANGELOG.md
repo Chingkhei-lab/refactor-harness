@@ -1,5 +1,34 @@
 # Changelog
 
+## Unreleased (Phase 5)
+
+### Model routing
+
+- **A model bake-off with a fixed rule and a reproducible report**
+  (`docs/results/model-bakeoff-20261122.md`, `scripts/model_bakeoff.py`,
+  `scripts/bakeoff_tasks.py`, `scripts/bakeoff_tools.py`,
+  `scripts/model_router.py`). 20 tasks in five categories run through the real
+  tool layer — `read_file`, `search`, `list_dir`, `apply_patch` with a sha256
+  precondition, `run_tests` — against a real workspace copy. Scoring reads the
+  final workspace and the tool log only; no model grades another.
+  `--self-check` applies each task's setup (the check must fail) and its reference
+  fix (the check must pass) before a model is ever measured, and `--analyse`
+  rebuilds the report from cassettes with no network call.
+- **Result**: primary `nvidia/nemotron-3-ultra-550b-a55b:free` at 93.3 % of 60
+  runs (95 % CI 84.1–97.4), fallback `moonshotai/kimi-k3.1-pro:free` at 80.0 %
+  (68.2–88.2); 100 % valid tool calls for all three finalists. `gemini-3.8-flash`
+  passes both smoke turns as the provider-level fallback, at 460 s for one call on
+  the free tier.
+- **A provider adapter that keeps what the provider needs echoed.** Gemini 3.x
+  returns a `thought_signature` under `tool_calls[i].extra_content.google` and
+  answers HTTP 400 on the next turn if it is dropped, so `assistant_message()`
+  replays any extra field instead of rebuilding an OpenAI-shaped message.
+- **Retries cover every 5xx.** The first pass of the bake-off was thrown away
+  because the policy listed only `{500, 502, 503, 504}` and the provider's edge
+  answers 520/522: the most common failure was classified correctly and never
+  retried. Twelve of the failures in that pass were a single 520 on turn one.
+
+
 ## Unreleased (Phase 4, checkpoint 12b audit)
 
 ### Harness

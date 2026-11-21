@@ -17,6 +17,10 @@ packages = ["src/engine"]
 
 [tool.ruff]
 target-version = "py312"
+# `tests/fixtures/model_bakeoff` is a standalone project used as the bake-off's
+# repository: its own layout, its own tests, its own style. Linting it as part of
+# this project would edit the thing under measurement.
+exclude = ["tests/fixtures/model_bakeoff"]
 line-length = 100
 src = ["src", "tests"]
 
