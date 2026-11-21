@@ -105,7 +105,7 @@ def _harness_killed(tmp_path: Path, checkout: Path) -> bool:
 def test_an_obviously_broken_mutant_is_killed_by_both_oracles(tmp_path: Path) -> None:
     module = _mutate_script()
     checkout = _checkout(tmp_path, broken=True, comment=False)
-    tests_killed, note = module._run_tests(FIXTURE / "suite_canary.py", checkout)
+    tests_killed, note, _detail = module._run_tests(FIXTURE / "suite_canary.py", checkout)
     assert tests_killed is True, note
     assert _harness_killed(tmp_path, checkout) is True
 
@@ -113,7 +113,7 @@ def test_an_obviously_broken_mutant_is_killed_by_both_oracles(tmp_path: Path) ->
 def test_a_comment_only_mutant_survives_both_oracles(tmp_path: Path) -> None:
     module = _mutate_script()
     checkout = _checkout(tmp_path, broken=False, comment=True)
-    tests_killed, note = module._run_tests(FIXTURE / "suite_canary.py", checkout)
+    tests_killed, note, _detail = module._run_tests(FIXTURE / "suite_canary.py", checkout)
     assert tests_killed is False, note
     assert _harness_killed(tmp_path, checkout) is False
 
@@ -121,6 +121,6 @@ def test_a_comment_only_mutant_survives_both_oracles(tmp_path: Path) -> None:
 def test_the_oracle_is_not_inverted() -> None:
     """A passing suite must read as "not killed" — the 12a bug, pinned."""
     module = _mutate_script()
-    killed, note = module._run_tests(FIXTURE / "suite_canary.py", FIXTURE)
+    killed, note, _detail = module._run_tests(FIXTURE / "suite_canary.py", FIXTURE)
     assert killed is False, f"an unmutated tree was reported killed: {note}"
     assert "passed" in note

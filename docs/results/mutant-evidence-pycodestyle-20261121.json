@@ -1,0 +1,266 @@
+{
+ "target": "pycodestyle",
+ "case_set_hash": "8f04551c95d70c5f7618c6388df5de90d995d7534549e52588394ff7f9109dc9",
+ "case_count": 79,
+ "mutants": [
+  {
+   "site": "int_plus@334:24",
+   "changed_lines": [
+    {
+     "line": 334,
+     "before": "            next_idx += 1",
+     "after": "            next_idx += 2"
+    }
+   ],
+   "lines_removed": 1,
+   "lines_added": 1,
+   "differing_cases": [
+    "fixture-w29"
+   ],
+   "tests_killed": false,
+   "tests_note": "763 passed, 12 skipped in 7.64s",
+   "tests_failures": []
+  },
+  {
+   "site": "int_plus@1317:33",
+   "changed_lines": [
+    {
+     "line": 1317,
+     "before": "                backslash = (end[0], len(line.splitlines()[-1]) - 1)",
+     "after": "                backslash = (end[1], len(line.splitlines()[-1]) - 1)"
+    }
+   ],
+   "lines_removed": 1,
+   "lines_added": 1,
+   "differing_cases": [
+    "fixture-e50"
+   ],
+   "tests_killed": false,
+   "tests_note": "763 passed, 12 skipped in 6.38s",
+   "tests_failures": []
+  },
+  {
+   "site": "int_plus@2227:39",
+   "changed_lines": [
+    {
+     "line": 2227,
+     "before": "            self.messages[code] = text[5:]",
+     "after": "            self.messages[code] = text[6:]"
+    }
+   ],
+   "lines_removed": 1,
+   "lines_added": 1,
+   "differing_cases": [
+    "probe-statistics"
+   ],
+   "tests_killed": false,
+   "tests_note": "763 passed, 12 skipped in 6.46s",
+   "tests_failures": []
+  },
+  {
+   "site": "arith_swap@2320:22",
+   "changed_lines": [
+    {
+     "line": 2320,
+     "before": "                print('    ' + doc.strip())",
+     "after": "                print('    ' - doc.strip())"
+    }
+   ],
+   "lines_removed": 1,
+   "lines_added": 1,
+   "differing_cases": [
+    "probe-show-source-and-pep8"
+   ],
+   "tests_killed": false,
+   "tests_note": "763 passed, 12 skipped in 6.59s",
+   "tests_failures": []
+  },
+  {
+   "site": "delete_stmt@80:0",
+   "changed_lines": [
+    {
+     "line": 80,
+     "before": "PROJECT_CONFIG = ('setup.cfg', 'tox.ini')",
+     "after": ""
+    }
+   ],
+   "lines_removed": 1,
+   "lines_added": 0,
+   "differing_cases": [
+    "api-module",
+    "api-parser",
+    "fixture-crlf",
+    "fixture-e10",
+    "fixture-e11",
+    "fixture-e12",
+    "fixture-e12not",
+    "fixture-e20",
+    "fixture-e21",
+    "fixture-e22",
+    "fixture-e23",
+    "fixture-e24",
+    "fixture-e25",
+    "fixture-e26",
+    "fixture-e27",
+    "fixture-e30",
+    "fixture-e30not",
+    "fixture-e40",
+    "fixture-e50",
+    "fixture-e70",
+    "fixture-e71",
+    "fixture-e72",
+    "fixture-e73",
+    "fixture-e74",
+    "fixture-e90",
+    "fixture-latin-1",
+    "fixture-noqa",
+    "fixture-python3",
+    "fixture-python310",
+    "fixture-python311",
+    "fixture-python312",
+    "fixture-python313",
+    "fixture-python314",
+    "fixture-python315",
+    "fixture-python35",
+    "fixture-python36",
+    "fixture-python38",
+    "fixture-python39",
+    "fixture-utf-8",
+    "fixture-utf-8-bom",
+    "fixture-w19",
+    "fixture-w29",
+    "fixture-w39",
+    "fixture-w60",
+    "probe-abbreviation",
+    "probe-benchmark",
+    "probe-cluster",
+    "probe-config-file",
+    "probe-config-int-error",
+    "probe-config-unknown-key",
+    "probe-defaults",
+    "probe-deprecated-section",
+    "probe-diff-stdin",
+    "probe-doc-length",
+    "probe-exclude-and-filename",
+    "probe-format-custom",
+    "probe-format-pylint",
+    "probe-hang-closing",
+    "probe-indent",
+    "probe-invalid-choice",
+    "probe-local-config",
+    "probe-missing-file",
+    "probe-negative",
+    "probe-no-args",
+    "probe-no-args-with-config",
+    "probe-repeat",
+    "probe-select-ignore",
+    "probe-separator",
+    "probe-show-source-and-pep8",
+    "probe-statistics",
+    "probe-stdin",
+    "probe-verbose",
+    "probe-very-verbose"
+   ],
+   "tests_killed": true,
+   "tests_note": "14 failed, 749 passed, 12 skipped in 7.80s",
+   "tests_failures": [
+    "tests\\test_api.py::APITestCase::test_styleguide",
+    "tests\\test_api.py::APITestCase::test_styleguide_check_files",
+    "tests\\test_api.py::APITestCase::test_styleguide_checks",
+    "tests\\test_api.py::APITestCase::test_styleguide_excluded",
+    "tests\\test_api.py::APITestCase::test_styleguide_ignore_code",
+    "tests\\test_api.py::APITestCase::test_styleguide_init_report",
+    "tests\\test_api.py::APITestCase::test_styleguide_options",
+    "tests\\test_pycodestyle.py::test_read_config_prefix",
+    "tests\\test_shell.py::ShellTestCase::test_check_diff",
+    "tests\\test_shell.py::ShellTestCase::test_check_noarg"
+   ]
+  },
+  {
+   "site": "bool_flip@181:11",
+   "changed_lines": [
+    {
+     "line": 181,
+     "before": "        if args and args[0] in ('physical_line', 'logical_line'):",
+     "after": "        if args or args[0] in ('physical_line', 'logical_line'):"
+    }
+   ],
+   "lines_removed": 1,
+   "lines_added": 1,
+   "differing_cases": [],
+   "tests_killed": true,
+   "tests_note": "1 failed, 762 passed, 12 skipped in 7.30s",
+   "tests_failures": [
+    "tests\\test_api.py::APITestCase::test_register_invalid_check"
+   ]
+  },
+  {
+   "site": "compare_swap@186:11",
+   "changed_lines": [
+    {
+     "line": 186,
+     "before": "        if _get_parameters(check.__init__)[:2] == ['self', 'tree']:",
+     "after": "        if _get_parameters(check.__init__)[:2] != ['self', 'tree']:"
+    }
+   ],
+   "lines_removed": 1,
+   "lines_added": 1,
+   "differing_cases": [],
+   "tests_killed": true,
+   "tests_note": "3 failed, 760 passed, 12 skipped in 7.28s",
+   "tests_failures": [
+    "tests\\test_api.py::APITestCase::test_check_nullbytes",
+    "tests\\test_api.py::APITestCase::test_register_ast_check",
+    "tests\\test_api.py::APITestCase::test_styleguide_unmatched_triple_quotes"
+   ]
+  },
+  {
+   "site": "bool_flip@74:12",
+   "changed_lines": [
+    {
+     "line": 74,
+     "before": "            os.getenv('XDG_CONFIG_HOME') or os.path.expanduser('~/.config'),",
+     "after": "            os.getenv('XDG_CONFIG_HOME') and os.path.expanduser('~/.config'),"
+    }
+   ],
+   "lines_removed": 1,
+   "lines_added": 1,
+   "differing_cases": [],
+   "tests_killed": false,
+   "tests_note": "763 passed, 12 skipped in 6.36s",
+   "tests_failures": []
+  },
+  {
+   "site": "int_plus@406:55",
+   "changed_lines": [
+    {
+     "line": 406,
+     "before": "                        if nested or ancestor_level == 0:",
+     "after": "                        if nested or ancestor_level == 1:"
+    }
+   ],
+   "lines_removed": 1,
+   "lines_added": 1,
+   "differing_cases": [],
+   "tests_killed": false,
+   "tests_note": "763 passed, 12 skipped in 6.81s",
+   "tests_failures": []
+  },
+  {
+   "site": "delete_stmt@173:4",
+   "changed_lines": [
+    {
+     "line": 173,
+     "before": "    \"\"\"Register a new check object.\"\"\"",
+     "after": ""
+    }
+   ],
+   "lines_removed": 1,
+   "lines_added": 0,
+   "differing_cases": [],
+   "tests_killed": false,
+   "tests_note": "763 passed, 12 skipped in 6.74s",
+   "tests_failures": []
+  }
+ ]
+}

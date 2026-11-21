@@ -1,6 +1,6 @@
 {
-  "case_count": 77,
-  "case_set_hash": "be70731d8c084343af84746f977cc5292de262c05fe2e11eaa5895d7e1f76901",
+  "case_count": 79,
+  "case_set_hash": "8f04551c95d70c5f7618c6388df5de90d995d7534549e52588394ff7f9109dc9",
   "checks": {
     "empty_is_zero": true,
     "one_case_is_lower": true,
@@ -20,10 +20,10 @@
     "surface": {}
   },
   "full": {
-    "branch_percent": 82.5,
+    "branch_percent": 82.62,
     "branches": 800,
-    "combined_percent": 87.07,
-    "covered_branches": 660,
+    "combined_percent": 87.11,
+    "covered_branches": 661,
     "covered_statements": 1225,
     "function_count": 89,
     "line_percent": 89.74,

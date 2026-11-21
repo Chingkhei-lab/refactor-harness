@@ -1,7 +1,7 @@
 {
   "schema": "harness-approvals/1",
   "target": "pycodestyle 2.15.0",
-  "note": "Approved differences for the optparse->argparse migration. Two kinds: parser text (help layout, error wording) and line numbers inside stderr that moved because the patch adds lines. Nothing here is counted as `equivalent`, and an approval whose diff changes is stale and goes back to `different`.",
+  "note": "Approved differences for the optparse->argparse migration. Two kinds: parser text (help layout and error wording) and the public parser surface. The two line-number approvals this file used to carry are gone: the CLI observation now projects a traceback to its type, message and frames, so a patch that adds lines above `read_config` no longer produces a difference at all. Nothing here is counted as `equivalent`, and an approval whose diff changes is stale and goes back to `different`.",
   "approvals": [
     {
       "case_id": "probe-blank-lines",
@@ -9,7 +9,7 @@
       "reason": "same 'unrecognized arguments' wording for an option that does not exist (--max-blank-lines). Exit status is still 2.",
       "reviewer": "yumkh (maintainer)",
       "date": "2026-11-20",
-      "sha256": "64e2195adcff582dde97b1400a2e1b3d99901a78cc94280eafb62f6837c8bff8"
+      "sha256": "ebe283dabc381acd72251eb9eece4b75561a434ca6ba3770bc219f7badcd89cb"
     },
     {
       "case_id": "probe-help",
@@ -17,7 +17,7 @@
       "reason": "argparse renders usage/help differently: lower-case 'usage:', a positional-arguments section, and 'options:' instead of 'Options:'. The option set and defaults are unchanged; this is the parser swap showing through and cannot be normalised away without hiding it.",
       "reviewer": "yumkh (maintainer)",
       "date": "2026-11-20",
-      "sha256": "505ef1e27c759dcd424ce8a6783f9a3639d94426ea63baf49752809961854e1e"
+      "sha256": "409b4c2315f25cd46a5dcf7cff0cf6a104b4141f4a8ec408176916f498f39676"
     },
     {
       "case_id": "probe-int-error",
@@ -25,7 +25,7 @@
       "reason": "argparse words an invalid integer differently: 'argument --max-line-length: invalid int value' rather than 'option ... invalid integer value'. Exit status is still 2 and the offending value is still named.",
       "reviewer": "yumkh (maintainer)",
       "date": "2026-11-20",
-      "sha256": "7267dbf5c2e5915daeb69e058f9bf8513baeb0a69be2125f52eb9d8a790bd7db"
+      "sha256": "c73bae4d0b0eff4460823eaa1726ae25dc8eb8c9167e29ffbaebe67d182d86f2"
     },
     {
       "case_id": "probe-jobs",
@@ -33,31 +33,7 @@
       "reason": "an unsupported option name is now reported by argparse's 'unrecognized arguments' path, which echoes the value too (--jobs=1). Exit status is still 2. This case is declared unordered, so only the error text is compared.",
       "reviewer": "yumkh (maintainer)",
       "date": "2026-11-20",
-      "sha256": "29a2f62804bdaf268098ad4947ea6fe90b6d29393d0717a38a06851854009b87"
-    },
-    {
-      "case_id": "probe-unknown",
-      "path": "$.value.stderr",
-      "reason": "argparse reports an unknown long option as 'unrecognized arguments: --no-such-option' instead of 'no such option'. Exit status is still 2.",
-      "reviewer": "yumkh (maintainer)",
-      "date": "2026-11-20",
-      "sha256": "0f2bab29418ef25403f12aeab9741c23a7516e15813124c768b6e77fcaddd509"
-    },
-    {
-      "case_id": "probe-config-int-error",
-      "path": "$.value.stderr",
-      "reason": "Uncaught ValueError from configparser.getint on a non-integer config value: same exception, same frames, same message in both versions. Only the traceback's line numbers differ, because the patch adds 41 lines above read_config. Approving the line numbers, not the failure: it is a pre-existing crash in both versions and is reported as such.",
-      "reviewer": "yumkh (maintainer)",
-      "date": "2026-11-20",
-      "sha256": "8b131eae9d88102567930d1baff5e708cfebccbd73930773693b974d85f09d00"
-    },
-    {
-      "case_id": "probe-deprecated-section",
-      "path": "$.value.stderr",
-      "reason": "[pep8] section deprecation warning: identical text in both versions; the warning's reported line number moved by 41 lines because the patch adds lines above it.",
-      "reviewer": "yumkh (maintainer)",
-      "date": "2026-11-20",
-      "sha256": "bd981c6451394c5dc7a4716682a0d2fc5809f898ef5947fcecf8f188653bebe6"
+      "sha256": "e2483f5c2d36e72b4bc911feedd20ea1ab045f12f6de155dc42345a4e99349a3"
     },
     {
       "case_id": "probe-no-args",
@@ -65,7 +41,31 @@
       "reason": "Empty command line: argparse prints 'usage:' in lower case and omits the blank line before 'error:', so `pycodestyle: error: input not specified` is preceded by different text. The error line itself, the exit status (2) and the condition are unchanged.",
       "reviewer": "yumkh (maintainer)",
       "date": "2026-11-20",
-      "sha256": "657407936b8d2df958570a6aeb3195fa7928f1492749d5a2eadd101a0faff1df"
+      "sha256": "a5cc080fd4b5d9b4ce1ad02fbe18a050825e0f37a21c309e847f8a3f254f3ee8"
+    },
+    {
+      "case_id": "probe-unknown",
+      "path": "$.value.stderr",
+      "reason": "argparse reports an unknown long option as 'unrecognized arguments: --no-such-option' instead of 'no such option'. Exit status is still 2.",
+      "reviewer": "yumkh (maintainer)",
+      "date": "2026-11-20",
+      "sha256": "2559f5ec7780f20c354203fb9e2d4dd8b84c007bd1ef5e77b48ccd382a5e3a7d"
+    },
+    {
+      "case_id": "api-module",
+      "path": "$.value.classes.OptionParser",
+      "reason": "The module stops exporting `OptionParser` and starts exporting `argparse`: the migration replaces optparse's OptionParser with argparse's ArgumentParser, and the class surface (`add_option`, `add_options`, `disable_interspersed_args`, ...) goes with it. Approved as a public-surface change and reported as such, never counted as `equivalent`. Before the api cases existed this row was invisible to the harness and appeared only as the upstream suite's `test_read_config_prefix` failure.",
+      "reviewer": "yumkh (maintainer)",
+      "date": "2026-11-21",
+      "sha256": "840776a7ed67b8a08d95ed0070249a883783ebf5a2d5a18b3d31f2218f1035a9"
+    },
+    {
+      "case_id": "api-parser",
+      "path": "$.value.call.attributes.add_argument",
+      "reason": "`get_parser()` now returns an `ArgumentParser`: `add_option`, `add_options` and `add_option_group` are gone and `add_argument`/`add_argument_group` take their place. This is the same break the upstream suite reports as `AttributeError: 'ArgumentParser' object has no attribute 'add_option'`, and it is inherent to using argparse. Approved with a witness, so a reader can see the exact attributes that changed.",
+      "reviewer": "yumkh (maintainer)",
+      "date": "2026-11-21",
+      "sha256": "185e8de795cc911e552a7ff1c28e8bef2d7f8ec6d9030895a1dd66ac5eb7d60f"
     }
   ]
 }

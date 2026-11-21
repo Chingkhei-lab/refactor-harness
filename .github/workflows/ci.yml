@@ -154,6 +154,13 @@ jobs:
         # pycodestyle. Also documents that the pycodestyle sdist ships no
         # `testing/` package, so the oracle uses the pinned tag tarball.
         run: python scripts/oracle_canary.py
+      - name: No-op canaries (a canary the evaluator cannot let through is not an evaluator)
+        # Four mutants that change no behaviour: a comment, a whitespace change, a
+        # full `ast.unparse` re-print, and one word of the module docstring. The
+        # first three must be killed by nothing; the last is public API text and
+        # must be seen by exactly the two api-snapshot cases. The re-print canary
+        # is the one that would have caught the mutator rewriting every line.
+        run: python scripts/mutation_canary.py --only comment,whitespace,reformat,docstring
       - name: Pin the oracle (tarball hashes, and module identical to the sdist)
         # The suite comes from the tag tarball and the module from the sdist; the
         # only thing that makes that sound is the two module files being byte
@@ -197,9 +204,11 @@ jobs:
           path = pathlib.Path("docs/results/sandbox-gate-20261120.json")
           if path.exists():
               r = json.loads(path.read_text())
+              phases = r.get("phase_seconds", {})
               print(f"::notice title=sandbox-gate::verdicts {r['verdict_agreement']}, "
                     f"byte-identical {r['byte_identical']}, "
-                    f"overhead {r['overhead_seconds_per_pass']}s/pass")
+                    f"overhead {r['overhead_seconds_per_pass']}s/pass, "
+                    f"phases {json.dumps(phases, sort_keys=True)}")
           else:
               print("::warning title=sandbox-gate::no gate report written")
           PY

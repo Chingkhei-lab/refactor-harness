@@ -112,9 +112,10 @@ pipeline where every stage can refuse to produce a number.
 | --- | --- | --- |
 | cases | `harness/cases.py`, `harness/cases/*.json` | a case is data; the set has a sha256 and every report carries it |
 | determinism | `harness/determinism.py` | clock, hash seed, uuid, random, cwd, locale, timezone are controlled before the target is imported |
-| entry kinds | `harness/child.py` | `call` observes a function's value; `cli` observes a program's exit, streams and written files |
+| entry kinds | `harness/child.py` | `call` observes a function's value; `cli` observes a program's exit, streams and written files; `api` observes a module's public surface (and what an entry function returns) |
 | execution | `harness/runner.py`, `engine/sandbox.py` | sandboxed by default: no network, read-only rootfs, dropped caps, cgroup limits; workspace as tar in/out, never a host mount |
-| observation | `harness/observation.py` | one canonical encoding, schema-versioned, opaque values are `unsupported` and counted |
+| observation | `harness/observation.py`, `harness/projections.py` | one canonical encoding, schema-versioned, opaque values are `unsupported` and counted; a declared projection (a traceback as type, message and frames) is named in the observation |
+| evaluation | `harness/mutate.py`, `scripts/mutation_audit.py` | a mutant is one contiguous edit on the site's line, checked; a kill is only counted after asking whether the case could have made it |
 | comparison | `harness/compare.py` | `identical` / `equivalent` / `equivalent_bounded` / `different` / `undecidable`; nothing is "maybe equal" |
 | normalisation | `harness/rules.py`, `harness/rules/*.json` | a rule is data, schema-validated, justified, hash-pinned; a refused rule never stops the walk |
 | approvals | `harness/approvals.py`, `harness/approvals/*.json` | an accepted difference is bound to the observed diff; a changed diff makes the approval stale |
@@ -124,6 +125,13 @@ The **second oracle** is the target's own test suite, run untouched. It is check
 before its numbers are quoted (`scripts/oracle_canary.py`: the clean tree passes, a
 known-broken mutant fails) and pinned so the suite and the module come from the
 same release (`scripts/pin_oracle.py`).
+
+The **evaluator** is checked the same way, because a kill rate is only as good as
+the mutants: `scripts/mutation_canary.py` runs four behaviour-preserving mutants
+through the whole pipeline and requires the harness to be silent on three of them
+(a comment, a whitespace change, a full `ast.unparse` re-print) and to see the
+fourth (a docstring word) in exactly the two api cases. It is a CI step, so an
+evaluator that starts detecting "the file changed" fails the build.
 
 ## Behavior harness (Phase 4)
 
@@ -196,18 +204,24 @@ Stage 2 changes a command line, so its cases run a program. `pycodestyle` 2.15.0
 
 | Measurement | Value |
 | --- | --- |
-| CLI case set | **77 cases** (42 fixture excerpts + 35 option probes), hash `be70731d8c08…` |
+| Case set | **79** (42 fixture excerpts + 35 option probes + 2 api snapshots), hash `8f04551c…` |
 | A/A over that set | **0 differences, 5 fixed + 5 shuffled passes** |
-| Coverage incl. subprocess | lines **89.74 %**, branches **82.5 %**, combined **87.07 %**; `get_parser` 23/23 |
-| verify-change, 2 rounds × 77 | **138 identical, 16 different (8 approved), 0 unapproved**, 0 unsupported, 0 flaky |
+| Coverage incl. subprocess | lines **89.74 %**, branches **82.62 %**, combined **87.11 %**; `get_parser` 23/23 |
+| verify-change, 2 rounds × 79 | **142 identical, 16 different (8 approved), 0 unapproved**, 0 unsupported, 0 flaky |
 | Upstream suite on the migrated tree | 4 failures: 3 usage-text assertions, 1 `add_option` API break |
-| Mutation, 100 mutants seed 21, both oracles | **100/100 killed by each — saturated**, reported as such |
+| Mutation, 100 mutants seed 21, both oracles | harness **62/100 = 62 %**, suite **74/100 = 74 %**, **4 kills the suite misses**, 22 the pair misses |
 | Unintended change the cases caught | `--version` printed `pycodestyle 2.15.0` — fixed, **not approved**; pre-fix report kept |
 
-The most useful stage-2 number is not a kill rate but the comparison in §3 of the
-report: the harness sees 6 behavioural differences the suite does not assert, and
-**misses one API break the suite catches** — `get_parser().add_option` no longer
-exists, on lines that are fully covered. Coverage is a prior, not a detector.
+Two numbers here were wrong first and are worth knowing about. The mutation run
+that reported **100/100** was measuring a mutator that re-printed the whole module
+on every mutant, so two cases that print a traceback differed for all 100 of them;
+the audit that found it — and the corrected 62 % — is
+[`docs/results/checkpoint12b-audit-20261121.md`](docs/results/checkpoint12b-audit-20261121.md).
+And `get_parser().add_option` used to be **suite only**: a program cannot show an
+API nobody calls, so the `api` case kind snapshots the module's public surface and
+the object `get_parser()` returns. That row is now seen by both oracles, as an
+approved difference with a witness. A snapshot still cannot *exercise* a contract,
+which is why two `register_check` behaviours remain the suite's alone.
 
 ### Known target bugs (not harness bugs)
 

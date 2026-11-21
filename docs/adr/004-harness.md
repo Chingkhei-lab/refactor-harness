@@ -779,6 +779,76 @@ subprocess's file as if it were the whole run. The report states the check that
 catches this: one case must be strictly lower than the full set, and `_main` must
 appear.
 
+### D10v — A mutant is a minimal text edit, never a re-print of the tree
+
+`apply_site` returned `ast.unparse(tree)`. Every other property held: the tree
+parsed, exactly one operator changed, the site was addressable. The file was
+rewritten. `pycodestyle.py` went from 2 717 lines to 2 095 on **every** mutant, so
+every line number and every echoed source line moved.
+
+That is not a nuisance, it is a broken oracle. Two of the 77 CLI cases print a
+traceback and a warning that name the target's own file and line, so *every*
+mutant differed on exactly those two cases: 77 and 75 of 100 respectively, and 38
+mutants differed on nothing else. Fifteen of the 100 "kills" landed on lines no
+case executes, which is only possible if the difference came from the file layout
+rather than from the mutation.
+
+A mutation is now a splice on the original bytes (byte offsets, because `ast`
+columns are UTF-8 byte offsets), with the invariant enforced after every edit:
+**one contiguous region, on the site's own line**. `mutate()` refuses a result
+that touches more. The one-line `ast.unparse` version is the canary: applied to an
+unmutated module it must be killed by nothing, and the first version of the
+evaluator killed it everywhere.
+
+Two side effects worth recording, because both are corrections rather than
+regressions:
+
+* a chained `a < b < c` or `a and b and c` is one site and now flips **one**
+  token, so the mutant is a one-token change and the diff stays on one line;
+* `delete_stmt` uses `pass` for a statement alone in its block and `...` for one
+  that shares a line with an `if` header, instead of producing a file that does
+  not parse.
+
+### D10w — A CLI observation must not contain the target's own source
+
+Same class of defect as the staged-path bug in `verify_change` ("two trees, one
+path"), one level down: the observation included the target's *file path, line
+numbers and source text*, through tracebacks and through warnings.
+
+Projecting them away is not a convenience. Left in, they are three false
+positives at once: a tree staged anywhere else differs, a patch that adds two
+lines differs, and every mutant differs — the last of which is indistinguishable
+from a perfect case set.
+
+`harness.projections.canonicalise_stream` keeps the exception type, its message
+and the frame names, drops paths, line numbers, the echoed source line and its
+caret line, and folds CRLF to LF (the same target prints `\r\n` on Windows and
+`\n` on Linux through a pipe, so a raw stream cannot be compared across
+platforms). It is named `cli_stream_projected` in every CLI observation's
+`controls`, so a report says what view it compared. The observation schema went
+to 3: the values changed, and the version is what stops two encodings being
+compared.
+
+The two approvals that existed only because a line number moved are gone, and the
+`--version` prefix bug that the cases caught earlier is still caught.
+
+### D10x — A program cannot show an API nobody calls, so there is a `kind: "api"`
+
+The one difference the upstream suite saw and the harness did not was
+`get_parser().add_option`: an attribute on a returned object. No CLI run reaches
+it, and a single call case returns the object without describing it.
+
+Case kind `api` imports the module and snapshots the surface: public names,
+`inspect.signature` for callables, class bases and attributes, stable scalar
+values, the first line of the module docstring, and — when the case names a call —
+the type, bases and attributes of what that call returns. Values are compared like
+any other value; anything whose `repr` carries an address is reduced to its type
+name so the snapshot stays deterministic.
+
+On the migration it reports `OptionParser` → `ArgumentParser` and the exact
+attribute set that changed, as an approved difference with a witness. That is the
+report saying what the suite found, instead of leaving it in a footnote.
+
 ## Consequences
 
 - A report must carry: class counts, masked fields + rules, unsupported cases,

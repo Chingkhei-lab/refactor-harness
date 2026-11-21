@@ -124,17 +124,28 @@ def _write_mutant(
     return work
 
 
-def _run_tests(tests: Path, checkout: Path) -> tuple[bool, str]:
+def _run_tests(
+    tests: Path, checkout: Path, *, stop_early: bool = True
+) -> tuple[bool, str, dict[str, Any]]:
     # The upstream tests are NOT under the determinism shim: they are the other
     # oracle, run the way their author runs them. So the environment is inherited
     # and only the import path is pointed at the mutant.
     env = dict(os.environ)
     env["PYTHONPATH"] = str(checkout)
     env["PYTHONHASHSEED"] = "0"
+    arguments = [
+        sys.executable, "-m", "pytest", "-q", "--no-header",
+        "-o", "addopts=", "-p", "no:cacheprovider",
+    ]
+    if stop_early:
+        # `-x` keeps the oracle cheap, but then "1 failed" is the count by
+        # definition. The audit run drops it, which is the only way to answer
+        # "how many tests fail" rather than "does the first one".
+        arguments.append("-x")
+    arguments.append("-rf")
     try:
         result = subprocess.run(
-            [sys.executable, "-m", "pytest", "-x", "-q", "--no-header",
-             "-o", "addopts=", "-p", "no:cacheprovider",
+            [*arguments,
              # importlib mode stops pytest inserting the tests directory at the
              # front of sys.path. With the default "prepend" mode a checkout
              # whose tests sit next to the module under test shadows the mutant
@@ -146,18 +157,40 @@ def _run_tests(tests: Path, checkout: Path) -> tuple[bool, str]:
             capture_output=True,
             text=True,
             env=env,
-            timeout=90,
+            timeout=300,
         )
     except subprocess.TimeoutExpired:
         # A mutant that makes the upstream suite hang has been noticed by it:
-        # that is a kill by timeout, not a pass. 90 s is ~50x the unmutated run.
-        return True, "killed by the 90 s test timeout"
-    tail = (result.stdout + result.stderr).strip().splitlines()[-1:] or [""]
+        # that is a kill by timeout, not a pass. 300 s is ~35x the unmutated run.
+        return True, "killed by the 300 s test timeout", {"failures": [], "failure_count": None}
+    output = result.stdout + result.stderr
+    # An oracle that did not run is not an oracle. The stage-1 re-run pointed this
+    # at a path that does not exist inside the mutant copy, pytest exited 4 with
+    # "file or directory not found", and the non-zero status became "killed" for
+    # all 300 mutants — a full column of data that measured nothing. The old run's
+    # notes ("1 failed, 1 passed") were the only reason it was visible.
+    if "file or directory not found" in output or "collected 0 items" in output:
+        raise RuntimeError(
+            "test oracle did not run: " + (output.strip().splitlines() or [""])[-1][:200]
+        )
+    failures = [
+        line.split(" ", 2)[1][:160]
+        for line in output.splitlines()
+        if line.startswith("FAILED ") or line.startswith("ERROR ")
+    ]
+    tail = output.strip().splitlines()[-1:] or [""]
     # `tests_killed`, not `tests_passed`: the first version of this line returned
     # `returncode == 0`, the report read it as "killed", and the inversion made
     # the two oracles look disjoint when in fact every harness kill was also a
     # test kill. The note below is the independent witness used to audit it.
-    return result.returncode != 0, tail[0][:120]
+    detail = {
+        "failures": failures[:10],
+        "failure_count": len(failures) if not stop_early else None,
+        "collected": next(
+            (line for line in output.splitlines() if line.endswith(" collected")), ""
+        ),
+    }
+    return result.returncode != 0, tail[0][:160], detail
 
 
 def main() -> int:
@@ -178,6 +211,12 @@ def main() -> int:
         default="",
         help="work directory and report suffix, so a second run cannot resume the "
         "first one's results (tuning runs use their own tag)",
+    )
+    parser.add_argument(
+        "--full-tests",
+        action="store_true",
+        help="run the whole upstream suite per mutant instead of stopping at the "
+        "first failure, so the report can say how many tests fail",
     )
     parser.add_argument(
         "--no-tests",
@@ -262,6 +301,22 @@ def main() -> int:
         results = [json.loads(line) for line in existing if line.strip()]
         print(f"resuming: {len(results)} mutant(s) already recorded")
     if results_path.exists():
+        # A resumed row must answer the same question as this run. Mixing a
+        # `--no-tests` row into a run with the test oracle produced a report whose
+        # suite column was blank for a sixth of the sample, which looks like data
+        # and is not; such rows are dropped and re-run.
+        want_tests = bool(args.tests) and not args.no_tests
+        incomplete = [
+            item["position"] for item in results
+            if want_tests and item.get("tests_killed") is None
+        ]
+        if incomplete:
+            print(f"re-running {len(incomplete)} row(s) recorded without the test oracle")
+            results = [item for item in results
+                       if item.get("tests_killed") is not None or not want_tests]
+            results_path.write_text(
+                "".join(json.dumps(item) + chr(10) for item in results), encoding="utf-8"
+            )
         done = {item["position"] for item in results}
     else:
         results_path.write_text("", encoding="utf-8")
@@ -313,8 +368,23 @@ def main() -> int:
             # The tests come from the MUTANT copy, so `testing/support.py`
             # resolves inside the tree being tested and cannot reach back to the
             # unmutated one.
-            tests_dir = mutant_dir / (args.tests_subdir or "tests")
-            tests_killed, tests_note = _run_tests(tests_dir, mutant_dir)
+            # Where the tests live: inside the mutant copy when the suite ships
+            # with the tree (stage 2, where `tests/` imports `testing.support`
+            # relative to itself), otherwise where `--tests` points (stage 1,
+            # whose sdist keeps the suite outside the installed package).
+            # `--tests` is relative to the repository, but pytest runs with the
+            # mutant as its cwd, so a relative path has to be resolved first.
+            inside = mutant_dir / args.tests_subdir if args.tests_subdir else None
+            tests_dir = (
+                inside
+                if inside is not None and inside.is_dir()
+                else (_REPO_ROOT / args.tests).resolve()
+            )
+            tests_killed, tests_note, tests_detail = _run_tests(
+                tests_dir, mutant_dir, stop_early=not args.full_tests
+            )
+        else:
+            tests_detail = {}
         results.append(
             {
                 "position": position,
@@ -330,6 +400,7 @@ def main() -> int:
                              "unsupported")},
                 "tests_killed": tests_killed,
                 "tests_note": tests_note,
+                "tests_detail": tests_detail,
                 "seconds": round(time.monotonic() - started, 1),
             }
         )

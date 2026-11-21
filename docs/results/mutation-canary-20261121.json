@@ -1,0 +1,97 @@
+{
+  "target": "pycodestyle",
+  "case_set_hash": "8f04551c95d70c5f7618c6388df5de90d995d7534549e52588394ff7f9109dc9",
+  "case_count": 79,
+  "canaries": [
+    {
+      "canary": "comment",
+      "expected_observers": [],
+      "observed_exactly_as_expected": true,
+      "tests_cosmetic_only": false,
+      "edit": "append a comment",
+      "differing_cases": [],
+      "differing_count": 0,
+      "harness_killed": false,
+      "tests_killed": false,
+      "tests_note": "763 passed, 12 skipped in 8.26s",
+      "tests_detail": {
+        "failures": [],
+        "failure_count": 0,
+        "collected": ""
+      },
+      "differing_fields": {}
+    },
+    {
+      "canary": "whitespace",
+      "expected_observers": [],
+      "observed_exactly_as_expected": true,
+      "tests_cosmetic_only": true,
+      "edit": "spaces around `=` on line 65",
+      "differing_cases": [],
+      "differing_count": 0,
+      "harness_killed": false,
+      "tests_killed": true,
+      "tests_note": "1 failed, 762 passed, 12 skipped in 8.81s",
+      "tests_detail": {
+        "failures": [
+          "tests\\test_all.py::test_own_dog_food"
+        ],
+        "failure_count": 1,
+        "collected": ""
+      },
+      "differing_fields": {}
+    },
+    {
+      "canary": "reformat",
+      "expected_observers": [],
+      "observed_exactly_as_expected": true,
+      "tests_cosmetic_only": true,
+      "edit": "re-print the module (no semantic change)",
+      "differing_cases": [],
+      "differing_count": 0,
+      "harness_killed": false,
+      "tests_killed": true,
+      "tests_note": "1 failed, 762 passed, 12 skipped in 8.85s",
+      "tests_detail": {
+        "failures": [
+          "tests\\test_all.py::test_own_dog_food"
+        ],
+        "failure_count": 1,
+        "collected": ""
+      },
+      "differing_fields": {}
+    },
+    {
+      "canary": "docstring",
+      "expected_observers": [
+        "api-module",
+        "api-parser"
+      ],
+      "observed_exactly_as_expected": true,
+      "tests_cosmetic_only": false,
+      "edit": "one word in the module docstring (line 29)",
+      "differing_cases": [
+        "api-module",
+        "api-parser"
+      ],
+      "differing_count": 2,
+      "harness_killed": true,
+      "tests_killed": false,
+      "tests_note": "763 passed, 12 skipped in 8.03s",
+      "tests_detail": {
+        "failures": [],
+        "failure_count": 0,
+        "collected": ""
+      },
+      "differing_fields": {
+        "api-module": [
+          "doc_first_line"
+        ],
+        "api-parser": [
+          "doc_first_line"
+        ]
+      }
+    }
+  ],
+  "ok": true
+}

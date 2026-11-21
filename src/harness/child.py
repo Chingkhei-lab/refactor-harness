@@ -37,7 +37,7 @@ from harness.observation import (
     encode_exception,
     encode_with_meta,
 )
-from harness.projections import UnknownProjection
+from harness.projections import UnknownProjection, canonicalise_stream
 from harness.projections import get as get_projection
 
 
@@ -228,19 +228,27 @@ def run_cli_case(
     value = {
         "exit": exit_code,
         "signal": signal_number,
-        "stdout": stdout,
-        "stderr": stderr,
+        # Projected, not raw: a traceback names the target's own file, line and
+        # source text, which turns every staged copy, every line-shifting edit and
+        # every migration into a spurious difference on the two cases that print
+        # one. The exception type, its message and the frame names survive.
+        "stdout": canonicalise_stream(stdout),
+        "stderr": canonicalise_stream(stderr),
         "files": written,
     }
     shutil.rmtree(cwd, ignore_errors=True)
     encoded, _meta = encode_with_meta(value)
+    # The projection is named in the observation, not only in the code: a report
+    # that compares two values has to be able to say what view of them it
+    # compared, and a reader who disagrees with the projection can see that it
+    # was on.
     return Observation(
         case_id=case["id"],
         entry=entry,
         inputs=inputs,
         outcome="return",
         value=EncodedValue(encoded),
-        controls=controls,
+        controls=(*controls, "cli_stream_projected"),
         case_set_hash=case_set_hash,
     )
 
@@ -263,6 +271,121 @@ def _file_manifest(root: Path) -> dict[str, dict[str, Any]]:
     return manifest
 
 
+_SCALARS = (str, int, float, bool, type(None))
+
+
+def _signature(obj: Any) -> str:
+    import inspect
+
+    try:
+        return str(inspect.signature(obj))
+    except (TypeError, ValueError):
+        return "<no signature>"
+
+
+def _scalar(value: Any) -> Any:
+    """A value only when its text is stable; otherwise just its type's name.
+
+    `repr()` of an arbitrary object carries an address, which differs in every
+    process and would make the snapshot unusable. `str`/`int`/`float`/`bool`/`None`
+    reprs are stable and are exactly what a version constant or a default looks
+    like.
+    """
+    if isinstance(value, _SCALARS):
+        return {"type": type(value).__name__, "value": repr(value)}
+    if isinstance(value, (list, tuple)) and all(isinstance(item, _SCALARS) for item in value):
+        return {"type": type(value).__name__, "value": repr(list(value))}
+    return {"type": type(value).__name__}
+
+
+def _surface(obj: Any, *, skip: frozenset[str] = frozenset()) -> dict[str, Any]:
+    """Public attribute names of an object, each with signature or stable value."""
+    attributes: dict[str, Any] = {}
+    for name in sorted(dir(obj)):
+        if name.startswith("_") or name in skip:
+            continue
+        try:
+            value = getattr(obj, name)
+        except Exception as exc:  # noqa: BLE001 - a property may raise; that is a fact
+            attributes[name] = {"error": type(exc).__name__}
+            continue
+        if callable(value):
+            attributes[name] = {"callable": _signature(value)}
+        else:
+            attributes[name] = _scalar(value)
+    return attributes
+
+
+def _api_snapshot(module: Any, case: dict[str, Any], module_name: str) -> dict[str, Any]:
+    names = sorted(
+        name for name in dir(module)
+        if not name.startswith("_")
+    )
+    snapshot: dict[str, Any] = {"module": module_name, "names": names,
+                               "signatures": {}, "classes": {}, "constants": {}}
+    for name in names:
+        value = getattr(module, name, None)
+        if isinstance(value, type):
+            snapshot["classes"][name] = {
+                "bases": [base.__name__ for base in value.__bases__],
+                "attributes": _surface(value, skip=frozenset({"__dict__"})),
+            }
+        elif callable(value):
+            snapshot["signatures"][name] = _signature(value)
+        elif hasattr(value, "__module__"):
+            # a module re-exported by the entry module: name only
+            reexported = str(getattr(value, "__name__", type(value).__name__))
+            snapshot["constants"][name] = {"type": "module", "value": reexported}
+        else:
+            snapshot["constants"][name] = _scalar(value)
+    doc = getattr(module, "__doc__", None)
+    snapshot["doc_first_line"] = (doc or "").strip().splitlines()[:1]
+    call = dict(case.get("call") or {})
+    if call:
+        entry_point = str(call["entry"])
+        target = getattr(module, entry_point)
+        produced = target(*call.get("args") or (), **dict(call.get("kwargs") or {}))
+        snapshot["call"] = {
+            "entry": entry_point,
+            "type": type(produced).__name__,
+            "bases": [base.__name__ for base in type(produced).__bases__],
+            "attributes": _surface(produced),
+        }
+    return snapshot
+
+
+def run_api_case(
+    module: Any,
+    case: dict[str, Any],
+    controls: tuple[str, ...],
+    case_set_hash: str,
+    shim: Any,
+) -> Observation:
+    """Observe a library's public surface instead of one call's return value.
+
+    A CLI or a single call can only show what somebody invokes. `get_parser()`
+    returning an object whose `add_option` disappeared is invisible to both, and
+    was the one difference in the stage-2 comparison that the upstream suite saw
+    and the harness did not. This kind observes the surface itself: public names,
+    signatures, class bases and attributes, and — when the case names a call —
+    the surface of the object that call returns.
+    """
+    module_name = str(case.get("module") or case.get("entry") or "")
+    imports = {"module": module_name, "call": dict(case.get("call") or {})}
+    _reset(shim)
+    snapshot = _api_snapshot(module, case, module_name)
+    encoded, _meta = encode_with_meta(snapshot)
+    return Observation(
+        case_id=case["id"],
+        entry=module_name,
+        inputs=imports,
+        outcome="return",
+        value=EncodedValue(encoded),
+        controls=(*controls, "api_surface"),
+        case_set_hash=case_set_hash,
+    )
+
+
 def run_case(
     module: Any,
     case: dict[str, Any],
@@ -272,6 +395,8 @@ def run_case(
 ) -> Observation:
     if case.get("kind") == "cli":
         return run_cli_case(case, controls, case_set_hash, shim)
+    if case.get("kind") == "api":
+        return run_api_case(module, case, controls, case_set_hash, shim)
     entry = case["entry"]
     args = tuple(case.get("args") or ())
     kwargs = dict(case.get("kwargs") or {})

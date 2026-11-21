@@ -177,17 +177,17 @@ def test_the_shipped_stage2_case_set_matches_its_recorded_hash() -> None:
     path = REPO / "harness" / "cases" / "pycodestyle-cli.json"
     payload = __import__("json").loads(path.read_text(encoding="utf-8"))
     cases = load_cases(path)
-    assert len(cases) == 77
+    assert len(cases) == 79
     assert payload["case_set_hash"] == case_set_hash(cases)
     # A literal. The hash must be the same on Windows and on the Linux runner —
     # it was not, because `sorted(Path)` is case-normalised on one platform and
     # case-sensitive on the other, and this test is what makes that drift fail
     # here instead of in a report.
     assert payload["case_set_hash"] == (
-        "be70731d8c084343af84746f977cc5292de262c05fe2e11eaa5895d7e1f76901"
+        "8f04551c95d70c5f7618c6388df5de90d995d7534549e52588394ff7f9109dc9"
     )
-    assert payload["counts_by_source"] == {"fixtures": 42, "probes": 35}
-    assert all(case.kind == "cli" for case in cases)
+    assert payload["counts_by_source"] == {"api": 2, "fixtures": 42, "probes": 35}
+    assert {case.kind for case in cases} == {"cli", "api"}
     for case in cases:
         # Inputs only, and nothing that could write outside the case directory.
         assert not any(name.startswith("/") or ".." in Path(name).parts
@@ -226,3 +226,69 @@ def test_the_shim_can_start_coverage_but_is_inert_without_the_variable() -> None
     )
     assert clean.returncode == 0, clean.stderr[-400:]
     assert clean.stdout.strip() == "False", "coverage must not load without the variable"
+
+
+def test_a_traceback_is_observed_as_type_message_and_calls_not_as_source() -> None:
+    """A traceback must not leak the target's path, line numbers or source text.
+
+    Measured: two CLI cases print a traceback and a warning that names the
+    target's own file and line. With the raw streams compared, *every* mutant
+    differed on those two cases — 38 of 100 "kills" — and the two differences the
+    migration produced that differed only by line number had to be approved. The
+    projection keeps the exception, its message and the frame names.
+    """
+    from harness.projections import canonicalise_stream
+
+    raw = (
+        'Traceback (most recent call last):\n'
+        '  File "/tmp/a/old/pycodestyle.py", line 2717, in <module>\n'
+        "    _main()\n"
+        "    ^^^^^^^\n"
+        '  File "/tmp/a/old/pycodestyle.py", line 2607, in read_config\n'
+        "    value = config.getint(section, opt)\n"
+        "            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+        "ValueError: invalid literal for int() with base 10: 'x'\n"
+    )
+    moved = raw.replace("/tmp/a/old", "/tmp/b/mutant").replace("2717", "2095").replace(
+        "2607", "2002"
+    )
+    assert canonicalise_stream(raw) == canonicalise_stream(moved)
+    projected = canonicalise_stream(raw)
+    assert "ValueError: invalid literal for int()" in projected
+    assert "in read_config" in projected and "in <module>" in projected
+    assert "old/" not in projected and "2717" not in projected
+    assert "config.getint" not in projected, "the echo of the source line must go"
+    # A warning that names a line, including a Windows path with a drive letter.
+    warning = r"C:\t\old\pycodestyle.py:2588: UserWarning: [pep8] is deprecated"
+    assert canonicalise_stream(warning) == "pycodestyle.py: UserWarning: [pep8] is deprecated"
+    # Anything that is not a traceback or a warning passes through untouched.
+    assert canonicalise_stream("E501 line too long") == "E501 line too long"
+
+
+def test_an_api_case_observes_a_surface_a_program_cannot_show() -> None:
+    """`api` cases close the blind spot the stage-2 comparison found.
+
+    The upstream suite caught `get_parser().add_option` disappearing; no CLI case
+    could, because no run reaches that attribute. The snapshot is compared like
+    any other value, so the difference shows up as a difference.
+    """
+    from harness.cases import Case
+
+    case = Case(
+        id="api-parser",
+        source="api",
+        entry="pycodestyle",
+        args=(),
+        kind="api",
+        module="pycodestyle",
+        call={"entry": "get_parser", "args": [], "kwargs": {}},
+    )
+    body = case.body()
+    assert body["kind"] == "api" and body["module"] == "pycodestyle"
+    assert body["call"]["entry"] == "get_parser"
+    # An api case with no module is refused at load time, not at run time.
+    path = REPO / "harness" / "cases" / "pycodestyle-cli.json"
+    payload = __import__("json").loads(path.read_text(encoding="utf-8"))
+    api = [entry for entry in payload["cases"] if entry.get("kind") == "api"]
+    assert {entry["id"] for entry in api} == {"api-module", "api-parser"}
+    assert all(entry["module"] == "pycodestyle" for entry in api)

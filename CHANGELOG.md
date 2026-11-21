@@ -1,5 +1,54 @@
 # Changelog
 
+## Unreleased (Phase 4, checkpoint 12b audit)
+
+### Harness
+
+- **A mutant is one contiguous text edit, not a re-print of the module.**
+  `apply_site` returned `ast.unparse(tree)`: every mutant of `pycodestyle.py`
+  rewrote 2 717 lines into 2 095, so every line number and echoed source line
+  moved. Two CLI cases print a traceback and a warning that name the target's own
+  file and line, so 77 and 75 of 100 mutants differed on them and 38 differed on
+  nothing else — a 100 % kill rate that measured the mutator. Mutations are now
+  splices on the original bytes, and `mutate()` refuses a result that touches more
+  than one contiguous region on the site's line. Re-running stage 1 with the fixed
+  mutator reproduced **all 300 verdicts**, so the stage-1 numbers stand; re-running
+  stage 2 gives **harness 62/100 = 62.0 % and suite 74/100 = 74.0 %**, with 4
+  harness-only kills.
+- **A CLI observation cannot contain the target's source.**
+  `harness.projections.canonicalise_stream` keeps a traceback's exception type,
+  message and frame names and drops the path, line number, echoed source line and
+  caret line, and folds CRLF to LF. Two approvals (`probe-config-int-error`,
+  `probe-deprecated-section`) that existed only because a line number moved are
+  gone. `observation_schema_version` is now **3**.
+- **New case kind `api`.** An api case imports the module and snapshots its public
+  surface — names, `inspect.signature`, class bases and attributes, stable scalars,
+  first docstring line — plus, when it names a call, the surface of what that call
+  returns. `get_parser().add_option` is no longer a suite-only finding; it is an
+  approved difference with a witness (`OptionParser` → `ArgumentParser`).
+- **`scripts/mutation_audit.py`** classifies every mutant: was its line reached
+  (statement-span aware), how many cases differ, which tests failed, and whether a
+  suite kill was cosmetic (`test_all.py::test_own_dog_food` runs the tool over its
+  own source). `scripts/mutation_canary.py` runs four behaviour-preserving mutants
+  through both oracles and is a CI step.
+- **`scripts/mutant_evidence.py`** prints one mutant's evidence: the changed
+  region, the cases that differ, a diff of the first differing field, the suite's
+  failing test ids.
+- **The stage-1 case set is reproducible.** The 40 `hypothesis`-collected inputs
+  are frozen as data: regenerating them produced three different case-set hashes
+  from the same library version. `harness_baseline.py` now verifies the committed
+  case file and refuses to overwrite it without `--write-cases`, and a test asserts
+  that regeneration reproduces the committed hash. The stage-1 set is
+  `ed283159d51e35b3` (273 cases); `283155b0bbb9` is superseded.
+- **`mutate.py` guards its own oracle**: a test run that collected nothing (a path
+  that does not exist inside the mutant copy) used to become "killed" for every
+  mutant, and a resumed row recorded without the test oracle is now re-run instead
+  of being mixed into a report.
+- **`stage2_coverage.py --lines-out`** and `harness_baseline.py --lines-out` write
+  the executed line numbers, so a mutation audit can ask whether a mutated line ran
+  at all.
+
+
 ## Unreleased (Phase 4, checkpoint 12a)
 
 ### Harness

@@ -124,7 +124,7 @@ def build() -> tuple[dict[str, object], str]:
             f"{data} missing: run scripts/fetch_target.py --target pycodestyle first"
         )
     cases: list[Case] = []
-    counts: dict[str, int] = {"fixtures": 0, "probes": 0}
+    counts: dict[str, int] = {"fixtures": 0, "probes": 0, "api": 0}
     # Sort by name (a str), never by Path: PurePath comparison is case-normalised
     # on Windows and case-sensitive on POSIX, so `sorted(Path)` puts `crlf.py`
     # before `E10.py` on Windows and after it on Linux. The case-set hash then
@@ -157,6 +157,30 @@ def build() -> tuple[dict[str, object], str]:
             )
         )
         counts["probes"] += 1
+    # API snapshots: the surface, not a call. `api-parser` is the case that would
+    # have caught the one difference the upstream suite saw and the CLI cases
+    # could not — `get_parser()` still returns *a* parser, but no longer one with
+    # `add_option`.
+    for case_id, source, call in (
+        ("api-module", "api/surface", {}),
+        (
+            "api-parser",
+            "api/surface-of-a-returned-object",
+            {"entry": "get_parser", "args": [], "kwargs": {}},
+        ),
+    ):
+        cases.append(
+            Case(
+                id=case_id,
+                source=source,
+                entry="pycodestyle",
+                args=(),
+                kind="api",
+                module="pycodestyle",
+                call=call,
+            )
+        )
+        counts["api"] += 1
     payload = {
         "schema": "harness-cases/1",
         "target": "pycodestyle 2.15.0",

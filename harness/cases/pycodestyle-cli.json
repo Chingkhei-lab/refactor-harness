@@ -1,5 +1,5 @@
 {
- "case_set_hash": "be70731d8c084343af84746f977cc5292de262c05fe2e11eaa5895d7e1f76901",
+ "case_set_hash": "8f04551c95d70c5f7618c6388df5de90d995d7534549e52588394ff7f9109dc9",
  "cases": [
   {
    "args": [],
@@ -1253,9 +1253,35 @@
    "kwargs": {},
    "source": "options/no-arguments-no-config",
    "stdin": ""
+  },
+  {
+   "args": [],
+   "entry": "pycodestyle",
+   "expect": "finite",
+   "id": "api-module",
+   "kind": "api",
+   "kwargs": {},
+   "module": "pycodestyle",
+   "source": "api/surface"
+  },
+  {
+   "args": [],
+   "call": {
+    "args": [],
+    "entry": "get_parser",
+    "kwargs": {}
+   },
+   "entry": "pycodestyle",
+   "expect": "finite",
+   "id": "api-parser",
+   "kind": "api",
+   "kwargs": {},
+   "module": "pycodestyle",
+   "source": "api/surface-of-a-returned-object"
   }
  ],
  "counts_by_source": {
+  "api": 2,
   "fixtures": 42,
   "probes": 35
  },

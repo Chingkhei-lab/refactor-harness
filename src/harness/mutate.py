@@ -26,7 +26,6 @@ seed plus a count reproduces a sample exactly on any machine.
 from __future__ import annotations
 
 import ast
-import copy
 from dataclasses import dataclass
 from typing import Any
 
@@ -190,83 +189,275 @@ def _delete_from_block(tree: ast.AST, path: tuple[int, ...], field: str) -> bool
     return False
 
 
+_SPELLING: dict[type, str] = {
+    ast.Lt: "<",
+    ast.LtE: "<=",
+    ast.Gt: ">",
+    ast.GtE: ">=",
+    ast.Eq: "==",
+    ast.NotEq: "!=",
+    ast.In: "in",
+    ast.NotIn: "not in",
+    ast.Is: "is",
+    ast.IsNot: "is not",
+    ast.Add: "+",
+    ast.Sub: "-",
+    ast.Mult: "*",
+    ast.Div: "/",
+    ast.FloorDiv: "//",
+    ast.Mod: "%",
+    ast.And: "and",
+    ast.Or: "or",
+}
+
+
+def _split_lines(data: bytes) -> list[bytes]:
+    """Split on newlines only, the way `ast` numbers lines.
+
+    `str.splitlines()` also breaks on form feed and U+2028, which would shift
+    every offset after such a character and make a splice land in the wrong place.
+    """
+    parts = data.split(b"\n")
+    lines = [part + b"\n" for part in parts[:-1]]
+    if parts[-1]:
+        lines.append(parts[-1])
+    return lines
+
+
+def _splice(source: str, start: tuple[int, int], end: tuple[int, int], text: str) -> str:
+    """Replace the character range [start, end) with `text`, byte-exactly.
+
+    `ast` column offsets are UTF-8 byte offsets, not character offsets, so the
+    edit is done on encoded lines; a module with any non-ASCII character would
+    otherwise be spliced one or two bytes off.
+    """
+    lines = _split_lines(source.encode("utf-8"))
+    first, last = start[0], end[0]
+    head = b"".join(lines[: first - 1]) + lines[first - 1][: start[1]]
+    rest = lines[last - 1][end[1]:] + b"".join(lines[last:])
+    return (head + text.encode("utf-8") + rest).decode("utf-8")
+
+
+def _start(node: ast.AST) -> tuple[int, int]:
+    """(line, byte column) where a node begins. `ast` leaves these off `AST`."""
+    lineno, column = getattr(node, "lineno", None), getattr(node, "col_offset", None)
+    assert lineno is not None and column is not None, node
+    return (int(lineno), int(column))
+
+
+def _end(node: ast.AST) -> tuple[int, int]:
+    lineno = getattr(node, "end_lineno", None)
+    column = getattr(node, "end_col_offset", None)
+    assert lineno is not None and column is not None, node
+    return (int(lineno), int(column))
+
+
+def _text(source: str, start: tuple[int, int], end: tuple[int, int]) -> str:
+    """The exact source text in [start, end)."""
+    lines = _split_lines(source.encode("utf-8"))
+    if start[0] == end[0]:
+        return lines[start[0] - 1][start[1] : end[1]].decode("utf-8")
+    middle = b"".join(lines[start[0] : end[0] - 1])
+    return (
+        lines[start[0] - 1][start[1] :] + middle + lines[end[0] - 1][: end[1]]
+    ).decode("utf-8")
+
+
+def _between(source: str, left: ast.AST, right: ast.AST) -> str:
+    """The exact source text between two nodes (the operator's own text)."""
+    return _text(source, _end(left), _start(right))
+
+
+def _replace_between(
+    source: str, left: ast.AST, right: ast.AST, before: type, after: type
+) -> str:
+    old, new = _SPELLING[before], _SPELLING[after]
+    gap = _between(source, left, right)
+    if old not in gap:
+        raise ValueError(f"no {old!r} between operands; gap was {gap!r}")
+    return _splice(source, _end(left), _start(right), gap.replace(old, new, 1))
+
+
+def _drop_lines(source: str, first: int, last: int) -> str:
+    """Delete whole lines `first..last` (1-based, inclusive)."""
+    lines = _split_lines(source.encode("utf-8"))
+    return b"".join(lines[: first - 1] + lines[last:]).decode("utf-8")
+
+
+def _line_prefix(source: str, lineno: int, column: int) -> str:
+    lines = _split_lines(source.encode("utf-8"))
+    return lines[lineno - 1][:column].decode("utf-8")
+
+
+def _changed_span(before: str, after: str) -> tuple[int, int, int]:
+    """(first changed line, lines replaced, lines inserted) for one contiguous edit.
+
+    Scanned from both ends, so it is O(n) with C-level comparisons: a whole-file
+    reformat reports thousands of lines here, and one operator reports one.
+    """
+    old = before.splitlines(keepends=True)
+    new = after.splitlines(keepends=True)
+    first = 0
+    limit = min(len(old), len(new))
+    while first < limit and old[first] == new[first]:
+        first += 1
+    tail = 0
+    while tail < limit - first and old[len(old) - 1 - tail] == new[len(new) - 1 - tail]:
+        tail += 1
+    return (first + 1, len(old) - tail - first, len(new) - tail - first)
+
+
+def _changed_regions(before: str, after: str) -> list[tuple[str, int, int]]:
+    """Non-equal diff regions between two sources, as (tag, old lines, new lines).
+
+    Used as the mutator's own invariant: one site, one contiguous edit. An
+    `ast.unparse` round trip passes every other check — it parses, and it is a
+    single operator change in the AST — while rewriting every line of the file,
+    and a case that observes a traceback then reports *every* mutant as
+    different. This invariant is what makes "exactly one change per mutant" true
+    of the file, not just of the tree.
+    """
+    import difflib
+
+    matcher = difflib.SequenceMatcher(
+        None,
+        before.splitlines(keepends=True),
+        after.splitlines(keepends=True),
+        autojunk=False,
+    )
+    return [
+        (tag, i2 - i1, j2 - j1)
+        for tag, i1, i2, j1, j2 in matcher.get_opcodes()
+        if tag != "equal"
+    ]
+
+
 def apply_site(source: str, site: Site) -> str:
-    """Return the mutated source. Exactly one change; the AST must stay valid."""
+    """Return the mutated source: one minimal textual edit at `site`.
+
+    The edit splices the original text and never re-prints the tree, so every
+    line the mutation does not touch stays byte-identical. That matters beyond
+    tidiness: a case may observe the target's own path, a traceback, or a warning
+    that names a line, and a whole-file reformat makes all of those differ for
+    *every* mutant, which reads as a 100 % kill rate.
+    """
     tree = ast.parse(source)
     if site.operator == "delete_stmt":
-        if not _delete_from_block(tree, site.path, site.field):
-            raise ValueError(f"cannot delete statement at {site.path}")
-        ast.fix_missing_locations(tree)
-        return ast.unparse(tree)
-
+        return _delete_statement(source, tree, site)
     node = _node_at(tree, site.path)
     if site.operator == "compare_swap":
         assert isinstance(node, ast.Compare)
-        node.ops = [_COMPARE[type(op)]() for op in node.ops]
-    elif site.operator == "arith_swap":
+        # Exactly one operator token: a chain `a < b < c` is one site at the
+        # first token, so the mutant differs by one change and the diff stays on
+        # one line.
+        left = node.left
+        right = node.comparators[0]
+        return _replace_between(
+            source, left, right, type(node.ops[0]), _COMPARE[type(node.ops[0])]
+        )
+    if site.operator == "arith_swap":
         assert isinstance(node, ast.BinOp)
-        node.op = _ARITH[type(node.op)]()
-    elif site.operator in ("int_plus", "int_minus"):
+        return _replace_between(
+            source, node.left, node.right, type(node.op), _ARITH[type(node.op)]
+        )
+    if site.operator in ("int_plus", "int_minus"):
         assert isinstance(node, ast.Constant)
-        value = node.value
-        assert isinstance(value, int) and not isinstance(value, bool), value
+        assert isinstance(node.value, int) and not isinstance(node.value, bool), node.value
         delta = 1 if site.operator == "int_plus" else -1
-        node.value = value + delta
-    elif site.operator == "bool_flip":
+        return _splice(source, _start(node), _end(node), str(node.value + delta))
+    if site.operator == "bool_flip":
         if isinstance(node, ast.BoolOp):
-            node.op = ast.Or() if isinstance(node.op, ast.And) else ast.And()
-        else:
-            assert isinstance(node, ast.UnaryOp)
-            _replace_child(tree, site.path, node.operand)
-    elif site.operator == "return_none":
+            new_op = ast.Or if isinstance(node.op, ast.And) else ast.And
+            return _replace_between(
+                source, node.values[0], node.values[1], type(node.op), new_op
+            )
+        assert isinstance(node, ast.UnaryOp)
+        operand = node.operand
+        # The gap runs from the `not` to the operand's own start: `_end(node)`
+        # is after the operand, so `_between` would return the empty string.
+        gap = _text(source, _start(node), _start(operand))
+        if "not" not in gap:
+            raise ValueError(f"expected a `not` between {node} and its operand")
+        # `not (a and b)` must keep the opening paren after dropping `not (`.
+        replacement = "(" if "(" in gap else ""
+        return _splice(source, _start(node), _start(operand), replacement)
+    if site.operator == "return_none":
         assert isinstance(node, ast.Return)
-        node.value = ast.Constant(value=None)
-    elif site.operator == "slice_bound":
+        return _splice(source, _start(node), _end(node), "return None")
+    if site.operator == "slice_bound":
         assert isinstance(node, ast.Slice)
-        for name in ("lower", "upper"):
-            bound = getattr(node, name)
+        for bound in (node.lower, node.upper):
             if isinstance(bound, ast.Constant) and isinstance(bound.value, int):
-                setattr(node, name, ast.Constant(value=bound.value + 1))
-                break
-    else:
-        raise ValueError(f"unknown operator {site.operator!r}")
-    ast.fix_missing_locations(tree)
-    return ast.unparse(tree)
+                return _splice(source, _start(bound), _end(bound), str(bound.value + 1))
+        raise ValueError("no integer slice bound to mutate")
+    raise ValueError(f"unknown operator {site.operator!r}")
 
 
-def _replace_child(tree: ast.AST, path: tuple[int, ...], replacement: ast.AST) -> None:
-    """Replace the node at `path` with `replacement` inside its parent."""
-    parent = _node_at(tree, path[:-1])
-    field_name, index = _field_of(parent, path[-1])
-    if index is None:
-        setattr(parent, field_name, replacement)
-    else:
-        getattr(parent, field_name)[index] = replacement
+def _delete_statement(source: str, tree: ast.AST, site: Site) -> str:
+    """Delete one statement, keeping the file parseable.
+
+    Whole-line statements are deleted by line. A statement that shares its line
+    with an `if`/`for` header cannot be, so its span becomes `...` — still a
+    statement, still no behaviour. A statement alone in its block becomes `pass`,
+    and a decorated definition is deleted from its first decorator, otherwise the
+    decorator is left dangling on the following line.
+    """
+    statement = _statement_at(tree, site)
+    assert isinstance(statement, ast.stmt)
+    first = statement.lineno
+    for decorator in getattr(statement, "decorator_list", []) or []:
+        first = min(first, decorator.lineno)
+    last = statement.end_lineno or statement.lineno
+    if _line_prefix(source, statement.lineno, statement.col_offset).strip():
+        return _splice(source, _start(statement), _end(statement), "...")
+    if _is_alone(tree, site):
+        return _splice(source, _start(statement), _end(statement), "pass")
+    return _drop_lines(source, first, last)
 
 
-def _field_of(parent: ast.AST, child_index: int) -> tuple[str, int | None]:
-    """Which field/index of `parent` holds the child at `child_index`."""
-    position = 0
-    for field_name, value in ast.iter_fields(parent):
-        if isinstance(value, ast.AST):
-            if position == child_index:
-                return field_name, None
-            position += 1
-        elif isinstance(value, list):
-            for index, item in enumerate(value):
-                if isinstance(item, ast.AST):
-                    if position == child_index:
-                        return field_name, index
-                    position += 1
-    raise IndexError(child_index)
+def _statement_at(tree: ast.AST, site: Site) -> ast.stmt:
+    """The statement a delete site addresses.
+
+    `Site.path` for a delete is `(*owner_path, index)` where the index is the
+    position in the owner's *statement list*, not among all of the owner's
+    children, so it cannot be walked with `_node_at` — decorators, arguments and
+    defaults would shift it.
+    """
+    wanted, field, index = site.path[:-1], site.field, site.path[-1]
+    for block_path, block_field, statements in _blocks(tree, ()):
+        if block_path == wanted and block_field == field and index < len(statements):
+            statement = statements[index]
+            assert isinstance(statement, ast.stmt)
+            return statement
+    raise ValueError(f"no statement for {site.key} in {field} of {wanted}")
+
+
+def _is_alone(tree: ast.AST, site: Site) -> bool:
+    """Is the statement at `site` the only one in its block?"""
+    wanted, field, index = site.path[:-1], site.field, site.path[-1]
+    for block_path, block_field, statements in _blocks(tree, ()):
+        if block_path == wanted and block_field == field:
+            return len(statements) == 1 and index < len(statements)
+    return False
 
 
 def mutate(source: str, site: Site) -> str:
-    """Mutated source for one site, validated by re-parsing."""
-    mutated = apply_site(copy.deepcopy(source), site)
+    """Mutated source for one site, validated by re-parsing and by diff shape."""
+    mutated = apply_site(source, site)
     ast.parse(mutated)  # a mutant that does not parse is a mutator bug
     if mutated.strip() == source.strip():
         raise ValueError(f"mutation at {site.key} produced no change")
+    first, old_span, new_span = _changed_span(source, mutated)
+    limit = 200 if site.operator == "delete_stmt" else 8
+    if old_span > limit or new_span > limit:
+        raise ValueError(
+            f"mutation at {site.key} rewrote {old_span} lines into {new_span}; "
+            f"a site edit must stay under {limit}"
+        )
+    if abs(first - site.line) > 3:
+        raise ValueError(
+            f"mutation at {site.key} changed line {first}, not the site's line"
+        )
     return mutated
 
 

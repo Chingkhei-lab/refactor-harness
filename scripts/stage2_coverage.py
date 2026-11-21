@@ -147,11 +147,37 @@ def measure(target: Path, cases: list[Case], workdir: Path) -> dict[str, Any]:
     return _coverage(target, data, "pycodestyle")
 
 
+def executed_lines(target: Path, data_file: Path, module: str) -> dict[str, Any]:
+    """The executed line numbers of the module under test, for the mutation audit.
+
+    A mutation whose line no case executes cannot be observed, so a survivor
+    there says nothing about the case set and a *kill* there says the evaluator
+    saw something other than the mutated line. That distinction is only possible
+    with the line list, not with a percentage.
+    """
+    json_path = data_file.with_suffix(".lines.json")
+    subprocess.run(
+        [sys.executable, "-m", "coverage", "json", "-o", str(json_path),
+         f"--data-file={data_file}"],
+        cwd=str(REPO), capture_output=True, text=True,
+    )
+    payload = json.loads(json_path.read_text(encoding="utf-8")) if json_path.exists() else {}
+    for path, file_data in payload.get("files", {}).items():
+        if Path(path).name == f"{module}.py":
+            return {
+                "module": f"{module}.py",
+                "executed": sorted(file_data.get("executed_lines") or []),
+                "missing": sorted(file_data.get("missing_lines") or []),
+            }
+    return {"module": f"{module}.py", "executed": [], "missing": []}
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--target", default=".harness/oracle/pycodestyle")
     parser.add_argument("--cases", default="harness/cases/pycodestyle-cli.json")
     parser.add_argument("--out", default="docs/results/stage2-coverage-20261120.json")
+    parser.add_argument("--lines-out", default="")
     args = parser.parse_args(argv)
     target = (REPO / args.target).resolve()
     cases = load_cases(REPO / args.cases)
@@ -163,6 +189,13 @@ def main(argv: list[str] | None = None) -> int:
     one = measure(target, cases[:1], root / "one")
     empty = measure(target, [], root / "empty")
 
+    if args.lines_out:
+        lines = executed_lines(target, root / "full" / "coverage.data", "pycodestyle")
+        (REPO / args.lines_out).write_text(json.dumps(lines, indent=1) + chr(10), encoding="utf-8")
+        print(
+            f"executed lines: {len(lines['executed'])} of "
+            f"{len(lines['executed']) + len(lines['missing'])}"
+        )
     report = {
         "target": "pycodestyle 2.15.0",
         "case_set_hash": case_set_hash(cases),
@@ -191,7 +224,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  {name}: lines {stats['executed']}/{stats['executed'] + stats['missing']}"
               f" missing {stats['missing_lines']}")
     print("checks", report["checks"])
-    return 0 if all(report["checks"].values()) else 1
+    checks = report["checks"]
+    assert isinstance(checks, dict)
+    return 0 if all(checks.values()) else 1
 
 
 if __name__ == "__main__":

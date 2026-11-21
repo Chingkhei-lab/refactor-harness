@@ -129,10 +129,16 @@ class Case:
     # "cli": run `entry` as a program with `argv`, a stdin, and input files in a
     # fresh working directory, and observe exit status, stdout, stderr and the
     # files it wrote (stage 2).
+    # "api": import the module named by `module` and observe its public surface —
+    # names, signatures, class attributes — and, when `call` is set, the surface
+    # of the object that call returns. A program cannot show an API nobody calls;
+    # this kind is how `get_parser().add_option` stops being invisible.
     kind: str = "call"
     argv: tuple[str, ...] = ()
     stdin: str = ""
     files: dict[str, str] = field(default_factory=dict)
+    module: str = ""
+    call: dict[str, Any] = field(default_factory=dict)
 
     def body(self) -> dict[str, Any]:
         body = {
@@ -145,7 +151,12 @@ class Case:
         }
         if self.projection:
             body["projection"] = self.projection
-        if self.kind != "call":
+        if self.kind == "api":
+            body["kind"] = self.kind
+            body["module"] = self.module
+            if self.call:
+                body["call"] = dict(self.call)
+        elif self.kind != "call":
             body["kind"] = self.kind
             body["argv"] = list(self.argv)
             body["stdin"] = self.stdin
@@ -172,30 +183,60 @@ def _dedupe(cases: list[Case]) -> list[Case]:
     return unique
 
 
-def _hypothesis_strings(count: int) -> list[str]:
-    """Deterministic samples: `derandomize=True` replays the same set."""
-    from hypothesis import HealthCheck, given, settings
-    from hypothesis import strategies as st
+# The `hypothesis` sample, frozen as data.
+#
+# These 40 inputs were collected once from `st.text(alphabet=..., max_size=14)`
+# with `derandomize=True`, and they are pinned here because the collection was
+# NOT reproducible: regenerating it produced a different set three times over
+# (283155b0..., ed283159..., 49e73e45...) with the same library version, which
+# silently rewrote the golden case file and invalidated its hash. A case set
+# whose identity changes when it is rebuilt cannot be the thing a report cites,
+# so the sample is data now and `harness_baseline.py` refuses to overwrite it.
+_GENERATED: tuple[tuple[str, str], ...] = (
+    ('{}-{}', ''),
+    ('{a}', 'c'),
+    ('{}', 'Y_89b5_c7'),
+    ('{}', ':6c::X3'),
+    ('{}', '1X5_X2_b43.'),
+    ('{}-{}', '_2/-3'),
+    ('{:.2f}', '1'),
+    ('{}', ' a2.7'),
+    ('{:S}', '5a'),
+    ('{:S}', '.-'),
+    ('{}', 'Z'),
+    ('{}', '-c4Z8'),
+    ('{}-{}', '7'),
+    ('{:w}', '84433_Y:/ac'),
+    ('{:d}', ' Y::Za'),
+    ('{}', 'a-Z'),
+    ('{}', '3 :8X/47:9-465'),
+    ('{}-{}', 'Y481Y'),
+    ('{}', '78'),
+    ('{:w}', '39'),
+    ('{:S}', 'Y-4c'),
+    ('{:.2f}', '0'),
+    ('{a}', '36-4.08b: -'),
+    ('{:.2f}', 'Y.444_'),
+    ('{a}', '55:6-'),
+    ('{:d}', '123'),
+    ('{}', '4bZ4b6ba4Y2_'),
+    ('{:d}', '61.'),
+    ('{:S}', '/'),
+    ('{}', ' Y/_706'),
+    ('{}-{}', ':'),
+    ('{}', '7798'),
+    ('{:.2f}', '_ ac43Ybb 2_4'),
+    ('{a}', '0..0'),
+    ('{:d}', '3.:59'),
+    ('{}', '931_Z60Y:1'),
+    ('{:S}', '1X19c3Z0:-1'),
+    ('{:.2f}', 'b1_Y06'),
+    ('{a}', ':0/'),
+    ('{}', '_/.9'),
+)
 
-    collected: list[str] = []
-    strategy = st.text(alphabet=_ALPHABET, max_size=14)
 
-    @settings(
-        max_examples=count,
-        derandomize=True,
-        database=None,
-        deadline=None,
-        suppress_health_check=list(HealthCheck),
-    )
-    @given(strategy)
-    def _collect(value: str) -> None:
-        collected.append(value)
-
-    _collect()
-    return collected
-
-
-def build_parse_cases(hypothesis_examples: int = 40, seed: int = 1234) -> list[Case]:
+def build_parse_cases(generated_examples: int = 40, seed: int = 1234) -> list[Case]:
     """The stage-1 case set for `parse` — inputs only, no expectations."""
     rng = random.Random(seed)  # noqa: S311 - deterministic case generation, not crypto
     cases: list[Case] = []
@@ -215,10 +256,14 @@ def build_parse_cases(hypothesis_examples: int = 40, seed: int = 1234) -> list[C
         cases.append(_case("malformed", index, "parse", (pattern, "sample")))
         cases.append(_case("malformed", index, "search", (pattern, "sample")))
 
-    # generated: a well-formed format, a random string
+    # generated: a well-formed format and one of the frozen inputs. The
+    # `randrange` below is drawn and discarded on purpose: it keeps the RNG stream
+    # — and therefore every `grammar-random` case after this loop — identical to
+    # the run whose report cites this set. A future set should drop it.
     generated_formats = ["{}", "{:d}", "{:w}", "{a}", "{:.2f}", "{:S}", "{}-{}"]
-    for index, text in enumerate(_hypothesis_strings(hypothesis_examples)):
-        pattern = generated_formats[rng.randrange(len(generated_formats))]
+    limit = max(0, min(generated_examples, len(_GENERATED)))
+    for index, (pattern, text) in enumerate(_GENERATED[:limit]):
+        rng.randrange(len(generated_formats))
         cases.append(_case("hypothesis", index, "parse", (pattern, text)))
 
     # round out the grammar with random strings against each documented format
@@ -288,8 +333,22 @@ def load_cases(path: Path) -> list[Case]:
                 f"case {entry['id']}: expect must be 'finite' or 'stream', not {expect!r}"
             )
         kind = entry.get("kind", "call")
-        if kind not in ("call", "cli"):
-            raise ValueError(f"case {entry['id']}: kind must be 'call' or 'cli'")
+        if kind not in ("call", "cli", "api"):
+            raise ValueError(
+                f"case {entry['id']}: kind must be 'call', 'cli' or 'api'"
+            )
+        module = str(entry.get("module") or "")
+        call = dict(entry.get("call") or {})
+        if kind == "api":
+            if not module or not module.replace("_", "").isalnum():
+                raise ValueError(
+                    f"case {entry['id']}: an api case needs a module name, not {module!r}"
+                )
+            entry_point = str(call.get("entry") or "")
+            if call and not entry_point.replace("_", "").isalnum():
+                raise ValueError(
+                    f"case {entry['id']}: call.entry must be a name, not {entry_point!r}"
+                )
         files = dict(entry.get("files") or {})
         for name in files:
             if name.startswith("/") or ".." in Path(name).parts:
@@ -309,6 +368,8 @@ def load_cases(path: Path) -> list[Case]:
                 argv=tuple(entry.get("argv") or ()),
                 stdin=str(entry.get("stdin") or ""),
                 files=files,
+                module=module,
+                call=call,
             )
         )
     return cases

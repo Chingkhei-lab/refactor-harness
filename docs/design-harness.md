@@ -189,3 +189,36 @@ longer matches is stale and the case is `different` again. Approvals are never
 counted as `equivalent`, and the report lists approved and unapproved differences
 in separate tables so "0 unapproved" can be checked rather than believed.
 
+### Case kind `api`: a surface, not a call
+
+A program can only show what somebody invokes, and a single call case returns a
+value without describing it. That leaves one class of change invisible to both:
+the API a change moves underneath its callers. The stage-2 comparison found
+exactly one of those — `get_parser()` still returned *a parser*, but no longer one
+with `add_option` — and the upstream suite was the only oracle to see it.
+
+So there is a third kind. `kind: api` imports the module and snapshots its public
+surface: public names, `inspect.signature` of every callable, class bases and
+attributes, stable scalar values, and the first line of the module docstring. If
+the case also names a call, the snapshot includes the type, bases and attributes
+of the object that call returns.
+
+The value is compared like any other: names that disappear, signatures that move,
+scalars whose value changes. Anything whose `repr` carries an address is reduced
+to its type name, so the snapshot is deterministic — checked by the same A/A
+baseline as every other case.
+
+### What a CLI observation cannot contain
+
+The target's own source. A traceback and a warning name the file, the line and
+the text of the statement that raised, and the comparator reads all three as
+behaviour. They are not: a tree staged at a different path changes them, a patch
+that adds two lines changes them, and a mutation changes them whenever the mutated
+line is the one printed. Left in, they made **every** mutant differ on the two
+cases that print one, which is indistinguishable from a perfect case set.
+
+The observation therefore carries a declared projection: exception type, message
+and frame names survive; paths, line numbers, the echoed source line and its
+caret line go; `\r\n` folds to `\n` because that is the host's text translation
+rather than the program's output. The projection is named in the observation's
+controls and the schema version increments when it changes.

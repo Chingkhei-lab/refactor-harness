@@ -120,3 +120,43 @@ def test_every_mutant_of_the_vendored_fixture_parses_and_changes_something() -> 
             pass
     assert not failures, failures[:5]
     assert changed == len(sites), (changed, len(sites))
+
+
+def test_a_mutant_changes_one_contiguous_region_of_the_file() -> None:
+    """The mutator's own invariant, and the bug that made it necessary.
+
+    `apply_site` used to return `ast.unparse(tree)`: a correct single-site change
+    in the AST, and a rewrite of every line in the file. Everything downstream
+    passed — the tree parsed, the operator changed once — while any case that
+    observed a traceback, a warning or the module's own path reported *every*
+    mutant as different. That is a 100 % kill rate that measures the mutator.
+
+    Two properties are pinned here: one contiguous edit per site, and a real
+    module (not just a fixture) never rewritten wholesale.
+    """
+    from harness.mutate import _changed_span, apply_site, enumerate_sites
+
+    source = "\n".join(
+        (
+            "def f(a, b):",
+            "    if a < b and b:",
+            "        return a + 1",
+            "    x = 0",
+            "    return None",
+            "",
+        )
+    )
+    sites = enumerate_sites(source)
+    assert sites, "fixture must produce sites"
+    for site in sites:
+        mutated = apply_site(source, site)
+        first, old_span, new_span = _changed_span(source, mutated)
+        assert old_span <= 2 and new_span <= 2, (site.key, old_span, new_span)
+        assert abs(first - site.line) <= 1, (site.key, first)
+
+    # A whole-file reformat, the thing the mutator used to do, must be refused.
+    import ast as _ast
+
+    formatted = _ast.unparse(_ast.parse(source)) + "\n"
+    first, old_span, _new = _changed_span(source, formatted)
+    assert old_span > 2 or first != 2, "the fixture is too uniform to prove anything"

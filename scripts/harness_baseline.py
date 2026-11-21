@@ -55,6 +55,30 @@ def _target_version(target_path: Path, module: str) -> str:
     return "unknown"
 
 
+def executed_lines(coverage_data: Path, module: str) -> dict[str, Any]:
+    """The executed line numbers, so a mutant can be asked whether its line ran.
+
+    A mutation score without this is unfalsifiable: a "kill" on a line no case
+    executes did not come from the cases, and there is no way to tell from the
+    score alone. Recorded next to the aggregate percentages, not instead of them.
+    """
+    json_path = coverage_data.with_suffix(".lines.json")
+    subprocess.run(
+        [sys.executable, "-m", "coverage", "json", "-o", str(json_path),
+         f"--data-file={coverage_data}"],
+        cwd=str(_REPO_ROOT), capture_output=True, text=True,
+    )
+    payload = json.loads(json_path.read_text(encoding="utf-8")) if json_path.exists() else {}
+    for path, file_data in payload.get("files", {}).items():
+        if Path(path).name == f"{module}.py" or Path(path).parent.name == module:
+            return {
+                "module": path,
+                "executed": sorted(file_data.get("executed_lines") or []),
+                "missing": sorted(file_data.get("missing_lines") or []),
+            }
+    return {"module": module, "executed": [], "missing": []}
+
+
 def _coverage(target_path: Path, coverage_data: Path, module: str) -> dict[str, Any]:
     """Line and branch coverage, plus the uncovered functions and the total."""
     json_path = coverage_data.with_suffix(".json")
@@ -147,9 +171,21 @@ def main() -> int:
     parser.add_argument("--target", default="parse")
     parser.add_argument("--target-path", default=".harness/target")
     parser.add_argument("--passes", type=int, default=5)
-    parser.add_argument("--hypothesis-examples", type=int, default=40)
+    parser.add_argument(
+        "--generated-examples",
+        type=int,
+        default=40,
+        help="how many of the frozen generated inputs to include (they are data, "
+        "not recollected: see `_GENERATED` in harness/cases.py)",
+    )
     parser.add_argument("--out", default="docs/results")
     parser.add_argument("--label", default="", help="suffix for the report file name")
+    parser.add_argument("--lines-out", default="", help="write the executed line numbers here")
+    parser.add_argument(
+        "--write-cases",
+        action="store_true",
+        help="replace the committed case file if the generated set differs",
+    )
     parser.add_argument(
         "--no-projections",
         action="store_true",
@@ -165,12 +201,26 @@ def main() -> int:
     shim_dir = determinism.write_shim(_REPO_ROOT / ".harness" / "shim")
     cases_path = _REPO_ROOT / "harness" / "cases" / f"{args.target}.json"
 
-    cases = build_parse_cases(hypothesis_examples=args.hypothesis_examples)
+    cases = build_parse_cases(generated_examples=args.generated_examples)
     if args.no_projections:
         from dataclasses import replace
 
         cases = [replace(case, projection="") for case in cases]
-    save_cases(cases_path, cases, args.target, version)
+    # The committed case file is the artifact of record: every observation
+    # carries its hash and two runs with different hashes are refused. A baseline
+    # run therefore verifies it rather than rewriting it — regenerating used to
+    # overwrite `harness/cases/parse.json` silently, and one `hypothesis` sample
+    # that was not reproducible changed the whole set's identity mid-report.
+    if args.write_cases:
+        save_cases(cases_path, cases, args.target, version)
+    elif cases_path.exists():
+        committed = json.loads(cases_path.read_text(encoding="utf-8"))
+        if committed.get("case_set_hash") != case_set_hash(cases):
+            raise SystemExit(
+                f"{cases_path} is stale: committed {committed.get('case_set_hash')[:16]}, "
+                f"generated {case_set_hash(cases)[:16]}. Re-run with --write-cases to "
+                "replace it deliberately, and say so in the commit message."
+            )
     set_hash = case_set_hash(cases)
     print(f"OBSERVED cases: {len(cases)} {counts_by_source(cases)} hash={set_hash[:12]}")
 
@@ -252,6 +302,11 @@ def main() -> int:
     coverage_data = work / "coverage.data"
     _run(0, shim=shim_dir, coverage=True)
     coverage = _coverage(target_path, coverage_data, args.target)
+    if args.lines_out:
+        lines = executed_lines(coverage_data, args.target)
+        Path(args.lines_out).write_text(json.dumps(lines, indent=1) + chr(10), encoding="utf-8")
+        print(f"executed lines: {len(lines['executed'])} "
+              f"(missing {len(lines['missing'])}) -> {args.lines_out}")
     print(
         f"OBSERVED coverage: lines {coverage['covered_statements']}/{coverage['statements']} "
         f"({coverage['line_percent']}%), branches {coverage['covered_branches']}/"

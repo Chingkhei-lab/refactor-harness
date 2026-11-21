@@ -1,5 +1,5 @@
 {
-  "case_set_hash": "283155b0bbb9816758552adf02f4dbf4ac83b06604d6dd07a62276a6cf829af3",
+  "case_set_hash": "ed283159d51e35b3272184f15c47f9a89c05a2e7db14692dc98d2816015a8a48",
   "case_set_version": 1,
   "cases": [
     {
@@ -2579,7 +2579,7 @@
     {
       "args": [
         "{:d}",
-        "2.5"
+        "123"
       ],
       "entry": "parse",
       "expect": "finite",

@@ -1,5 +1,13 @@
 # Checkpoint 12b — answers to the open findings
 
+> **Superseded in part.** The stage-2 mutation result quoted here (100/100 for both
+> oracles) was wrong: the mutator re-printed the whole module, so two cases that
+> print the target's source differed for every mutant. The audit that found it, and
+> the corrected numbers, are in
+> [`checkpoint12b-audit-20261121.md`](checkpoint12b-audit-20261121.md). Everything
+> else in this file — the two fixed waits, the oracle pin, the coverage hook — still
+> stands.
+
 Six findings were raised against the 12b pre-work. Each one is answered here with
 a measurement, not an argument. Where the measurement contradicts what the
 previous document said, the previous document is wrong and this one replaces it.

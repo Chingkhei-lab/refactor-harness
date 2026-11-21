@@ -102,8 +102,8 @@ def test_a_malformed_approvals_file_is_refused(tmp_path: Path, broken: dict) -> 
         load_approvals(_write(tmp_path, broken))
 
 
-def test_the_shipped_approvals_cover_parser_text_and_nothing_else() -> None:
-    """The shipped approvals are the migration's parser text, case by case.
+def test_the_shipped_approvals_cover_parser_text_and_the_api_surface() -> None:
+    """The shipped approvals are the migration's accepted differences, case by case.
 
     Two things must stay true as this file evolves: every approval names a case
     and a path, and the case whose output was *unintentionally* changed during
@@ -118,3 +118,10 @@ def test_the_shipped_approvals_cover_parser_text_and_nothing_else() -> None:
     assert all(len(item.reason) >= 12 for item in approvals.approvals)
     assert "probe-version" not in {item.case_id for item in approvals.approvals}
     assert all(item.path.startswith("$.value.") for item in approvals.approvals)
+    # The two api approvals are the ones that make the suite-only finding visible
+    # in the harness report: `get_parser()` returns a different parser type and no
+    # longer has `add_option`. They must exist and must say so, not just be
+    # "approved" with a shrug.
+    api = [item for item in approvals.approvals if item.case_id.startswith("api-")]
+    assert {item.case_id for item in api} == {"api-module", "api-parser"}
+    assert all("add_option" in item.reason or "ArgumentParser" in item.reason for item in api)

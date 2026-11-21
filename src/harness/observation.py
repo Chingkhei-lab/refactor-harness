@@ -61,7 +61,7 @@ _ITERATOR_TYPES = (collections.abc.Iterator,)
 # fix (checkpoint 11) changed every blob's bytes without changing any value, so
 # v1 and v2 blobs are not interchangeable even though the case set is the same;
 # the version is in the payload and in the blob path so the two can never mix.
-OBSERVATION_SCHEMA_VERSION = 2
+OBSERVATION_SCHEMA_VERSION = 3
 
 ITERATOR_LIMIT = 1000
 
