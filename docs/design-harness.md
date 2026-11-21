@@ -208,6 +208,16 @@ scalars whose value changes. Anything whose `repr` carries an address is reduced
 to its type name, so the snapshot is deterministic — checked by the same A/A
 baseline as every other case.
 
+One more projection, for the same reason the CLI kind has one: a snapshot may not
+carry the path the tree was imported from. A module that resolves a directory at
+import time (`pycodestyle.USER_CONFIG` is `expanduser('~/.config/pycodestyle')`)
+records the child's `HOME`, which is *this copy of the tree*, so two copies of the
+same code differ in a constant nobody changed. Every root a snapshot is allowed to
+see — `HOME`, `XDG_CONFIG_HOME`, the temp directory, the workspace, the case
+directory — is replaced by a marker, longest first; the markers are named in the
+observation's controls. The no-op `comment` canary found this, and it could not
+have been found by either oracle, because neither oracle was wrong.
+
 ### What a CLI observation cannot contain
 
 The target's own source. A traceback and a warning name the file, the line and

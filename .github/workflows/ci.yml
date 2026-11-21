@@ -160,7 +160,13 @@ jobs:
         # first three must be killed by nothing; the last is public API text and
         # must be seen by exactly the two api-snapshot cases. The re-print canary
         # is the one that would have caught the mutator rewriting every line.
-        run: python scripts/mutation_canary.py --only comment,whitespace,reformat,docstring
+        run: |
+          set -o pipefail
+          python scripts/mutation_canary.py --only comment,whitespace,reformat,docstring 2>&1 | tee canary.log || {
+            grep -E "Traceback|Error|error|differs|test failed|ok=" canary.log | tail -20               | sed 's/^/::error title=canary::/' || true
+            tail -10 canary.log | sed 's/^/::error title=canary::/' || true
+            exit 1
+          }
       - name: Pin the oracle (tarball hashes, and module identical to the sdist)
         # The suite comes from the tag tarball and the module from the sdist; the
         # only thing that makes that sound is the two module files being byte

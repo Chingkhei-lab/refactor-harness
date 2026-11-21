@@ -316,6 +316,59 @@ def _surface(obj: Any, *, skip: frozenset[str] = frozenset()) -> dict[str, Any]:
     return attributes
 
 
+_PATH_PLACEHOLDERS = (
+    ("HARNESS_WORKSPACE", "<workspace>"),
+    ("HOME", "<home>"),
+    ("XDG_CONFIG_HOME", "<xdg_config_home>"),
+    ("TMPDIR", "<tmp>"),
+    ("TEMP", "<tmp>"),
+    ("TMP", "<tmp>"),
+)
+
+
+def _path_roots() -> list[tuple[str, str]]:
+    """The per-run directories whose text must never appear in a snapshot.
+
+    `pycodestyle.USER_CONFIG` is `expanduser('~/.config/pycodestyle')` evaluated at
+    import time, so it contains whatever `HOME` the case was given — that is, the
+    path of *this* copy of the tree. Two copies of the same tree at two paths then
+    differ in a constant nobody changed. The roots are replaced by a fixed marker,
+    longest first so `/a/b` wins over `/a`.
+    """
+    roots: list[tuple[str, str]] = []
+    for name, marker in _PATH_PLACEHOLDERS:
+        value = os.environ.get(name)
+        if value:
+            roots.append((value.rstrip("/\\") or value, marker))
+    cwd = os.getcwd()
+    if cwd:
+        roots.append((cwd, "<cwd>"))
+    return sorted(roots, key=lambda pair: len(pair[0]), reverse=True)
+
+
+def _project_paths(value: Any, roots: list[tuple[str, str]]) -> Any:
+    """Replace every root by its marker, longest root first.
+
+    The ordering is done here rather than trusted from the caller: a short root that
+    is a prefix of a long one (`/a` and `/a/b`) would otherwise half-rewrite the long
+    one, which is how a "known" path survives in a snapshot.
+    """
+    ordered = sorted(roots, key=lambda pair: len(pair[0]), reverse=True)
+    return _project_inner(value, ordered)
+
+
+def _project_inner(value: Any, roots: list[tuple[str, str]]) -> Any:
+    if isinstance(value, str):
+        for root, marker in roots:
+            value = value.replace(root, marker)
+        return value
+    if isinstance(value, list):
+        return [_project_inner(item, roots) for item in value]
+    if isinstance(value, dict):
+        return {key: _project_inner(item, roots) for key, item in value.items()}
+    return value
+
+
 def _api_snapshot(module: Any, case: dict[str, Any], module_name: str) -> dict[str, Any]:
     names = sorted(
         name for name in dir(module)
@@ -340,6 +393,8 @@ def _api_snapshot(module: Any, case: dict[str, Any], module_name: str) -> dict[s
             snapshot["constants"][name] = _scalar(value)
     doc = getattr(module, "__doc__", None)
     snapshot["doc_first_line"] = (doc or "").strip().splitlines()[:1]
+    roots = _path_roots()
+    snapshot = _project_paths(snapshot, roots)
     call = dict(case.get("call") or {})
     if call:
         entry_point = str(call["entry"])
@@ -374,6 +429,7 @@ def run_api_case(
     imports = {"module": module_name, "call": dict(case.get("call") or {})}
     _reset(shim)
     snapshot = _api_snapshot(module, case, module_name)
+    projected = sorted({marker for _root, marker in _path_roots()})
     encoded, _meta = encode_with_meta(snapshot)
     return Observation(
         case_id=case["id"],
@@ -381,7 +437,7 @@ def run_api_case(
         inputs=imports,
         outcome="return",
         value=EncodedValue(encoded),
-        controls=(*controls, "api_surface"),
+        controls=(*controls, "api_surface", *(f"api_paths_projected:{m}" for m in projected)),
         case_set_hash=case_set_hash,
     )
 

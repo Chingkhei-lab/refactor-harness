@@ -148,6 +148,43 @@ the suite fails on a formatting change. A mutant killed by that test and nothing
 else is killed **cosmetically**, and the audit counts those separately rather than
 as the suite noticing a behaviour.
 
+### The canary found a defect of its own, on Linux
+
+The canary compares a tree against **a copy of that tree at a different path**, and
+the `comment` canary — an appended comment, no behaviour — reported *two*
+differences on the CI image:
+
+```
+api-module  constants.USER_CONFIG
+  '/repo/.harness/oracle/pycodestyle/.config/pycodestyle'
+  ->        '/repo/.harness/dbg2/mut/.config/pycodestyle'
+```
+
+`USER_CONFIG` is `expanduser('~/.config/pycodestyle')`, evaluated when the module
+is imported, and the child's `HOME` is the copy it imported. So the snapshot was
+recording **which directory the tree happened to be in** — the same class of leak
+as §2, one layer down, and invisible to an A/A run because both passes use one
+path (and to `verify-change`, which stages both trees at `work/tree` for exactly
+that reason).
+
+`run_api_case` now replaces every root a snapshot is allowed to see — `HOME`,
+`XDG_CONFIG_HOME`, `TMPDIR`/`TEMP`/`TMP`, the workspace, the case directory — with
+a marker (`<home>`, `<tmp>`, `<cwd>`, …), longest root first so `/a` cannot
+half-rewrite `/a/b`, and records the markers in the observation's controls
+(`api_paths_projected:<marker>`). A string that changes for a real reason still
+changes: only the root is replaced.
+
+After the fix, on the same Linux image: `comment` **0 differences**. The three
+mutants in the stage-2 sample whose difference included an api case were re-run
+against the shipped code and produced the **same differing sets** (`delete_stmt@134:0`
+5 cases, `delete_stmt@80:0` 73, `return_none@2544:4` 78), so §8's numbers stand
+unchanged; `verify-change` was regenerated under the projected snapshot and is
+still 142 identical / 16 different / 8 approved / 0 unapproved.
+
+This is the argument for a canary that runs *behaviour-preserving* edits on every
+build: neither oracle could have reported it, because nothing was wrong with either
+oracle — the observation was.
+
 ## 5. Ten mutants by hand
 
 `scripts/mutant_evidence.py` prints, for one site: the exact changed lines (the

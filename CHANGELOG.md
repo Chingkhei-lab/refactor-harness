@@ -21,6 +21,14 @@
   caret line, and folds CRLF to LF. Two approvals (`probe-config-int-error`,
   `probe-deprecated-section`) that existed only because a line number moved are
   gone. `observation_schema_version` is now **3**.
+- **An api snapshot may not contain the path it was imported from.** The no-op
+  `comment` canary reported two differences on Linux: `pycodestyle.USER_CONFIG` is
+  `expanduser('~/.config/pycodestyle')`, evaluated at import, so it is the path of
+  the copy the child imported — and the canary compares a tree with a copy at a
+  different path. `HOME`, `XDG_CONFIG_HOME`, `TMPDIR`/`TEMP`/`TMP`, the workspace
+  and the case directory are replaced by markers (`<home>`, `<tmp>`, `<cwd>`, …),
+  longest root first, and the markers appear in the observation's controls. An A/A
+  run cannot see this, because both passes use one path; a canary can.
 - **New case kind `api`.** An api case imports the module and snapshots its public
   surface — names, `inspect.signature`, class bases and attributes, stable scalars,
   first docstring line — plus, when it names a call, the surface of what that call

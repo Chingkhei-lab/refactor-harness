@@ -849,6 +849,23 @@ On the migration it reports `OptionParser` → `ArgumentParser` and the exact
 attribute set that changed, as an approved difference with a witness. That is the
 report saying what the suite found, instead of leaving it in a footnote.
 
+Two decided limits, both learned by running it:
+
+- **Addresses are not values.** An object whose `repr` carries an address becomes
+  its type name; otherwise the snapshot differs in every process.
+- **Neither are paths.** A module can resolve a directory at import time —
+  `USER_CONFIG` is `expanduser('~/.config/pycodestyle')` — so a snapshot contains
+  the path of the copy that was imported, and two copies of unchanged code differ
+  in a constant nobody touched. `HOME`, `XDG_CONFIG_HOME`, the temp directory, the
+  workspace and the case directory are replaced by markers, longest first, and the
+  markers are named in the observation's controls. This was found by a
+  behaviour-preserving canary, not by either oracle: neither oracle was wrong, the
+  observation was.
+
+A snapshot is still not an exercise: it shows that `add_argument` exists with a
+signature, not that it behaves. Two `register_check` contracts remain the suite's
+alone for that reason, and the report says so.
+
 ## Consequences
 
 - A report must carry: class counts, masked fields + rules, unsupported cases,

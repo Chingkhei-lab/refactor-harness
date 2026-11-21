@@ -292,3 +292,29 @@ def test_an_api_case_observes_a_surface_a_program_cannot_show() -> None:
     api = [entry for entry in payload["cases"] if entry.get("kind") == "api"]
     assert {entry["id"] for entry in api} == {"api-module", "api-parser"}
     assert all(entry["module"] == "pycodestyle" for entry in api)
+
+
+def test_an_api_snapshot_does_not_contain_the_path_it_was_imported_from() -> None:
+    """The no-op canary found this: two copies of the same tree differ by path.
+
+    `pycodestyle.USER_CONFIG` is `expanduser('~/.config/pycodestyle')`, evaluated at
+    import time, so it is the path of whichever copy the child imported. The canary
+    compares a tree against a copy of that tree at a different path, and a comment
+    mutant "differed" — in a constant nobody had touched. Every path a snapshot is
+    allowed to see is now replaced by a marker.
+    """
+    from harness.child import _path_roots, _project_paths
+
+    roots = _path_roots()
+    text = f"{roots[0][0]}/pycodestyle.py:{roots[0][0]}/.config"
+    projected = _project_paths(text, roots)
+    assert roots[0][0] not in projected
+    assert projected.startswith(roots[0][1])
+    # Nested containers are visited; a non-string leaf is left alone.
+    nested = _project_paths({"a": [roots[0][0], 7, {"b": roots[0][0]}]}, roots)
+    assert nested["a"][0] == roots[0][1] and nested["a"][1] == 7
+    assert nested["a"][2]["b"] == roots[0][1]
+    # Longest root wins, so a root that is a prefix of another cannot half-rewrite it.
+    pairs = [("/a", "<short>"), ("/a/b", "<long>")]
+    assert _project_paths("/a/b/c", pairs) == "<long>/c"
+
