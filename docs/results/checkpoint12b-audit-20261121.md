@@ -405,5 +405,14 @@ mutants are one-line edits.
   are projections named in the observation's controls, and `mutation_canary.py` runs
   on every CI build so a third one fails the build.
 * **CI is green at `446ab80`**: `411/382/29/0` for `ci`, `28/28` for
-  `sandbox-hostile` with a 30-mutant gate, no-op canaries included.
+  `sandbox-hostile` with a 30-mutant gate, no-op canaries included. The next run
+  (`514614b`, docs only) failed one hostile test on the runner —
+  `test_fork_bomb_contained_by_pids_limit`, `JSONDecodeError` on empty output —
+  because the fork bomb printed its count once at the end and the tail can be lost
+  with the process when the container is stopped mid-fork. It now prints every
+  eighth fork and the test reads the last complete line, asserts the bound
+  unconditionally, and accepts a missing `errno` only when the run was stopped by
+  the wall clock. The same run's gate annotation quoted the committed 300-mutant
+  local artifact as if CI had measured it; the gate now writes
+  `sandbox-gate-ci.json` and the annotation labels which report it is reading.
 

@@ -100,17 +100,26 @@ def test_fork_bomb_contained_by_pids_limit(sandbox: Any) -> None:
     adapter, digest, job = sandbox
     # The classic `:(){ :|:& };:` backgrounds everything and exits 0, so the
     # containment is measured directly: count forks until the kernel refuses.
+    # One line at the end is not robust enough: if the container is stopped while
+    # the payload is mid-fork, the tail can go with the process and the test fails
+    # as a JSONDecodeError — which is what happened on a cold CI runner
+    # (`test_fork_bomb_contained_by_pids_limit`, run 44866469352). A count is
+    # printed every few forks, so the last complete line survives.
     code = (
         "import json, os\n"
         "kids = 0\n"
+        "def emit(extra):\n"
+        "    print(json.dumps(dict({'forked': kids}, **extra)), flush=True)\n"
         "try:\n"
         "    while True:\n"
         "        pid = os.fork()\n"
         "        if pid == 0:\n"
         "            os._exit(0)  # children exit at once; zombies pile up\n"
         "        kids += 1\n"
+        "        if kids % 8 == 0:\n"
+        "            emit({})\n"
         "except OSError as e:\n"
-        "    print(json.dumps({'forked': kids, 'errno': e.errno}), flush=True)\n"
+        "    emit({'errno': e.errno})\n"
     )
     result = run(
         _spec(digest, ("python", "-c", code), job_id=job),
@@ -122,9 +131,15 @@ def test_fork_bomb_contained_by_pids_limit(sandbox: Any) -> None:
         f"OBSERVED fork-bomb: {observed} duration={result.duration_seconds}s "
         f"timed_out={result.timed_out}"
     )
-    payload = json.loads(observed)
-    assert payload["errno"] == 11  # EAGAIN: the pids cgroup refused the fork
+    reported = [line for line in observed.splitlines() if line.startswith("{")]
+    assert reported, f"the payload never reported a fork count: {observed!r}"
+    payload = json.loads(reported[-1])
     assert payload["forked"] < 200  # bounded by pids_limit=64, not unbounded
+    if "errno" in payload:
+        assert payload["errno"] == 11  # EAGAIN: the pids cgroup refused the fork
+    else:
+        # No refusal was reported, so the stop has to explain the bound.
+        assert result.timed_out, payload
     assert result.duration_seconds < 30.0  # the runner stayed responsive
 
 

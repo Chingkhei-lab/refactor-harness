@@ -141,7 +141,7 @@ jobs:
           # 53 mutants in 10m43s), so the full sample is a local artifact
           # (docs/results/sandbox-gate-20261120.json) and CI checks the same code
           # path on a smaller seeded sample.
-          python scripts/sandbox_gate.py --mutants "${GATE_MUTANTS:-30}" 2>&1 | tee sandbox-gate.log || {
+          python scripts/sandbox_gate.py --mutants "${GATE_MUTANTS:-30}"             --out sandbox-gate-ci.json 2>&1 | tee sandbox-gate.log || {
             # Progress lines are noise; the reason is in the traceback. Grep for it
             # first, then fall back to the tail, so one annotation carries cause.
             grep -E "Traceback|Error|error:|raise |assert " sandbox-gate.log | tail -6 | sed 's/^/::error title=sandbox-gate::/' || true
@@ -207,16 +207,24 @@ jobs:
         run: |
           python - <<'PY'
           import json, pathlib
-          path = pathlib.Path("docs/results/sandbox-gate-20261120.json")
-          if path.exists():
-              r = json.loads(path.read_text())
-              phases = r.get("phase_seconds", {})
-              print(f"::notice title=sandbox-gate::verdicts {r['verdict_agreement']}, "
-                    f"byte-identical {r['byte_identical']}, "
-                    f"overhead {r['overhead_seconds_per_pass']}s/pass, "
-                    f"phases {json.dumps(phases, sort_keys=True)}")
+          # The run's own report first. The committed one is the 300-mutant local
+          # artifact and must never be quoted as if this job had measured it — it
+          # was, once, and the annotation said 300/300 at 0.91 s/pass on a runner.
+          fresh = pathlib.Path("sandbox-gate-ci.json")
+          committed = sorted(pathlib.Path("docs/results").glob("sandbox-gate-*.json"))
+          if fresh.exists():
+              path, label = fresh, "this run"
+          elif committed:
+              path, label = committed[-1], "committed local artifact, not this run"
           else:
               print("::warning title=sandbox-gate::no gate report written")
+              raise SystemExit(0)
+          r = json.loads(path.read_text())
+          phases = r.get("phase_seconds", {})
+          print(f"::notice title=sandbox-gate::[{label}] verdicts {r['verdict_agreement']}, "
+                f"byte-identical {r['byte_identical']}, "
+                f"overhead {r['overhead_seconds_per_pass']}s/pass, "
+                f"phases {json.dumps(phases, sort_keys=True)}")
           PY
       - name: Upload JUnit reports
         if: always()

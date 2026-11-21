@@ -5,3 +5,8 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 .harness/
+
+# run artifacts
+sandbox-gate-ci.json
+sandbox-gate.log
+canary.log
