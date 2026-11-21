@@ -13,50 +13,10 @@
       "differing_count": 0,
       "harness_killed": false,
       "tests_killed": false,
-      "tests_note": "763 passed, 12 skipped in 8.26s",
+      "tests_note": "763 passed, 12 skipped in 6.78s",
       "tests_detail": {
         "failures": [],
         "failure_count": 0,
-        "collected": ""
-      },
-      "differing_fields": {}
-    },
-    {
-      "canary": "whitespace",
-      "expected_observers": [],
-      "observed_exactly_as_expected": true,
-      "tests_cosmetic_only": true,
-      "edit": "spaces around `=` on line 65",
-      "differing_cases": [],
-      "differing_count": 0,
-      "harness_killed": false,
-      "tests_killed": true,
-      "tests_note": "1 failed, 762 passed, 12 skipped in 8.81s",
-      "tests_detail": {
-        "failures": [
-          "tests\\test_all.py::test_own_dog_food"
-        ],
-        "failure_count": 1,
-        "collected": ""
-      },
-      "differing_fields": {}
-    },
-    {
-      "canary": "reformat",
-      "expected_observers": [],
-      "observed_exactly_as_expected": true,
-      "tests_cosmetic_only": true,
-      "edit": "re-print the module (no semantic change)",
-      "differing_cases": [],
-      "differing_count": 0,
-      "harness_killed": false,
-      "tests_killed": true,
-      "tests_note": "1 failed, 762 passed, 12 skipped in 8.85s",
-      "tests_detail": {
-        "failures": [
-          "tests\\test_all.py::test_own_dog_food"
-        ],
-        "failure_count": 1,
         "collected": ""
       },
       "differing_fields": {}
@@ -77,7 +37,7 @@
       "differing_count": 2,
       "harness_killed": true,
       "tests_killed": false,
-      "tests_note": "763 passed, 12 skipped in 8.03s",
+      "tests_note": "763 passed, 12 skipped in 6.85s",
       "tests_detail": {
         "failures": [],
         "failure_count": 0,

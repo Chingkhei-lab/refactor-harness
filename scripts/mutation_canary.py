@@ -84,6 +84,7 @@ def _apply(source: str, kind: str) -> tuple[str, str]:
         body = first.value
         assert isinstance(body.value, str)
         lines = source.splitlines(keepends=True)
+        assert body.end_lineno is not None
         for index in range(body.lineno - 1, body.end_lineno):
             prefix = len('"""') if index == body.lineno - 1 else 0
             match = re.search(r"[A-Za-z]{4,}", lines[index][prefix:])
@@ -132,9 +133,12 @@ def _field_diffs(
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--target", default=".harness/verify-trees/old")
-    parser.add_argument("--tests", default=".harness/oracle/pycodestyle/tests")
-    parser.add_argument("--tests-subdir", default="")
+    # The unmutated tree is any unmodified tree. The pinned oracle tree is the one
+    # CI already has (it is fetched by `oracle_canary.py`), so the canary does not
+    # need a local `verify-trees/` staging directory.
+    parser.add_argument("--target", default=".harness/oracle/pycodestyle")
+    parser.add_argument("--tests", default="tests")
+    parser.add_argument("--tests-subdir", default="tests")
     parser.add_argument("--module", default="pycodestyle")
     parser.add_argument("--cases", default="harness/cases/pycodestyle-cli.json")
     parser.add_argument("--out", default="docs/results/mutation-canary-20261121.json")
@@ -176,7 +180,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         tests_killed = None
         tests_note = ""
-        tests_dir = tree / (args.tests_subdir or "tests")
+        tests_dir = tree / args.tests_subdir if args.tests_subdir else (REPO / args.tests)
         tests_detail: dict[str, Any] = {}
         if args.tests and tests_dir.is_dir():
             tests_killed, tests_note, tests_detail = runner._run_tests(
