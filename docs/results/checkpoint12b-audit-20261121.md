@@ -1,8 +1,9 @@
-# Stage-2 mutation result: audit and the three defects it hid
+# Stage-2 mutation result: audit and the defects it hid
 
 The review said 100 of 100 kills by both oracles was too clean, and to check the
-evaluator before believing it. It was too clean. Checking it found **three**
-defects, and the first one is the reason the score was perfect:
+evaluator before believing it. It was too clean. Checking it found **four** defects
+in the evaluator and one in the case set, and the first one is the reason the score
+was perfect:
 
 1. **The mutator re-printed the whole module.** `apply_site` returned
    `ast.unparse(tree)`, so every mutant — every single one — rewrote all 2 717
@@ -17,10 +18,12 @@ defects, and the first one is the reason the score was perfect:
 3. **Nothing observed an API nobody calls.** The one difference the upstream suite
    saw and the harness did not — `get_parser().add_option` — was invisible to
    every case, by construction.
+4. **An api snapshot carried the path it was imported from.** Found by the canary
+   the review asked for, not by reading code: `USER_CONFIG` is resolved at import
+   time, so a snapshot recorded the directory of the copy. §4.
 
-A fourth thing fell out of the audit and is reported separately in §6: the
-stage-1 case set was not reproducible. Rebuilding it produced three different
-hashes.
+And one thing fell out of the audit itself, reported separately in §6: the stage-1
+case set was not reproducible — rebuilding it produced three different hashes.
 
 | check the review asked for | verdict |
 | --- | --- |
@@ -28,7 +31,7 @@ hashes.
 | 2. why was each mutant killed | 77/100 on one case, 75/100 on a second, 38 on exactly that pair — the two cases that print the target's source |
 | 3. mutants on lines no case executes | **15 of 100**, and all 15 were reported killed |
 | 4. ten hand-reviewed mutants with evidence | **§8**: four harness-only kills, one broad break, two suite-only, three survivors — `docs/results/mutant-evidence-pycodestyle-20261121.json` |
-| 5. timing | §7: the plan's 24.7 s was the pass, not the mutant |
+| 5. timing | §7: the plan's 24.7 s was the pass, not the mutant; and the 0.9 s vs 10.4 s sandbox gap is the runner's copy phase (10.15 s vs 0.14 s), not the harness |
 | quote the result as "under review" | it was; the re-run is §8 |
 
 ## 1. The mutator rewrote the file (`apply_site`)
@@ -247,6 +250,27 @@ breaks the world, because the full run executes all 775 tests. The published run
 own `results.json` sums to 3 237.6 s for 100 mutants = 32.4 s, so the 54 minutes
 is the right number and the 41-minute estimate was 24.7 s × 100 on the pass alone.
 
+### The 0.9 s / 10.4 s gap: the copy phase, not the harness
+
+The gate measures a full pass twice, once direct and once sandboxed, and now records
+where the difference goes. Same job, same command, two machines:
+
+| phase | this host | GitHub runner |
+| --- | --- | --- |
+| `copy_in_and_copy_out` | **0.14 s** | **10.15 s** |
+| `container_create_start_teardown` | 2.42 s (5 mutants, cold) | 0.18 s |
+| `child_import` | 0.03 s | 0.011 s |
+| full pass overhead | 1.67 s | 10.50 s |
+
+The import cost — the only part that is *code* — is 0.03 s on both. The whole 10×
+gap is the tar-stream copy in and out of the container: 238 KB / 23 files taking
+10 s on a cold runner against 0.14 s here. The runner's daemon, its overlay and a
+cold page cache are the difference; there is nothing in the harness to optimise, and
+the deferred derived image (ADR 004 D10k, worth ≤ 0.2 s here) would not help a
+runner that pays 10 s for a copy. Decomposing it further is not possible from this
+side: job logs return 403 for this account, so the numbers above are the gate's own
+`phase_seconds`, which is why that field exists.
+
 ## 8. The re-run
 
 Both runs were repeated end to end with the fixed mutator, the projection and the
@@ -285,6 +309,14 @@ sites were sampled and the two runs are directly comparable.
 `return_none` and `slice_bound` are the small families; `int_plus` is where the
 case set is weakest, because a constant in a check's threshold is often not
 reached by a 40-line fixture excerpt.
+
+This table was produced before the api path projection of §4, so it was re-checked
+against the shipped code: the three mutants in this sample whose difference
+included an api case (`delete_stmt@134:0`, `delete_stmt@80:0`,
+`return_none@2544:4`) reproduce the same differing sets — 5, 73 and 78 cases of 79 —
+and no mutant is killed *only* by an api case, so nothing here depends on the
+projection. The run's own `plan.json`, embedded in
+`docs/results/mutation-pycodestyle-20261121.json`, is the 79-case one (schema 3).
 
 ### Ten mutants by hand
 
@@ -368,4 +400,10 @@ mutants are one-line edits.
   2/89 functions never entered.
 * The stage-1 case set is reproducible from code, and rebuilding it is verified
   rather than accidental.
+* **No observation contains the target's source or its import path.** Two canaries
+  found the two leaks (a traceback's line numbers, `USER_CONFIG`'s directory); both
+  are projections named in the observation's controls, and `mutation_canary.py` runs
+  on every CI build so a third one fails the build.
+* **CI is green at `446ab80`**: `411/382/29/0` for `ci`, `28/28` for
+  `sandbox-hostile` with a 30-mutant gate, no-op canaries included.
 
