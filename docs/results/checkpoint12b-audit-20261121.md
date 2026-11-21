@@ -404,7 +404,7 @@ mutants are one-line edits.
   found the two leaks (a traceback's line numbers, `USER_CONFIG`'s directory); both
   are projections named in the observation's controls, and `mutation_canary.py` runs
   on every CI build so a third one fails the build.
-* **CI is green at `446ab80`**: `411/382/29/0` for `ci`, `28/28` for
+* **CI is green at `4807d3d`** (and at `446ab80` before it): `411/382/29/0` for `ci`, `28/28` for
   `sandbox-hostile` with a 30-mutant gate, no-op canaries included. The next run
   (`514614b`, docs only) failed one hostile test on the runner —
   `test_fork_bomb_contained_by_pids_limit`, `JSONDecodeError` on empty output —
