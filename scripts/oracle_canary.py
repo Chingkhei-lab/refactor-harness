@@ -44,6 +44,12 @@ TARGETS: dict[str, dict[str, Any]] = {
         "archive": ".harness/sdist/parse-1.22.4.tar.gz",
         "root": ".harness/oracle/parse",
         "strip": 1,
+        # `tz[1:]` -> `tz[2:]` in timezone-offset parsing: every `{:ti}`-style case
+        # with a `+HH:MM` offset fails, on any platform. Picking "the first
+        # `compare_swap`" instead flipped `sys.platform == 'win32'`, which one
+        # platform's suite notices and the other's does not — a canary whose
+        # meaning changes with the host.
+        "broken_site": "slice_bound@254:30",
     },
     "pycodestyle": {
         # The sdist cannot be used: its tests import `testing.support`, which is
@@ -55,6 +61,9 @@ TARGETS: dict[str, dict[str, Any]] = {
         "archive": ".harness/candidates/pycodestyle-git-2.15.0.tar.gz",
         "root": ".harness/oracle/pycodestyle",
         "strip": 1,
+        # `MAX_LINE_LENGTH = 79` -> 80. The suite asserts E501 on an 80-character
+        # line, so this must be killed everywhere, by a one-token edit.
+        "broken_site": "int_plus@81:18",
     },
 }
 
@@ -114,13 +123,19 @@ def check(name: str) -> dict[str, Any]:
     clean = work / "clean"
     shutil.copytree(root, clean, ignore=shutil.ignore_patterns(".git", "__pycache__"))
 
-    clean_killed, clean_note = module._run_tests(clean / spec["tests"], clean)
+    clean_killed, clean_note, _ = module._run_tests(clean / spec["tests"], clean)
     source = (root / spec["module"]).read_text(encoding="utf-8")
-    site = next(s for s in enumerate_sites(source) if s.operator == "compare_swap")
+    # A named site, not "the first of some operator": a canary must not change
+    # meaning when the target or the mutator changes, and it must be asserted to
+    # exist so a target update fails here instead of silently picking a benign one.
+    wanted = str(spec["broken_site"])
+    site = next((s for s in enumerate_sites(source) if s.key == wanted), None)
+    if site is None:
+        raise SystemExit(f"{name}: canary site {wanted} no longer exists")
     broken = work / "broken"
     shutil.copytree(root, broken, ignore=shutil.ignore_patterns(".git", "__pycache__"))
     (broken / spec["module"]).write_text(mutate(source, site), encoding="utf-8")
-    broken_killed, broken_note = module._run_tests(broken / spec["tests"], broken)
+    broken_killed, broken_note, _ = module._run_tests(broken / spec["tests"], broken)
 
     return {
         "target": name,

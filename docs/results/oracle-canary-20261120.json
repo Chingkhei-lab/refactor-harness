@@ -1,11 +1,20 @@
 [
   {
-    "target": "pycodestyle",
-    "mutant": "compare_swap@70:7",
+    "target": "parse",
+    "mutant": "slice_bound@254:30",
     "clean_suite": "passes",
-    "clean_note": "769 passed, 6 skipped in 10.50s",
+    "clean_note": "109 passed, 1 skipped in 2.26s",
     "broken_mutant": "killed",
-    "broken_note": "1 failed, 3 passed in 3.00s",
+    "broken_note": "1 failed, 62 passed in 2.56s",
+    "ok": true
+  },
+  {
+    "target": "pycodestyle",
+    "mutant": "int_plus@81:18",
+    "clean_suite": "passes",
+    "clean_note": "763 passed, 12 skipped in 6.69s",
+    "broken_mutant": "killed",
+    "broken_note": "1 failed, 360 passed in 5.34s",
     "ok": true
   }
 ]
