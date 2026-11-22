@@ -1,0 +1,6 @@
+{
+ "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+ "notes": "Hidden binding of mccabe.json: identical rule content, bound to the hidden case-set hash so the comparator can be run against the hidden record.",
+ "rules": [],
+ "target": "mccabe"
+}

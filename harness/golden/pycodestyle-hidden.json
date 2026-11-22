@@ -1,0 +1,4588 @@
+{
+ "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+ "digests": {
+  "hidden-blank-1": "69f424ec474dc24f277e38ec773644b2ce7229311ac055392dbd0f80a03e0595",
+  "hidden-config-79": "2dea838bc8680ef491e2601baa81555751942b7502e01500730070f913af940c",
+  "hidden-config-select": "fc1a42cdba58000fa05c0a422e30f90a473f3a967a114906a6721f3a82270f7a",
+  "hidden-count-only": "91a7f85449933ff579e9fb6f56e2ccd5cf1e075b9e166db9fe86cc0767efd3c4",
+  "hidden-crlf": "72a36a9eaa10d38f282d01e36f67cc3ba2c91af4aaf056d7b3e19f475b6fd5e1",
+  "hidden-diff-added-context": "ff84765c007e7587783edeae5fbf070408f03166a7acdcf8a451ee25a7e7d615",
+  "hidden-diff-one-line": "08c9b4169bc6c1c4bf1935dcb7a5bd1e970b123316c774c6b7fa916b3d54bbf4",
+  "hidden-doc-30": "bf52134cd1ea8daa708dee6d19e8337b5b802d3344a41ef5ff31733c88d9f559",
+  "hidden-empty-file": "cf3367d00a4f686f2d38486fb1c54e509bbee6ad9e6d12ca07dcd9abb9033cfd",
+  "hidden-exclude-dir": "27efe5b2ecec27f684b597c7243137e08abfa8f6b0922664b41510b3c56f5176",
+  "hidden-filename-only": "0cc523c9dc172900b5e71de7344f260ba57a9bb78a618d7fb9f161930cb8c07d",
+  "hidden-ignore-e5": "cbf1b88e2eef5174806fa8a9f909b895a6cd8fc5cd3b5f99a6834ccb56bedda2",
+  "hidden-indent-2": "0ca0190767ee92683561c84fa5392dee23c1be5f8e7474fc20b4506f0fe6dfd0",
+  "hidden-indent-8": "ee0cb34837c67916b8618dc577d52340b2e44ec5d58cf37ebc9572cd1152b51e",
+  "hidden-len-100": "74a3cb579a8623c438a42b9ae1fee8851bf993e1f4d13e096bd8be841ae35749",
+  "hidden-len-60": "c27777b95bcae6dc1bd765adf35bbafec342bb070aa9894b5770ade8d5dfda79",
+  "hidden-len-equal": "948e8a8723c19b8e7019ebb7ab6a31784ac64b212fe3189c3370ef80d0e0afb4",
+  "hidden-no-newline-at-eof": "19e1a3fa922fa6e2da09d5c0012c6b792e572ee88a6cf2f36b0726405bd1f981",
+  "hidden-perturbed-fixture-crlf": "07da6624e017fb3a630b4e7ccd8803bfcbf09474ca41273514dc58ee4b8653ac",
+  "hidden-perturbed-fixture-e10": "53c1a42c85af11800c77e0d83d99e78daf106a453c7b7875ddb3713e93b902e5",
+  "hidden-perturbed-fixture-e11": "fd762ed1e2c128407c0a0e0a46e02db2143f05c7dafd450d3e6eddee07f3a000",
+  "hidden-perturbed-fixture-e12": "c5c1829b15416f3ec8ac09161c0ab07a1896a296250d339de30dd7752dd68cb7",
+  "hidden-perturbed-fixture-e12not": "f5cd95338027a758b60ce49dd02a9dfc8bb205191275c26c1d2786c9c16b299a",
+  "hidden-perturbed-fixture-e20": "56f6d17d8ad42c9be796b5ebbc949c3bd903f33267f16538f8f6d40697293cb1",
+  "hidden-perturbed-fixture-e21": "183bd1e0cf68a40b0c98602efea95a3e2ba04e6260c5718c756120dd55b4a86c",
+  "hidden-perturbed-fixture-e22": "8d0259dcbcd69ce3a752163b5107b458b4fbe9833cc9c7923c12dd3319afac05",
+  "hidden-perturbed-fixture-e23": "34c61901b9b60444d762b0eabee8586ffbd75ac68cbc7b30b1be9b99dfefb896",
+  "hidden-perturbed-fixture-e24": "f1a8557a45e38bc004b7f51625e8145837c82f8c91ec33637ee2408fb946207d",
+  "hidden-perturbed-fixture-e25": "2012b0d2acb46f85a0f70b672fab93a1efcba7c10dd855758468a641401d04fd",
+  "hidden-perturbed-fixture-e26": "657f1293a127e64b9d7a44854545f70811b61a05adb855eb6d421b812e290327",
+  "hidden-perturbed-fixture-e27": "d4dc05a199f298a6d13a9b0812c44b304fcc7779b0e5d29ef92e41c653dece4e",
+  "hidden-perturbed-fixture-e30": "d2be939e66f584a88e9cd345bb03d5b0cab377f8e1079e8aa359396f3cdef86e",
+  "hidden-perturbed-fixture-e30not": "723d15730c2887ba9ce1e66757a9fbefead6ec6411b1db7e457f6bd55e837db4",
+  "hidden-perturbed-fixture-e40": "7dc1ac01f6c85706cbe0e3fafe10e84b98b3e8ed1ae1964271b22ba3bc671764",
+  "hidden-perturbed-fixture-e50": "c819d53bff433ee7001e9966146b7726cedac1aae48b3482b9b564cf68cd77ac",
+  "hidden-perturbed-fixture-e70": "595829fb6fb0eb31eeb01fa1aa84620db7b3c3e0cf127c31a1bc93d63e7a241c",
+  "hidden-perturbed-fixture-e71": "834c2a8056124f33483d1db91d99e3454947ab6fccfcaf97d903104e6312703b",
+  "hidden-perturbed-fixture-e72": "be69450d50aa6d62b37060b876b86c2dcaa49c594f246356172b9d8aff58deba",
+  "hidden-perturbed-fixture-e73": "e35269fb825b329a956f05c11e5492ec3e65bbc805da8f974acdea25014a461c",
+  "hidden-perturbed-fixture-e74": "fb1d0bc833a18e891a062643d1a87f88fc99278bf4e2323cdb024d2fa433a701",
+  "hidden-perturbed-fixture-e90": "0340b51466ee0d780f024e4d664f2d2b966810b8f79452ecc6c3ae97a2b4d545",
+  "hidden-perturbed-fixture-latin-1": "3c724811b4cd18066b00e3dd288cd92d3a34ddc0db92dbc12d9aaad524d6aea7",
+  "hidden-perturbed-fixture-noqa": "c91efbc9db7cca5fbdbb7f8102420e3d761571422a5ab51aeac24d2721305e65",
+  "hidden-perturbed-fixture-python3": "d15f591a04b16fdc71f0f8824c6d9f81b662ea3ff8ffb56038afc9b3a07a4e4f",
+  "hidden-perturbed-fixture-python310": "f3eedf1ceafcd8e639c7b0a1a5b8c230128d6355c2fea6955ebcec8fdbdf9df9",
+  "hidden-perturbed-fixture-python311": "a17561d0ff1b1f0a400dc02d6bd6e2c68922ba00111b973a684440aeb7278599",
+  "hidden-perturbed-fixture-python312": "3447de137c104612a982e23e539ce00f381c3a9cece36de33114b579a5bf30c3",
+  "hidden-perturbed-fixture-python313": "33c66b9ed7ed78883bbfe28fa7c640dbb720b7a07b8dd453ad9abee3eba8056f",
+  "hidden-perturbed-fixture-python314": "c889f53b95296d299fa498addd71f35f0b8ef5a1954fce9aae5de0221085c1e0",
+  "hidden-perturbed-fixture-python315": "b82ac7d5fbbbc53b1f87a56b58f08f4e1fc9aacc6e03f20ada6244c165ec5b23",
+  "hidden-perturbed-fixture-python35": "3aa6bdb098ed715ff1f5be3d5879fe40622ef21d07cee497f9bdf3a2dabf3be3",
+  "hidden-perturbed-fixture-python36": "3fbf6ab68c33777c06a4ae2cb8696e16442d0577627793b2d8b65565ce279456",
+  "hidden-perturbed-fixture-python38": "6f5b8f3a70eacfa663bf25be78317e9e85b27e613d61e2850133736fb142222d",
+  "hidden-perturbed-fixture-python39": "b64a9fdf51c922c2b7576ff308cdd8d5a81a2fecfc1119ac475cdb1f1ed2fdc1",
+  "hidden-perturbed-fixture-utf-8": "fa05a5093b1339229627efe68ef716c57f8b3d1413f56211241fd12d314628c2",
+  "hidden-perturbed-fixture-utf-8-bom": "95546da590f09edd925445efbd2261c8772b09556fec1aba9f2ed99a4052bdca",
+  "hidden-perturbed-fixture-w19": "34709f165b66c2850bf50ced0c86023158c82943351cded6ff77b149b99b7474",
+  "hidden-perturbed-fixture-w29": "734a2e0b9d3e0748f32364c517a0809c6dffe9e13938c288a80405ec44dfcf19",
+  "hidden-perturbed-fixture-w39": "709ef3a36d600a6e04335a2ca371ecbe1ea4b41c957a33c7fae9afb13f609d3f",
+  "hidden-perturbed-fixture-w60": "7af1da6801558089cb2652572bcff8d7433077c0102b26c4dfe45cd81d197d33",
+  "hidden-perturbed-probe-abbreviation": "c35802991b1d44d76cefc4f3b25f39008e97655059f76a3a29ba608f9f45c849",
+  "hidden-perturbed-probe-benchmark": "c72cd1cde545e8607059063f70c579cb21b1b462b8688121fa4d155422fa8523",
+  "hidden-perturbed-probe-blank-lines": "3b1dd4e21be0e9796c454aeda9363a819e04002801ddd97c411fddce2913aaa1",
+  "hidden-perturbed-probe-cluster": "01a40abe8db02baf4cdce7e1811154a7a6a131e200e858bc4a64706738cda0da",
+  "hidden-perturbed-probe-config-file": "edd0bbe0a2270e631b9a68db43e49bc0f7f7a1ba491c35b58d9387e43fd3d8bd",
+  "hidden-perturbed-probe-config-int-error": "835b470bb1d445b5813ec469d33c83648c7f7892296158161979b075b517d894",
+  "hidden-perturbed-probe-config-unknown-key": "02b5066cc9e72704d0b7f3a99669a5804c7ff41d064122fe73af3926b43c6d82",
+  "hidden-perturbed-probe-defaults": "e7c9c7b663788d28bb4bcbec571a3775215eeab46dcd3b46ea2247cae4206c00",
+  "hidden-perturbed-probe-deprecated-section": "c021ecf16838db08c9239ca231ba07b4211358dcd184e120095fb8c6449ca607",
+  "hidden-perturbed-probe-diff-stdin": "639b0ba27164dc58551b18ea8e89a50567ca3c961bb902d57413b6aa30e595f8",
+  "hidden-perturbed-probe-doc-length": "522399916f12a5466be9976796a8c3145290748a297830036d4b655b8eb72bf3",
+  "hidden-perturbed-probe-exclude-and-filename": "b0c2a78865a52298efd4a73bc14396aa787b0e7bc77fcc6d594319cf22760c7d",
+  "hidden-perturbed-probe-format-custom": "5db5b71a5176147311cca0393ddb01bc21d15b08e76062dde0a51029b612ab67",
+  "hidden-perturbed-probe-format-pylint": "4b470f1f7bef0ab92976c6fdac3f713e0b6a834533de116b244e303c2980cb56",
+  "hidden-perturbed-probe-hang-closing": "0f42a195f21c87433bdaed1fe9aec12c17a0131b08098c48be34328b477a265f",
+  "hidden-perturbed-probe-indent": "a4fcf310a949ae73e6ad2e2e38e8be259d6a643216926ee184526e76fb2d31ee",
+  "hidden-perturbed-probe-int-error": "37a5fdb98a3ec0530e33d00b978ffa5f7593b7aa4dfa830cb46914ba3aa9898b",
+  "hidden-perturbed-probe-invalid-choice": "c1d498809e295a7f4798fd0c0ee37558845e08f01a0c7f28b1bc3a38b9a1dfab",
+  "hidden-perturbed-probe-jobs": "9dc15c328e955578b0beb518d9053f3406fe0f13ce3159903f407b281b9fecca",
+  "hidden-perturbed-probe-local-config": "d9120ca445996743bb95977dced0451ae7e1bc4ab3cf163eec56eb9ea99eb57b",
+  "hidden-perturbed-probe-negative": "b4f61e2ac283707805f86a78d7308f33761ba1706bd0b923fbf9d37a3d5b11b6",
+  "hidden-perturbed-probe-no-args-with-config": "d418a14448e4584299a11bfdfd9a7048be752cabc43ea0a7029597841164e22e",
+  "hidden-perturbed-probe-repeat": "ffc0be6d417992c37a0fc3867add96eff1ed698fff60390ecf30e3724a8db97c",
+  "hidden-perturbed-probe-select-ignore": "d5a740d39b77dd4e95967febd961042791b3abcecd9413b6ac7762cbd93eb02e",
+  "hidden-perturbed-probe-separator": "288c8ac1dbd6b3db094339da2dcce716ad89645291c236cd565e7d861ab809e7",
+  "hidden-perturbed-probe-show-source-and-pep8": "4a5c5725185b6c537426b1232df8f8777a4f1aea305701fb91a60c1c1b149dc8",
+  "hidden-perturbed-probe-statistics": "28ae54c1ee402f0118e4ce2a503e0b634d3541719a64bc37a560e3b178cf03ad",
+  "hidden-perturbed-probe-stdin": "1035ff96cc5dd42dc6df52cf29c148c8baea7996958be94e203e7b4b5b462b09",
+  "hidden-perturbed-probe-tuned-bom-prefix": "6d239c21e209134efe74a121f25fa91f0aff35ee807356c01c9a3675d3348447",
+  "hidden-perturbed-probe-tuned-diff-multihunk": "ae2a4bf199bc0ed737de8329849f74a67cae1e172a96b321b010bf1787419437",
+  "hidden-perturbed-probe-tuned-e129-visual-indent": "0bc29d9de3d3ef2ef2fd4be0f9986249d02c4f6823cc14b89f493155e2077eb7",
+  "hidden-perturbed-probe-tuned-e12x-continuation": "e6e02d801b335ac2b79ebd4c52360a7f95f605cb5432f377fb47893d91af08b5",
+  "hidden-perturbed-probe-tuned-e301-blank-lines": "93299ee80fee9b21d21b049896d2985b802bd7ef3a1856362b2ccd13491c94e0",
+  "hidden-perturbed-probe-tuned-e306-nested-def": "f8dfbe15355efc4c1742381b2ad76d1d9a94a4faf6bf7af05a1fe0cf598f8ef6",
+  "hidden-perturbed-probe-tuned-e721-type-compare": "4ea23beab2d716fbd9abc02afd79db1c4262ed2ac28a02569bd77ec0038a13e5",
+  "hidden-perturbed-probe-unknown": "5c10c737aee24cd25edc9670ece5232ebbdde31d10ec7fb806fe21b70002cb13",
+  "hidden-perturbed-probe-verbose": "3b310a826d8de70538c69381278f93a5b39631b8ec86d25646ee38cbdc1f3b64",
+  "hidden-perturbed-probe-very-verbose": "5ffba27acc0f7816e78e73daee5056367ee797d0dd7c6e6df3acdfd33e1b7f59",
+  "hidden-select-e2": "e39c8d9d3c76c2a3e55d671ff62e40e872431980e9d9a86fb81c66aa6aa7878d",
+  "hidden-select-w": "ea1f994062da1403653d0789ed2393c7eaa8bfd8f6208861385198c7ff3e95d6",
+  "hidden-statistics-only": "b3f20bfdc585e7e45162e3df97abe0af5666d4186e642750554dc1fa16c0b627",
+  "hidden-stdin-clean": "233bd1a48678cb2bdca701eecca245b964a5d928683e654ecfb89e9c506248b4",
+  "hidden-two-files": "38e1b1f620c4b9ba93a7588e86444a399e9599472ad5c1cf883437ce76c45efb"
+ },
+ "module": "pycodestyle",
+ "observations": {
+  "hidden-blank-1": {
+   "case_id": "hidden-blank-1",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--max-blank-lines=1",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 2,
+    "files": {},
+    "signal": null,
+    "stderr": "Usage: pycodestyle [options] input ...\n\npycodestyle: error: no such option: --max-blank-lines\n",
+    "stdout": ""
+   }
+  },
+  "hidden-config-79": {
+   "case_id": "hidden-config-79",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--config=cfg.ini",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:1:61: E501 line too long (76 > 60 characters)\n"
+   }
+  },
+  "hidden-config-select": {
+   "case_id": "hidden-config-select",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:1:4: E721 do not compare types, for exact checks use `is` / `is not`, for instance checks use `isinstance()`\n"
+   }
+  },
+  "hidden-count-only": {
+   "case_id": "hidden-count-only",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--count",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "1\n",
+    "stdout": "sample.py:1:2: E225 missing whitespace around operator\n"
+   }
+  },
+  "hidden-crlf": {
+   "case_id": "hidden-crlf",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:1:2: E225 missing whitespace around operator\nsample.py:3:4: E225 missing whitespace around operator\nsample.py:4:1: W391 blank line at end of file\n"
+   }
+  },
+  "hidden-diff-added-context": {
+   "case_id": "hidden-diff-added-context",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--diff",
+     "sample.py"
+    ],
+    "stdin": "--- sample.py\n+++ sample.py\n@@ -1,3 +1,3 @@\n-a=1\n+a=2\n b=2\n c=3\n"
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py\\sample.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample.py\\\\sample.py'\n"
+   }
+  },
+  "hidden-diff-one-line": {
+   "case_id": "hidden-diff-one-line",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--diff",
+     "sample.py"
+    ],
+    "stdin": "--- sample.py\n+++ sample.py\n@@ -1 +1 @@\n-q=1\n+q=9\n"
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py\\sample.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample.py\\\\sample.py'\n"
+   }
+  },
+  "hidden-doc-30": {
+   "case_id": "hidden-doc-30",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--max-doc-length=30",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:1:31: W505 doc line too long (46 > 30 characters)\n"
+   }
+  },
+  "hidden-empty-file": {
+   "case_id": "hidden-empty-file",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "empty.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "hidden-exclude-dir": {
+   "case_id": "hidden-exclude-dir",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--exclude=skip",
+     "."
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ".\\sample.py:1:2: E225 missing whitespace around operator\n"
+   }
+  },
+  "hidden-filename-only": {
+   "case_id": "hidden-filename-only",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--filename=keep*.py",
+     "."
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ".\\keep.py:1:2: E225 missing whitespace around operator\n"
+   }
+  },
+  "hidden-ignore-e5": {
+   "case_id": "hidden-ignore-e5",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--ignore=E501",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:2:2: E225 missing whitespace around operator\n"
+   }
+  },
+  "hidden-indent-2": {
+   "case_id": "hidden-indent-2",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--indent-size=2",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "hidden-indent-8": {
+   "case_id": "hidden-indent-8",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--indent-size=8",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:2:9: E117 over-indented\n"
+   }
+  },
+  "hidden-len-100": {
+   "case_id": "hidden-len-100",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--max-line-length=100",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:1:101: E501 line too long (105 > 100 characters)\n"
+   }
+  },
+  "hidden-len-60": {
+   "case_id": "hidden-len-60",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--max-line-length=60",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:1:61: E501 line too long (67 > 60 characters)\n"
+   }
+  },
+  "hidden-len-equal": {
+   "case_id": "hidden-len-equal",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--max-line-length=10",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "hidden-no-newline-at-eof": {
+   "case_id": "hidden-no-newline-at-eof",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:1:2: E225 missing whitespace around operator\nsample.py:1:4: W292 no newline at end of file\n"
+   }
+  },
+  "hidden-perturbed-fixture-crlf": {
+   "case_id": "hidden-perturbed-fixture-crlf",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "crlf.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "crlf.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'crlf.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-e10": {
+   "case_id": "hidden-perturbed-fixture-e10",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E10.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E10.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'E10.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-e11": {
+   "case_id": "hidden-perturbed-fixture-e11",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E11.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E11.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'E11.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-e12": {
+   "case_id": "hidden-perturbed-fixture-e12",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E12.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E12.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'E12.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-e12not": {
+   "case_id": "hidden-perturbed-fixture-e12not",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E12not.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E12not.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'E12not.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-e20": {
+   "case_id": "hidden-perturbed-fixture-e20",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E20.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E20.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'E20.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-e21": {
+   "case_id": "hidden-perturbed-fixture-e21",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E21.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E21.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'E21.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-e22": {
+   "case_id": "hidden-perturbed-fixture-e22",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E22.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E22.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'E22.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-e23": {
+   "case_id": "hidden-perturbed-fixture-e23",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E23.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E23.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'E23.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-e24": {
+   "case_id": "hidden-perturbed-fixture-e24",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E24.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E24.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'E24.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-e25": {
+   "case_id": "hidden-perturbed-fixture-e25",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E25.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E25.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'E25.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-e26": {
+   "case_id": "hidden-perturbed-fixture-e26",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E26.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E26.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'E26.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-e27": {
+   "case_id": "hidden-perturbed-fixture-e27",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E27.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E27.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'E27.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-e30": {
+   "case_id": "hidden-perturbed-fixture-e30",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E30.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E30.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'E30.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-e30not": {
+   "case_id": "hidden-perturbed-fixture-e30not",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E30not.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E30not.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'E30not.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-e40": {
+   "case_id": "hidden-perturbed-fixture-e40",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E40.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E40.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'E40.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-e50": {
+   "case_id": "hidden-perturbed-fixture-e50",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E50.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E50.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'E50.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-e70": {
+   "case_id": "hidden-perturbed-fixture-e70",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E70.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E70.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'E70.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-e71": {
+   "case_id": "hidden-perturbed-fixture-e71",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E71.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E71.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'E71.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-e72": {
+   "case_id": "hidden-perturbed-fixture-e72",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E72.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E72.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'E72.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-e73": {
+   "case_id": "hidden-perturbed-fixture-e73",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E73.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E73.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'E73.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-e74": {
+   "case_id": "hidden-perturbed-fixture-e74",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E74.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E74.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'E74.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-e90": {
+   "case_id": "hidden-perturbed-fixture-e90",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E90.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E90.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'E90.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-latin-1": {
+   "case_id": "hidden-perturbed-fixture-latin-1",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "latin-1.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "latin-1.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'latin-1.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-noqa": {
+   "case_id": "hidden-perturbed-fixture-noqa",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "noqa.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "noqa.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'noqa.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-python3": {
+   "case_id": "hidden-perturbed-fixture-python3",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "python3.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "python3.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'python3.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-python310": {
+   "case_id": "hidden-perturbed-fixture-python310",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "python310.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "python310.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'python310.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-python311": {
+   "case_id": "hidden-perturbed-fixture-python311",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "python311.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "python311.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'python311.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-python312": {
+   "case_id": "hidden-perturbed-fixture-python312",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "python312.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "python312.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'python312.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-python313": {
+   "case_id": "hidden-perturbed-fixture-python313",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "python313.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "python313.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'python313.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-python314": {
+   "case_id": "hidden-perturbed-fixture-python314",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "python314.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "python314.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'python314.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-python315": {
+   "case_id": "hidden-perturbed-fixture-python315",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "python315.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "python315.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'python315.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-python35": {
+   "case_id": "hidden-perturbed-fixture-python35",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "python35.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "python35.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'python35.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-python36": {
+   "case_id": "hidden-perturbed-fixture-python36",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "python36.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "python36.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'python36.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-python38": {
+   "case_id": "hidden-perturbed-fixture-python38",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "python38.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "python38.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'python38.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-python39": {
+   "case_id": "hidden-perturbed-fixture-python39",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "python39.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "python39.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'python39.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-utf-8": {
+   "case_id": "hidden-perturbed-fixture-utf-8",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "utf-8.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "utf-8.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'utf-8.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-utf-8-bom": {
+   "case_id": "hidden-perturbed-fixture-utf-8-bom",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "utf-830-bom.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "utf-830-bom.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'utf-830-bom.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-w19": {
+   "case_id": "hidden-perturbed-fixture-w19",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "W19.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "W19.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'W19.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-w29": {
+   "case_id": "hidden-perturbed-fixture-w29",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "W29.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "W29.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'W29.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-w39": {
+   "case_id": "hidden-perturbed-fixture-w39",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "W39.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "W39.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'W39.py'\n"
+   }
+  },
+  "hidden-perturbed-fixture-w60": {
+   "case_id": "hidden-perturbed-fixture-w60",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "W60.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "W60.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'W60.py'\n"
+   }
+  },
+  "hidden-perturbed-probe-abbreviation": {
+   "case_id": "hidden-perturbed-probe-abbreviation",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--max-line-len=7934",
+     "sample34.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample34.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample34.py'\n"
+   }
+  },
+  "hidden-perturbed-probe-benchmark": {
+   "case_id": "hidden-perturbed-probe-benchmark",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--benchmark",
+     "sample49.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample49.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample49.py'\n0.00    seconds elapsed\n"
+   }
+  },
+  "hidden-perturbed-probe-blank-lines": {
+   "case_id": "hidden-perturbed-probe-blank-lines",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--max-blank-lines=045",
+     "sample45.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 2,
+    "files": {},
+    "signal": null,
+    "stderr": "Usage: pycodestyle [options] input ...\n\npycodestyle: error: no such option: --max-blank-lines\n",
+    "stdout": ""
+   }
+  },
+  "hidden-perturbed-probe-cluster": {
+   "case_id": "hidden-perturbed-probe-cluster",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "-qq",
+     "sample38.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "hidden-perturbed-probe-config-file": {
+   "case_id": "hidden-perturbed-probe-config-file",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--config=cfg.ini",
+     "sample51.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample51.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample51.py'\n"
+   }
+  },
+  "hidden-perturbed-probe-config-int-error": {
+   "case_id": "hidden-perturbed-probe-config-int-error",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample55.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample55.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample55.py'\n"
+   }
+  },
+  "hidden-perturbed-probe-config-unknown-key": {
+   "case_id": "hidden-perturbed-probe-config-unknown-key",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample54.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample54.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample54.py'\n"
+   }
+  },
+  "hidden-perturbed-probe-defaults": {
+   "case_id": "hidden-perturbed-probe-defaults",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample41.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample41.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample41.py'\n"
+   }
+  },
+  "hidden-perturbed-probe-deprecated-section": {
+   "case_id": "hidden-perturbed-probe-deprecated-section",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample53.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample53.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample53.py'\n"
+   }
+  },
+  "hidden-perturbed-probe-diff-stdin": {
+   "case_id": "hidden-perturbed-probe-diff-stdin",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--diff",
+     "sample59.py"
+    ],
+    "stdin": "--- sample59.py\n+++ sample59.py\n@@ -159 +159 @@\n-x59=159\n+x59=259\n"
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "hidden-perturbed-probe-doc-length": {
+   "case_id": "hidden-perturbed-probe-doc-length",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--max-doc-length=2047",
+     "sample47.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample47.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample47.py'\n"
+   }
+  },
+  "hidden-perturbed-probe-exclude-and-filename": {
+   "case_id": "hidden-perturbed-probe-exclude-and-filename",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--exclude=sample63.py",
+     "--filename=*.py",
+     "."
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ".\\sample_h.py:1:4: E225 missing whitespace around operator\n"
+   }
+  },
+  "hidden-perturbed-probe-format-custom": {
+   "case_id": "hidden-perturbed-probe-format-custom",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--format=%(path)s:%(row)d:%(code)s",
+     "sample61.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample61.py:1:E902\n"
+   }
+  },
+  "hidden-perturbed-probe-format-pylint": {
+   "case_id": "hidden-perturbed-probe-format-pylint",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--format=pylint",
+     "sample60.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample60.py:1: [E902] FileNotFoundError: [Errno 2] No such file or directory: 'sample60.py'\n"
+   }
+  },
+  "hidden-perturbed-probe-hang-closing": {
+   "case_id": "hidden-perturbed-probe-hang-closing",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--hang-closing",
+     "sample64.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample64.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample64.py'\n"
+   }
+  },
+  "hidden-perturbed-probe-indent": {
+   "case_id": "hidden-perturbed-probe-indent",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--indent-size=346",
+     "sample46.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample46.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample46.py'\n"
+   }
+  },
+  "hidden-perturbed-probe-int-error": {
+   "case_id": "hidden-perturbed-probe-int-error",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--max-line-length=abc",
+     "sample40.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 2,
+    "files": {},
+    "signal": null,
+    "stderr": "Usage: pycodestyle [options] input ...\n\npycodestyle: error: option --max-line-length: invalid integer value: 'abc'\n",
+    "stdout": ""
+   }
+  },
+  "hidden-perturbed-probe-invalid-choice": {
+   "case_id": "hidden-perturbed-probe-invalid-choice",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--format=not-a-format",
+     "sample39.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "not-a-format\n"
+   }
+  },
+  "hidden-perturbed-probe-jobs": {
+   "case_id": "hidden-perturbed-probe-jobs",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--jobs=150",
+     "sample50.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 2,
+    "files": {},
+    "signal": null,
+    "stderr": "Usage: pycodestyle [options] input ...\n\npycodestyle: error: no such option: --jobs\n",
+    "stdout": ""
+   }
+  },
+  "hidden-perturbed-probe-local-config": {
+   "case_id": "hidden-perturbed-probe-local-config",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample52.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample52.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample52.py'\n"
+   }
+  },
+  "hidden-perturbed-probe-negative": {
+   "case_id": "hidden-perturbed-probe-negative",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--max-line-length=-136",
+     "sample36.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample36.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample36.py'\n"
+   }
+  },
+  "hidden-perturbed-probe-no-args-with-config": {
+   "case_id": "hidden-perturbed-probe-no-args-with-config",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 2,
+    "files": {},
+    "signal": null,
+    "stderr": "Usage: pycodestyle [options] input ...\n\npycodestyle: error: input not specified\n",
+    "stdout": ""
+   }
+  },
+  "hidden-perturbed-probe-repeat": {
+   "case_id": "hidden-perturbed-probe-repeat",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--select=E1",
+     "--select=E2",
+     "sample37.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "hidden-perturbed-probe-select-ignore": {
+   "case_id": "hidden-perturbed-probe-select-ignore",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--select=E,W",
+     "--ignore=E501",
+     "sample65.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample65.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample65.py'\n"
+   }
+  },
+  "hidden-perturbed-probe-separator": {
+   "case_id": "hidden-perturbed-probe-separator",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--",
+     "--not-an-option.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "--not-an-option.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: '--not-an-option.py'\n"
+   }
+  },
+  "hidden-perturbed-probe-show-source-and-pep8": {
+   "case_id": "hidden-perturbed-probe-show-source-and-pep8",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--show-source",
+     "--show-pep8",
+     "sample62.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample62.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample62.py'\n\n^\n    Read the source code.\n"
+   }
+  },
+  "hidden-perturbed-probe-statistics": {
+   "case_id": "hidden-perturbed-probe-statistics",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--statistics",
+     "--count",
+     "sample48.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "1\n",
+    "stdout": "sample48.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample48.py'\n1       E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample48.py'\n"
+   }
+  },
+  "hidden-perturbed-probe-stdin": {
+   "case_id": "hidden-perturbed-probe-stdin",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "-"
+    ],
+    "stdin": "x42=142\n"
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "stdin:1:4: E225 missing whitespace around operator\n"
+   }
+  },
+  "hidden-perturbed-probe-tuned-bom-prefix": {
+   "case_id": "hidden-perturbed-probe-tuned-bom-prefix",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample72.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample72.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample72.py'\n"
+   }
+  },
+  "hidden-perturbed-probe-tuned-diff-multihunk": {
+   "case_id": "hidden-perturbed-probe-tuned-diff-multihunk",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--diff",
+     "sample73.py"
+    ],
+    "stdin": "--- sample73.py\n+++ sample73.py\n@@ -173,273 +173,273 @@\n-x73=173\n+x73=273\n y73=373\n@@ -1073,273 +1073,273 @@\n-z73=173\n+z73=273\n w=373\n"
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "hidden-perturbed-probe-tuned-e129-visual-indent": {
+   "case_id": "hidden-perturbed-probe-tuned-e129-visual-indent",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample71.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample71.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample71.py'\n"
+   }
+  },
+  "hidden-perturbed-probe-tuned-e12x-continuation": {
+   "case_id": "hidden-perturbed-probe-tuned-e12x-continuation",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample70.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample70.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample70.py'\n"
+   }
+  },
+  "hidden-perturbed-probe-tuned-e301-blank-lines": {
+   "case_id": "hidden-perturbed-probe-tuned-e301-blank-lines",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample67.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample67.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample67.py'\n"
+   }
+  },
+  "hidden-perturbed-probe-tuned-e306-nested-def": {
+   "case_id": "hidden-perturbed-probe-tuned-e306-nested-def",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample68.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample68.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample68.py'\n"
+   }
+  },
+  "hidden-perturbed-probe-tuned-e721-type-compare": {
+   "case_id": "hidden-perturbed-probe-tuned-e721-type-compare",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample69.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample69.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample69.py'\n"
+   }
+  },
+  "hidden-perturbed-probe-unknown": {
+   "case_id": "hidden-perturbed-probe-unknown",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--no-such-option",
+     "sample43.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 2,
+    "files": {},
+    "signal": null,
+    "stderr": "Usage: pycodestyle [options] input ...\n\npycodestyle: error: no such option: --no-such-option\n",
+    "stdout": ""
+   }
+  },
+  "hidden-perturbed-probe-verbose": {
+   "case_id": "hidden-perturbed-probe-verbose",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "-v",
+     "sample56.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "checking sample56.py\nsample56.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample56.py'\n"
+   }
+  },
+  "hidden-perturbed-probe-very-verbose": {
+   "case_id": "hidden-perturbed-probe-very-verbose",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "-vv",
+     "sample57.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "checking sample57.py\nsample57.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample57.py'\n"
+   }
+  },
+  "hidden-select-e2": {
+   "case_id": "hidden-select-e2",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--select=E2",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:1:2: E225 missing whitespace around operator\nsample.py:2:4: E222 multiple spaces after operator\n"
+   }
+  },
+  "hidden-select-w": {
+   "case_id": "hidden-select-w",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--select=W",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:2:1: W191 indentation contains tabs\n"
+   }
+  },
+  "hidden-statistics-only": {
+   "case_id": "hidden-statistics-only",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--statistics",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:1:2: E225 missing whitespace around operator\nsample.py:2:2: E225 missing whitespace around operator\nsample.py:3:2: E225 missing whitespace around operator\n3       E225 missing whitespace around operator\n"
+   }
+  },
+  "hidden-stdin-clean": {
+   "case_id": "hidden-stdin-clean",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "-"
+    ],
+    "stdin": "s = 1\n"
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "hidden-two-files": {
+   "case_id": "hidden-two-files",
+   "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "one.py",
+     "two.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "one.py:1:2: E225 missing whitespace around operator\ntwo.py:1:2: E225 missing whitespace around operator\n"
+   }
+  }
+ },
+ "schema": "agent-golden/1",
+ "target": "pycodestyle 2.15.0"
+}

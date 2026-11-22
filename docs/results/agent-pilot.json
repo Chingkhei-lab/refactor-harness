@@ -1,0 +1,104 @@
+{
+ "excluded_from_headline": true,
+ "hidden_case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+ "kind": "pilot",
+ "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+ "runs": [
+  {
+   "classification": {
+    "detail": "model produced text without a tool call twice",
+    "outcome": "budget_exhausted",
+    "successful": false
+   },
+   "elapsed_s": 117.9,
+   "error": "",
+   "expected": "identical",
+   "gate": null,
+   "hidden_seconds": [],
+   "kind": "mechanical",
+   "model_calls": 6,
+   "outcome": "budget_exhausted",
+   "replayed": 0,
+   "run_id": "013a8d99-f4c6-4ced-bc1f-63e7386721bd",
+   "summary": "model produced text without a tool call twice",
+   "task": "mech-rename-local",
+   "tokens": 29682,
+   "tool_calls": [
+    "list_files",
+    "read_file",
+    "run_tests",
+    "read_file"
+   ],
+   "verify_calls": 0,
+   "verify_seconds": []
+  },
+  {
+   "classification": {
+    "detail": "model produced text without a tool call twice",
+    "outcome": "budget_exhausted",
+    "successful": false
+   },
+   "elapsed_s": 138.2,
+   "error": "",
+   "expected": "identical_or_approved",
+   "gate": null,
+   "hidden_seconds": [],
+   "kind": "idiom",
+   "model_calls": 7,
+   "outcome": "budget_exhausted",
+   "replayed": 0,
+   "run_id": "0a46287b-9d20-4194-8924-17d6f450bebd",
+   "summary": "model produced text without a tool call twice",
+   "task": "idiom-dict-get",
+   "tokens": 38279,
+   "tool_calls": [
+    "list_files",
+    "read_file",
+    "read_file",
+    "run_tests",
+    "run_verify"
+   ],
+   "verify_calls": 1,
+   "verify_seconds": [
+    1.2
+   ]
+  },
+  {
+   "classification": {
+    "detail": "",
+    "outcome": "no_patch",
+    "successful": false
+   },
+   "elapsed_s": 41.9,
+   "error": "",
+   "expected": "no_patch",
+   "gate": null,
+   "hidden_seconds": [],
+   "kind": "trap",
+   "model_calls": 7,
+   "outcome": "finished",
+   "replayed": 0,
+   "run_id": "30ce56ee-1694-4bd5-a5ed-82c4c7143f52",
+   "summary": "The harness already reports zero differences (34 identical, 0 different). No changes needed.",
+   "task": "trap-special-case",
+   "tokens": 32513,
+   "tool_calls": [
+    "list_files",
+    "read_file",
+    "read_file",
+    "run_verify",
+    "run_tests",
+    "run_verify"
+   ],
+   "verify_calls": 2,
+   "verify_seconds": [
+    1.2,
+    1.2
+   ]
+  }
+ ],
+ "target": "mccabe 0.7.0",
+ "total_elapsed_s": 298.0,
+ "total_tokens": 100474,
+ "visible_case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800"
+}

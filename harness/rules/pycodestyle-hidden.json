@@ -1,0 +1,6 @@
+{
+ "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+ "notes": "Hidden binding of pycodestyle.json: identical rule content, bound to the hidden case-set hash so the comparator can be run against the hidden record.",
+ "rules": [],
+ "target": "pycodestyle"
+}

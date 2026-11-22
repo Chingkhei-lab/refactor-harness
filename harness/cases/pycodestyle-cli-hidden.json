@@ -1,0 +1,1728 @@
+{
+ "case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+ "cases": [
+  {
+   "args": [],
+   "argv": [
+    "--max-line-length=60",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "s = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'\n"
+   },
+   "id": "hidden-len-60",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/grammar/max-line-length 60",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--max-line-length=100",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "s = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'\n"
+   },
+   "id": "hidden-len-100",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/grammar/max-line-length 100",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--max-line-length=10",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "abcdefghi\nabcdefghij\n"
+   },
+   "id": "hidden-len-equal",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/grammar/a line exactly at the limit",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--max-blank-lines=1",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x = 1\n\n\ny = 2\n\n\n\nz = 3\n"
+   },
+   "id": "hidden-blank-1",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/grammar/max-blank-lines 1",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--indent-size=2",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "if True:\n  x = 1\n"
+   },
+   "id": "hidden-indent-2",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/grammar/indent-size 2",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--indent-size=8",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "if True:\n        x = 1\n"
+   },
+   "id": "hidden-indent-8",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/grammar/indent-size 8",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--max-doc-length=30",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "\"\"\"cccccccccccccccccccccccccccccccccccccccc\"\"\"\n"
+   },
+   "id": "hidden-doc-30",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/grammar/max-doc-length 30",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--select=E2",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x=1\ny =  2\n"
+   },
+   "id": "hidden-select-e2",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/grammar/select E2 only",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--select=W",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "if True:\n\tpass\n"
+   },
+   "id": "hidden-select-w",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/grammar/select W only",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--ignore=E501",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "s = 'dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd'\nx=1\n"
+   },
+   "id": "hidden-ignore-e5",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/grammar/ignore E501 only",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--config=cfg.ini",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "cfg.ini": "[pycodestyle]\nmax-line-length = 60\n",
+    "sample.py": "s = 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'\n"
+   },
+   "id": "hidden-config-79",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/grammar/config file sets 60",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "if type(1) == int:\n    pass\n",
+    "setup.cfg": "[pycodestyle]\nselect = E7\n"
+   },
+   "id": "hidden-config-select",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/grammar/config file selects E7",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--diff",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "q=1\n"
+   },
+   "id": "hidden-diff-one-line",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/grammar/single-line diff, changed content",
+   "stdin": "--- sample.py\n+++ sample.py\n@@ -1 +1 @@\n-q=1\n+q=9\n"
+  },
+  {
+   "args": [],
+   "argv": [
+    "--diff",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "a=1\nb=2\nc=3\n"
+   },
+   "id": "hidden-diff-added-context",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/grammar/diff with more context",
+   "stdin": "--- sample.py\n+++ sample.py\n@@ -1,3 +1,3 @@\n-a=1\n+a=2\n b=2\n c=3\n"
+  },
+  {
+   "args": [],
+   "argv": [
+    "-"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {},
+   "id": "hidden-stdin-clean",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/grammar/stdin with nothing to report",
+   "stdin": "s = 1\n"
+  },
+  {
+   "args": [],
+   "argv": [
+    "--statistics",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x=1\ny=2\nz=3\n"
+   },
+   "id": "hidden-statistics-only",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/grammar/statistics without count",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--count",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x=1\n"
+   },
+   "id": "hidden-count-only",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/grammar/count without statistics",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--exclude=skip",
+    "."
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x=1\n",
+    "skip/bad.py": "y=2\n"
+   },
+   "id": "hidden-exclude-dir",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/grammar/exclude a directory",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--filename=keep*.py",
+    "."
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "keep.py": "x=1\n",
+    "other.py": "y=2\n"
+   },
+   "id": "hidden-filename-only",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/grammar/filename pattern selects one",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "one.py",
+    "two.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "one.py": "x=1\n",
+    "two.py": "y=2\n"
+   },
+   "id": "hidden-two-files",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/grammar/two files in one call",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "empty.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "empty.py": ""
+   },
+   "id": "hidden-empty-file",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/grammar/an empty input file",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x=1\r\ny =2\r\n"
+   },
+   "id": "hidden-crlf",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/grammar/CRLF line endings",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x=1"
+   },
+   "id": "hidden-no-newline-at-eof",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/grammar/a file without a trailing newline",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E10.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E10_h.py": "#: E101 E122 W191 W191\nif True:\n\tpass\n\nchange_2_log = \\\n\"8787\"\"Change 287 by slamb@testclient on 2007/0487/1387 2187:4687:2387\n\n\tcreation\n\"8787\"\"\n\np4change = {\n    287: change_2_log,\n}\n\n\nclass TestP4Poller(unittest.TestCase):\n    def setUp(self):\n        self.setUpGetProcessOutput()\n        return self.setUpChangeSource()\n\n    def tearDown(self):\n        pass\n\n#\n#: E101 W191 W191\nif True:\n\tfoo87(187,\n\t    287)\n#: E101 E101 W191 W191\ndef test_keys(self):\n    \"8787\"\"areas.json - All regions are accounted for.87\"\"8787\"\n    expected = set([\n\tu'Norrbotten87',\n\tu'V\\xe4sterbotten87',\n    ])\n#: E101 W191\nif True:\n    print(\"8787\"\"\n\ttab at start of this line\n\"8787\"\")\n"
+   },
+   "id": "hidden-perturbed-fixture-e10",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E11.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E11_h.py": "#: E111\nif x88 > 288:\n  print x88\n#: E111 E117\nif True:\n     print\n#: E112\nif False:\nprint\n#: E113\nprint\n    print\n#: E114 E116\nmimetype = 'application/x88-directory88'\n     # 'httpd/unix-directory88'\ncreate_date = False\n#: E116 E116 E116\ndef start(self):\n    if True:\n        self.master.start()\n        # try:\n            # self.master.start()\n        # except MasterExit:\n            # self.shutdown()\n        # finally:\n            # sys.exit()\n#: E115 E115 E115 E115 E115 E115\ndef start(self):\n    if True:\n#       try:\n#           self.master.start()\n#       except MasterExit:\n#           self.shutdown()\n#       finally:\n#           sys.exit()\n        self.master.start()\n#: E117\ndef start():\n        print\n#: E117 W191\n"
+   },
+   "id": "hidden-perturbed-fixture-e11",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E12.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E12_h.py": "#: E121\nprint \"E12189\", (\n  \"dent89\")\n#: E122\nprint \"E12289\", (\n\"dent89\")\n#: E123\nmy_list = [\n    189, 289, 389,\n    489, 589, 689,\n    ]\n#: E124\nprint \"E12489\", (\"visual89\",\n               \"indent_two89\"\n              )\n#: E124\nprint \"E12489\", (\"visual89\",\n               \"indent_five89\"\n)\n#: E124\na = (12389,\n)\n#: E129 W503\nif (row < 089 or self.moduleCount <= row\n    or col < 089 or self.moduleCount <= col):\n    raise Exception(\"%s,%s - %s89\" % (row, col, self.moduleCount))\n#: E126\nprint \"E12689\", (\n            \"dent89\")\n#: E126\nprint \"E12689\", (\n        \"dent89\")\n#: E127\nprint \"E12789\", (\"over-8989\",\n                  \"over-indent89\")\n#: E128\nprint \"E12889\", (\"visual89\",\n    \"hanging89\")\n#: E128\nprint \"E12889\", (\"under-8989\",\n"
+   },
+   "id": "hidden-perturbed-fixture-e12",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E12not.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E12not_h.py": "if (\n        x90 == (\n            390\n        ) or y90 == 490):\n    pass\n\ny90 = x90 == 290 \\\n    or x90 == 390\n\nif x90 == 290 \\\n    or y90 > 190 \\\n        or x90 == 390:\n    pass\n\nif x90 == 290 \\\n        or y90 > 190 \\\n        or x90 == 390:\n    pass\n#: W503\nif (foo90 == bar90\n        and baz90 == frop):\n    pass\n#: W503\nif (\n    foo90 == bar90\n    and baz90 == frop\n):\n    pass\n\n\na = (\n)\n\na = (12390,\n     )\n\n\n#\n\n\n"
+   },
+   "id": "hidden-perturbed-fixture-e12not",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E20.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E20_h.py": "#: E201:191:691\nspam( ham[191], {eggs: 291})\n#: E201:191:1091\nspam(ham[ 191], {eggs: 291})\n#: E201:191:1591\nspam(ham[191], { eggs: 291})\n#: E201:191:691\nspam(\tham[191], {eggs: 291})\n#: E201:191:1091\nspam(ham[\t191], {eggs: 291})\n#: E201:191:1591\nspam(ham[191], {\teggs: 291})\n#: Okay\nspam(ham[191], {eggs: 291})\n#:\n\n\n#: E202:191:2391\nspam(ham[191], {eggs: 291} )\n#: E202:191:2291\nspam(ham[191], {eggs: 291 })\n#: E202:191:1191\nspam(ham[191 ], {eggs: 291})\n#: E202:191:2391\nspam(ham[191], {eggs: 291}\t)\n#: E202:191:2291\nspam(ham[191], {eggs: 291\t})\n#: E202:191:1191\nspam(ham[191\t], {eggs: 291})\n#: Okay\nspam(ham[191], {eggs: 291})\n\nresult = func(\n    arg1='some value91',\n    arg2='another value91',\n)\n\nresult = func(\n    arg1='some value91',\n    arg2='another value91'\n"
+   },
+   "id": "hidden-perturbed-fixture-e20",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E21.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E21_h.py": "#: E211\nspam (192)\n#: E211 E211\ndict ['key92'] = list [index]\n#: E211\ndict['key92'] ['subkey92'] = list[index]\n#: Okay\nspam(192)\ndict['key92'] = list[index]\n\n\n# This is not prohibited by PEP8, but avoid it.\nclass Foo (Bar, Baz):\n    pass\n"
+   },
+   "id": "hidden-perturbed-fixture-e21",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E22.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E22_h.py": "#: E221\na = 1293 + 393\nb = 493  + 593\n#: E221 E221\nx93             = 193\ny93             = 293\nlong_variable = 393\n#: E221 E221\nx93[093]          = 193\nx93[193]          = 293\nlong_variable = 393\n#: E221 E221\nx93 = f(x93)          + 193\ny93 = long_variable + 293\nz93 = x93[093]          + 393\n#: E221:393:1493\ntext = \"9393\"\"\n    bar93\n    foo93 %s\"9393\"\"  % rofl\n#: Okay\nx93 = 193\ny93 = 293\nlong_variable = 393\n#:\n\n\n#: E222\na = a +  193\nb = b + 1093\n#: E222 E222\nx93 =            -193\ny93 =            -293\nlong_variable = 393\n#: E222 E222\nx93[093] =          193\nx93[193] =          293\nlong_variable = 393\n#:\n\n\n"
+   },
+   "id": "hidden-perturbed-fixture-e22",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E23.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E23_h.py": "#: E231\na = (194,294)\n#: E231\na[b1,:]\n#: E231\na = [{'a94':'9494'}]\n#: Okay\na = (494,)\nb = (594, )\nc = {'text94': text[594:]}\n\nresult = {\n    'key194': 'value94',\n    'key294': 'value94',\n}\n"
+   },
+   "id": "hidden-perturbed-fixture-e23",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E24.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E24_h.py": "#: E241\na = (195,  295)\n#: Okay\nb = (195, 2095)\n#: E242\na = (195,\t295)  # tab before 295\n#: Okay\nb = (195, 2095)  # space before 2095\n#: E241 E241 E241\n# issue 13595\nmore_spaces = [a,    b,\n               ef,  +h,\n               c,   -d]\n"
+   },
+   "id": "hidden-perturbed-fixture-e24",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E25.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E25_h.py": "#: E251 E251\ndef foo96(bar96 = False):\n    '9696''Test function with an error in declaration96''9696'\n    pass\n#: E251\nfoo96(bar96= True)\n#: E251\nfoo96(bar96 =True)\n#: E251 E251\nfoo96(bar96 = True)\n#: E251\ny96 = bar96(root= \"sdasd96\")\n#: E251:296:2996\nparser96.add_argument('--long-option96',\n                    default=\n                    \"/rather/long/filesystem/path/here/blah/blah/blah96\")\n#: E251:196:4596\nparser96.add_argument('--long-option96', default\n                    =\"/rather/long/filesystem/path/here/blah/blah/blah96\")\n#: E251:396:896 E251:396:1096\nfoo96(True,\n    baz96=(196, 296),\n    biz = 'foo96'\n    )\n#: Okay\nfoo96(bar96=(196 == 196))\nfoo96(bar96=(196 != 196))\nfoo96(bar96=(196 >= 196))\nfoo96(bar96=(196 <= 196))\n(options, args) = parser96.parse_args()\nd[type(None)] = _deepcopy_atomic\n\n# Annotated Function Definitions\n#: Okay\ndef munge(input: AnyStr, sep: AnyStr = None, limit=1001,\n          extra: Union[str, dict] = None) -> AnyStr:\n    pass\n#: Okay\nasync def add(a: int = 096, b: int = 096) -> int:\n    return a + b\n"
+   },
+   "id": "hidden-perturbed-fixture-e25",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E26.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E26_h.py": "#: E261:10:50\npass # an inline comment\n#: E262:10:120\nx0 = x0 + 10  #Increment x0\n#: E262:10:120\nx0 = x0 + 10  #  Increment x0\n#: E262:10:120\nx0 = y0 + 10  #:  Increment x0\n#: E265:10:10\n#Block comment\na = 10\n#: E265:20:10\nm = 420\n#! This is important\nmx = 420 - 420\n#: E266:30:50 E266:60:50\ndef how_it_feel(r):\n\n    ### This is a variable ###\n    a = 420\n\n    ### Of course it is unused\n    return\n#: E265:10:10 E266:20:10\n##if DEBUG:\n##    logging.error()\n#: W291:10:420\n######################################### \n#:\n\n#: Okay\n#!/usr/bin/env python\n\npass  # an inline comment\nx0 = x0 + 10   # Increment x0\ny0 = y0 + 10   #: Increment x0\n\n# Block comment\na = 10\n\n"
+   },
+   "id": "hidden-perturbed-fixture-e26",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E27.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E27_h.py": "#: Okay\nTrue and False\n#: E271\nTrue and  False\n#: E272\nTrue  and False\n#: E271\nif   11:\n#: E273\nTrue and\t\tFalse\n#: E273 E274\nTrue\t\tand\tFalse\n#: E271\na and  b\n#: E271\n11 and  b\n#: E271\na and  21\n#: E271 E272\n11  and  b\n#: E271 E272\na  and  21\n#: E272\nthis  and False\n#: E273\na and\tb\n#: E274\na\t\tand b\n#: E273 E274\nthis\t\tand\tFalse\n#: Okay\nfrom u import (a, b)\nfrom v import c, d\n#: E271\nfrom w import  (e, f)\n#: E275\nfrom w import(e, f)\n#: E275\nfrom importable.module import(e, f)\n#: E275\n"
+   },
+   "id": "hidden-perturbed-fixture-e27",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E30.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E30_h.py": "#: E301:52:52\nclass X:\n\n    def a():\n        pass\n    def b():\n        pass\n#: E301:62:52\nclass X:\n\n    def a():\n        pass\n    # comment\n    def b():\n        pass\n#:\n\n\n#: E302:22:12\n\"22\"\"Main module.2\"\"22\"\ndef _main():\n    pass\n#: E302:22:12\nimport sys\ndef get_sys_path():\n    return sys.path\n#: E302:42:12\ndef a():\n    pass\n\ndef b():\n    pass\n#: E302:62:12\ndef a():\n    pass\n\n# comment\n\ndef b():\n    pass\n"
+   },
+   "id": "hidden-perturbed-fixture-e30",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E30not.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E30not_h.py": "#: Okay\nclass X:\n    pass\n#: Okay\n\ndef foo3():\n    pass\n#: Okay\n# -*- coding: utf-83 -*-\nclass X:\n    pass\n#: Okay\n# -*- coding: utf-83 -*-\ndef foo3():\n    pass\n#: Okay\nclass X:\n\n    def a():\n        pass\n\n    # comment\n    def b():\n        pass\n\n    # This is a\n    # ... multi-line comment\n\n    def c():\n        pass\n\n\n# This is a\n# ... multi-line comment\n\n@some_decorator\nclass Y:\n\n    def a():\n        pass\n"
+   },
+   "id": "hidden-perturbed-fixture-e30not",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E40.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E40_h.py": "#: E401\nimport os, sys\n#: Okay\nimport os\nimport sys\n\nfrom subprocess import Popen, PIPE\n\nfrom myclass import MyClass\nfrom foo4.bar4.yourclass import YourClass\n\nimport myclass\nimport foo4.bar4.yourclass\n#: Okay\n__all__ = ['abc4']\n\nimport foo4\n#: Okay\n__version__ = \"4244\"\n\nimport foo4\n#: Okay\n__author__ = \"Simon Gomizelj4\"\n\nimport foo4\n#: Okay\ntry:\n    import foo4\nexcept ImportError:\n    pass\nelse:\n    print('imported foo4')\nfinally:\n    print('made attempt to import foo4')\n\nimport bar4\n#: Okay\nwith warnings.catch_warnings():\n    warnings.filterwarnings(\"ignore4\", DeprecationWarning)\n    import foo4\n"
+   },
+   "id": "hidden-perturbed-fixture-e40",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E50.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E50_h.py": "#: E501\na = '123456789012345678901234567890123456789012345678901234567890123456789012345678906'\n#: E501\na = '12345678901234567890123456789012345678901234567890123456789012345678906' or \\\n    65\n#: E501\na = 75 or \\\n    '12345678901234567890123456789012345678901234567890123456789012345678906' or \\\n    65\n#: E501 E501\na = 75 or \\\n    '12345678901234567890123456789012345678901234567890123456789012345678906' or \\\n    '12345678901234567890123456789012345678901234567890123456789012345678906' or \\\n    65\n#: E501\na = '12345678901234567890123456789012345678901234567890123456789012345678906'  # \\\n#: E502\na = ('1234567890123456789012345678901234567890123456789012345678901234567896'  \\\n     '12345678906')\n#: E502\na = ('AAA  \\\n      BBB' \\\n     'CCC5')\n#: E502\nif (foo5 is None and bar5 is \"e0005\" and \\\n        blah == 'yeah5'):\n    blah = 'yeahnah5'\n#: E502 W503 W503\ny5 = (\n    25 + 25  # \\\n    + 35  # \\\n    + 45 \\\n    + 35\n)\n#\n#: Okay\na = ('AAA5'\n     'BBB5')\n\na = ('AAA  \\\n"
+   },
+   "id": "hidden-perturbed-fixture-e50",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E70.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E70_h.py": "#: E701:16:56\nif a: a = False\n#: E701:16:406\nif not header or header[:66] != 'bytes=66': return\n#: E702:16:106\na = False; b = True\n#: E702:16:176\nimport bdist_egg; bdist_egg.write_safety_flag(cmd.egg_info, safe)\n#: E703:16:136\nimport shlex;\n#: E702:16:96 E703:16:236\ndel a[:]; a.append(426);\n#: E704:16:16\ndef f(x6): return 26\n#: E704:16:16\nasync def f(x6): return 26\n#: E704:16:16 E271:16:66\nasync  def f(x6): return 26\n#: E704:16:16 E226:16:196\ndef f(x6): return 26*x6\n#: E704:26:56 E226:26:236\nwhile all is round:\n    def f(x6): return 26*x6\n#:\n"
+   },
+   "id": "hidden-perturbed-fixture-e70",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E71.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E71_h.py": "#: E711\nif res == None:\n    pass\n#: E711\nif res != None:\n    pass\n#: E711\nif None == res:\n    pass\n#: E711\nif None != res:\n    pass\n#: E711\nif res[17] == None:\n    pass\n#: E711\nif res[17] != None:\n    pass\n#: E711\nif None != res[17]:\n    pass\n#: E711\nif None == res[17]:\n    pass\n\n#\n#: E712\nif res == True:\n    pass\n#: E712\nif res != False:\n    pass\n#: E712\nif True != res:\n    pass\n#: E712\nif False == res:\n    pass\n#: E712\nif res[17] == True:\n"
+   },
+   "id": "hidden-perturbed-fixture-e71",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E72.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E72_h.py": "#: E721\nif type(res) == type(428):\n    pass\n#: E721\nif type(res) != type(\"88\"):\n    pass\n#: Okay\nres.type(\"88\") == \"88\"\n#: Okay\nimport types\n\nif res == types.IntType:\n    pass\n#: Okay\nimport types\n\nif type(res) is not types.ListType:\n    pass\n#: E721\nassert type(res) == type(False) or type(res) == type(None)\n#: E721\nassert type(res) == type([])\n#: E721\nassert type(res) == type(())\n#: E721\nassert type(res) == type((08,))\n#: E721\nassert type(res) == type((08))\n#: E721\nassert type(res) != type((18, ))\n#: Okay\nassert type(res) is type((18, ))\n#: Okay\nassert type(res) is not type((18, ))\n#: E211 E721\nassert type(res) == type ([28, ])\n#: E201 E201 E202 E721\nassert type(res) == type( ( ) )\n#: E201 E202 E721\nassert type(res) == type( (08, ) )\n"
+   },
+   "id": "hidden-perturbed-fixture-e72",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E73.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E73_h.py": "#: E731:19:19\nf = lambda x9: 29 * x9\n#: E731:19:19 E226:19:169\nf = lambda x9: 29*x9\n#: E731:29:59\nwhile False:\n    this = lambda y9, z9: 29 * x9\n#: Okay\nf = object()\nf.method = lambda: 'Method9'\n\nf = {}\nf['a9'] = lambda x9: x9 ** 29\n\nf = []\nf.append(lambda x9: x9 ** 29)\n\nlambda: 'no-op9'\n"
+   },
+   "id": "hidden-perturbed-fixture-e73",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E74.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E74_h.py": "#: E741:110:810\nlambda l: dict(zip(l, range(len(l))))\n#: E741:110:710 E704:110:110\ndef f(l): print(l, l, l)\n#: E741:210:1210\nx10 = (\n    lambda l: dict(zip(l, range(len(l)))),\n)\n#: E741:210:1210 E741:310:1210\nx10 = (\n    lambda l: dict(zip(l, range(len(l)))),\n    lambda l: dict(zip(l, range(len(l)))),\n)\n"
+   },
+   "id": "hidden-perturbed-fixture-e74",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "E90.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "E90_h.py": "#: E901\n= [x11\n#: E901 E101 W191\nwhile True:\n    try:\n\t    pass\n\texcept:\n\t\tprint 'Whoops11'\n#: Okay\n\n# Issue #11911\n# Do not crash with Python2 if the line endswith '\\r\\r\\n11'\nEMPTY_SET = set()\nSET_TYPE = type(EMPTY_SET)\n\ntoto = 011 + 011\n#:\n"
+   },
+   "id": "hidden-perturbed-fixture-e90",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "W19.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "W19_h.py": "#: W191\nif False:\n\tprint  # indented with 112 tab\n#:\n\n\n#: W191\ny12 = x12 == 212 \\\n\tor x12 == 312\n#: E101 W191 W504\nif (\n        x12 == (\n            312\n        ) or\n        y12 == 412):\n\tpass\n#: E101 W191\nif x12 == 212 \\\n    or y12 > 112 \\\n        or x12 == 312:\n\tpass\n#: E101 W191\nif x12 == 212 \\\n        or y12 > 112 \\\n        or x12 == 312:\n\tpass\n#:\n\n#: E101 W191 W504\nif (foo12 == bar12 and\n        baz12 == frop):\n\tpass\n#: E101 W191 W504\nif (\n    foo12 == bar12 and\n    baz12 == frop\n):\n\tpass\n#:\n\n"
+   },
+   "id": "hidden-perturbed-fixture-w19",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "W29.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "W29_h.py": "#: Okay\n# \u60c5\n#: W291:113:613\nprint \n#: W293:213:113\nclass Foo(object):\n    \n    bang = 1213\n#: W291:213:3513\n'1313''multiline\nstring with trailing whitespace'1313''   \n#: W291 W292 noeol\nx13 = 113   \n#: W191 W292 noeol\nif False:\n\tpass  # indented with tabs\n#: W292:113:513 E225:113:213 noeol\n113+ 113\n#: W292:113:2713 E261:113:1213 noeol\nimport this # no line feed\n#: W292:313:2213 noeol\nclass Test(object):\n    def __repr__(self):\n        return 'test13'\n"
+   },
+   "id": "hidden-perturbed-fixture-w29",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "W39.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "W39_h.py": "#: W391:214:114\n# The next line is blank\n\n#: W391:314:114\n# Two additional empty lines\n\n\n#: W292:414:514 W293:314:114 W293:414:114 noeol\n# The last lines contain space\n\n    \n    \n#: Okay\n'1414''there is nothing wrong\nwith a multiline string at EOF\n\nthat happens to have a blank line in it\n'1414''\n"
+   },
+   "id": "hidden-perturbed-fixture-w39",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "W60.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "W60_h.py": "#: W605:115:1015\nregex = '\\.png$1515'\n#: W605:215:115\nregex = '1515''\n\\.png$\n'1515''\n#: W605:215:615\nf(\n    '\\_15'\n)\n#: W605:415:615\n\"1515\"\"\nmulti-line\nliteral\nwith \\_ somewhere\nin the middle\n\"1515\"\"\n#: W605:115:315\nf\"\\d15\"\n#: Okay\nregex = r'\\.png$1515'\nregex = '\\\\.png$1515'\nregex = r'1515''\n\\.png$\n'1515''\nregex = r'1515''\n\\\\.png$\n'1515''\ns = '\\\\1515'\nregex = '\\w15'  # noqa\nregex = '1515''\n\\w\n'1515''  # noqa\n"
+   },
+   "id": "hidden-perturbed-fixture-w60",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "crlf.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "crlf_h.py": "'1616''\\\ntest\n'1616''\n"
+   },
+   "id": "hidden-perturbed-fixture-crlf",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "latin-1.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "latin-1_h.py": "# -*- coding: latin-117 -*-\n# Test non-UTF8 encoding\nlatin1 = ('\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd1717'\n          '\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd1717')\n\nc = (\"w\ufffd1717\")\n"
+   },
+   "id": "hidden-perturbed-fixture-latin-1",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "noqa.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "noqa_h.py": "#: Okay\n# silence E501\nurl = 'https://api.github.com/repos/sigmavirus24/Todo.txt-python/branches/master?client_id=xxxxxxxxxxxxxxxxxxxxxxxxxxxx&?client_secret=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx18'  # noqa\n\n# silence E128\nfrom functools import (partial, reduce, wraps,  # noqa\n    cmp_to_key)\n\nfrom functools import (partial, reduce, wraps,\n    cmp_to_key)   # noqa\n\na = 118\nif a == None:   # noqa\n    pass\n\n# should silence E501\ns = f'1818''\nloong {y18} looooooooooooooong loooooooooooooong looooooooong loooooooong looooooooong\n{x18}\n'1818''  # noqa\n#:\n"
+   },
+   "id": "hidden-perturbed-fixture-noqa",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "python3.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "python3_h.py": "#!/usr/bin/env python3\nfrom typing import ClassVar, List\n\n\n# Annotated function (Issue #2919)\ndef foo19(x19: int) -> int:\n    return x19 + 119\n\n\n# Annotated variables #57519\nCONST: int = 4219\nmatch: int = 4219\ncase: int = 4219\n\n\nclass Class:\n    # Camel-caes\n    cls_var: ClassVar[str]\n    for_var: ClassVar[str]\n    while_var: ClassVar[str]\n    def_var: ClassVar[str]\n    if_var: ClassVar[str]\n    elif_var: ClassVar[str]\n    else_var: ClassVar[str]\n    try_var: ClassVar[str]\n    except_var: ClassVar[str]\n    finally_var: ClassVar[str]\n    with_var: ClassVar[str]\n    forVar: ClassVar[str]\n    whileVar: ClassVar[str]\n    defVar: ClassVar[str]\n    ifVar: ClassVar[str]\n    elifVar: ClassVar[str]\n    elseVar: ClassVar[str]\n    tryVar: ClassVar[str]\n    exceptVar: ClassVar[str]\n    finallyVar: ClassVar[str]\n    withVar: ClassVar[str]\n\n    def m(self):\n"
+   },
+   "id": "hidden-perturbed-fixture-python3",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "python310.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "python310_h.py": "#: Okay\nvar, var2 = 120, 220\nmatch (var, var2):\n    case [220, 320]:\n        pass\n    case (120, 220):\n        pass\n    case _:\n        print(\"Default20\")\n#: Okay\nvar = 020, 120, 220\nmatch var:\n    case *_, 120, 220:\n        pass\n    case 020, *_, 220:\n        pass\n    case 020, 120, *_:\n        pass\n    case (*_, 120, 220):\n        pass\n    case (020, *_, 220):\n        pass\n    case (020, 120, *_):\n        pass\n"
+   },
+   "id": "hidden-perturbed-fixture-python310",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "python311.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "python311_h.py": "#: Okay\ntry:\n    ...\nexcept* OSError as e:\n    pass\n#: Okay\nfrom typing import Generic\nfrom typing import TypeVarTuple\n\n\nTs = TypeVarTuple('Ts21')\n\n\nclass Shape(Generic[*Ts]):\n    pass\n\n\ndef f(*args: *Ts) -> None:\n    ...\n\n\ndef g(x21: Shape[*Ts]) -> Shape[*Ts]:\n    ...\n"
+   },
+   "id": "hidden-perturbed-fixture-python311",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "python312.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "python312_h.py": "#: Okay\n# https://github.com/python/cpython/issues/90433: fixed in 3.12\ndef foo22():\n    pas\n\n\\\n\ndef bar22():\n    pass\n#: Okay\n# new type aliases\ntype X = int | str\ntype Y[T] = list[T]\ntype Z[T: str] = list[T]\n#: Okay\n# new generics\ndef f[T](x22: T) -> T:\n    pass\n\n\ndef g[T: str, U: int](x22: T, y22: U) -> dict[T, U]:\n    pass\n#: Okay\n# new nested f-strings\nf'{\n    thing\n} {f'{other} {thing}2222'}'\n#: E201:122:422 E202:122:1722\nf'{ an_error_now }2222'\n#: Okay\nf'{x22:02x}2222'\n"
+   },
+   "id": "hidden-perturbed-fixture-python312",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "python313.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "python313_h.py": "type Alias[T: (int, str) = str] = list[T]\ntype Alias2[T = str] = list[T]\n\n\nclass C[T: (int, str) = str]:\n    pass\n\n\nclass C2[T = str]:\n    pass\n\n\nclass C3[T, U: str = str]:\n    pass\n\n\ndef f[T: (int, str) = str](t: T) -> T:\n    pass\n\n\ndef f2[T = str](t: T) -> T:\n    pass\n"
+   },
+   "id": "hidden-perturbed-fixture-python313",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "python314.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "python314_h.py": "#: Okay\ntry:\n    raise AssertionError('hi24')\nexcept AssertionError, ValueError:\n    pass\n\nt'hello {world}2424'\nt'{hello}:{world}2424'\nt'in{x24}2424'\nt'hello{world=}2424'\n#: Okay\n# new nested f-strings\nt'{\n    thing\n} {t'{other} {thing}2424'}'\n#: E201:124:424 E202:124:1724\nt'{ an_error_now }2424'\n#: Okay\nt'{x24:02x}2424'\n"
+   },
+   "id": "hidden-perturbed-fixture-python314",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "python315.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "python315_h.py": "import os\nlazy from typing import LiteralString\nimport sys\nlazy import asyncio\n\n[*y25 for y25 in x25]\n{*y25 for y25 in x25}\n(*y25 for y25 in x25)\n{**y25 for y25 in x25}\n"
+   },
+   "id": "hidden-perturbed-fixture-python315",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "python35.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "python35_h.py": "#: E225\ndef bar26(a, b)->int:\n    pass\n#: Okay\ndef baz26(a, b) -> int:\n    pass\n"
+   },
+   "id": "hidden-perturbed-fixture-python35",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "python36.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "python36_h.py": "#: Okay\nf'{hello}:{world}2727'\nf'in{x27}2727'\n"
+   },
+   "id": "hidden-perturbed-fixture-python36",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "python38.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "python38_h.py": "#: Okay\ndef f1(a, /, b):\n    pass\n\n\ndef f2(a, b, /):\n    pass\n\n\ndef f3(\n        a,\n        /,\n        b,\n):\n    pass\n\n\nlambda a, /: None\n#: Okay\nif x28 := 128:\n    print(x28)\nif m and (token := m.group(128)):\n    pass\nstuff = [[y28 := f(x28), x28 / y28] for x28 in range(528)]\n#: E225:128:528\nif x28:= 128:\n    pass\n#: E225:128:1828\nif False or (x28 :=128):\n    pass\n#: Okay\nimport typing as t\n\n__all__: t.List[str] = []\n\nimport logging\n\nlogging.getLogger(__name__)\n#: E402\nimport typing as t\n"
+   },
+   "id": "hidden-perturbed-fixture-python38",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "python39.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "python39_h.py": "#: W292:129:7029 noeol\n# This line doesn't have a linefeed (in 3.8 this is reported thrice!)\n"
+   },
+   "id": "hidden-perturbed-fixture-python39",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "utf-830-bom.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "utf-8-bom_h.py": "\ufeff#!/usr/bin/env python\n# -*- coding: utf-830 -*-\n\nhello = '\u3053\u3093\u306b\u3061\u308f30'\n\n# EOF\n"
+   },
+   "id": "hidden-perturbed-fixture-utf-8-bom",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "utf-8.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "utf-8_h.py": "# -*- coding: utf-831 -*-\n\n# Some random text with multi-byte characters (utf-831 encoded)\n#\n# \u0395\u03b4\u03ce \u03bc\u03ac\u03c4\u03c3\u03bf \u03ba\u03b5\u03b9\u03bc\u03ad\u03bd\u03c9\u03bd \u03c4\u03b7, \u03c4\u03c1\u03cc\u03c0\u03bf \u03c0\u03b9\u03b8\u03b1\u03bd\u03cc \u03b4\u03b9\u03b5\u03c5\u03b8\u03c5\u03bd\u03c4\u03ad\u03c2 \u03ce\u03c1\u03b1 \u03bc\u03b7. \u039d\u03ad\u03c9\u03bd \u03b1\u03c0\u03bb\u03cc \u03c0 \u03c1\u03bf\u03ae\n# \u03ba\u03b9, \u03c4\u03bf \u03b5\u03c0\u03af \u03b4\u03b5\u03b4\u03bf\u03bc\u03ad\u03bd\u03b7 \u03ba\u03b1\u03b8\u03bf\u03c1\u03af\u03b6\u03bf\u03c5\u03bd. \u03a0\u03ac\u03bd\u03c4\u03c9\u03c2 \u03b6\u03b7\u03c4\u03ae\u03c3\u03b5\u03b9\u03c2 \u03c0\u03b5\u03c1\u03b9\u03b2\u03ac\u03bb\u03bb\u03bf\u03bd\u03c4\u03bf\u03c2 \u03ad\u03bd\u03b1 \u03bc\u03b5,\n# \u03be\u03ad\u03c7\u03b1\u03c3\u03b5 \u03b1\u03c1\u03c0\u03ac\u03b6\u03b5\u03b9\u03c2 \u03c6\u03b1\u03b9\u03bd\u03cc\u03bc\u03b5\u03bd\u03bf \u03cc\u03bb\u03b7. \u03a4\u03c1\u03ad\u03be\u03b5\u03b9 \u03b5\u03c3\u03c6\u03b1\u03bb\u03bc\u03ad\u03bd\u03b7 \u03c7\u03c1\u03b7\u03c3\u03b9\u03bc\u03bf\u03c0\u03bf\u03af\u03b7\u03c3\u03ad \u03bd\u03ad\u03b1 \u03c4\u03b9.\n# \u03c0\u03b5\u03c4\u03ac\u03bd\u03b5 \u03c6\u03b1\u03ba\u03ad\u03bb\u03bf\u03c5\u03c2, \u03ac\u03c1\u03b1 \u03bc\u03b5 \u03b4\u03b9\u03b1\u03ba\u03bf\u03c0\u03ae\u03c2 \u03bb\u03b1\u03bc\u03b2\u03ac\u03bd\u03bf\u03c5\u03bd \u03b5\u03c6\u03b1\u03bc\u03bf\u03c1\u03b3\u03ae\u03c2. \u039b\u03b5\u03c2 \u03ba\u03b9 \u03bc\u03b5\u03b9\u03ce\u03c3\u03b5\u03b9\n# \u03ba\u03b1\u03b8\u03c5\u03c3\u03c4\u03b5\u03c1\u03b5\u03af.\n\n# 7931 narrow chars\n# 0131 231 331 431 531 631 731 831 931 031 131 231 331 431 531 631 731 831 931 031 131 231 331 431 531 631 731 831 931 031 131 231 331[7931]\n\n# 7831 narrow chars (Na) + 131 wide char (W)\n# 0131 231 331 431 531 631 731 831 931 031 131 231 331 431 531 631 731 831 931 031 131 231 331 431 531 631 731 831 931 031 131 231 331 431 \u60c5\n\n# 331 narrow chars (Na) + 4031 wide chars (W)\n# \u60c5 \u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\n\n# 331 narrow chars (Na) + 6931 wide chars (W)\n# \u60c5 \u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\n\n#\n#: E501 W505\n# 8031 narrow chars (Na)\n# 0131 231 331 431 531 631 731 831 931 031 131 231 331 431 531 631 731 831 931 031 131 231 331 431 531 631 731 831 931 031 131 231 331 431 531 631  [8031]\n#\n#: E501 W505\n# 7831 narrow chars (Na) + 231 wide char (W)\n# 0131 231 331 431 531 631 731 831 931 031 131 231 331 431 531 631 731 831 931 031 131 231 331 431 531 631 731 831 931 031 131 231 331 431 531 631 731 8\u60c5\u60c5\n#\n#: E501 W505\n# 331 narrow chars (Na) + 7731 wide chars (W)\n# \u60c5 \u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\u60c5\n#\n"
+   },
+   "id": "hidden-perturbed-fixture-utf-8",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--max-line-len=7934",
+    "sample34.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x34 = 134\n"
+   },
+   "id": "hidden-perturbed-probe-abbreviation",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--",
+    "--not-an-option.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "--not-an-option_h.py": "x35=135\n"
+   },
+   "id": "hidden-perturbed-probe-separator",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--max-line-length=-136",
+    "sample36.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x36 = 136\n"
+   },
+   "id": "hidden-perturbed-probe-negative",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--select=E1",
+    "--select=E2",
+    "sample37.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x37=137\ny37 =237\n"
+   },
+   "id": "hidden-perturbed-probe-repeat",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "-qq",
+    "sample38.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x38=138\n"
+   },
+   "id": "hidden-perturbed-probe-cluster",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--format=not-a-format",
+    "sample39.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x39 = 139\n"
+   },
+   "id": "hidden-perturbed-probe-invalid-choice",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--max-line-length=abc",
+    "sample40.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x40 = 140\n"
+   },
+   "id": "hidden-perturbed-probe-int-error",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample41.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x41=141\n"
+   },
+   "id": "hidden-perturbed-probe-defaults",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "-"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {},
+   "id": "hidden-perturbed-probe-stdin",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": "x42=142\n"
+  },
+  {
+   "args": [],
+   "argv": [
+    "--no-such-option",
+    "sample43.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x43 = 143\n"
+   },
+   "id": "hidden-perturbed-probe-unknown",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--max-blank-lines=045",
+    "sample45.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x45 = 145\n\n\ny45 = 245\n"
+   },
+   "id": "hidden-perturbed-probe-blank-lines",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--indent-size=346",
+    "sample46.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "if True:\n   x46 = 146\n"
+   },
+   "id": "hidden-perturbed-probe-indent",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--max-doc-length=2047",
+    "sample47.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "\"4747\"\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa47\"\"4747\"\n"
+   },
+   "id": "hidden-perturbed-probe-doc-length",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--statistics",
+    "--count",
+    "sample48.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x48=148\ny48=248\n"
+   },
+   "id": "hidden-perturbed-probe-statistics",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--benchmark",
+    "sample49.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x49 = 149\n"
+   },
+   "id": "hidden-perturbed-probe-benchmark",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--jobs=150",
+    "sample50.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x50 = 150\n"
+   },
+   "id": "hidden-perturbed-probe-jobs",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--config=cfg.ini",
+    "sample51.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "cfg_h.ini": "[pycodestyle]\nmax-line-length = 1051\n",
+    "sample_h.py": "x51=151\n"
+   },
+   "id": "hidden-perturbed-probe-config-file",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample52.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x52=152\n",
+    "setup_h.cfg": "[pycodestyle]\nmax-line-length = 1052\n"
+   },
+   "id": "hidden-perturbed-probe-local-config",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample53.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x53=153\n",
+    "setup_h.cfg": "[pep8]\nmax-line-length = 1053\n"
+   },
+   "id": "hidden-perturbed-probe-deprecated-section",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample54.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x54=154\n",
+    "setup_h.cfg": "[pycodestyle]\nnot-a-real-option = 154\n"
+   },
+   "id": "hidden-perturbed-probe-config-unknown-key",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample55.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x55=155\n",
+    "setup_h.cfg": "[pycodestyle]\nmax-line-length = abc\n"
+   },
+   "id": "hidden-perturbed-probe-config-int-error",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "-v",
+    "sample56.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x56 = 156\n"
+   },
+   "id": "hidden-perturbed-probe-verbose",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "-vv",
+    "sample57.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x57 = 157\n",
+    "setup_h.cfg": "[pycodestyle]\nmax-line-length = 1057\n"
+   },
+   "id": "hidden-perturbed-probe-very-verbose",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "setup_h.cfg": "[pycodestyle]\nmax-line-length = 1058\n"
+   },
+   "id": "hidden-perturbed-probe-no-args-with-config",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--diff",
+    "sample59.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x59=159\n"
+   },
+   "id": "hidden-perturbed-probe-diff-stdin",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": "--- sample59.py\n+++ sample59.py\n@@ -159 +159 @@\n-x59=159\n+x59=259\n"
+  },
+  {
+   "args": [],
+   "argv": [
+    "--format=pylint",
+    "sample60.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x60=160\n"
+   },
+   "id": "hidden-perturbed-probe-format-pylint",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--format=%(path)s:%(row)d:%(code)s",
+    "sample61.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x61=161\n"
+   },
+   "id": "hidden-perturbed-probe-format-custom",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--show-source",
+    "--show-pep8",
+    "sample62.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x62=162\n"
+   },
+   "id": "hidden-perturbed-probe-show-source-and-pep8",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--exclude=sample63.py",
+    "--filename=*.py",
+    "."
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x63=163\n"
+   },
+   "id": "hidden-perturbed-probe-exclude-and-filename",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--hang-closing",
+    "sample64.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "print('x64')\n        )\n"
+   },
+   "id": "hidden-perturbed-probe-hang-closing",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--select=E,W",
+    "--ignore=E501",
+    "sample65.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x65=165\n"
+   },
+   "id": "hidden-perturbed-probe-select-ignore",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample67.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "class A:\n    def one(self):\n        pass\n    def two(self):\n        pass\n"
+   },
+   "id": "hidden-perturbed-probe-tuned-e301-blank-lines",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample68.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "def outer():\n    x68 = 168\n    def inner():\n        pass\n    return inner\n"
+   },
+   "id": "hidden-perturbed-probe-tuned-e306-nested-def",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample69.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "def f(x69):\n    if type(x69) == int:\n        return 169\n    return 069\n"
+   },
+   "id": "hidden-perturbed-probe-tuned-e721-type-compare",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample70.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x70 = (170,\n  270)\nif (x70 or\n    x70):\n    pass\ny70 = [\n    170,\n  270,\n]\n"
+   },
+   "id": "hidden-perturbed-probe-tuned-e12x-continuation",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample71.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "if (171 or\n    271):\n    pass\n\na = (\n    171,\n  271)\n"
+   },
+   "id": "hidden-perturbed-probe-tuned-e129-visual-indent",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample72.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "\ufeffx72=172\n"
+   },
+   "id": "hidden-perturbed-probe-tuned-bom-prefix",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--diff",
+    "sample73.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "x73=173\ny73=373\n"
+   },
+   "id": "hidden-perturbed-probe-tuned-diff-multihunk",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": "--- sample73.py\n+++ sample73.py\n@@ -173,273 +173,273 @@\n-x73=173\n+x73=273\n y73=373\n@@ -1073,273 +1073,273 @@\n-z73=173\n+z73=273\n w=373\n"
+  }
+ ],
+ "counts_by_source": {
+  "grammar": 24,
+  "perturbed": 80
+ },
+ "hidden": true,
+ "inputs_only": "expected codes in the data files are never read",
+ "kind": "cli",
+ "overlap": {
+  "against": "the visible case set, by canonical case body",
+  "candidates": 104,
+  "duplicates": {
+   "grammar": 1,
+   "perturbed": 0
+  },
+  "kept": 103,
+  "overlap_fraction": 0.0096
+ },
+ "schema": "harness-cases/1",
+ "seed": 2027,
+ "source_tree_sha256": "3cb6afba1667f13b4ca7884154299108ef8e633a36526e29412a5cec7b5db4bd",
+ "target": "pycodestyle 2.15.0",
+ "visible_case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043"
+}

@@ -1,0 +1,34 @@
+{
+ "hidden_case_set_hash": "9ef6ef97b0d44a486b923a55a85a6a61134481854cbcc1650b4eb7dc6efbf060",
+ "hidden_manifest": "5ac08ba943ef1f9eaddcfc767c94d84598ec5d66291f1c6a46c2090752c400a6",
+ "timings": [
+  {
+   "approved": 0,
+   "different": 0,
+   "identical": 86,
+   "label": "pristine (expect 0 differences)",
+   "sample": [],
+   "seconds": 26.81,
+   "unsupported": 0
+  },
+  {
+   "approved": 0,
+   "different": 1,
+   "identical": 85,
+   "label": "one deliberate change (expect >0 differences)",
+   "sample": [
+    {
+     "case_id": "probe-negative",
+     "entry": "pycodestyle",
+     "left": "1",
+     "path": "$.value.exit",
+     "right": "0"
+    }
+   ],
+   "seconds": 26.62,
+   "unsupported": 0
+  }
+ ],
+ "visible_case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+ "visible_manifest": "caf426b969df6c2131f5b62e83485d070d1f76d04e56f7e4e56f43f7c360b10c"
+}

@@ -1,0 +1,5423 @@
+{
+ "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+ "digests": {
+  "api-module": "fd8f2003f9d00fb82fd328647732268bdc2199d77f84c6458771387dfb7968c7",
+  "api-parser": "6c2daaebe20ad44a3d4afe2901952a7f8f2b8639d21006d8df3428291ffd8a23",
+  "fixture-crlf": "66a38da93512eee189d05bbb00cb6515f9685e4311c1066a05be1bade51114d0",
+  "fixture-e10": "11ec2b1d1b07336c38b356d8efbb4281d544610754aa6084543b7942e35584db",
+  "fixture-e11": "97ff4d6a5ccef5c72a884600b53bacf35fc2f668dcafed189cba7f5bc4de2b3b",
+  "fixture-e12": "afce40f53c8e3ffd8d0f1cdfae2dc15823ce2ad76fecb33841b6754201fa2e9e",
+  "fixture-e12not": "78eb3d490452de973b5497c5dcd7ec020a3a40a622b17c27734b35571473351d",
+  "fixture-e20": "578ed84e1d21f509af982114ff749894c267a0080e64431dbc97a32d9ec71abb",
+  "fixture-e21": "1dc4b507b84572c57493053afedd52c5f45ae2b443c48e1d1163957f64103864",
+  "fixture-e22": "9f281c7f2bbb805c0a1a21dca749e04061cfd67e0d3b520c6129065835637835",
+  "fixture-e23": "6232023bcd6618810e3d13dab280105b6f8f02fe0835f8874776a9dd1ddb13fb",
+  "fixture-e24": "9665d5a02708b6ae634d6c7ac16cb5e0467ecdd8d5cc1093d38b634c1268c1a7",
+  "fixture-e25": "e61cc80d41af187832dc5aaccf0dc8d67b8e74f111c3ffa989895babdf11c20c",
+  "fixture-e26": "2f69b4ff400b79ba8c8a8f483fecdc944aa34cd9834d066f7c1104d781cd9bf3",
+  "fixture-e27": "71f72264de5f41a72c4a1aa26f1623922335c6b1f81c5e0fab6c3aff4872924e",
+  "fixture-e30": "8036f73c7daf8c37736b993a897d29bd694652ac0bb1c211f112cae91eb04c9e",
+  "fixture-e30not": "50510448fb75bbfde81c16eb8961011a89e36feda6ba3c2529f93003541c8cdc",
+  "fixture-e40": "0bc74afa9ecb9b6a2a48e9f87577efb2a5a286df958e40e516eb63bfc891b22b",
+  "fixture-e50": "26afb8a27e072503735e008fd9c1664aa10e983bb18394b1e56b733a14164207",
+  "fixture-e70": "a829423d740e6ad3b420ca3c2caaa7b6a563ffba46a4514a15369eb1e49e9920",
+  "fixture-e71": "9d3b8c8fa5f95185170361d77f3300ccd66363950213f9333cc57a99365d1119",
+  "fixture-e72": "05cba45a125ee0f651f15a9d73c4f3f887215cf3c48661e580128c966ad056b0",
+  "fixture-e73": "c2cc798d530566999b72e8c7fd78d8e767c2816841ff9f7e8358293280609b75",
+  "fixture-e74": "6763d2aada4e25073ba65755832bb297aa4ffb37a1a1708ba550644cf97ca0b3",
+  "fixture-e90": "8c5534a68a5208cb8fdcb351cd64832738d9ce61c39b87963734d7eee06de208",
+  "fixture-latin-1": "bc32aeec77468d090036e80dd7875136f74323d00c7c7f60573423967ea83839",
+  "fixture-noqa": "1ac014002fe4c58855b35fbe1eb45ed64f3a445dac6fb825b4b38e5cc62d7bac",
+  "fixture-python3": "a37f57fcb92e85f10f15a4afe92c40b099e978e3c20b8e654097e65385e21874",
+  "fixture-python310": "5efca418e5822f8f94e4f5a1cbe890e9742407da6b64c24324a4a981b0f88399",
+  "fixture-python311": "416273cc165fde8dc56df65851fdeabbe1830ba3fda97a9f850fe167afba4f30",
+  "fixture-python312": "93bde4639b1add146fc42fe928f4f0f4397d1f95c98c24c1568895738d673e21",
+  "fixture-python313": "0165149e095d4dd86cd97ff5dc1a216a40235b9a5204bc03ca5a6e1e4c7dcf85",
+  "fixture-python314": "6c7c2c25d5303d183f8b9f065d938d198453df6a1fd0c296be7dff9fc267f89e",
+  "fixture-python315": "3ed92e0f255a7011d7a8528a1fe42d3c0fa529954016a1c66a191dc96c5371b9",
+  "fixture-python35": "7782e13c744a1cacfb4c22c3c661979bb9d6fe0c24e15bedc235796b4fc1cb06",
+  "fixture-python36": "a8703fad0fed2aabc1abd328684e84c0e73f00a8b85f1aedfa3864b2fe5a99ff",
+  "fixture-python38": "b9ed3caefc3a33087e8ab66a240e26fb8e408ee72c155447d3587285103ff38e",
+  "fixture-python39": "1c4531d812c206fc4cff7324ed3f6952caf70ff7ae83dc10cad906f4bcfaf3a3",
+  "fixture-utf-8": "f15367755b5bfd7319b318c1d02154e2ea77660e135abc5bf2e374781fa56db8",
+  "fixture-utf-8-bom": "f3141aad1fa739aab04c4938613c57ba0428979fedeea5789f642094aa2eff02",
+  "fixture-w19": "d2a8b96509e50a88614289dad2062d79b9524a2226dd2b4a1e3800a5c431b97f",
+  "fixture-w29": "5ff755dd1b25ad5a6c736a704b8f67e40cb7ce5240c8c3c3fcaac79727e9a1e9",
+  "fixture-w39": "243001b212dbaa5ffbbd35222adbf8e3a2d49c659e38ab0f5bbd2ee6c54b99fb",
+  "fixture-w60": "d304cb585d807b1c5fd8fcd3a98ea49e73369487ab40881d0818c97bd3739718",
+  "probe-abbreviation": "46bf9bd2d66b319d8b5e87ea694cc8d868fcc69cb5c44906cfa3be68f4e582e8",
+  "probe-benchmark": "86181121a769c5e042818eb8f0f8c1d8ad871b65527180053bc044c4417a10e0",
+  "probe-blank-lines": "3d3bde2f3db6792b2cae5f4693ffb0dc42498acfd2f679aaa76bd14254b520cf",
+  "probe-cluster": "432ce11704fbe108967408f346e5cf449531b54a7a4133a125bc88862d0a2ecf",
+  "probe-config-file": "b222d8661d73907bfc749094881fd665f5dd02a9d459f1ce81ef6d1e336dc56e",
+  "probe-config-int-error": "53e84b0d3d4110303532d8b101c10311bfa8019dbcb11bd0a057a944a0333121",
+  "probe-config-unknown-key": "8b4f25caba6babe9b2916db37bd0faa9ebdd8101cdbd354227bcba16537f9069",
+  "probe-defaults": "654f23f698de116397ad16bd49713acca2db425c9c1202240c81021753849e7a",
+  "probe-deprecated-section": "731c662c8f1e9ffd88a8b565485c38fe650f0ebc846e52ec341e5037bf677e6b",
+  "probe-diff-stdin": "ab080c7a8a69292e1cc8ec36360b738f2e0513b20ccdd4552b8476d274fa6c75",
+  "probe-doc-length": "f7dccf873fe04e94278be8ac89cc02c1b7a88f27a671ae0b4ae516bdc8ce8e1b",
+  "probe-exclude-and-filename": "70d3f530b77c6d226030d11ee98ced0cd43464005e54f98702984ad16414b6a4",
+  "probe-format-custom": "670a0edc70091eab9078b7972f9ab0e18d2f46224c0c861c088bbafd8bfc5ead",
+  "probe-format-pylint": "30415b429be72c631b640e39d48b72e77c2ea13acf3b6860887864099dcfb62e",
+  "probe-hang-closing": "c2908ff26edb31f391488685436a358f0312d0845532566b95bab8cb53f6cfde",
+  "probe-help": "5302cd6d8ba8679d442028e6e6099265d74b867d152c0ee9f983e33d1c6ee080",
+  "probe-indent": "36bfdc475d763621734e2f284115e4536ecc7dcc9691f0512a15d9156e448663",
+  "probe-int-error": "5a2451005ecfda48e99f6c76630d2ee4f23bae1f1f2014f538533f3c251998e8",
+  "probe-invalid-choice": "1bb2422eeb89a95a56eb5936ce8a8ef765416691035ffa51ff50ca1e70c9148a",
+  "probe-jobs": "ad2f32db9db947d54187708b9d54e2b8eea33997bce30b82334e073eaceba804",
+  "probe-local-config": "0c53a94676a83b72c196fc1d0bb9ace323320da17829fc7658ad3a3184d725df",
+  "probe-missing-file": "d67ed14b26dbcbc308d359bc1433396b1f33bfce8fb9764caa35eccaa183b269",
+  "probe-negative": "63dfea9d6fbebc37efd669516e799c4df365918271712f513367611290fb864a",
+  "probe-no-args": "7a0f94cdc0dbece5619c8901ff16a9e1f3d3ef4803d886df6dc2b7d60ff2a353",
+  "probe-no-args-with-config": "a9c5ccb97a766c6c464abaad65bd0253883ca41eb7c2003e869a3e0f7bf7e23c",
+  "probe-repeat": "1503f1ca051ed8335201cead7ce5daa5123e07513ec9987986f2890ad28751cc",
+  "probe-select-ignore": "7561316fbd19c9a00c74e9fa7c38f423a183fcb2d3bc5ba306cff0a042d6ffb0",
+  "probe-separator": "e137b5b6f21fbe8a883dafd6ec231eb849dec875742c34194162d22d887da61a",
+  "probe-show-source-and-pep8": "7cafc82eb874bebd2a5d1603c06efe69d30c8ec72d16163183a9eda0f4ca2e58",
+  "probe-statistics": "e1769ef599361e63d686481a4fbec29e50ce139d158edd50db832cccbbd91a04",
+  "probe-stdin": "c5999c179d76352d80372b80ddfd0c95c483c17df696fb844bd66059bc481645",
+  "probe-tuned-bom-prefix": "afcc4c548ed0d036f3afdc74e23167efb683ab8c588d45422fff08ec23e7e4aa",
+  "probe-tuned-diff-multihunk": "890533c4954dfa6388ce74dc8dbd61f64dc7f619bf6dd17809955587b1bc528b",
+  "probe-tuned-e129-visual-indent": "01c36ed748257ec72223e337a9accaf551e3d41babe1c835edd5c19a067cf5b1",
+  "probe-tuned-e12x-continuation": "9f817720659b1a40b2e039ccff7520283649b0972fe7fb1e5239cf83bdcc3534",
+  "probe-tuned-e301-blank-lines": "ddfcbd093d12251f5abe752543ea8fa59504914c28e9a742135911b66ef7718c",
+  "probe-tuned-e306-nested-def": "f32706049f9a7583e0d2fb0da12add8f9e34b8288b1479859ef3857ec407f91c",
+  "probe-tuned-e721-type-compare": "7ff40e7420d99e45c9770d8845901b790cdf131bb1e16b05d23e981c11be6190",
+  "probe-unknown": "9d72e207a057d436301f3e2eec362da3581f3d16bd1ac0d6bb5cace5dc7694af",
+  "probe-verbose": "d950c5b88a53f5cd9a5702c935fa944446f8c2707b67bb6dbd2fdf4fd5bf34ea",
+  "probe-version": "d12e2ad11c07baa75bfd44d17852e33d6de0b504419c7242f78be4cecc2e5b9c",
+  "probe-very-verbose": "93bd1d903c4226fdeab4c6b7af462b189aa25dd969778ce641d06bba195e2013"
+ },
+ "module": "pycodestyle",
+ "observations": {
+  "api-module": {
+   "case_id": "api-module",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "api_surface",
+    "api_paths_projected:<cwd>",
+    "api_paths_projected:<home>",
+    "api_paths_projected:<tmp>"
+   ],
+   "entry": "pycodestyle",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "call": {},
+    "module": "pycodestyle"
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "classes": {
+     "BaseReport": {
+      "attributes": {
+       "error": {
+        "callable": "(self, line_number, offset, text, check)"
+       },
+       "get_count": {
+        "callable": "(self, prefix='')"
+       },
+       "get_file_results": {
+        "callable": "(self)"
+       },
+       "get_statistics": {
+        "callable": "(self, prefix='')"
+       },
+       "increment_logical_line": {
+        "callable": "(self)"
+       },
+       "init_file": {
+        "callable": "(self, filename, lines, expected, line_offset)"
+       },
+       "print_benchmark": {
+        "callable": "(self)"
+       },
+       "print_filename": {
+        "type": "bool",
+        "value": "False"
+       },
+       "print_statistics": {
+        "callable": "(self, prefix='')"
+       },
+       "start": {
+        "callable": "(self)"
+       },
+       "stop": {
+        "callable": "(self)"
+       }
+      },
+      "bases": [
+       "object"
+      ]
+     },
+     "Checker": {
+      "attributes": {
+       "build_tokens_line": {
+        "callable": "(self)"
+       },
+       "check_all": {
+        "callable": "(self, expected=None, line_offset=0)"
+       },
+       "check_ast": {
+        "callable": "(self)"
+       },
+       "check_logical": {
+        "callable": "(self)"
+       },
+       "check_physical": {
+        "callable": "(self, line)"
+       },
+       "generate_tokens": {
+        "callable": "(self)"
+       },
+       "init_checker_state": {
+        "callable": "(self, name, argument_names)"
+       },
+       "maybe_check_physical": {
+        "callable": "(self, token, prev_physical)"
+       },
+       "readline": {
+        "callable": "(self)"
+       },
+       "report_invalid_syntax": {
+        "callable": "(self)"
+       },
+       "run_check": {
+        "callable": "(self, check, argument_names)"
+       }
+      },
+      "bases": [
+       "object"
+      ]
+     },
+     "DiffReport": {
+      "attributes": {
+       "error": {
+        "callable": "(self, line_number, offset, text, check)"
+       },
+       "get_count": {
+        "callable": "(self, prefix='')"
+       },
+       "get_file_results": {
+        "callable": "(self)"
+       },
+       "get_statistics": {
+        "callable": "(self, prefix='')"
+       },
+       "increment_logical_line": {
+        "callable": "(self)"
+       },
+       "init_file": {
+        "callable": "(self, filename, lines, expected, line_offset)"
+       },
+       "print_benchmark": {
+        "callable": "(self)"
+       },
+       "print_filename": {
+        "type": "bool",
+        "value": "False"
+       },
+       "print_statistics": {
+        "callable": "(self, prefix='')"
+       },
+       "start": {
+        "callable": "(self)"
+       },
+       "stop": {
+        "callable": "(self)"
+       }
+      },
+      "bases": [
+       "StandardReport"
+      ]
+     },
+     "FileReport": {
+      "attributes": {
+       "error": {
+        "callable": "(self, line_number, offset, text, check)"
+       },
+       "get_count": {
+        "callable": "(self, prefix='')"
+       },
+       "get_file_results": {
+        "callable": "(self)"
+       },
+       "get_statistics": {
+        "callable": "(self, prefix='')"
+       },
+       "increment_logical_line": {
+        "callable": "(self)"
+       },
+       "init_file": {
+        "callable": "(self, filename, lines, expected, line_offset)"
+       },
+       "print_benchmark": {
+        "callable": "(self)"
+       },
+       "print_filename": {
+        "type": "bool",
+        "value": "True"
+       },
+       "print_statistics": {
+        "callable": "(self, prefix='')"
+       },
+       "start": {
+        "callable": "(self)"
+       },
+       "stop": {
+        "callable": "(self)"
+       }
+      },
+      "bases": [
+       "BaseReport"
+      ]
+     },
+     "OptionParser": {
+      "attributes": {
+       "add_option": {
+        "callable": "(self, *args, **kwargs)"
+       },
+       "add_option_group": {
+        "callable": "(self, *args, **kwargs)"
+       },
+       "add_options": {
+        "callable": "(self, option_list)"
+       },
+       "check_values": {
+        "callable": "(self, values, args)"
+       },
+       "destroy": {
+        "callable": "(self)"
+       },
+       "disable_interspersed_args": {
+        "callable": "(self)"
+       },
+       "enable_interspersed_args": {
+        "callable": "(self)"
+       },
+       "error": {
+        "callable": "(self, msg)"
+       },
+       "exit": {
+        "callable": "(self, status=0, msg=None)"
+       },
+       "expand_prog_name": {
+        "callable": "(self, s)"
+       },
+       "format_description": {
+        "callable": "(self, formatter)"
+       },
+       "format_epilog": {
+        "callable": "(self, formatter)"
+       },
+       "format_help": {
+        "callable": "(self, formatter=None)"
+       },
+       "format_option_help": {
+        "callable": "(self, formatter=None)"
+       },
+       "get_default_values": {
+        "callable": "(self)"
+       },
+       "get_description": {
+        "callable": "(self)"
+       },
+       "get_option": {
+        "callable": "(self, opt_str)"
+       },
+       "get_option_group": {
+        "callable": "(self, opt_str)"
+       },
+       "get_prog_name": {
+        "callable": "(self)"
+       },
+       "get_usage": {
+        "callable": "(self)"
+       },
+       "get_version": {
+        "callable": "(self)"
+       },
+       "has_option": {
+        "callable": "(self, opt_str)"
+       },
+       "parse_args": {
+        "callable": "(self, args=None, values=None)"
+       },
+       "print_help": {
+        "callable": "(self, file=None)"
+       },
+       "print_usage": {
+        "callable": "(self, file=None)"
+       },
+       "print_version": {
+        "callable": "(self, file=None)"
+       },
+       "remove_option": {
+        "callable": "(self, opt_str)"
+       },
+       "set_conflict_handler": {
+        "callable": "(self, handler)"
+       },
+       "set_default": {
+        "callable": "(self, dest, value)"
+       },
+       "set_defaults": {
+        "callable": "(self, **kwargs)"
+       },
+       "set_description": {
+        "callable": "(self, description)"
+       },
+       "set_process_default_values": {
+        "callable": "(self, process)"
+       },
+       "set_usage": {
+        "callable": "(self, usage)"
+       },
+       "standard_option_list": {
+        "type": "list",
+        "value": "[]"
+       }
+      },
+      "bases": [
+       "OptionContainer"
+      ]
+     },
+     "StandardReport": {
+      "attributes": {
+       "error": {
+        "callable": "(self, line_number, offset, text, check)"
+       },
+       "get_count": {
+        "callable": "(self, prefix='')"
+       },
+       "get_file_results": {
+        "callable": "(self)"
+       },
+       "get_statistics": {
+        "callable": "(self, prefix='')"
+       },
+       "increment_logical_line": {
+        "callable": "(self)"
+       },
+       "init_file": {
+        "callable": "(self, filename, lines, expected, line_offset)"
+       },
+       "print_benchmark": {
+        "callable": "(self)"
+       },
+       "print_filename": {
+        "type": "bool",
+        "value": "False"
+       },
+       "print_statistics": {
+        "callable": "(self, prefix='')"
+       },
+       "start": {
+        "callable": "(self)"
+       },
+       "stop": {
+        "callable": "(self)"
+       }
+      },
+      "bases": [
+       "BaseReport"
+      ]
+     },
+     "StyleGuide": {
+      "attributes": {
+       "check_files": {
+        "callable": "(self, paths=None)"
+       },
+       "excluded": {
+        "callable": "(self, filename, parent=None)"
+       },
+       "get_checks": {
+        "callable": "(self, argument_name)"
+       },
+       "ignore_code": {
+        "callable": "(self, code)"
+       },
+       "init_report": {
+        "callable": "(self, reporter=None)"
+       },
+       "input_dir": {
+        "callable": "(self, dirname)"
+       },
+       "input_file": {
+        "callable": "(self, filename, lines=None, expected=None, line_offset=0)"
+       }
+      },
+      "bases": [
+       "object"
+      ]
+     },
+     "pairwise": {
+      "attributes": {},
+      "bases": [
+       "object"
+      ]
+     }
+    },
+    "constants": {
+     "ARITHMETIC_OP": {
+      "type": "frozenset"
+     },
+     "BENCHMARK_KEYS": {
+      "type": "list",
+      "value": "['directories', 'files', 'logical lines', 'physical lines']"
+     },
+     "BLANK_EXCEPT_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "BLANK_LINES_CONFIG": {
+      "type": "dict"
+     },
+     "COMPARE_NEGATIVE_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "COMPARE_SINGLETON_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "COMPARE_TYPE_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "DEFAULT_EXCLUDE": {
+      "type": "str",
+      "value": "'.svn,CVS,.bzr,.hg,.git,__pycache__,.tox'"
+     },
+     "DEFAULT_IGNORE": {
+      "type": "str",
+      "value": "'E121,E123,E126,E226,E24,E704,W503,W504'"
+     },
+     "DOCSTRING_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "DUNDER_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "ERRORCODE_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "EXTRANEOUS_WHITESPACE_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "FSTRING_END": {
+      "type": "int",
+      "value": "-1"
+     },
+     "FSTRING_MIDDLE": {
+      "type": "int",
+      "value": "-1"
+     },
+     "FSTRING_START": {
+      "type": "int",
+      "value": "-1"
+     },
+     "HUNK_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "INDENT_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "INDENT_SIZE": {
+      "type": "int",
+      "value": "4"
+     },
+     "KEYWORDS": {
+      "type": "frozenset"
+     },
+     "KEYWORD_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "LAMBDA_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "MAX_DOC_LENGTH": {
+      "type": "int",
+      "value": "72"
+     },
+     "MAX_LINE_LENGTH": {
+      "type": "int",
+      "value": "79"
+     },
+     "NEWLINE": {
+      "type": "frozenset"
+     },
+     "OPERATOR_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "PROJECT_CONFIG": {
+      "type": "tuple",
+      "value": "['setup.cfg', 'tox.ini']"
+     },
+     "PyCF_ONLY_AST": {
+      "type": "int",
+      "value": "1024"
+     },
+     "REPORT_FORMAT": {
+      "type": "dict"
+     },
+     "SINGLETONS": {
+      "type": "frozenset"
+     },
+     "SKIP_COMMENTS": {
+      "type": "frozenset"
+     },
+     "SKIP_TOKENS": {
+      "type": "frozenset"
+     },
+     "STARTSWITH_DEF_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "STARTSWITH_GENERIC_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "STARTSWITH_INDENT_STATEMENT_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "STARTSWITH_TOP_LEVEL_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "TSTRING_END": {
+      "type": "int",
+      "value": "-1"
+     },
+     "TSTRING_MIDDLE": {
+      "type": "int",
+      "value": "-1"
+     },
+     "TSTRING_START": {
+      "type": "int",
+      "value": "-1"
+     },
+     "UNARY_OPERATORS": {
+      "type": "frozenset"
+     },
+     "USER_CONFIG": {
+      "type": "str",
+      "value": "'C:\\\\Users\\\\yumkh\\\\.pycodestyle'"
+     },
+     "WHITESPACE": {
+      "type": "frozenset"
+     },
+     "WHITESPACE_AFTER_COMMA_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "WHITESPACE_AFTER_DECORATOR_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "WS_NEEDED_OPERATORS": {
+      "type": "frozenset"
+     },
+     "WS_OPTIONAL_OPERATORS": {
+      "type": "frozenset"
+     },
+     "bisect": {
+      "type": "module"
+     },
+     "configparser": {
+      "type": "module"
+     },
+     "inspect": {
+      "type": "module"
+     },
+     "io": {
+      "type": "module"
+     },
+     "keyword": {
+      "type": "module"
+     },
+     "os": {
+      "type": "module"
+     },
+     "re": {
+      "type": "module"
+     },
+     "sys": {
+      "type": "module"
+     },
+     "time": {
+      "type": "module"
+     },
+     "tokenize": {
+      "type": "module"
+     },
+     "warnings": {
+      "type": "module"
+     }
+    },
+    "doc_first_line": [
+     "Check Python source code formatting, according to PEP 8."
+    ],
+    "module": "pycodestyle",
+    "names": [
+     "ARITHMETIC_OP",
+     "BENCHMARK_KEYS",
+     "BLANK_EXCEPT_REGEX",
+     "BLANK_LINES_CONFIG",
+     "BaseReport",
+     "COMPARE_NEGATIVE_REGEX",
+     "COMPARE_SINGLETON_REGEX",
+     "COMPARE_TYPE_REGEX",
+     "Checker",
+     "DEFAULT_EXCLUDE",
+     "DEFAULT_IGNORE",
+     "DOCSTRING_REGEX",
+     "DUNDER_REGEX",
+     "DiffReport",
+     "ERRORCODE_REGEX",
+     "EXTRANEOUS_WHITESPACE_REGEX",
+     "FSTRING_END",
+     "FSTRING_MIDDLE",
+     "FSTRING_START",
+     "FileReport",
+     "HUNK_REGEX",
+     "INDENT_REGEX",
+     "INDENT_SIZE",
+     "KEYWORDS",
+     "KEYWORD_REGEX",
+     "LAMBDA_REGEX",
+     "MAX_DOC_LENGTH",
+     "MAX_LINE_LENGTH",
+     "NEWLINE",
+     "OPERATOR_REGEX",
+     "OptionParser",
+     "PROJECT_CONFIG",
+     "PyCF_ONLY_AST",
+     "REPORT_FORMAT",
+     "SINGLETONS",
+     "SKIP_COMMENTS",
+     "SKIP_TOKENS",
+     "STARTSWITH_DEF_REGEX",
+     "STARTSWITH_GENERIC_REGEX",
+     "STARTSWITH_INDENT_STATEMENT_REGEX",
+     "STARTSWITH_TOP_LEVEL_REGEX",
+     "StandardReport",
+     "StyleGuide",
+     "TSTRING_END",
+     "TSTRING_MIDDLE",
+     "TSTRING_START",
+     "UNARY_OPERATORS",
+     "USER_CONFIG",
+     "WHITESPACE",
+     "WHITESPACE_AFTER_COMMA_REGEX",
+     "WHITESPACE_AFTER_DECORATOR_REGEX",
+     "WS_NEEDED_OPERATORS",
+     "WS_OPTIONAL_OPERATORS",
+     "ambiguous_identifier",
+     "bare_except",
+     "bisect",
+     "blank_lines",
+     "break_after_binary_operator",
+     "break_before_binary_operator",
+     "comparison_negative",
+     "comparison_to_singleton",
+     "comparison_type",
+     "compound_statements",
+     "configparser",
+     "continued_indentation",
+     "expand_indent",
+     "explicit_line_join",
+     "extraneous_whitespace",
+     "filename_match",
+     "fnmatch",
+     "get_parser",
+     "imports_on_separate_lines",
+     "indentation",
+     "inspect",
+     "io",
+     "keyword",
+     "lru_cache",
+     "maximum_doc_length",
+     "maximum_line_length",
+     "missing_whitespace",
+     "missing_whitespace_after_keyword",
+     "module_imports_on_top_of_file",
+     "mute_string",
+     "noqa",
+     "normalize_paths",
+     "os",
+     "pairwise",
+     "parse_udiff",
+     "process_options",
+     "python_3000_invalid_escape_sequence",
+     "re",
+     "read_config",
+     "readlines",
+     "register_check",
+     "stdin_get_value",
+     "sys",
+     "tabs_obsolete",
+     "tabs_or_spaces",
+     "time",
+     "tokenize",
+     "trailing_blank_lines",
+     "trailing_whitespace",
+     "update_counts",
+     "warnings",
+     "whitespace_around_comma",
+     "whitespace_around_keywords",
+     "whitespace_around_named_parameter_equals",
+     "whitespace_around_operator",
+     "whitespace_before_comment",
+     "whitespace_before_parameters"
+    ],
+    "signatures": {
+     "ambiguous_identifier": "(logical_line, tokens)",
+     "bare_except": "(logical_line, noqa)",
+     "blank_lines": "(logical_line, blank_lines, indent_level, line_number, blank_before, previous_logical, previous_unindented_logical_line, previous_indent_level, lines)",
+     "break_after_binary_operator": "(logical_line, tokens)",
+     "break_before_binary_operator": "(logical_line, tokens)",
+     "comparison_negative": "(logical_line)",
+     "comparison_to_singleton": "(logical_line, noqa)",
+     "comparison_type": "(logical_line, noqa)",
+     "compound_statements": "(logical_line)",
+     "continued_indentation": "(logical_line, tokens, indent_level, hang_closing, indent_char, indent_size, noqa, verbose)",
+     "expand_indent": "(line)",
+     "explicit_line_join": "(logical_line, tokens)",
+     "extraneous_whitespace": "(logical_line)",
+     "filename_match": "(filename, patterns, default=True)",
+     "fnmatch": "(name, pat)",
+     "get_parser": "(prog='pycodestyle', version='2.15.0')",
+     "imports_on_separate_lines": "(logical_line)",
+     "indentation": "(logical_line, previous_logical, indent_char, indent_level, previous_indent_level, indent_size)",
+     "lru_cache": "(maxsize=128, typed=False)",
+     "maximum_doc_length": "(logical_line, max_doc_length, noqa, tokens)",
+     "maximum_line_length": "(physical_line, max_line_length, multiline, line_number, noqa)",
+     "missing_whitespace": "(logical_line, tokens)",
+     "missing_whitespace_after_keyword": "(logical_line, tokens)",
+     "module_imports_on_top_of_file": "(logical_line, indent_level, checker_state, noqa)",
+     "mute_string": "(text)",
+     "noqa": "(string, pos=0, endpos=9223372036854775807)",
+     "normalize_paths": "(value, parent='.')",
+     "parse_udiff": "(diff, patterns=None, parent='.')",
+     "process_options": "(arglist=None, parse_argv=False, config_file=None, parser=None, verbose=None)",
+     "python_3000_invalid_escape_sequence": "(logical_line, tokens, noqa)",
+     "read_config": "(options, args, arglist, parser)",
+     "readlines": "(filename)",
+     "register_check": "(check, codes=None)",
+     "stdin_get_value": "()",
+     "tabs_obsolete": "(physical_line)",
+     "tabs_or_spaces": "(physical_line, indent_char)",
+     "trailing_blank_lines": "(physical_line, lines, line_number, total_lines)",
+     "trailing_whitespace": "(physical_line)",
+     "update_counts": "(s, counts)",
+     "whitespace_around_comma": "(logical_line)",
+     "whitespace_around_keywords": "(logical_line)",
+     "whitespace_around_named_parameter_equals": "(logical_line, tokens)",
+     "whitespace_around_operator": "(logical_line)",
+     "whitespace_before_comment": "(logical_line, tokens)",
+     "whitespace_before_parameters": "(logical_line, tokens)"
+    }
+   }
+  },
+  "api-parser": {
+   "case_id": "api-parser",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "api_surface",
+    "api_paths_projected:<cwd>",
+    "api_paths_projected:<home>",
+    "api_paths_projected:<tmp>"
+   ],
+   "entry": "pycodestyle",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "call": {
+     "args": [],
+     "entry": "get_parser",
+     "kwargs": {}
+    },
+    "module": "pycodestyle"
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "call": {
+     "attributes": {
+      "add_option": {
+       "callable": "(*args, **kwargs)"
+      },
+      "add_option_group": {
+       "callable": "(*args, **kwargs)"
+      },
+      "add_options": {
+       "callable": "(option_list)"
+      },
+      "allow_interspersed_args": {
+       "type": "bool",
+       "value": "True"
+      },
+      "check_values": {
+       "callable": "(values, args)"
+      },
+      "config_options": {
+       "type": "list",
+       "value": "['exclude', 'filename', 'select', 'ignore', 'max-line-length', 'max-doc-length', 'indent-size', 'hang-closing', 'count', 'format', 'quiet', 'show-pep8', 'show-source', 'statistics', 'verbose']"
+      },
+      "conflict_handler": {
+       "type": "str",
+       "value": "'error'"
+      },
+      "defaults": {
+       "type": "dict"
+      },
+      "description": {
+       "type": "NoneType",
+       "value": "None"
+      },
+      "destroy": {
+       "callable": "()"
+      },
+      "disable_interspersed_args": {
+       "callable": "()"
+      },
+      "enable_interspersed_args": {
+       "callable": "()"
+      },
+      "epilog": {
+       "type": "NoneType",
+       "value": "None"
+      },
+      "error": {
+       "callable": "(msg)"
+      },
+      "exit": {
+       "callable": "(status=0, msg=None)"
+      },
+      "expand_prog_name": {
+       "callable": "(s)"
+      },
+      "format_description": {
+       "callable": "(formatter)"
+      },
+      "format_epilog": {
+       "callable": "(formatter)"
+      },
+      "format_help": {
+       "callable": "(formatter=None)"
+      },
+      "format_option_help": {
+       "callable": "(formatter=None)"
+      },
+      "formatter": {
+       "type": "IndentedHelpFormatter"
+      },
+      "get_default_values": {
+       "callable": "()"
+      },
+      "get_description": {
+       "callable": "()"
+      },
+      "get_option": {
+       "callable": "(opt_str)"
+      },
+      "get_option_group": {
+       "callable": "(opt_str)"
+      },
+      "get_prog_name": {
+       "callable": "()"
+      },
+      "get_usage": {
+       "callable": "()"
+      },
+      "get_version": {
+       "callable": "()"
+      },
+      "has_option": {
+       "callable": "(opt_str)"
+      },
+      "largs": {
+       "type": "NoneType",
+       "value": "None"
+      },
+      "option_class": {
+       "callable": "(*opts, **attrs)"
+      },
+      "option_groups": {
+       "type": "list"
+      },
+      "option_list": {
+       "type": "list"
+      },
+      "parse_args": {
+       "callable": "(args=None, values=None)"
+      },
+      "print_help": {
+       "callable": "(file=None)"
+      },
+      "print_usage": {
+       "callable": "(file=None)"
+      },
+      "print_version": {
+       "callable": "(file=None)"
+      },
+      "process_default_values": {
+       "type": "bool",
+       "value": "True"
+      },
+      "prog": {
+       "type": "str",
+       "value": "'pycodestyle'"
+      },
+      "rargs": {
+       "type": "NoneType",
+       "value": "None"
+      },
+      "remove_option": {
+       "callable": "(opt_str)"
+      },
+      "set_conflict_handler": {
+       "callable": "(handler)"
+      },
+      "set_default": {
+       "callable": "(dest, value)"
+      },
+      "set_defaults": {
+       "callable": "(**kwargs)"
+      },
+      "set_description": {
+       "callable": "(description)"
+      },
+      "set_process_default_values": {
+       "callable": "(process)"
+      },
+      "set_usage": {
+       "callable": "(usage)"
+      },
+      "standard_option_list": {
+       "type": "list",
+       "value": "[]"
+      },
+      "usage": {
+       "type": "str",
+       "value": "'%prog [options] input ...'"
+      },
+      "values": {
+       "type": "NoneType",
+       "value": "None"
+      },
+      "version": {
+       "type": "str",
+       "value": "'2.15.0'"
+      }
+     },
+     "bases": [
+      "OptionContainer"
+     ],
+     "entry": "get_parser",
+     "type": "OptionParser"
+    },
+    "classes": {
+     "BaseReport": {
+      "attributes": {
+       "error": {
+        "callable": "(self, line_number, offset, text, check)"
+       },
+       "get_count": {
+        "callable": "(self, prefix='')"
+       },
+       "get_file_results": {
+        "callable": "(self)"
+       },
+       "get_statistics": {
+        "callable": "(self, prefix='')"
+       },
+       "increment_logical_line": {
+        "callable": "(self)"
+       },
+       "init_file": {
+        "callable": "(self, filename, lines, expected, line_offset)"
+       },
+       "print_benchmark": {
+        "callable": "(self)"
+       },
+       "print_filename": {
+        "type": "bool",
+        "value": "False"
+       },
+       "print_statistics": {
+        "callable": "(self, prefix='')"
+       },
+       "start": {
+        "callable": "(self)"
+       },
+       "stop": {
+        "callable": "(self)"
+       }
+      },
+      "bases": [
+       "object"
+      ]
+     },
+     "Checker": {
+      "attributes": {
+       "build_tokens_line": {
+        "callable": "(self)"
+       },
+       "check_all": {
+        "callable": "(self, expected=None, line_offset=0)"
+       },
+       "check_ast": {
+        "callable": "(self)"
+       },
+       "check_logical": {
+        "callable": "(self)"
+       },
+       "check_physical": {
+        "callable": "(self, line)"
+       },
+       "generate_tokens": {
+        "callable": "(self)"
+       },
+       "init_checker_state": {
+        "callable": "(self, name, argument_names)"
+       },
+       "maybe_check_physical": {
+        "callable": "(self, token, prev_physical)"
+       },
+       "readline": {
+        "callable": "(self)"
+       },
+       "report_invalid_syntax": {
+        "callable": "(self)"
+       },
+       "run_check": {
+        "callable": "(self, check, argument_names)"
+       }
+      },
+      "bases": [
+       "object"
+      ]
+     },
+     "DiffReport": {
+      "attributes": {
+       "error": {
+        "callable": "(self, line_number, offset, text, check)"
+       },
+       "get_count": {
+        "callable": "(self, prefix='')"
+       },
+       "get_file_results": {
+        "callable": "(self)"
+       },
+       "get_statistics": {
+        "callable": "(self, prefix='')"
+       },
+       "increment_logical_line": {
+        "callable": "(self)"
+       },
+       "init_file": {
+        "callable": "(self, filename, lines, expected, line_offset)"
+       },
+       "print_benchmark": {
+        "callable": "(self)"
+       },
+       "print_filename": {
+        "type": "bool",
+        "value": "False"
+       },
+       "print_statistics": {
+        "callable": "(self, prefix='')"
+       },
+       "start": {
+        "callable": "(self)"
+       },
+       "stop": {
+        "callable": "(self)"
+       }
+      },
+      "bases": [
+       "StandardReport"
+      ]
+     },
+     "FileReport": {
+      "attributes": {
+       "error": {
+        "callable": "(self, line_number, offset, text, check)"
+       },
+       "get_count": {
+        "callable": "(self, prefix='')"
+       },
+       "get_file_results": {
+        "callable": "(self)"
+       },
+       "get_statistics": {
+        "callable": "(self, prefix='')"
+       },
+       "increment_logical_line": {
+        "callable": "(self)"
+       },
+       "init_file": {
+        "callable": "(self, filename, lines, expected, line_offset)"
+       },
+       "print_benchmark": {
+        "callable": "(self)"
+       },
+       "print_filename": {
+        "type": "bool",
+        "value": "True"
+       },
+       "print_statistics": {
+        "callable": "(self, prefix='')"
+       },
+       "start": {
+        "callable": "(self)"
+       },
+       "stop": {
+        "callable": "(self)"
+       }
+      },
+      "bases": [
+       "BaseReport"
+      ]
+     },
+     "OptionParser": {
+      "attributes": {
+       "add_option": {
+        "callable": "(self, *args, **kwargs)"
+       },
+       "add_option_group": {
+        "callable": "(self, *args, **kwargs)"
+       },
+       "add_options": {
+        "callable": "(self, option_list)"
+       },
+       "check_values": {
+        "callable": "(self, values, args)"
+       },
+       "destroy": {
+        "callable": "(self)"
+       },
+       "disable_interspersed_args": {
+        "callable": "(self)"
+       },
+       "enable_interspersed_args": {
+        "callable": "(self)"
+       },
+       "error": {
+        "callable": "(self, msg)"
+       },
+       "exit": {
+        "callable": "(self, status=0, msg=None)"
+       },
+       "expand_prog_name": {
+        "callable": "(self, s)"
+       },
+       "format_description": {
+        "callable": "(self, formatter)"
+       },
+       "format_epilog": {
+        "callable": "(self, formatter)"
+       },
+       "format_help": {
+        "callable": "(self, formatter=None)"
+       },
+       "format_option_help": {
+        "callable": "(self, formatter=None)"
+       },
+       "get_default_values": {
+        "callable": "(self)"
+       },
+       "get_description": {
+        "callable": "(self)"
+       },
+       "get_option": {
+        "callable": "(self, opt_str)"
+       },
+       "get_option_group": {
+        "callable": "(self, opt_str)"
+       },
+       "get_prog_name": {
+        "callable": "(self)"
+       },
+       "get_usage": {
+        "callable": "(self)"
+       },
+       "get_version": {
+        "callable": "(self)"
+       },
+       "has_option": {
+        "callable": "(self, opt_str)"
+       },
+       "parse_args": {
+        "callable": "(self, args=None, values=None)"
+       },
+       "print_help": {
+        "callable": "(self, file=None)"
+       },
+       "print_usage": {
+        "callable": "(self, file=None)"
+       },
+       "print_version": {
+        "callable": "(self, file=None)"
+       },
+       "remove_option": {
+        "callable": "(self, opt_str)"
+       },
+       "set_conflict_handler": {
+        "callable": "(self, handler)"
+       },
+       "set_default": {
+        "callable": "(self, dest, value)"
+       },
+       "set_defaults": {
+        "callable": "(self, **kwargs)"
+       },
+       "set_description": {
+        "callable": "(self, description)"
+       },
+       "set_process_default_values": {
+        "callable": "(self, process)"
+       },
+       "set_usage": {
+        "callable": "(self, usage)"
+       },
+       "standard_option_list": {
+        "type": "list",
+        "value": "[]"
+       }
+      },
+      "bases": [
+       "OptionContainer"
+      ]
+     },
+     "StandardReport": {
+      "attributes": {
+       "error": {
+        "callable": "(self, line_number, offset, text, check)"
+       },
+       "get_count": {
+        "callable": "(self, prefix='')"
+       },
+       "get_file_results": {
+        "callable": "(self)"
+       },
+       "get_statistics": {
+        "callable": "(self, prefix='')"
+       },
+       "increment_logical_line": {
+        "callable": "(self)"
+       },
+       "init_file": {
+        "callable": "(self, filename, lines, expected, line_offset)"
+       },
+       "print_benchmark": {
+        "callable": "(self)"
+       },
+       "print_filename": {
+        "type": "bool",
+        "value": "False"
+       },
+       "print_statistics": {
+        "callable": "(self, prefix='')"
+       },
+       "start": {
+        "callable": "(self)"
+       },
+       "stop": {
+        "callable": "(self)"
+       }
+      },
+      "bases": [
+       "BaseReport"
+      ]
+     },
+     "StyleGuide": {
+      "attributes": {
+       "check_files": {
+        "callable": "(self, paths=None)"
+       },
+       "excluded": {
+        "callable": "(self, filename, parent=None)"
+       },
+       "get_checks": {
+        "callable": "(self, argument_name)"
+       },
+       "ignore_code": {
+        "callable": "(self, code)"
+       },
+       "init_report": {
+        "callable": "(self, reporter=None)"
+       },
+       "input_dir": {
+        "callable": "(self, dirname)"
+       },
+       "input_file": {
+        "callable": "(self, filename, lines=None, expected=None, line_offset=0)"
+       }
+      },
+      "bases": [
+       "object"
+      ]
+     },
+     "pairwise": {
+      "attributes": {},
+      "bases": [
+       "object"
+      ]
+     }
+    },
+    "constants": {
+     "ARITHMETIC_OP": {
+      "type": "frozenset"
+     },
+     "BENCHMARK_KEYS": {
+      "type": "list",
+      "value": "['directories', 'files', 'logical lines', 'physical lines']"
+     },
+     "BLANK_EXCEPT_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "BLANK_LINES_CONFIG": {
+      "type": "dict"
+     },
+     "COMPARE_NEGATIVE_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "COMPARE_SINGLETON_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "COMPARE_TYPE_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "DEFAULT_EXCLUDE": {
+      "type": "str",
+      "value": "'.svn,CVS,.bzr,.hg,.git,__pycache__,.tox'"
+     },
+     "DEFAULT_IGNORE": {
+      "type": "str",
+      "value": "'E121,E123,E126,E226,E24,E704,W503,W504'"
+     },
+     "DOCSTRING_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "DUNDER_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "ERRORCODE_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "EXTRANEOUS_WHITESPACE_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "FSTRING_END": {
+      "type": "int",
+      "value": "-1"
+     },
+     "FSTRING_MIDDLE": {
+      "type": "int",
+      "value": "-1"
+     },
+     "FSTRING_START": {
+      "type": "int",
+      "value": "-1"
+     },
+     "HUNK_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "INDENT_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "INDENT_SIZE": {
+      "type": "int",
+      "value": "4"
+     },
+     "KEYWORDS": {
+      "type": "frozenset"
+     },
+     "KEYWORD_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "LAMBDA_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "MAX_DOC_LENGTH": {
+      "type": "int",
+      "value": "72"
+     },
+     "MAX_LINE_LENGTH": {
+      "type": "int",
+      "value": "79"
+     },
+     "NEWLINE": {
+      "type": "frozenset"
+     },
+     "OPERATOR_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "PROJECT_CONFIG": {
+      "type": "tuple",
+      "value": "['setup.cfg', 'tox.ini']"
+     },
+     "PyCF_ONLY_AST": {
+      "type": "int",
+      "value": "1024"
+     },
+     "REPORT_FORMAT": {
+      "type": "dict"
+     },
+     "SINGLETONS": {
+      "type": "frozenset"
+     },
+     "SKIP_COMMENTS": {
+      "type": "frozenset"
+     },
+     "SKIP_TOKENS": {
+      "type": "frozenset"
+     },
+     "STARTSWITH_DEF_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "STARTSWITH_GENERIC_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "STARTSWITH_INDENT_STATEMENT_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "STARTSWITH_TOP_LEVEL_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "TSTRING_END": {
+      "type": "int",
+      "value": "-1"
+     },
+     "TSTRING_MIDDLE": {
+      "type": "int",
+      "value": "-1"
+     },
+     "TSTRING_START": {
+      "type": "int",
+      "value": "-1"
+     },
+     "UNARY_OPERATORS": {
+      "type": "frozenset"
+     },
+     "USER_CONFIG": {
+      "type": "str",
+      "value": "'C:\\\\Users\\\\yumkh\\\\.pycodestyle'"
+     },
+     "WHITESPACE": {
+      "type": "frozenset"
+     },
+     "WHITESPACE_AFTER_COMMA_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "WHITESPACE_AFTER_DECORATOR_REGEX": {
+      "type": "module",
+      "value": "Pattern"
+     },
+     "WS_NEEDED_OPERATORS": {
+      "type": "frozenset"
+     },
+     "WS_OPTIONAL_OPERATORS": {
+      "type": "frozenset"
+     },
+     "bisect": {
+      "type": "module"
+     },
+     "configparser": {
+      "type": "module"
+     },
+     "inspect": {
+      "type": "module"
+     },
+     "io": {
+      "type": "module"
+     },
+     "keyword": {
+      "type": "module"
+     },
+     "os": {
+      "type": "module"
+     },
+     "re": {
+      "type": "module"
+     },
+     "sys": {
+      "type": "module"
+     },
+     "time": {
+      "type": "module"
+     },
+     "tokenize": {
+      "type": "module"
+     },
+     "warnings": {
+      "type": "module"
+     }
+    },
+    "doc_first_line": [
+     "Check Python source code formatting, according to PEP 8."
+    ],
+    "module": "pycodestyle",
+    "names": [
+     "ARITHMETIC_OP",
+     "BENCHMARK_KEYS",
+     "BLANK_EXCEPT_REGEX",
+     "BLANK_LINES_CONFIG",
+     "BaseReport",
+     "COMPARE_NEGATIVE_REGEX",
+     "COMPARE_SINGLETON_REGEX",
+     "COMPARE_TYPE_REGEX",
+     "Checker",
+     "DEFAULT_EXCLUDE",
+     "DEFAULT_IGNORE",
+     "DOCSTRING_REGEX",
+     "DUNDER_REGEX",
+     "DiffReport",
+     "ERRORCODE_REGEX",
+     "EXTRANEOUS_WHITESPACE_REGEX",
+     "FSTRING_END",
+     "FSTRING_MIDDLE",
+     "FSTRING_START",
+     "FileReport",
+     "HUNK_REGEX",
+     "INDENT_REGEX",
+     "INDENT_SIZE",
+     "KEYWORDS",
+     "KEYWORD_REGEX",
+     "LAMBDA_REGEX",
+     "MAX_DOC_LENGTH",
+     "MAX_LINE_LENGTH",
+     "NEWLINE",
+     "OPERATOR_REGEX",
+     "OptionParser",
+     "PROJECT_CONFIG",
+     "PyCF_ONLY_AST",
+     "REPORT_FORMAT",
+     "SINGLETONS",
+     "SKIP_COMMENTS",
+     "SKIP_TOKENS",
+     "STARTSWITH_DEF_REGEX",
+     "STARTSWITH_GENERIC_REGEX",
+     "STARTSWITH_INDENT_STATEMENT_REGEX",
+     "STARTSWITH_TOP_LEVEL_REGEX",
+     "StandardReport",
+     "StyleGuide",
+     "TSTRING_END",
+     "TSTRING_MIDDLE",
+     "TSTRING_START",
+     "UNARY_OPERATORS",
+     "USER_CONFIG",
+     "WHITESPACE",
+     "WHITESPACE_AFTER_COMMA_REGEX",
+     "WHITESPACE_AFTER_DECORATOR_REGEX",
+     "WS_NEEDED_OPERATORS",
+     "WS_OPTIONAL_OPERATORS",
+     "ambiguous_identifier",
+     "bare_except",
+     "bisect",
+     "blank_lines",
+     "break_after_binary_operator",
+     "break_before_binary_operator",
+     "comparison_negative",
+     "comparison_to_singleton",
+     "comparison_type",
+     "compound_statements",
+     "configparser",
+     "continued_indentation",
+     "expand_indent",
+     "explicit_line_join",
+     "extraneous_whitespace",
+     "filename_match",
+     "fnmatch",
+     "get_parser",
+     "imports_on_separate_lines",
+     "indentation",
+     "inspect",
+     "io",
+     "keyword",
+     "lru_cache",
+     "maximum_doc_length",
+     "maximum_line_length",
+     "missing_whitespace",
+     "missing_whitespace_after_keyword",
+     "module_imports_on_top_of_file",
+     "mute_string",
+     "noqa",
+     "normalize_paths",
+     "os",
+     "pairwise",
+     "parse_udiff",
+     "process_options",
+     "python_3000_invalid_escape_sequence",
+     "re",
+     "read_config",
+     "readlines",
+     "register_check",
+     "stdin_get_value",
+     "sys",
+     "tabs_obsolete",
+     "tabs_or_spaces",
+     "time",
+     "tokenize",
+     "trailing_blank_lines",
+     "trailing_whitespace",
+     "update_counts",
+     "warnings",
+     "whitespace_around_comma",
+     "whitespace_around_keywords",
+     "whitespace_around_named_parameter_equals",
+     "whitespace_around_operator",
+     "whitespace_before_comment",
+     "whitespace_before_parameters"
+    ],
+    "signatures": {
+     "ambiguous_identifier": "(logical_line, tokens)",
+     "bare_except": "(logical_line, noqa)",
+     "blank_lines": "(logical_line, blank_lines, indent_level, line_number, blank_before, previous_logical, previous_unindented_logical_line, previous_indent_level, lines)",
+     "break_after_binary_operator": "(logical_line, tokens)",
+     "break_before_binary_operator": "(logical_line, tokens)",
+     "comparison_negative": "(logical_line)",
+     "comparison_to_singleton": "(logical_line, noqa)",
+     "comparison_type": "(logical_line, noqa)",
+     "compound_statements": "(logical_line)",
+     "continued_indentation": "(logical_line, tokens, indent_level, hang_closing, indent_char, indent_size, noqa, verbose)",
+     "expand_indent": "(line)",
+     "explicit_line_join": "(logical_line, tokens)",
+     "extraneous_whitespace": "(logical_line)",
+     "filename_match": "(filename, patterns, default=True)",
+     "fnmatch": "(name, pat)",
+     "get_parser": "(prog='pycodestyle', version='2.15.0')",
+     "imports_on_separate_lines": "(logical_line)",
+     "indentation": "(logical_line, previous_logical, indent_char, indent_level, previous_indent_level, indent_size)",
+     "lru_cache": "(maxsize=128, typed=False)",
+     "maximum_doc_length": "(logical_line, max_doc_length, noqa, tokens)",
+     "maximum_line_length": "(physical_line, max_line_length, multiline, line_number, noqa)",
+     "missing_whitespace": "(logical_line, tokens)",
+     "missing_whitespace_after_keyword": "(logical_line, tokens)",
+     "module_imports_on_top_of_file": "(logical_line, indent_level, checker_state, noqa)",
+     "mute_string": "(text)",
+     "noqa": "(string, pos=0, endpos=9223372036854775807)",
+     "normalize_paths": "(value, parent='.')",
+     "parse_udiff": "(diff, patterns=None, parent='.')",
+     "process_options": "(arglist=None, parse_argv=False, config_file=None, parser=None, verbose=None)",
+     "python_3000_invalid_escape_sequence": "(logical_line, tokens, noqa)",
+     "read_config": "(options, args, arglist, parser)",
+     "readlines": "(filename)",
+     "register_check": "(check, codes=None)",
+     "stdin_get_value": "()",
+     "tabs_obsolete": "(physical_line)",
+     "tabs_or_spaces": "(physical_line, indent_char)",
+     "trailing_blank_lines": "(physical_line, lines, line_number, total_lines)",
+     "trailing_whitespace": "(physical_line)",
+     "update_counts": "(s, counts)",
+     "whitespace_around_comma": "(logical_line)",
+     "whitespace_around_keywords": "(logical_line)",
+     "whitespace_around_named_parameter_equals": "(logical_line, tokens)",
+     "whitespace_around_operator": "(logical_line)",
+     "whitespace_before_comment": "(logical_line, tokens)",
+     "whitespace_before_parameters": "(logical_line, tokens)"
+    }
+   }
+  },
+  "fixture-crlf": {
+   "case_id": "fixture-crlf",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "crlf.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "fixture-e10": {
+   "case_id": "fixture-e10",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E10.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E10.py:3:1: W191 indentation contains tabs\nE10.py:6:1: E122 continuation line missing indentation or outdented\nE10.py:8:1: W191 indentation contains tabs\nE10.py:12:1: E101 indentation contains mixed spaces and tabs\nE10.py:26:1: E305 expected 2 blank lines after class or function definition, found 1\nE10.py:27:1: E101 indentation contains mixed spaces and tabs\nE10.py:27:1: W191 indentation contains tabs\nE10.py:28:1: W191 indentation contains tabs\nE10.py:28:2: E101 indentation contains mixed spaces and tabs\nE10.py:30:1: E302 expected 2 blank lines, found 0\nE10.py:31:1: E101 indentation contains mixed spaces and tabs\nE10.py:33:1: E101 indentation contains mixed spaces and tabs\nE10.py:33:1: W191 indentation contains tabs\nE10.py:34:1: W191 indentation contains tabs\nE10.py:35:1: E101 indentation contains mixed spaces and tabs\nE10.py:37:1: E305 expected 2 blank lines after class or function definition, found 0\nE10.py:39:1: E101 indentation contains mixed spaces and tabs\nE10.py:39:1: W191 indentation contains tabs\n"
+   }
+  },
+  "fixture-e11": {
+   "case_id": "fixture-e11",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E11.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E11.py:3:3: E111 indentation is not a multiple of 4\nE11.py:6:6: E111 indentation is not a multiple of 4\nE11.py:6:6: E117 over-indented\nE11.py:9:1: E112 expected an indented block\nE11.py:12:5: E113 unexpected indentation\nE11.py:15:6: E114 indentation is not a multiple of 4 (comment)\nE11.py:15:6: E116 unexpected indentation (comment)\nE11.py:18:1: E302 expected 2 blank lines, found 0\nE11.py:22:13: E116 unexpected indentation (comment)\nE11.py:24:13: E116 unexpected indentation (comment)\nE11.py:26:13: E116 unexpected indentation (comment)\nE11.py:28:1: E302 expected 2 blank lines, found 0\nE11.py:30:1: E115 expected an indented block (comment)\nE11.py:31:1: E115 expected an indented block (comment)\nE11.py:32:1: E115 expected an indented block (comment)\nE11.py:33:1: E115 expected an indented block (comment)\nE11.py:34:1: E115 expected an indented block (comment)\nE11.py:35:1: E115 expected an indented block (comment)\nE11.py:38:1: E302 expected 2 blank lines, found 0\nE11.py:39:9: E117 over-indented\n"
+   }
+  },
+  "fixture-e12": {
+   "case_id": "fixture-e12",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E12.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E12.py:6:1: E122 continuation line missing indentation or outdented\nE12.py:15:15: E124 closing bracket does not match visual indentation\nE12.py:19:1: E124 closing bracket does not match visual indentation\nE12.py:22:1: E124 closing bracket does not match visual indentation\nE12.py:25:5: E129 visually indented line with same indent as next logical line\nE12.py:35:19: E127 continuation line over-indented for visual indent\nE12.py:38:5: E128 continuation line under-indented for visual indent\nE12.py:41:1: E901 TokenError: EOF in multi-line statement\n"
+   }
+  },
+  "fixture-e12not": {
+   "case_id": "fixture-e12not",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E12not.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E12not.py:40:1: W391 blank line at end of file\n"
+   }
+  },
+  "fixture-e20": {
+   "case_id": "fixture-e20",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E20.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E20.py:2:6: E201 whitespace after '('\nE20.py:4:10: E201 whitespace after '['\nE20.py:6:15: E201 whitespace after '{'\nE20.py:8:6: E201 whitespace after '('\nE20.py:10:10: E201 whitespace after '['\nE20.py:12:15: E201 whitespace after '{'\nE20.py:19:23: E202 whitespace before ')'\nE20.py:21:22: E202 whitespace before '}'\nE20.py:23:11: E202 whitespace before ']'\nE20.py:25:23: E202 whitespace before ')'\nE20.py:27:22: E202 whitespace before '}'\nE20.py:29:11: E202 whitespace before ']'\nE20.py:41:1: E901 TokenError: EOF in multi-line statement\n"
+   }
+  },
+  "fixture-e21": {
+   "case_id": "fixture-e21",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E21.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E21.py:2:5: E211 whitespace before '('\nE21.py:4:5: E211 whitespace before '['\nE21.py:4:20: E211 whitespace before '['\nE21.py:6:12: E211 whitespace before '['\n"
+   }
+  },
+  "fixture-e22": {
+   "case_id": "fixture-e22",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E22.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E22.py:3:6: E221 multiple spaces before operator\nE22.py:5:2: E221 multiple spaces before operator\nE22.py:6:2: E221 multiple spaces before operator\nE22.py:9:5: E221 multiple spaces before operator\nE22.py:10:5: E221 multiple spaces before operator\nE22.py:13:9: E221 multiple spaces before operator\nE22.py:15:9: E221 multiple spaces before operator\nE22.py:19:14: E221 multiple spaces before operator\nE22.py:28:8: E222 multiple spaces after operator\nE22.py:31:4: E222 multiple spaces after operator\nE22.py:32:4: E222 multiple spaces after operator\nE22.py:35:7: E222 multiple spaces after operator\nE22.py:36:7: E222 multiple spaces after operator\nE22.py:40:1: W391 blank line at end of file\n"
+   }
+  },
+  "fixture-e23": {
+   "case_id": "fixture-e23",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E23.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E23.py:2:7: E231 missing whitespace after ','\nE23.py:4:5: E231 missing whitespace after ','\nE23.py:6:10: E231 missing whitespace after ':'\n"
+   }
+  },
+  "fixture-e24": {
+   "case_id": "fixture-e24",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E24.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "fixture-e25": {
+   "case_id": "fixture-e25",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E25.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E25.py:2:12: E251 unexpected spaces around keyword / parameter equals\nE25.py:2:14: E251 unexpected spaces around keyword / parameter equals\nE25.py:6:1: E305 expected 2 blank lines after class or function definition, found 0\nE25.py:6:9: E251 unexpected spaces around keyword / parameter equals\nE25.py:8:8: E251 unexpected spaces around keyword / parameter equals\nE25.py:10:8: E251 unexpected spaces around keyword / parameter equals\nE25.py:10:10: E251 unexpected spaces around keyword / parameter equals\nE25.py:12:14: E251 unexpected spaces around keyword / parameter equals\nE25.py:15:29: E251 unexpected spaces around keyword / parameter equals\nE25.py:18:45: E251 unexpected spaces around keyword / parameter equals\nE25.py:23:8: E251 unexpected spaces around keyword / parameter equals\nE25.py:23:10: E251 unexpected spaces around keyword / parameter equals\nE25.py:35:1: E302 expected 2 blank lines, found 1\nE25.py:39:1: E302 expected 2 blank lines, found 0\n"
+   }
+  },
+  "fixture-e26": {
+   "case_id": "fixture-e26",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E26.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E26.py:2:5: E261 at least two spaces before inline comment\nE26.py:4:12: E262 inline comment should start with '# '\nE26.py:6:12: E262 inline comment should start with '# '\nE26.py:8:12: E262 inline comment should start with '# '\nE26.py:10:1: E265 block comment should start with '# '\nE26.py:14:1: E265 block comment should start with '# '\nE26.py:17:1: E302 expected 2 blank lines, found 0\nE26.py:19:5: E266 too many leading '#' for block comment\nE26.py:22:5: E266 too many leading '#' for block comment\nE26.py:25:1: E265 block comment should start with '# '\nE26.py:26:1: E266 too many leading '#' for block comment\nE26.py:28:42: W291 trailing whitespace\nE26.py:32:1: E265 block comment should start with '# '\nE26.py:34:1: E305 expected 2 blank lines after class or function definition, found 1\nE26.py:40:1: W391 blank line at end of file\n"
+   }
+  },
+  "fixture-e27": {
+   "case_id": "fixture-e27",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E27.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E27.py:4:9: E271 multiple spaces after keyword\nE27.py:6:5: E272 multiple spaces before keyword\nE27.py:8:3: E271 multiple spaces after keyword\nE27.py:9:1: E115 expected an indented block (comment)\nE27.py:10:1: E112 expected an indented block\nE27.py:10:9: E273 tab after keyword\nE27.py:12:5: E274 tab before keyword\nE27.py:12:10: E273 tab after keyword\nE27.py:14:6: E271 multiple spaces after keyword\nE27.py:16:6: E271 multiple spaces after keyword\nE27.py:18:6: E271 multiple spaces after keyword\nE27.py:20:2: E272 multiple spaces before keyword\nE27.py:20:7: E271 multiple spaces after keyword\nE27.py:22:2: E272 multiple spaces before keyword\nE27.py:22:7: E271 multiple spaces after keyword\nE27.py:24:5: E272 multiple spaces before keyword\nE27.py:26:6: E273 tab after keyword\nE27.py:28:2: E274 tab before keyword\nE27.py:30:5: E274 tab before keyword\nE27.py:30:10: E273 tab after keyword\nE27.py:32:1: E402 module level import not at top of file\nE27.py:33:1: E402 module level import not at top of file\nE27.py:35:1: E402 module level import not at top of file\nE27.py:35:14: E271 multiple spaces after keyword\nE27.py:37:1: E402 module level import not at top of file\nE27.py:37:14: E275 missing whitespace after keyword\nE27.py:39:1: E402 module level import not at top of file\nE27.py:39:30: E275 missing whitespace after keyword\n"
+   }
+  },
+  "fixture-e30": {
+   "case_id": "fixture-e30",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E30.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E30.py:6:5: E301 expected 1 blank line, found 0\nE30.py:9:1: E302 expected 2 blank lines, found 0\nE30.py:14:5: E301 expected 1 blank line, found 0\nE30.py:21:1: E302 expected 2 blank lines, found 0\nE30.py:24:1: E305 expected 2 blank lines after class or function definition, found 0\nE30.py:24:1: E402 module level import not at top of file\nE30.py:25:1: E302 expected 2 blank lines, found 0\nE30.py:28:1: E302 expected 2 blank lines, found 0\nE30.py:31:1: E302 expected 2 blank lines, found 1\nE30.py:34:1: E302 expected 2 blank lines, found 0\nE30.py:39:1: E302 expected 2 blank lines, found 1\n"
+   }
+  },
+  "fixture-e30not": {
+   "case_id": "fixture-e30not",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E30not.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E30not.py:6:1: E302 expected 2 blank lines, found 1\nE30not.py:10:1: E302 expected 2 blank lines, found 0\nE30not.py:14:1: E302 expected 2 blank lines, found 0\nE30not.py:17:1: E302 expected 2 blank lines, found 0\n"
+   }
+  },
+  "fixture-e40": {
+   "case_id": "fixture-e40",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E40.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E40.py:2:10: E401 multiple imports on one line\n"
+   }
+  },
+  "fixture-e50": {
+   "case_id": "fixture-e50",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E50.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E50.py:2:80: E501 line too long (86 > 79 characters)\nE50.py:4:80: E501 line too long (81 > 79 characters)\nE50.py:8:80: E501 line too long (81 > 79 characters)\nE50.py:12:80: E501 line too long (81 > 79 characters)\nE50.py:13:80: E501 line too long (81 > 79 characters)\nE50.py:16:80: E501 line too long (81 > 79 characters)\nE50.py:18:79: E502 the backslash is redundant between brackets\nE50.py:22:12: E502 the backslash is redundant between brackets\nE50.py:25:39: E502 the backslash is redundant between brackets\nE50.py:32:9: E502 the backslash is redundant between brackets\nE50.py:40:6: E901 TokenError: EOF in multi-line string\n"
+   }
+  },
+  "fixture-e70": {
+   "case_id": "fixture-e70",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E70.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E70.py:2:5: E701 multiple statements on one line (colon)\nE70.py:4:40: E701 multiple statements on one line (colon)\nE70.py:6:10: E702 multiple statements on one line (semicolon)\nE70.py:8:1: E402 module level import not at top of file\nE70.py:8:17: E702 multiple statements on one line (semicolon)\nE70.py:10:1: E402 module level import not at top of file\nE70.py:10:13: E703 statement ends with a semicolon\nE70.py:12:9: E702 multiple statements on one line (semicolon)\nE70.py:12:23: E703 statement ends with a semicolon\nE70.py:18:6: E271 multiple spaces after keyword\nE70.py:22:1: E305 expected 2 blank lines after class or function definition, found 0\n"
+   }
+  },
+  "fixture-e71": {
+   "case_id": "fixture-e71",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E71.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E71.py:2:8: E711 comparison to None should be 'if cond is None:'\nE71.py:5:8: E711 comparison to None should be 'if cond is not None:'\nE71.py:8:9: E711 comparison to None should be 'if cond is None:'\nE71.py:11:9: E711 comparison to None should be 'if cond is not None:'\nE71.py:14:11: E711 comparison to None should be 'if cond is None:'\nE71.py:17:11: E711 comparison to None should be 'if cond is not None:'\nE71.py:20:9: E711 comparison to None should be 'if cond is not None:'\nE71.py:23:9: E711 comparison to None should be 'if cond is None:'\nE71.py:28:8: E712 comparison to True should be 'if cond is True:' or 'if cond:'\nE71.py:31:8: E712 comparison to False should be 'if cond is not False:' or 'if cond:'\nE71.py:34:9: E712 comparison to True should be 'if cond is not True:' or 'if not cond:'\nE71.py:37:10: E712 comparison to False should be 'if cond is False:' or 'if not cond:'\nE71.py:40:11: E712 comparison to True should be 'if cond is True:' or 'if cond:'\n"
+   }
+  },
+  "fixture-e72": {
+   "case_id": "fixture-e72",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E72.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E72.py:2:4: E721 do not compare types, for exact checks use `is` / `is not`, for instance checks use `isinstance()`\nE72.py:5:4: E721 do not compare types, for exact checks use `is` / `is not`, for instance checks use `isinstance()`\nE72.py:10:1: E402 module level import not at top of file\nE72.py:15:1: E402 module level import not at top of file\nE72.py:20:8: E721 do not compare types, for exact checks use `is` / `is not`, for instance checks use `isinstance()`\nE72.py:22:8: E721 do not compare types, for exact checks use `is` / `is not`, for instance checks use `isinstance()`\nE72.py:24:8: E721 do not compare types, for exact checks use `is` / `is not`, for instance checks use `isinstance()`\nE72.py:26:8: E721 do not compare types, for exact checks use `is` / `is not`, for instance checks use `isinstance()`\nE72.py:28:8: E721 do not compare types, for exact checks use `is` / `is not`, for instance checks use `isinstance()`\nE72.py:30:8: E721 do not compare types, for exact checks use `is` / `is not`, for instance checks use `isinstance()`\nE72.py:36:8: E721 do not compare types, for exact checks use `is` / `is not`, for instance checks use `isinstance()`\nE72.py:36:25: E211 whitespace before '('\nE72.py:38:8: E721 do not compare types, for exact checks use `is` / `is not`, for instance checks use `isinstance()`\nE72.py:38:26: E201 whitespace after '('\nE72.py:38:28: E201 whitespace after '('\nE72.py:38:30: E202 whitespace before ')'\nE72.py:40:8: E721 do not compare types, for exact checks use `is` / `is not`, for instance checks use `isinstance()`\nE72.py:40:26: E201 whitespace after '('\nE72.py:40:32: E202 whitespace before ')'\n"
+   }
+  },
+  "fixture-e73": {
+   "case_id": "fixture-e73",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E73.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E73.py:2:1: E731 do not assign a lambda expression, use a def\nE73.py:4:1: E731 do not assign a lambda expression, use a def\nE73.py:7:5: E731 do not assign a lambda expression, use a def\n"
+   }
+  },
+  "fixture-e74": {
+   "case_id": "fixture-e74",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E74.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E74.py:2:8: E741 ambiguous variable name 'l'\nE74.py:4:7: E741 ambiguous variable name 'l'\nE74.py:6:1: E305 expected 2 blank lines after class or function definition, found 0\nE74.py:7:12: E741 ambiguous variable name 'l'\nE74.py:11:12: E741 ambiguous variable name 'l'\nE74.py:12:12: E741 ambiguous variable name 'l'\n"
+   }
+  },
+  "fixture-e90": {
+   "case_id": "fixture-e90",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "E90.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "E90.py:3:1: E128 continuation line under-indented for visual indent\nE90.py:4:1: E128 continuation line under-indented for visual indent\nE90.py:6:1: E101 indentation contains mixed spaces and tabs\nE90.py:6:1: W191 indentation contains tabs\nE90.py:6:6: E127 continuation line over-indented for visual indent\nE90.py:7:1: W191 indentation contains tabs\nE90.py:7:2: E128 continuation line under-indented for visual indent\nE90.py:8:1: W191 indentation contains tabs\nE90.py:8:3: E128 continuation line under-indented for visual indent\nE90.py:9:1: E128 continuation line under-indented for visual indent\nE90.py:11:1: E128 continuation line under-indented for visual indent\nE90.py:12:1: E128 continuation line under-indented for visual indent\nE90.py:13:1: E128 continuation line under-indented for visual indent\nE90.py:13:10: E251 unexpected spaces around keyword / parameter equals\nE90.py:13:12: E251 unexpected spaces around keyword / parameter equals\nE90.py:14:1: E128 continuation line under-indented for visual indent\nE90.py:14:9: E251 unexpected spaces around keyword / parameter equals\nE90.py:14:11: E251 unexpected spaces around keyword / parameter equals\nE90.py:16:1: E128 continuation line under-indented for visual indent\nE90.py:16:5: E251 unexpected spaces around keyword / parameter equals\nE90.py:16:7: E251 unexpected spaces around keyword / parameter equals\nE90.py:17:1: E128 continuation line under-indented for visual indent\nE90.py:18:1: E901 TokenError: EOF in multi-line statement\n"
+   }
+  },
+  "fixture-latin-1": {
+   "case_id": "fixture-latin-1",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "latin-1.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "latin-1.py:3:80: E501 line too long (108 > 79 characters)\nlatin-1.py:4:80: E501 line too long (103 > 79 characters)\n"
+   }
+  },
+  "fixture-noqa": {
+   "case_id": "fixture-noqa",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "noqa.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "fixture-python3": {
+   "case_id": "fixture-python3",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "python3.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "fixture-python310": {
+   "case_id": "fixture-python310",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "python310.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "fixture-python311": {
+   "case_id": "fixture-python311",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "python311.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "fixture-python312": {
+   "case_id": "fixture-python312",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "python312.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "python312.py:8:1: E122 continuation line missing indentation or outdented\npython312.py:8:1: E302 expected 2 blank lines, found 1\npython312.py:12:1: E305 expected 2 blank lines after class or function definition, found 0\npython312.py:17:1: E302 expected 2 blank lines, found 0\npython312.py:25:1: E305 expected 2 blank lines after class or function definition, found 0\n"
+   }
+  },
+  "fixture-python313": {
+   "case_id": "fixture-python313",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "python313.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "fixture-python314": {
+   "case_id": "fixture-python314",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "python314.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "fixture-python315": {
+   "case_id": "fixture-python315",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "python315.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "fixture-python35": {
+   "case_id": "fixture-python35",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "python35.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "python35.py:2:14: E225 missing whitespace around operator\npython35.py:5:1: E302 expected 2 blank lines, found 0\n"
+   }
+  },
+  "fixture-python36": {
+   "case_id": "fixture-python36",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "python36.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "fixture-python38": {
+   "case_id": "fixture-python38",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "python38.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "python38.py:26:5: E225 missing whitespace around operator\npython38.py:29:18: E225 missing whitespace around operator\npython38.py:32:1: E402 module level import not at top of file\npython38.py:36:1: E402 module level import not at top of file\npython38.py:40:1: E402 module level import not at top of file\n"
+   }
+  },
+  "fixture-python39": {
+   "case_id": "fixture-python39",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "python39.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "fixture-utf-8": {
+   "case_id": "fixture-utf-8",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "utf-8.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "utf-8.py:26:80: E501 line too long (80 > 79 characters)\nutf-8.py:30:80: E501 line too long (80 > 79 characters)\nutf-8.py:34:80: E501 line too long (80 > 79 characters)\n"
+   }
+  },
+  "fixture-utf-8-bom": {
+   "case_id": "fixture-utf-8-bom",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "utf-8-bom.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "fixture-w19": {
+   "case_id": "fixture-w19",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "W19.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "W19.py:3:1: W191 indentation contains tabs\nW19.py:9:1: W191 indentation contains tabs\nW19.py:12:1: E101 indentation contains mixed spaces and tabs\nW19.py:16:1: E101 indentation contains mixed spaces and tabs\nW19.py:16:1: W191 indentation contains tabs\nW19.py:19:1: E101 indentation contains mixed spaces and tabs\nW19.py:21:1: E101 indentation contains mixed spaces and tabs\nW19.py:21:1: W191 indentation contains tabs\nW19.py:24:1: E101 indentation contains mixed spaces and tabs\nW19.py:26:1: E101 indentation contains mixed spaces and tabs\nW19.py:26:1: W191 indentation contains tabs\nW19.py:31:1: E101 indentation contains mixed spaces and tabs\nW19.py:32:1: E101 indentation contains mixed spaces and tabs\nW19.py:32:1: W191 indentation contains tabs\nW19.py:35:1: E101 indentation contains mixed spaces and tabs\nW19.py:38:1: E101 indentation contains mixed spaces and tabs\nW19.py:38:1: W191 indentation contains tabs\nW19.py:40:1: W391 blank line at end of file\n"
+   }
+  },
+  "fixture-w29": {
+   "case_id": "fixture-w29",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "W29.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "W29.py:4:6: W291 trailing whitespace\nW29.py:6:1: E302 expected 2 blank lines, found 0\nW29.py:7:1: W293 blank line contains whitespace\nW29.py:10:1: E305 expected 2 blank lines after class or function definition, found 0\nW29.py:11:35: W291 trailing whitespace\nW29.py:13:6: W291 trailing whitespace\nW29.py:16:1: E101 indentation contains mixed spaces and tabs\nW29.py:16:1: W191 indentation contains tabs\nW29.py:18:2: E225 missing whitespace around operator\nW29.py:20:1: E402 module level import not at top of file\nW29.py:20:12: E261 at least two spaces before inline comment\nW29.py:22:1: E302 expected 2 blank lines, found 0\nW29.py:23:1: E101 indentation contains mixed spaces and tabs\n"
+   }
+  },
+  "fixture-w39": {
+   "case_id": "fixture-w39",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "W39.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "W39.py:11:1: W293 blank line contains whitespace\nW39.py:12:1: W293 blank line contains whitespace\nW39.py:13:1: E303 too many blank lines (3)\n"
+   }
+  },
+  "fixture-w60": {
+   "case_id": "fixture-w60",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "W60.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "W60.py:2:10: W605 invalid escape sequence '\\.'\nW60.py:5:1: W605 invalid escape sequence '\\.'\nW60.py:9:6: W605 invalid escape sequence '\\_'\nW60.py:15:6: W605 invalid escape sequence '\\_'\nW60.py:19:3: W605 invalid escape sequence '\\d'\n"
+   }
+  },
+  "probe-abbreviation": {
+   "case_id": "probe-abbreviation",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--max-line-len=79",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "probe-benchmark": {
+   "case_id": "probe-benchmark",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--benchmark",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "0.00    seconds elapsed\n"
+   }
+  },
+  "probe-blank-lines": {
+   "case_id": "probe-blank-lines",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--max-blank-lines=0",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 2,
+    "files": {},
+    "signal": null,
+    "stderr": "Usage: pycodestyle [options] input ...\n\npycodestyle: error: no such option: --max-blank-lines\n",
+    "stdout": ""
+   }
+  },
+  "probe-cluster": {
+   "case_id": "probe-cluster",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "-qq",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "probe-config-file": {
+   "case_id": "probe-config-file",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--config=cfg.ini",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:1:2: E225 missing whitespace around operator\n"
+   }
+  },
+  "probe-config-int-error": {
+   "case_id": "probe-config-int-error",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "Traceback (most recent call last):\n  File \"<target>\", in <module>\n  File \"<target>\", in _main\n  File \"<target>\", in __init__\n  File \"<target>\", in process_options\n  File \"<target>\", in read_config\n  File \"<target>\", in getint\n  File \"<target>\", in _get_conv\n  File \"<target>\", in _get\nValueError: invalid literal for int() with base 10: 'abc'\n",
+    "stdout": ""
+   }
+  },
+  "probe-config-unknown-key": {
+   "case_id": "probe-config-unknown-key",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "  unknown option 'not-a-real-option' ignored\nsample.py:1:2: E225 missing whitespace around operator\n"
+   }
+  },
+  "probe-defaults": {
+   "case_id": "probe-defaults",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:1:2: E225 missing whitespace around operator\n"
+   }
+  },
+  "probe-deprecated-section": {
+   "case_id": "probe-deprecated-section",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "pycodestyle.py: UserWarning: [pep8] section is deprecated. Use [pycodestyle].\n  warnings.warn('[pep8] section is deprecated. Use [pycodestyle].')\n",
+    "stdout": "sample.py:1:2: E225 missing whitespace around operator\n"
+   }
+  },
+  "probe-diff-stdin": {
+   "case_id": "probe-diff-stdin",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--diff",
+     "sample.py"
+    ],
+    "stdin": "--- sample.py\n+++ sample.py\n@@ -1 +1 @@\n-x=1\n+x=2\n"
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py\\sample.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample.py\\\\sample.py'\n"
+   }
+  },
+  "probe-doc-length": {
+   "case_id": "probe-doc-length",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--max-doc-length=20",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:1:21: W505 doc line too long (36 > 20 characters)\n"
+   }
+  },
+  "probe-exclude-and-filename": {
+   "case_id": "probe-exclude-and-filename",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--exclude=sample.py",
+     "--filename=*.py",
+     "."
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "probe-format-custom": {
+   "case_id": "probe-format-custom",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--format=%(path)s:%(row)d:%(code)s",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:1:E225\n"
+   }
+  },
+  "probe-format-pylint": {
+   "case_id": "probe-format-pylint",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--format=pylint",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:1: [E225] missing whitespace around operator\n"
+   }
+  },
+  "probe-hang-closing": {
+   "case_id": "probe-hang-closing",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--hang-closing",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:2:9: E113 unexpected indentation\nsample.py:3:1: E901 TokenError: EOF in multi-line statement\n"
+   }
+  },
+  "probe-help": {
+   "case_id": "probe-help",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--help"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "Usage: pycodestyle [options] input ...\n\nOptions:\n  --version            show program's version number and exit\n  -h, --help           show this help message and exit\n  -v, --verbose        print status messages, or debug with -vv\n  -q, --quiet          report only file names, or nothing with -qq\n  -r, --repeat         (obsolete) show all occurrences of the same error\n  --first              show first occurrence of each error\n  --exclude=patterns   exclude files or directories which match these comma\n                       separated patterns (default:\n                       .svn,CVS,.bzr,.hg,.git,__pycache__,.tox)\n  --filename=patterns  when parsing directories, only check filenames matching\n                       these comma separated patterns (default: *.py)\n  --select=errors      select errors and warnings (e.g. E,W6)\n  --ignore=errors      skip errors and warnings (e.g. E4,W) (default:\n                       E121,E123,E126,E226,E24,E704,W503,W504)\n  --show-source        show source code for each error\n  --show-pep8          show text of PEP 8 for each error (implies --first)\n  --statistics         count errors and warnings\n  --count              print total number of errors and warnings to standard\n                       error and set exit code to 1 if total is not null\n  --max-line-length=n  set maximum allowed line length (default: 79)\n  --max-doc-length=n   set maximum allowed doc line length and perform these\n                       checks (unchecked if not set)\n  --indent-size=n      set how many spaces make up an indent (default: 4)\n  --hang-closing       hang closing bracket instead of matching indentation of\n                       opening bracket's line\n  --format=format      set the error format [default|pylint|<custom>]\n  --diff               report changes only within line number ranges in the\n                       unified diff received on STDIN\n\n  Testing Options:\n    --benchmark        measure processing speed\n\n  Configuration:\n    The project options are read from the [pycodestyle] section of the\n    tox.ini file or the setup.cfg file located in any parent folder of the\n    path(s) being processed.  Allowed options are: exclude, filename,\n    select, ignore, max-line-length, max-doc-length, indent-size, hang-\n    closing, count, format, quiet, show-pep8, show-source, statistics,\n    verbose.\n\n    --config=path      user config file location\n"
+   }
+  },
+  "probe-indent": {
+   "case_id": "probe-indent",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--indent-size=3",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "probe-int-error": {
+   "case_id": "probe-int-error",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--max-line-length=abc",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 2,
+    "files": {},
+    "signal": null,
+    "stderr": "Usage: pycodestyle [options] input ...\n\npycodestyle: error: option --max-line-length: invalid integer value: 'abc'\n",
+    "stdout": ""
+   }
+  },
+  "probe-invalid-choice": {
+   "case_id": "probe-invalid-choice",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--format=not-a-format",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "probe-jobs": {
+   "case_id": "probe-jobs",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--jobs=1",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 2,
+    "files": {},
+    "signal": null,
+    "stderr": "Usage: pycodestyle [options] input ...\n\npycodestyle: error: no such option: --jobs\n",
+    "stdout": ""
+   }
+  },
+  "probe-local-config": {
+   "case_id": "probe-local-config",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:1:2: E225 missing whitespace around operator\n"
+   }
+  },
+  "probe-missing-file": {
+   "case_id": "probe-missing-file",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "absent.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "absent.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'absent.py'\n"
+   }
+  },
+  "probe-negative": {
+   "case_id": "probe-negative",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--max-line-length=-1",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:1:0: E501 line too long (5 > -1 characters)\n"
+   }
+  },
+  "probe-no-args": {
+   "case_id": "probe-no-args",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 2,
+    "files": {},
+    "signal": null,
+    "stderr": "Usage: pycodestyle [options] input ...\n\npycodestyle: error: input not specified\n",
+    "stdout": ""
+   }
+  },
+  "probe-no-args-with-config": {
+   "case_id": "probe-no-args-with-config",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": ""
+   }
+  },
+  "probe-repeat": {
+   "case_id": "probe-repeat",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--select=E1",
+     "--select=E2",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:1:2: E225 missing whitespace around operator\nsample.py:2:4: E225 missing whitespace around operator\n"
+   }
+  },
+  "probe-select-ignore": {
+   "case_id": "probe-select-ignore",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--select=E,W",
+     "--ignore=E501",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:1:2: E225 missing whitespace around operator\n"
+   }
+  },
+  "probe-separator": {
+   "case_id": "probe-separator",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--",
+     "--not-an-option.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "--not-an-option.py:1:2: E225 missing whitespace around operator\n"
+   }
+  },
+  "probe-show-source-and-pep8": {
+   "case_id": "probe-show-source-and-pep8",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--show-source",
+     "--show-pep8",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:1:2: E225 missing whitespace around operator\nx=1\n ^\n    Surround operators with the correct amount of whitespace.\n\n    - Always surround these binary operators with a single space on\n      either side: assignment (=), augmented assignment (+=, -= etc.),\n      comparisons (==, <, >, !=, <=, >=, in, not in, is, is not),\n      Booleans (and, or, not).\n\n    - Each comma, semicolon or colon should be followed by whitespace.\n\n    - If operators with different priorities are used, consider adding\n      whitespace around the operators with the lowest priorities.\n\n    Okay: i = i + 1\n    Okay: submitted += 1\n    Okay: x = x * 2 - 1\n    Okay: hypot2 = x * x + y * y\n    Okay: c = (a + b) * (a - b)\n    Okay: foo(bar, key='word', *args, **kwargs)\n    Okay: alpha[:-i]\n    Okay: [a, b]\n    Okay: (3,)\n    Okay: a[3,] = 1\n    Okay: a[1:4]\n    Okay: a[:4]\n    Okay: a[1:]\n    Okay: a[1:4:2]\n\n    E225: i=i+1\n    E225: submitted +=1\n    E225: x = x /2 - 1\n    E225: z = x **y\n    E225: z = 1and 1\n    E226: c = (a+b) * (a-b)\n    E226: hypot2 = x*x + y*y\n    E227: c = a|b\n    E228: msg = fmt%(errno, errmsg)\n    E231: ['a','b']\n    E231: foo(bar,baz)\n    E231: [{'a':'b'}]\n"
+   }
+  },
+  "probe-statistics": {
+   "case_id": "probe-statistics",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--statistics",
+     "--count",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "2\n",
+    "stdout": "sample.py:1:2: E225 missing whitespace around operator\nsample.py:2:2: E225 missing whitespace around operator\n2       E225 missing whitespace around operator\n"
+   }
+  },
+  "probe-stdin": {
+   "case_id": "probe-stdin",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "-"
+    ],
+    "stdin": "x=1\n"
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "stdin:1:2: E225 missing whitespace around operator\n"
+   }
+  },
+  "probe-tuned-bom-prefix": {
+   "case_id": "probe-tuned-bom-prefix",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:1:2: E225 missing whitespace around operator\n"
+   }
+  },
+  "probe-tuned-diff-multihunk": {
+   "case_id": "probe-tuned-diff-multihunk",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--diff",
+     "sample.py"
+    ],
+    "stdin": "--- sample.py\n+++ sample.py\n@@ -1,2 +1,2 @@\n-x=1\n+x=2\n y=3\n@@ -10,2 +10,2 @@\n-z=1\n+z=2\n w=3\n"
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py\\sample.py:1:1: E902 FileNotFoundError: [Errno 2] No such file or directory: 'sample.py\\\\sample.py'\n"
+   }
+  },
+  "probe-tuned-e129-visual-indent": {
+   "case_id": "probe-tuned-e129-visual-indent",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:2:5: E129 visually indented line with same indent as next logical line\nsample.py:7:3: E131 continuation line unaligned for hanging indent\n"
+   }
+  },
+  "probe-tuned-e12x-continuation": {
+   "case_id": "probe-tuned-e12x-continuation",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:2:3: E128 continuation line under-indented for visual indent\nsample.py:4:5: E129 visually indented line with same indent as next logical line\nsample.py:8:3: E131 continuation line unaligned for hanging indent\n"
+   }
+  },
+  "probe-tuned-e301-blank-lines": {
+   "case_id": "probe-tuned-e301-blank-lines",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:4:5: E301 expected 1 blank line, found 0\n"
+   }
+  },
+  "probe-tuned-e306-nested-def": {
+   "case_id": "probe-tuned-e306-nested-def",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:3:5: E306 expected 1 blank line before a nested definition, found 0\n"
+   }
+  },
+  "probe-tuned-e721-type-compare": {
+   "case_id": "probe-tuned-e721-type-compare",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "sample.py:2:8: E721 do not compare types, for exact checks use `is` / `is not`, for instance checks use `isinstance()`\n"
+   }
+  },
+  "probe-unknown": {
+   "case_id": "probe-unknown",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--no-such-option",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 2,
+    "files": {},
+    "signal": null,
+    "stderr": "Usage: pycodestyle [options] input ...\n\npycodestyle: error: no such option: --no-such-option\n",
+    "stdout": ""
+   }
+  },
+  "probe-verbose": {
+   "case_id": "probe-verbose",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "-v",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "checking sample.py\n"
+   }
+  },
+  "probe-version": {
+   "case_id": "probe-version",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "--version"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "2.15.0\n"
+   }
+  },
+  "probe-very-verbose": {
+   "case_id": "probe-very-verbose",
+   "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "pycodestyle.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "-vv",
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "local configuration: in C:\\Users\\yumkh\\AppData\\Local\\Temp\\harness-cli\\probe-very-verbose\n  max-line-length = 10\nchecking sample.py\nx = 1\n"
+   }
+  }
+ },
+ "schema": "agent-golden/1",
+ "target": "pycodestyle 2.15.0"
+}

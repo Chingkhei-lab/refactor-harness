@@ -182,6 +182,16 @@ class CheckOutcome:
     def codes(self) -> list[str]:
         return [refusal.code for refusal in self.refusals]
 
+    def render(self) -> str:
+        """What the model sees: every refusal with its code, nothing else.
+
+        The message is model-facing text, so it says which rule fired and where. A
+        refusal that says only "refused" teaches a model to try again with the same
+        idea; one that names the rule lets it change the plan.
+        """
+        lines = [f"{refusal.code}: {refusal.message}" for refusal in self.refusals]
+        return chr(10).join(lines)
+
 
 def _normalise(path: str) -> str:
     """Strip a leading './' only — `lstrip('./')` would turn '.github' into 'github'."""

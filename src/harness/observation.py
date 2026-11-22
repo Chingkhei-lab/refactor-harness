@@ -347,6 +347,30 @@ class Observation:
             **({"limits": self.limits} if self.limits else {}),
         }
 
+    @classmethod
+    def from_body(cls, body: dict[str, Any]) -> Observation:
+        """Rebuild an observation from a stored blob.
+
+        The value is held as `EncodedValue`, not re-encoded: `body()` already ran
+        `encode()`, and encoding twice moves every tag one level down (see
+        `EncodedValue`). This is what lets a golden record be compared to a fresh
+        pass without keeping the child's process alive.
+        """
+        return cls(
+            case_id=body["case_id"],
+            entry=body.get("entry", ""),
+            inputs=body.get("inputs") or {},
+            outcome=body["outcome"],
+            value=EncodedValue(body.get("value")),
+            exception=body.get("exception"),
+            stdout=body.get("stdout") or "",
+            stderr=body.get("stderr") or "",
+            controls=tuple(body.get("controls") or ()),
+            flags=dict(body.get("flags") or {}),
+            case_set_hash=body.get("case_set_hash", ""),
+            limits=dict(body.get("limits") or {}),
+        )
+
     def fingerprint_body(self) -> dict[str, Any]:
         """The observation WITHOUT run metadata.
 

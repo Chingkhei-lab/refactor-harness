@@ -1,0 +1,322 @@
+{
+ "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+ "cases": [
+  {
+   "args": [
+    "def f():\n    return 187\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-perturbed-fixture-plain-5b76d096",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed"
+  },
+  {
+   "args": [
+    "def f(x88):\n    if x88:\n        return 188\n    return 088\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-perturbed-fixture-if-ab28bbed",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed"
+  },
+  {
+   "args": [
+    "def f(x89):\n    if x89:\n        return 189\n    else:\n        return 089\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-perturbed-fixture-if-else-f9aad474",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed"
+  },
+  {
+   "args": [
+    "def f(x90):\n    if x90 == 190:\n        pass\n    elif x90 == 290:\n        pass\n    elif x90 == 390:\n        pass\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-perturbed-fixture-elif-chain-420f4092",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed"
+  },
+  {
+   "args": [
+    "def f(a, b):\n    if a and b:\n        return 193\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-perturbed-fixture-and-9ad20dd2",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed"
+  },
+  {
+   "args": [
+    "def f(a, b):\n    if a or b:\n        return 194\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-perturbed-fixture-or-0810d0b7",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed"
+  },
+  {
+   "args": [
+    "def f(a, b, c):\n    if a and b or c:\n        return 195\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-perturbed-fixture-and-or-5761d991",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed"
+  },
+  {
+   "args": [
+    "f = lambda x2: x2\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-perturbed-fixture-lambda-1ac70f5f",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed"
+  },
+  {
+   "args": [
+    "def f(x3):\n    assert x3\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-perturbed-fixture-assert-fdfcdfab",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed"
+  },
+  {
+   "args": [
+    "def f():\n    def g():\n        return 14\n    return g\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-perturbed-fixture-nested-def-08bc8875",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed"
+  },
+  {
+   "args": [
+    "class C:\n    def m(self):\n        return 15\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-perturbed-fixture-class-method-952f821c",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed"
+  },
+  {
+   "args": [
+    "import functools\n\n@functools.wraps\ndef f():\n    return 16\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-perturbed-fixture-decorator-7f03a584",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed"
+  },
+  {
+   "args": [
+    "async def f():\n    return 18\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-perturbed-fixture-async-def-1259bb95",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed"
+  },
+  {
+   "args": [
+    "def f(x9):\n    match x9:\n        case 19:\n            return 19\n        case _:\n            return 09\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-perturbed-fixture-match-e9b861cd",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed"
+  },
+  {
+   "args": [
+    "def f(data):\n    if (n := len(data)) > 110:\n        return n\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-perturbed-fixture-walrus-6bc6ed8d",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed"
+  },
+  {
+   "args": [
+    "def f():\n    global X\n    X = 111\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-perturbed-fixture-global-1dd13541",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed"
+  },
+  {
+   "args": [
+    "def f(x12):\n    if not x12:\n        raise ValueError('no12')\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-perturbed-fixture-raise-ec03e4d5",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed"
+  },
+  {
+   "args": [
+    "def f(x14):\n    return x14 is True and x14 is not False\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-perturbed-fixture-boolean-const-d9c17fb8",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed"
+  },
+  {
+   "args": [
+    "def f(a, b):\n    if a:\n        if b:\n            return 117\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-perturbed-fixture-nested-if-cbe0e94d",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed"
+  },
+  {
+   "args": [
+    "def f(items):\n    for item in items:\n        if item:\n            break\n    else:\n        return 018\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-perturbed-fixture-for-else-dc44ca21",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed"
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample20.py"
+   ],
+   "entry": "mccabe.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "def f():\n    return 120\n"
+   },
+   "id": "hidden-perturbed-probe-cli-exit-zero",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample21.py"
+   ],
+   "entry": "mccabe.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "def f(x21):\n    if x21:\n        if x21 > 121:\n            return 121\n"
+   },
+   "id": "hidden-perturbed-probe-cli-exit-nonzero",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [],
+   "entry": "mccabe.py",
+   "expect": "finite",
+   "files": {
+    "sample_h.py": "def f():\n    pass\n"
+   },
+   "id": "hidden-perturbed-probe-cli-stdin",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "hidden/perturbed/literals-changed",
+   "stdin": "def f():\n    pass\n"
+  },
+  {
+   "args": [
+    "def f(x):\n    if x:\n        if x:\n            if x:\n                return 1\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-nested-if",
+   "kwargs": {},
+   "source": "hidden/grammar/complexity-boundaries"
+  },
+  {
+   "args": [
+    "def f(xs):\n    for a in xs:\n        while a:\n            a -= 1\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-loops",
+   "kwargs": {},
+   "source": "hidden/grammar/complexity-boundaries"
+  },
+  {
+   "args": [
+    "def f(p):\n    with open(p) as h:\n        return h\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-with-open",
+   "kwargs": {},
+   "source": "hidden/grammar/complexity-boundaries"
+  },
+  {
+   "args": [
+    "def f(a, b, c):\n    return a and b or c\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-bool-ops",
+   "kwargs": {},
+   "source": "hidden/grammar/complexity-boundaries"
+  },
+  {
+   "args": [
+    "def f(xs):\n    return (x for x in xs if x)\n"
+   ],
+   "entry": "get_code_complexity",
+   "expect": "finite",
+   "id": "hidden-generator",
+   "kwargs": {},
+   "source": "hidden/grammar/complexity-boundaries"
+  }
+ ],
+ "counts_by_source": {
+  "grammar": 6,
+  "perturbed": 33
+ },
+ "hidden": true,
+ "inputs_only": "the asserted complexities in test_mccabe.py are never read",
+ "kind": "call",
+ "overlap": {
+  "against": "the visible case set, by canonical case body",
+  "candidates": 39,
+  "duplicates": {
+   "grammar": 1,
+   "perturbed": 10
+  },
+  "kept": 28,
+  "overlap_fraction": 0.2821
+ },
+ "schema": "harness-cases/1",
+ "seed": 2027,
+ "target": "mccabe 0.7.0",
+ "visible_case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800"
+}

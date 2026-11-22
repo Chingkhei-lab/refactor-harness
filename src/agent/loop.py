@@ -42,8 +42,12 @@ from .types import (
     estimate_tokens,
 )
 
-MAX_TOOL_BYTES = 8_000
-MAX_TOOL_LINES = 200
+# 24 KB / 600 lines: big enough that the pinned mccabe.py (15 KB, ~500 lines) arrives
+# in one read. The pilot's first two runs spent all twelve model calls paging a file
+# they could have read once, and never reached the function they were asked to
+# rename - a truncation budget set for test output, not for source.
+MAX_TOOL_BYTES = 24_000
+MAX_TOOL_LINES = 600
 
 TRUNCATION_MARKER = "…[truncated: {bytes} bytes, {lines} lines]"
 

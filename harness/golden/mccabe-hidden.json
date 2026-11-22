@@ -1,0 +1,1090 @@
+{
+ "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+ "digests": {
+  "hidden-bool-ops": "32f6b0de7c87f1762f02953cc868b0c2bd8e7c25859f9de137f74cb9c5727c19",
+  "hidden-generator": "3592e8beeb89011877c5bbcab3d55209c2efa598f8ab30ea58c29f3f62c75c1e",
+  "hidden-loops": "92dae5095d565df6485d2125f44f5a629edaa3589a53aa5360a09e15b57cc418",
+  "hidden-nested-if": "bac672d600c84e6591c21bc93238856579ee917cfe46418f272982d6df753f99",
+  "hidden-perturbed-fixture-and-9ad20dd2": "1723ba3c5a9b4c06a4d5d96f9bed3c7ebcd5a07a1df9a8d0a7a1c5ea5c7c5c92",
+  "hidden-perturbed-fixture-and-or-5761d991": "234349ad820b53ccde9722c76e0b969253b5b5a9260c2810dda3941cc8c2eede",
+  "hidden-perturbed-fixture-assert-fdfcdfab": "ad056fe9339772084446742b08e76f2acce66f4c10c8daa2771140620ea64870",
+  "hidden-perturbed-fixture-async-def-1259bb95": "67c8a909391a25285cb55a1aa2d8585e67bdc606f428dcfdbc68eb74a0b389d8",
+  "hidden-perturbed-fixture-boolean-const-d9c17fb8": "2168b723fadad6a5f1b3905335f7513b6238eca0a426051b9728e0eab6ec6aa8",
+  "hidden-perturbed-fixture-class-method-952f821c": "06ad4c93518bc851499d2af0a80abfc6d9ab1c525db4eed96a7ad8eb024c21ca",
+  "hidden-perturbed-fixture-decorator-7f03a584": "9a2c0aee4d1e73607f228838e417c62699c8c3d50b6ea0d772db116579b84190",
+  "hidden-perturbed-fixture-elif-chain-420f4092": "39880b285aeaa7f2ed9e5a2463116f70a63fb9fb8cc8189e9eaf0c970242706b",
+  "hidden-perturbed-fixture-for-else-dc44ca21": "60bdbff3ea084086d076b2749287e7bbc2de46ee4216c94e72ec9316ea0db6df",
+  "hidden-perturbed-fixture-global-1dd13541": "4048dc7824e448f3edbc73b3bd6091914dcc1f84679eee615a264455e949b161",
+  "hidden-perturbed-fixture-if-ab28bbed": "8292beb8e9838cd20deee2114e49d7a1fd24cecba235cd2ebf9393394f1eba61",
+  "hidden-perturbed-fixture-if-else-f9aad474": "e73c701f230ec67cbb5ed25c9091c879fcd27cc9d882acd1b212a03d9f9c3114",
+  "hidden-perturbed-fixture-lambda-1ac70f5f": "49ba48a268dbb719a9804532c0b30a9169d2f5d41b13c044904380baeb967a97",
+  "hidden-perturbed-fixture-match-e9b861cd": "19ecb8ea47a8da342b8eaf38121d64f6786613e39d13c1c156ca8c09df4ab207",
+  "hidden-perturbed-fixture-nested-def-08bc8875": "8cd3bf0d3e0d6b522a42fa7f8d766adfe16294991ec6f82a34f7df970cf213d3",
+  "hidden-perturbed-fixture-nested-if-cbe0e94d": "c1873e269f2dce8455ff9c2f591e104fb16b0e0973593cc34fc34360a8609b23",
+  "hidden-perturbed-fixture-or-0810d0b7": "cadf810e063cc3fe5b0e45e82a010f5b71e8ebce3e7bce81272371393fa24a0e",
+  "hidden-perturbed-fixture-plain-5b76d096": "fba828b59ad0977a996d2b013b1e1261984ffea27807471e04570e028092648e",
+  "hidden-perturbed-fixture-raise-ec03e4d5": "a4305f798b899694ae1eadc8a9506edb7ea2267ceecd7f713567b3091c81e2e9",
+  "hidden-perturbed-fixture-walrus-6bc6ed8d": "5239fc91b18315de07ace1288152efc1088adb5f0c91eb4f8d26613fd5a85c60",
+  "hidden-perturbed-probe-cli-exit-nonzero": "ae43727d8c5a2ae778f834015c641dcb2378444b4eae928b305791d475b965f6",
+  "hidden-perturbed-probe-cli-exit-zero": "88d0363b3af42a513a766a33ddf427c0742c6eede7b99929d2ff5dd8d59c3a8e",
+  "hidden-perturbed-probe-cli-stdin": "2605832305863b56cf9d2ae54d1f85cb25eb643951c2f43f7638d8ac589a67bf",
+  "hidden-with-open": "3dee3189a2755528992f63a6036837367b21cb807aca968e1843577d10fc230f"
+ },
+ "module": "mccabe",
+ "observations": {
+  "hidden-bool-ops": {
+   "case_id": "hidden-bool-ops",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(a, b, c):\n    return a and b or c\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "hidden-generator": {
+   "case_id": "hidden-generator",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(xs):\n    return (x for x in xs if x)\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "hidden-loops": {
+   "case_id": "hidden-loops",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(xs):\n    for a in xs:\n        while a:\n            a -= 1\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "hidden-nested-if": {
+   "case_id": "hidden-nested-if",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(x):\n    if x:\n        if x:\n            if x:\n                return 1\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "hidden-perturbed-fixture-and-9ad20dd2": {
+   "case_id": "hidden-perturbed-fixture-and-9ad20dd2",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(a, b):\n    if a and b:\n        return 193\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "hidden-perturbed-fixture-and-or-5761d991": {
+   "case_id": "hidden-perturbed-fixture-and-or-5761d991",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(a, b, c):\n    if a and b or c:\n        return 195\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "hidden-perturbed-fixture-assert-fdfcdfab": {
+   "case_id": "hidden-perturbed-fixture-assert-fdfcdfab",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(x3):\n    assert x3\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "hidden-perturbed-fixture-async-def-1259bb95": {
+   "case_id": "hidden-perturbed-fixture-async-def-1259bb95",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "async def f():\n    return 18\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "hidden-perturbed-fixture-boolean-const-d9c17fb8": {
+   "case_id": "hidden-perturbed-fixture-boolean-const-d9c17fb8",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(x14):\n    return x14 is True and x14 is not False\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "hidden-perturbed-fixture-class-method-952f821c": {
+   "case_id": "hidden-perturbed-fixture-class-method-952f821c",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "class C:\n    def m(self):\n        return 15\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "hidden-perturbed-fixture-decorator-7f03a584": {
+   "case_id": "hidden-perturbed-fixture-decorator-7f03a584",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "import functools\n\n@functools.wraps\ndef f():\n    return 16\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "hidden-perturbed-fixture-elif-chain-420f4092": {
+   "case_id": "hidden-perturbed-fixture-elif-chain-420f4092",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(x90):\n    if x90 == 190:\n        pass\n    elif x90 == 290:\n        pass\n    elif x90 == 390:\n        pass\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "hidden-perturbed-fixture-for-else-dc44ca21": {
+   "case_id": "hidden-perturbed-fixture-for-else-dc44ca21",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(items):\n    for item in items:\n        if item:\n            break\n    else:\n        return 018\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "Unable to parse stdin: leading zeros in decimal integer literals are not permitted; use an 0o prefix for octal integers (stdin, line 6)\n",
+   "stdout": "",
+   "value": 0
+  },
+  "hidden-perturbed-fixture-global-1dd13541": {
+   "case_id": "hidden-perturbed-fixture-global-1dd13541",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f():\n    global X\n    X = 111\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "hidden-perturbed-fixture-if-ab28bbed": {
+   "case_id": "hidden-perturbed-fixture-if-ab28bbed",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(x88):\n    if x88:\n        return 188\n    return 088\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "Unable to parse stdin: leading zeros in decimal integer literals are not permitted; use an 0o prefix for octal integers (stdin, line 4)\n",
+   "stdout": "",
+   "value": 0
+  },
+  "hidden-perturbed-fixture-if-else-f9aad474": {
+   "case_id": "hidden-perturbed-fixture-if-else-f9aad474",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(x89):\n    if x89:\n        return 189\n    else:\n        return 089\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "Unable to parse stdin: leading zeros in decimal integer literals are not permitted; use an 0o prefix for octal integers (stdin, line 5)\n",
+   "stdout": "",
+   "value": 0
+  },
+  "hidden-perturbed-fixture-lambda-1ac70f5f": {
+   "case_id": "hidden-perturbed-fixture-lambda-1ac70f5f",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "f = lambda x2: x2\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "hidden-perturbed-fixture-match-e9b861cd": {
+   "case_id": "hidden-perturbed-fixture-match-e9b861cd",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(x9):\n    match x9:\n        case 19:\n            return 19\n        case _:\n            return 09\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "Unable to parse stdin: leading zeros in decimal integer literals are not permitted; use an 0o prefix for octal integers (stdin, line 6)\n",
+   "stdout": "",
+   "value": 0
+  },
+  "hidden-perturbed-fixture-nested-def-08bc8875": {
+   "case_id": "hidden-perturbed-fixture-nested-def-08bc8875",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f():\n    def g():\n        return 14\n    return g\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "hidden-perturbed-fixture-nested-if-cbe0e94d": {
+   "case_id": "hidden-perturbed-fixture-nested-if-cbe0e94d",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(a, b):\n    if a:\n        if b:\n            return 117\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "hidden-perturbed-fixture-or-0810d0b7": {
+   "case_id": "hidden-perturbed-fixture-or-0810d0b7",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(a, b):\n    if a or b:\n        return 194\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "hidden-perturbed-fixture-plain-5b76d096": {
+   "case_id": "hidden-perturbed-fixture-plain-5b76d096",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f():\n    return 187\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "hidden-perturbed-fixture-raise-ec03e4d5": {
+   "case_id": "hidden-perturbed-fixture-raise-ec03e4d5",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(x12):\n    if not x12:\n        raise ValueError('no12')\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "hidden-perturbed-fixture-walrus-6bc6ed8d": {
+   "case_id": "hidden-perturbed-fixture-walrus-6bc6ed8d",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(data):\n    if (n := len(data)) > 110:\n        return n\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "hidden-perturbed-probe-cli-exit-nonzero": {
+   "case_id": "hidden-perturbed-probe-cli-exit-nonzero",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "mccabe.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample21.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "Traceback (most recent call last):\n  File \"<target>\", in <module>\n  File \"<target>\", in main\n  File \"<target>\", in _read\nFileNotFoundError: [Errno 2] No such file or directory: 'sample21.py'\n",
+    "stdout": ""
+   }
+  },
+  "hidden-perturbed-probe-cli-exit-zero": {
+   "case_id": "hidden-perturbed-probe-cli-exit-zero",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "mccabe.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample20.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "Traceback (most recent call last):\n  File \"<target>\", in <module>\n  File \"<target>\", in main\n  File \"<target>\", in _read\nFileNotFoundError: [Errno 2] No such file or directory: 'sample20.py'\n",
+    "stdout": ""
+   }
+  },
+  "hidden-perturbed-probe-cli-stdin": {
+   "case_id": "hidden-perturbed-probe-cli-stdin",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "mccabe.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [],
+    "stdin": "def f():\n    pass\n"
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "Traceback (most recent call last):\n  File \"<target>\", in <module>\n  File \"<target>\", in main\nIndexError: list index out of range\n",
+    "stdout": ""
+   }
+  },
+  "hidden-with-open": {
+   "case_id": "hidden-with-open",
+   "case_set_hash": "81eb16895602e9cfca2f799bb760a90a6ca18f98f248bdf8ee2e4d65f7d6f132",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(p):\n    with open(p) as h:\n        return h\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  }
+ },
+ "schema": "agent-golden/1",
+ "target": "mccabe 0.7.0"
+}

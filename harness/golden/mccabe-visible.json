@@ -1,0 +1,1543 @@
+{
+ "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+ "digests": {
+  "api-module": "55a33c2606e19edd96e00b6715dbcbaa745faebc6c7835646eed45c4b86b5a23",
+  "fixture-and-9ad20dd2": "3de883ff5af312f04d8342047f8c18e3e23fe2195931688004720d801485a15e",
+  "fixture-and-or-5761d991": "a5dcef877f20b0453225cf7ede5c856fca09de1272fc0181b8878bb38d615788",
+  "fixture-assert-fdfcdfab": "459564f28b98039fbe86b50e0bdd08418cdc9f141d75f02dd04080009f1eb45e",
+  "fixture-async-def-1259bb95": "58ba8f81afdbc1c4683dbb0e8ac35690187c989f58ae5d5b49ab6513520d9c54",
+  "fixture-boolean-const-d9c17fb8": "a745ce2bc8daea55d6205eedfafb60b7e1a5c65814f64fcc0b7f4f801833d795",
+  "fixture-chained-compare-fbec49bf": "0f97f510afc2b229c3ea0affe66e578d4e1e690a9fe70a635281eb58edb3ffb0",
+  "fixture-class-method-952f821c": "90ff77fff450e06fce54243001e53fa203cd98a919ebae2b9ca1d24c43d832aa",
+  "fixture-comprehension-3910dd2b": "6cc35d405602b3e9487b9513d07806573ea66f802b21210c8ea290d8a1dd6c2e",
+  "fixture-decorator-7f03a584": "b081f6f08fc13dd6b5f59c282994a56bab873b4b58e8cf132579a3ddf7dbb854",
+  "fixture-elif-chain-420f4092": "550dd2a338615a31f6977ff5da8372c4d17ff35bc5bc35e3f71990de3ebedfbc",
+  "fixture-except-multiple-16165f41": "2b38152b929326feba6e9bcd8376a8f4fcf9a5fbf3c7ca65673c36df1ff4fc2a",
+  "fixture-for-c2c2c482": "482d5c60f2acb58b2779c68458a1a387fe9f9f4a964021d3f88813084f55bfce",
+  "fixture-for-else-dc44ca21": "a246dec871e1f274fde65bf5f03ea350a6a2277d210de1bafffe8aad450825fc",
+  "fixture-global-1dd13541": "73137a59f53b40f47d1471c1b715e7fc9b2dd3f1d5f1a664daf57834e8d8ced1",
+  "fixture-if-ab28bbed": "52b4323539864e3c3058344cf2e3ec6decf17593552dfeacf1d0c968468cb594",
+  "fixture-if-else-f9aad474": "febc36b9ab7a869efe67191337ff2e8f8d1d967dd9735a164b5dc2458062fddc",
+  "fixture-lambda-1ac70f5f": "b295f86fecb1ca11c5e9284293d88a9e6128561f514c2589b23fbcc231a3ac32",
+  "fixture-match-e9b861cd": "722ae6dc54f3d70f6d890200bc26209ea3a7d491c8b6aa6ee400fe26c7e0ff51",
+  "fixture-nested-def-08bc8875": "54ed9bb1f93d7c22c8313e620326bd4467c3d660ff726983f99ae3a3474d9467",
+  "fixture-nested-if-cbe0e94d": "f330412a19796ed96453f79d01280895ca452a0dc3f32c367f78dfb059e6c31a",
+  "fixture-or-0810d0b7": "e9ee38c451a9f70041d5768aea1eb3cee33df45be96ca964572416ea7adfb3cb",
+  "fixture-plain-5b76d096": "98e4930370b14d79673a43198c7a621ec319df52eeda2dd8e0c7904ed0ed7be3",
+  "fixture-raise-ec03e4d5": "b696d4501f9bb49b88f8b1391288f720dac28e615e3842ef16e343772f3b9baf",
+  "fixture-return-none-c73b67a0": "0d1a5fdd5b4a4db360cd39728fd7a2d5183d82f32b70b98536e6d3d545e73b9f",
+  "fixture-star-args-742c02d5": "8526be41e852d950f1b036a714403825f47ed8b47cb4727789a96f6f1cd4cedd",
+  "fixture-try-except-cdb63afc": "0d66b09a445be5485c2e807828ade0e1ac86691980f0e521d94d1dae4ab6df80",
+  "fixture-try-finally-17f840e5": "88b227a4263d7597b4cfbcc5de2db127fae0ab72dd0e1cb0e3c0b9e29b1ed878",
+  "fixture-walrus-6bc6ed8d": "8ab1d17e1fb5c41dcc5393f69ca29b6ca2a872441b65a68cf04332a957cb52cf",
+  "fixture-while-b615daec": "623566652ffa9759f0474aa2cd46b76873fd91cc35ec11110566d840abda6915",
+  "fixture-with-2fc81991": "1c014f91dc9eee3cc1f411217d8b75183713c36694967959b87034ecfe722000",
+  "probe-cli-exit-nonzero": "d4fbebf71e5396120af2e5c43e2e534a6f2c3c9caaba910c38919add89dd2607",
+  "probe-cli-exit-zero": "dd09170ef15e8917389633ef5ff72e451dd081b1807dbde87819eafdfdc6098b",
+  "probe-cli-stdin": "54bc7e211579f50bb9de0576be1c0569d3406df7d27f861231b45f6ab7c08c93"
+ },
+ "module": "mccabe",
+ "observations": {
+  "api-module": {
+   "case_id": "api-module",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "api_surface",
+    "api_paths_projected:<cwd>",
+    "api_paths_projected:<home>",
+    "api_paths_projected:<tmp>"
+   ],
+   "entry": "mccabe",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "call": {},
+    "module": "mccabe"
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "classes": {
+     "ASTVisitor": {
+      "attributes": {
+       "default": {
+        "callable": "(self, node, *args)"
+       },
+       "dispatch": {
+        "callable": "(self, node, *args)"
+       },
+       "preorder": {
+        "callable": "(self, tree, visitor, *args)"
+       }
+      },
+      "bases": [
+       "object"
+      ]
+     },
+     "McCabeChecker": {
+      "attributes": {
+       "add_options": {
+        "callable": "(parser)"
+       },
+       "max_complexity": {
+        "type": "int",
+        "value": "7"
+       },
+       "name": {
+        "type": "str",
+        "value": "'mccabe'"
+       },
+       "parse_options": {
+        "callable": "(options)"
+       },
+       "run": {
+        "callable": "(self)"
+       },
+       "version": {
+        "type": "str",
+        "value": "'0.7.0'"
+       }
+      },
+      "bases": [
+       "object"
+      ]
+     },
+     "PathGraph": {
+      "attributes": {
+       "complexity": {
+        "callable": "(self)"
+       },
+       "connect": {
+        "callable": "(self, n1, n2)"
+       },
+       "to_dot": {
+        "callable": "(self)"
+       }
+      },
+      "bases": [
+       "object"
+      ]
+     },
+     "PathGraphingAstVisitor": {
+      "attributes": {
+       "appendPathNode": {
+        "callable": "(self, name)"
+       },
+       "default": {
+        "callable": "(self, node, *args)"
+       },
+       "dispatch": {
+        "callable": "(self, node, *args)"
+       },
+       "dispatch_list": {
+        "callable": "(self, node_list)"
+       },
+       "preorder": {
+        "callable": "(self, tree, visitor, *args)"
+       },
+       "reset": {
+        "callable": "(self)"
+       },
+       "visitAsyncFor": {
+        "callable": "(self, node)"
+       },
+       "visitAsyncFunctionDef": {
+        "callable": "(self, node)"
+       },
+       "visitAsyncWith": {
+        "callable": "(self, node)"
+       },
+       "visitClassDef": {
+        "callable": "(self, node)"
+       },
+       "visitFor": {
+        "callable": "(self, node)"
+       },
+       "visitFunctionDef": {
+        "callable": "(self, node)"
+       },
+       "visitIf": {
+        "callable": "(self, node)"
+       },
+       "visitLoop": {
+        "callable": "(self, node)"
+       },
+       "visitSimpleStatement": {
+        "callable": "(self, node)"
+       },
+       "visitTry": {
+        "callable": "(self, node)"
+       },
+       "visitTryExcept": {
+        "callable": "(self, node)"
+       },
+       "visitWhile": {
+        "callable": "(self, node)"
+       },
+       "visitWith": {
+        "callable": "(self, node)"
+       }
+      },
+      "bases": [
+       "ASTVisitor"
+      ]
+     },
+     "PathNode": {
+      "attributes": {
+       "dot_id": {
+        "callable": "(self)"
+       },
+       "to_dot": {
+        "callable": "(self)"
+       }
+      },
+      "bases": [
+       "object"
+      ]
+     },
+     "defaultdict": {
+      "attributes": {
+       "clear": {
+        "callable": "<no signature>"
+       },
+       "copy": {
+        "callable": "<no signature>"
+       },
+       "default_factory": {
+        "type": "member_descriptor"
+       },
+       "fromkeys": {
+        "callable": "(iterable, value=None, /)"
+       },
+       "get": {
+        "callable": "(self, key, default=None, /)"
+       },
+       "items": {
+        "callable": "<no signature>"
+       },
+       "keys": {
+        "callable": "<no signature>"
+       },
+       "pop": {
+        "callable": "<no signature>"
+       },
+       "popitem": {
+        "callable": "(self, /)"
+       },
+       "setdefault": {
+        "callable": "(self, key, default=None, /)"
+       },
+       "update": {
+        "callable": "<no signature>"
+       },
+       "values": {
+        "callable": "<no signature>"
+       }
+      },
+      "bases": [
+       "dict"
+      ]
+     }
+    },
+    "constants": {
+     "ast": {
+      "type": "module"
+     },
+     "optparse": {
+      "type": "module"
+     },
+     "sys": {
+      "type": "module"
+     },
+     "tokenize": {
+      "type": "module"
+     },
+     "with_statement": {
+      "type": "module",
+      "value": "_Feature"
+     }
+    },
+    "doc_first_line": [
+     "Meager code path measurement tool."
+    ],
+    "module": "mccabe",
+    "names": [
+     "ASTVisitor",
+     "McCabeChecker",
+     "PathGraph",
+     "PathGraphingAstVisitor",
+     "PathNode",
+     "ast",
+     "defaultdict",
+     "get_code_complexity",
+     "get_module_complexity",
+     "iter_child_nodes",
+     "main",
+     "optparse",
+     "sys",
+     "tokenize",
+     "with_statement"
+    ],
+    "signatures": {
+     "get_code_complexity": "(code, threshold=7, filename='stdin')",
+     "get_module_complexity": "(module_path, threshold=7)",
+     "iter_child_nodes": "(node)",
+     "main": "(argv=None)"
+    }
+   }
+  },
+  "fixture-and-9ad20dd2": {
+   "case_id": "fixture-and-9ad20dd2",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(a, b):\n    if a and b:\n        return 1\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-and-or-5761d991": {
+   "case_id": "fixture-and-or-5761d991",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(a, b, c):\n    if a and b or c:\n        return 1\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-assert-fdfcdfab": {
+   "case_id": "fixture-assert-fdfcdfab",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(x):\n    assert x\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-async-def-1259bb95": {
+   "case_id": "fixture-async-def-1259bb95",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "async def f():\n    return 1\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-boolean-const-d9c17fb8": {
+   "case_id": "fixture-boolean-const-d9c17fb8",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(x):\n    return x is True and x is not False\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-chained-compare-fbec49bf": {
+   "case_id": "fixture-chained-compare-fbec49bf",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(a, b, c):\n    return a < b < c\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-class-method-952f821c": {
+   "case_id": "fixture-class-method-952f821c",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "class C:\n    def m(self):\n        return 1\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-comprehension-3910dd2b": {
+   "case_id": "fixture-comprehension-3910dd2b",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(items):\n    return [item for item in items if item]\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-decorator-7f03a584": {
+   "case_id": "fixture-decorator-7f03a584",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "import functools\n\n@functools.wraps\ndef f():\n    return 1\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-elif-chain-420f4092": {
+   "case_id": "fixture-elif-chain-420f4092",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(x):\n    if x == 1:\n        pass\n    elif x == 2:\n        pass\n    elif x == 3:\n        pass\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-except-multiple-16165f41": {
+   "case_id": "fixture-except-multiple-16165f41",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f():\n    try:\n        pass\n    except (TypeError, ValueError):\n        pass\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-for-c2c2c482": {
+   "case_id": "fixture-for-c2c2c482",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(items):\n    for item in items:\n        yield item\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-for-else-dc44ca21": {
+   "case_id": "fixture-for-else-dc44ca21",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(items):\n    for item in items:\n        if item:\n            break\n    else:\n        return 0\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-global-1dd13541": {
+   "case_id": "fixture-global-1dd13541",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f():\n    global X\n    X = 1\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-if-ab28bbed": {
+   "case_id": "fixture-if-ab28bbed",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(x):\n    if x:\n        return 1\n    return 0\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-if-else-f9aad474": {
+   "case_id": "fixture-if-else-f9aad474",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(x):\n    if x:\n        return 1\n    else:\n        return 0\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-lambda-1ac70f5f": {
+   "case_id": "fixture-lambda-1ac70f5f",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "f = lambda x: x\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-match-e9b861cd": {
+   "case_id": "fixture-match-e9b861cd",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(x):\n    match x:\n        case 1:\n            return 1\n        case _:\n            return 0\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-nested-def-08bc8875": {
+   "case_id": "fixture-nested-def-08bc8875",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f():\n    def g():\n        return 1\n    return g\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-nested-if-cbe0e94d": {
+   "case_id": "fixture-nested-if-cbe0e94d",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(a, b):\n    if a:\n        if b:\n            return 1\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-or-0810d0b7": {
+   "case_id": "fixture-or-0810d0b7",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(a, b):\n    if a or b:\n        return 1\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-plain-5b76d096": {
+   "case_id": "fixture-plain-5b76d096",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f():\n    return 1\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-raise-ec03e4d5": {
+   "case_id": "fixture-raise-ec03e4d5",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(x):\n    if not x:\n        raise ValueError('no')\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-return-none-c73b67a0": {
+   "case_id": "fixture-return-none-c73b67a0",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f():\n    return None\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-star-args-742c02d5": {
+   "case_id": "fixture-star-args-742c02d5",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(*args, **kwargs):\n    return len(args) + len(kwargs)\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-try-except-cdb63afc": {
+   "case_id": "fixture-try-except-cdb63afc",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f():\n    try:\n        pass\n    except ValueError:\n        pass\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-try-finally-17f840e5": {
+   "case_id": "fixture-try-finally-17f840e5",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f():\n    try:\n        pass\n    finally:\n        pass\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-walrus-6bc6ed8d": {
+   "case_id": "fixture-walrus-6bc6ed8d",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(data):\n    if (n := len(data)) > 1:\n        return n\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-while-b615daec": {
+   "case_id": "fixture-while-b615daec",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f():\n    while True:\n        break\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "fixture-with-2fc81991": {
+   "case_id": "fixture-with-2fc81991",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+   ],
+   "entry": "get_code_complexity",
+   "exception": null,
+   "flags": {
+    "limit": null,
+    "nodes": 1,
+    "opaque": false,
+    "truncated": false
+   },
+   "inputs": {
+    "args": [
+     "def f(handle):\n    with handle:\n        pass\n"
+    ],
+    "kwargs": {}
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": 0
+  },
+  "probe-cli-exit-nonzero": {
+   "case_id": "probe-cli-exit-nonzero",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "mccabe.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "1:0: 'f' 3\n"
+   }
+  },
+  "probe-cli-exit-zero": {
+   "case_id": "probe-cli-exit-zero",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "mccabe.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [
+     "sample.py"
+    ],
+    "stdin": ""
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 0,
+    "files": {},
+    "signal": null,
+    "stderr": "",
+    "stdout": "1:0: 'f' 1\n"
+   }
+  },
+  "probe-cli-stdin": {
+   "case_id": "probe-cli-stdin",
+   "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+   "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+   ],
+   "entry": "mccabe.py",
+   "exception": null,
+   "flags": {},
+   "inputs": {
+    "argv": [],
+    "stdin": "def f():\n    pass\n"
+   },
+   "limits": {
+    "budget_seconds": 30.0,
+    "elapsed_seconds": 0.0
+   },
+   "observation_schema_version": 3,
+   "outcome": "return",
+   "stderr": "",
+   "stdout": "",
+   "value": {
+    "exit": 1,
+    "files": {},
+    "signal": null,
+    "stderr": "Traceback (most recent call last):\n  File \"<target>\", in <module>\n  File \"<target>\", in main\nIndexError: list index out of range\n",
+    "stdout": ""
+   }
+  }
+ },
+ "schema": "agent-golden/1",
+ "target": "mccabe 0.7.0"
+}
