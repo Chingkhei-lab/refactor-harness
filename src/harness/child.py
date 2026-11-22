@@ -222,7 +222,13 @@ def _assign_to_kill_on_close_job(process: Any) -> None:
         import ctypes
         from ctypes import wintypes
 
-        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        # `ctypes.WinDLL` only exists on Windows, so it is fetched by name: a
+        # direct reference is a type error on the Linux runner even though this
+        # branch never runs there.
+        win_dll = getattr(ctypes, "WinDLL", None)
+        if win_dll is None:
+            return
+        kernel32 = win_dll("kernel32", use_last_error=True)
         if _JOB_HANDLE is None:
             kernel32.CreateJobObjectW.restype = wintypes.HANDLE
             job = kernel32.CreateJobObjectW(None, None)

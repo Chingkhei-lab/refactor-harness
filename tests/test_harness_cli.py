@@ -394,9 +394,14 @@ def test_a_case_dies_with_its_parent_even_when_the_parent_is_killed(tmp_path: An
     the harness process mid-case — no Python code runs afterwards, so no timeout
     cleanup either. Two such orphans each burned 3 500 s of CPU and kept their case
     directories locked, which is how a case turned into `unsupported` (§5.1 of the
-    corrected report). This asserts the *kernel-level* guarantee: kill the process
-    that runs the case, and the case's own child dies too.
+    corrected report).
+
+    The guarantee differs by platform and the test says so: Windows uses a job
+    object with kill-on-job-close, which covers the whole tree; POSIX uses
+    `PR_SET_PDEATHSIG`, which covers the process the harness spawned (a CLI case is
+    pycodestyle, which spawns nothing).
     """
+    import os
     import subprocess
     import sys
     import time
@@ -404,42 +409,54 @@ def test_a_case_dies_with_its_parent_even_when_the_parent_is_killed(tmp_path: An
     import psutil
 
     repo = Path(__file__).resolve().parents[1]
-    pid_file = tmp_path / "grandchild.pid"
+    direct_pid = tmp_path / "direct.pid"
+    grandchild_pid = tmp_path / "grandchild.pid"
     runner = tmp_path / "runner.py"
-    body = (
+    runner.write_text(
         "import sys\n"
         f"sys.path.insert(0, {str(repo / 'src')!r})\n"
         "from pathlib import Path\n"
         "from harness import child\n"
-        f"pidfile = Path({str(pid_file)!r})\n"
         "spinner = Path(sys.argv[1])\n"
         "child._CLI_TIMEOUT_SECONDS = 600\n"
-        "child._run_cli_process([sys.executable, str(spinner)], cwd=pidfile.parent,\n"
-        "                       env=dict(), stdin_text='')\n"
+        "child._run_cli_process([sys.executable, str(spinner)], cwd=spinner.parent,\n"
+        "                       env=dict(), stdin_text='')\n",
+        encoding="utf-8",
     )
-    runner.write_text(body, encoding="utf-8")
     spinner = tmp_path / "spinner.py"
     spinner.write_text(
-        "import subprocess, sys, time\n"
+        "import os, subprocess, sys, time\n"
+        f"open({str(direct_pid)!r}, 'w').write(str(os.getpid()))\n"
         "kid = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(600)'])\n"
-        f"open({str(pid_file)!r}, 'w').write(str(kid.pid))\n"
+        f"open({str(grandchild_pid)!r}, 'w').write(str(kid.pid))\n"
         "time.sleep(600)\n",
         encoding="utf-8",
     )
 
     parent = subprocess.Popen([sys.executable, str(runner), str(spinner)])
     deadline = time.monotonic() + 30
-    while time.monotonic() < deadline and not pid_file.exists():
+    while time.monotonic() < deadline and not grandchild_pid.exists():
         time.sleep(0.1)
-    assert pid_file.exists(), "the case never started"
-    grandchild = int(pid_file.read_text(encoding="utf-8"))
+    assert grandchild_pid.exists(), "the case never started"
+    case_pid = int(direct_pid.read_text(encoding="utf-8"))
+    grandchild = int(grandchild_pid.read_text(encoding="utf-8"))
 
     psutil.Process(parent.pid).kill()  # what the CPU budget does to the harness
     parent.wait(timeout=30)
+
     deadline = time.monotonic() + 30
-    while time.monotonic() < deadline and psutil.pid_exists(grandchild):
+    while time.monotonic() < deadline and psutil.pid_exists(case_pid):
         time.sleep(0.1)
-    assert not psutil.pid_exists(grandchild), (
-        "the case's child outlived the harness process; it would spin and hold its "
+    assert not psutil.pid_exists(case_pid), (
+        "the case process outlived the harness process; it would spin and hold its "
         "case directory until the machine is rebooted"
     )
+
+    if os.name == "nt":
+        deadline = time.monotonic() + 30
+        while time.monotonic() < deadline and psutil.pid_exists(grandchild):
+            time.sleep(0.1)
+        assert not psutil.pid_exists(grandchild), (
+            "a Windows job object kills the whole tree, so the case's own child "
+            "must be gone too"
+        )
