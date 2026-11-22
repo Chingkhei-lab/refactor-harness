@@ -372,7 +372,9 @@ closed the attach socket before joining the reader, and on Linux `close()` does 
 wake a `recv()` blocked in another thread, so every pass that held a container open
 for copy-out paid the full 10 s join timeout. It now calls `shutdown(SHUT_RDWR)`
 first; the regression test models the Linux semantics (`close()` releases nothing,
-`shutdown()` delivers EOF) and fails on the old code. The numbers above are from
+`shutdown()` delivers EOF) and fails on the old code. The next CI run measured
+**0.16 s** for the copy and **0.51 s** of pass overhead, against 10.146 s and
+10.48 s, with the gate still verdicting 30/30 byte-identically. The numbers above are from
 before the fix and are labelled as such in the report.
 
 The 24-attempt step is a **budget-sizing datum from a bombardment, not an

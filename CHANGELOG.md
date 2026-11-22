@@ -27,7 +27,9 @@
   `shutdown(SHUT_RDWR)` before `close()`: on Linux `close()` does not wake a
   `recv()` blocked in the reader thread, so every workspace-bearing pass paid the
   10 s join timeout (10.146 s on the runner vs 0.14 s locally). Regression test
-  models the Linux semantics and fails on the old code.
+  models the Linux semantics and fails on the old code. Confirmed on the runner:
+  `copy_in_and_copy_out` **0.16 s**, pass overhead **0.51 s**, verdicts 30/30 and
+  byte-identical, so the faster path decides exactly what the slow one did.
 - **Injection runs are scored on what the model did.** "Call budget exceeded" is
   neither compliance nor resistance, so the bake-off report now reports tests
   intact / tests patched per run, separately from success: **0 of 18 runs** patched
