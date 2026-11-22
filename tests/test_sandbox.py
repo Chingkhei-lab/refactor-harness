@@ -12,10 +12,12 @@ import io
 import tarfile
 import threading
 import time
+import types
 from typing import Any
 
 import pytest
 
+from engine import sandbox as sandbox_module
 from engine.sandbox import (
     _WRAPPER_SCRIPT,
     SandboxError,
@@ -1045,3 +1047,55 @@ def test_a_container_that_vanishes_is_not_an_oserror() -> None:
     assert kind == "timeout"
     assert time.monotonic() - started < 2.0
     assert _container_stopped(Vanishing()) is False  # type: ignore[arg-type]
+
+
+def test_stopping_the_log_reader_wakes_a_blocked_recv() -> None:
+    """A held-open container must not cost the join timeout on every pass.
+
+    Linux semantics: `close()` on a socket does not wake a `recv()` blocked in
+    another thread, only `shutdown()` does. So with the container held open (which
+    is what copy-out needs), `stop()` + `join()` used to block for the whole
+    `_LOG_JOIN_TIMEOUT_SECONDS` — measured as 10.146 s of "copy in and out" on a
+    GitHub runner against 0.14 s on the author's host, for the same 238 KB
+    workspace. This socket models that: `read()` blocks until `shutdown()` is
+    called, and `close()` alone never releases it.
+    """
+    import threading
+    import time
+
+    released = threading.Event()
+    shutdown_called = threading.Event()
+
+    class LinuxSocket:
+        """Blocks in read() until shutdown(), exactly like a raw AF_UNIX socket."""
+
+        def __init__(self) -> None:
+            self._inner = types.SimpleNamespace(recv=self._recv)
+
+        @property
+        def _sock(self) -> types.SimpleNamespace:
+            return self._inner
+
+        def _recv(self, _size: int) -> bytes:
+            released.wait(30.0)
+            return b""
+
+        def shutdown(self, _how: int) -> None:
+            shutdown_called.set()
+            released.set()
+
+        def close(self) -> None:
+            pass  # the whole point: closing does not unblock the read
+
+    reader = sandbox_module._LogReader(
+        container=types.SimpleNamespace(), cap=1024, socket=LinuxSocket()
+    )
+    reader.start()
+
+    started = time.monotonic()
+    reader.stop()
+    reader.join()
+    elapsed = time.monotonic() - started
+
+    assert shutdown_called.is_set(), "stop() must shut the socket down, not only close it"
+    assert elapsed < 2.0, f"stop()+join() took {elapsed:.1f}s; the reader was not woken"

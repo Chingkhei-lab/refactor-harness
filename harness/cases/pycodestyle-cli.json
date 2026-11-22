@@ -1,5 +1,5 @@
 {
- "case_set_hash": "8f04551c95d70c5f7618c6388df5de90d995d7534549e52588394ff7f9109dc9",
+ "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
  "cases": [
   {
    "args": [],
@@ -1256,6 +1256,119 @@
   },
   {
    "args": [],
+   "argv": [
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "class A:\n    def one(self):\n        pass\n    def two(self):\n        pass\n"
+   },
+   "id": "probe-tuned-e301-blank-lines",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/blank-line-before-definition",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "def outer():\n    x = 1\n    def inner():\n        pass\n    return inner\n"
+   },
+   "id": "probe-tuned-e306-nested-def",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/blank-line-before-nested-definition",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "def f(x):\n    if type(x) == int:\n        return 1\n    return 0\n"
+   },
+   "id": "probe-tuned-e721-type-compare",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/type-comparison-with-isinstance-idiom",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x = (1,\n  2)\nif (x or\n    x):\n    pass\ny = [\n    1,\n  2,\n]\n"
+   },
+   "id": "probe-tuned-e12x-continuation",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/continuation-line-indentation",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "if (1 or\n    2):\n    pass\n\na = (\n    1,\n  2)\n"
+   },
+   "id": "probe-tuned-e129-visual-indent",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/visual-indent-for-hanging-block",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "\ufeffx=1\n"
+   },
+   "id": "probe-tuned-bom-prefix",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/utf-8-bom-prefix",
+   "stdin": ""
+  },
+  {
+   "args": [],
+   "argv": [
+    "--diff",
+    "sample.py"
+   ],
+   "entry": "pycodestyle.py",
+   "expect": "finite",
+   "files": {
+    "sample.py": "x=1\ny=3\n"
+   },
+   "id": "probe-tuned-diff-multihunk",
+   "kind": "cli",
+   "kwargs": {},
+   "source": "options/unified-diff-with-two-hunks",
+   "stdin": "--- sample.py\n+++ sample.py\n@@ -1,2 +1,2 @@\n-x=1\n+x=2\n y=3\n@@ -10,2 +10,2 @@\n-z=1\n+z=2\n w=3\n"
+  },
+  {
+   "args": [],
    "entry": "pycodestyle",
    "expect": "finite",
    "id": "api-module",
@@ -1283,7 +1396,7 @@
  "counts_by_source": {
   "api": 2,
   "fixtures": 42,
-  "probes": 35
+  "probes": 42
  },
  "excerpt": "first 40 lines",
  "inputs_only": "expected codes in the data files are never read",

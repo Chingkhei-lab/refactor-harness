@@ -109,6 +109,37 @@ PROBES: list[tuple[str, str, tuple[str, ...], str, dict[str, str]]] = [
     # The upstream suite asserts this text exactly, so the case exists to make the
     # upstream-vs-harness comparison table complete rather than inferred.
     ("no-args", "no-arguments-no-config", (), "", {}),
+    # --- tuned: content the option probes never produced ------------------
+    # Added after classifying the 22 mutants neither oracle killed. Six of them sit
+    # on covered lines whose *inputs* the case set never produced: the probes all
+    # lint `x=1`, so blank-line (E301/E306), type-comparison (E721), continuation
+    # (E12x) and BOM handling never ran. These six fixtures are the tuning round;
+    # the held-out mutants are drawn from the sites this round never looked at.
+    ("tuned-e301-blank-lines", "blank-line-before-definition",
+     ("sample.py",), "",
+     {"sample.py": "class A:\n    def one(self):\n        pass\n    def two(self):\n"
+                   "        pass\n"}),
+    ("tuned-e306-nested-def", "blank-line-before-nested-definition",
+     ("sample.py",), "",
+     {"sample.py": "def outer():\n    x = 1\n    def inner():\n        pass\n"
+                   "    return inner\n"}),
+    ("tuned-e721-type-compare", "type-comparison-with-isinstance-idiom",
+     ("sample.py",), "",
+     {"sample.py": "def f(x):\n    if type(x) == int:\n        return 1\n    return 0\n"}),
+    ("tuned-e12x-continuation", "continuation-line-indentation",
+     ("sample.py",), "",
+     {"sample.py": "x = (1,\n  2)\nif (x or\n    x):\n    pass\ny = [\n    1,\n"
+                   "  2,\n]\n"}),
+    ("tuned-e129-visual-indent", "visual-indent-for-hanging-block",
+     ("sample.py",), "",
+     {"sample.py": "if (1 or\n    2):\n    pass\n\na = (\n    1,\n  2)\n"}),
+    ("tuned-bom-prefix", "utf-8-bom-prefix",
+     ("sample.py",), "",
+     {"sample.py": "\ufeffx=1\n"}),
+    ("tuned-diff-multihunk", "unified-diff-with-two-hunks", ("--diff", "sample.py"),
+     "--- sample.py\n+++ sample.py\n@@ -1,2 +1,2 @@\n-x=1\n+x=2\n y=3\n"
+     "@@ -10,2 +10,2 @@\n-z=1\n+z=2\n w=3\n",
+     {"sample.py": "x=1\ny=3\n"}),
 ]
 
 

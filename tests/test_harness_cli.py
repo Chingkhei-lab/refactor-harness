@@ -177,16 +177,16 @@ def test_the_shipped_stage2_case_set_matches_its_recorded_hash() -> None:
     path = REPO / "harness" / "cases" / "pycodestyle-cli.json"
     payload = __import__("json").loads(path.read_text(encoding="utf-8"))
     cases = load_cases(path)
-    assert len(cases) == 79
+    assert len(cases) == 86
     assert payload["case_set_hash"] == case_set_hash(cases)
     # A literal. The hash must be the same on Windows and on the Linux runner —
     # it was not, because `sorted(Path)` is case-normalised on one platform and
     # case-sensitive on the other, and this test is what makes that drift fail
     # here instead of in a report.
     assert payload["case_set_hash"] == (
-        "8f04551c95d70c5f7618c6388df5de90d995d7534549e52588394ff7f9109dc9"
+        "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043"
     )
-    assert payload["counts_by_source"] == {"api": 2, "fixtures": 42, "probes": 35}
+    assert payload["counts_by_source"] == {"api": 2, "fixtures": 42, "probes": 42}
     assert {case.kind for case in cases} == {"cli", "api"}
     for case in cases:
         # Inputs only, and nothing that could write outside the case directory.

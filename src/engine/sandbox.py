@@ -484,7 +484,18 @@ class _LogReader:
         survives for copy-out). Joining before closing therefore waited the whole
         join timeout — a fixed 10 s per pass, measured. The marker has already
         given us the exit code, so the rest of the stream is not needed.
+
+        Closing is not enough on Linux: `close()` from another thread does not wake
+        a `recv()` blocked in this one, so the thread sleeps until join() times out
+        and every pass with a workspace pays the full `_LOG_JOIN_TIMEOUT_SECONDS`.
+        `shutdown()` does wake it (it delivers EOF to the blocked read). The gate
+        measured the signature on a GitHub runner: 10.146 s of "copy in and out" for
+        a 238 KB workspace, against 0.14 s here, with the container held open. On
+        Windows the attach socket is a named pipe: it has no shutdown, but closing
+        the handle does abort the pending read, which is why the cost only appeared
+        on the Linux runner.
         """
+        self._shutdown(self._socket)
         for target in (self._socket, self._stream):
             if target is None:
                 continue
@@ -494,6 +505,26 @@ class _LogReader:
                 pass
             except Exception:  # noqa: BLE001 - a stream that refuses to close is not fatal
                 pass
+
+    @staticmethod
+    def _shutdown(sock: Any) -> None:
+        """Best-effort shutdown, through docker-py's wrapper to the real socket."""
+        if sock is None:
+            return
+        import socket as _socket_module
+
+        candidates = (sock, getattr(sock, "_sock", None))
+        for candidate in candidates:
+            shutdown = getattr(candidate, "shutdown", None)
+            if shutdown is None:
+                continue
+            try:
+                shutdown(_socket_module.SHUT_RDWR)
+            except (OSError, ValueError, _DRAIN_ERRORS):  # type: ignore[misc]
+                continue
+            except Exception:  # noqa: BLE001 - a socket that cannot be shut down is closed next
+                continue
+            return
 
     def _consume(self, stream: Any) -> None:
         try:

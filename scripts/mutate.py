@@ -327,6 +327,7 @@ def main() -> int:
             continue
         started = time.monotonic()
         mutant_dir = _write_mutant(target, work_root / "mutant", site, source, args.module)
+        copy_seconds = time.monotonic() - started
         try:
             ran = _one_pass(
                 mutant_dir,
@@ -357,6 +358,7 @@ def main() -> int:
             )
             print(f"[{position}/{len(sample)}] {site.key:28} HARNESS-ERROR", flush=True)
             continue
+        pass_seconds = time.monotonic() - started - copy_seconds
         summary = summarise(list(verdicts.values()))
         differing = sorted(
             case_id for case_id, verdict in verdicts.items()
@@ -364,6 +366,7 @@ def main() -> int:
         )
         tests_killed: bool | None = None
         tests_note = ""
+        tests_seconds = 0.0
         if args.tests and not args.no_tests:
             # The tests come from the MUTANT copy, so `testing/support.py`
             # resolves inside the tree being tested and cannot reach back to the
@@ -380,9 +383,11 @@ def main() -> int:
                 if inside is not None and inside.is_dir()
                 else (_REPO_ROOT / args.tests).resolve()
             )
+            tests_started = time.monotonic()
             tests_killed, tests_note, tests_detail = _run_tests(
                 tests_dir, mutant_dir, stop_early=not args.full_tests
             )
+            tests_seconds = time.monotonic() - tests_started
         else:
             tests_detail = {}
         results.append(
@@ -401,6 +406,11 @@ def main() -> int:
                 "tests_killed": tests_killed,
                 "tests_note": tests_note,
                 "tests_detail": tests_detail,
+                # The breakdown the total is made of, from the same run: a mutant
+                # pays for its tree copy, one harness pass, and the upstream suite.
+                "copy_seconds": round(copy_seconds, 2),
+                "pass_seconds": round(pass_seconds, 2),
+                "tests_seconds": round(tests_seconds, 2),
                 "seconds": round(time.monotonic() - started, 1),
             }
         )

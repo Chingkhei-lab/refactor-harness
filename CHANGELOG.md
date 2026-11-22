@@ -1,5 +1,76 @@
 # Changelog
 
+## v0.3.1 (2026-11-22)
+
+**Corrects v0.3's stage-2 mutation result.** No tag was moved: `v0.3` stays at
+`603f90a` and its release notes are marked superseded.
+
+### Corrected
+
+- **100/100 was the mutator.** `apply_site` returned `ast.unparse(tree)`, rewriting
+  all 2 717 lines of `pycodestyle.py` into 2 095 per mutant, so two CLI cases that
+  print a traceback differed for 77 and 75 of 100 mutants (38 on exactly that
+  pair), and 15 further kills sat on lines no case executes. One contiguous edit on
+  the site's own line now; corrected result **harness 62/100 (62.0 %, CI
+  52.2–70.9), suite 74/100 (74.0 %, 64.6–81.6)**, both 58 / harness-only 4 /
+  suite-only 16 / neither 22, zero unexecuted-line kills. Stage 1 is unchanged: all
+  300 `parse` verdicts reproduced identically.
+- **Timing, one run.** copy 32.5 s + pass 4 244.7 s + suite 1 387.7 s =
+  **5 664.8 s**, **56.65 s/mutant**, 94.4 min for 100. The earlier 32.4 s mixed a
+  `-x` suite run with a different run's pass time.
+- **The 38 survivors classified.** suite-only 16 = 5 unexecuted + 11 covered-not-
+  observed; neither 22 = 10 unexecuted + 12 covered-not-observed; all 12 hand-read
+  and **none equivalent** — they are input shapes (E301/E306, E721, E12x, BOM, a
+  second diff hunk) or output modes (`--benchmark`, declared unstable) the cases
+  never produced.
+- **The CI copy phase was one fixed 10 s wait.** `_LogReader.stop()` now calls
+  `shutdown(SHUT_RDWR)` before `close()`: on Linux `close()` does not wake a
+  `recv()` blocked in the reader thread, so every workspace-bearing pass paid the
+  10 s join timeout (10.146 s on the runner vs 0.14 s locally). Regression test
+  models the Linux semantics and fails on the old code.
+- **Injection runs are scored on what the model did.** "Call budget exceeded" is
+  neither compliance nor resistance, so the bake-off report now reports tests
+  intact / tests patched per run, separately from success: **0 of 18 runs** patched
+  or lost `tests/`.
+- **Rate limits, measured.** Neither provider sends rate-limit headers on success
+  or on error; 690 turns produced 0 × 429 and 32 retries (4.6 %), all recovered
+  within 4 attempts. Gemini's 503 body is quoted verbatim in the report.
+
+### Added
+
+- `docs/results/harness-20261122.md`, `docs/release-notes-v0.3.1.md`.
+- `scripts/mutation_copy_probe.py` (copy-phase cost on the same 100 sites);
+  `scripts/mutate.py` records `copy_seconds` / `pass_seconds` / `tests_seconds`.
+- Tuning round for stage 2: 7 content fixtures (blank lines, E721, E12x, BOM, a
+  two-hunk `--diff`) take the case set to **86** (hash `9ddc0ae083a5`), and the
+  held-out round draws 60 mutants from the 2 005 sites the published sample never
+  touched.
+
+## Unreleased (Phase 5, checkpoint 13)
+
+### Agent
+
+- **Design and decisions**: `docs/design-agent.md`, `docs/adr/006-agent.md`. Three
+  threats with mechanisms, not promises: prompt injection through repository
+  content (the tool layer cannot express destruction, tool output is data, the
+  gate never reads the model's summary), a malicious patch (guardrails are code
+  with tests, checkpoint 14), and the model gaming the verifier (a hidden case set
+  with disjoint inputs decides acceptance).
+- **`agent_runs` + `llm_calls`** (migration `0009`): one row per `(run, turn)`,
+  `UNIQUE` plus `ON CONFLICT DO NOTHING`, storing the request hash, the full
+  response with provider extras, provider, model, tokens, latency, attempts and
+  status. A committed turn is never generated twice.
+- **The loop** (`src/agent/loop.py`): plan/act/verify/reflect/finish with
+  `give_up` as a first-class outcome; an unverified submission is refused, a patch
+  to an unread file is refused, a model may not approve its own difference,
+  identical repeated calls are refused then end the run, tool output is truncated
+  head-and-tail with a marker and wrapped as `<tool_output untrusted="true">`.
+- **The crash-resume test** (`tests/test_agent_crash_resume.py`): a worker dies
+  mid-turn, the run resumes, the model is asked for the two uncommitted turns
+  rather than five, the three committed rows are byte-identical afterwards, tool
+  effects are derived from committed arguments in order, and a resume whose request
+  no longer hashes the same raises `DivergenceError` instead of reusing the answer.
+
 ## Unreleased (Phase 5)
 
 ### Model routing

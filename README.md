@@ -76,10 +76,16 @@ idempotency keys and 0 duplicate effects appeared.
 
 ## Releases
 
+[v0.3.1](https://github.com/Chingkhei-lab/refactor-harness/releases/tag/v0.3.1) —
+**corrects v0.3's stage-2 mutation result**: 100/100 was a mutator that re-printed
+the module; the harness kills 62 of 100 and the upstream suite 74. Also carries the
+`api` case kind, the one-run timing breakdown and the 10-second CI copy-phase fix
+([`docs/results/harness-20261122.md`](docs/results/harness-20261122.md),
+[`docs/release-notes-v0.3.1.md`](docs/release-notes-v0.3.1.md)).
+
 [v0.3](https://github.com/Chingkhei-lab/refactor-harness/releases/tag/v0.3) —
-checkpoint 12: CLI observation layer, approvals, the optparse→argparse migration
-and the final cross-target report
-([`docs/results/harness-20261120.md`](docs/results/harness-20261120.md)).
+superseded by v0.3.1: its stage-2 mutation figure of 100/100 is wrong, for the
+reason above. The tag is not moved; the rest of checkpoint 12 is unaffected.
 
 [v0.2.2](https://github.com/Chingkhei-lab/refactor-harness/releases/tag/v0.2.2) —
 checkpoint 9 review rounds 1–2 (corrected concurrency finding, demo/test
@@ -132,6 +138,27 @@ reviewer.**
   page's own instruction is "Do not submit sensitive, confidential, or personal
   information." The same assumption is made for numes.ai, whose policy was not
   available to check.
+
+## The agent (Phase 5, checkpoint 13)
+
+The model proposes; a human approves. Design:
+[`docs/design-agent.md`](docs/design-agent.md); decisions:
+[`docs/adr/006-agent.md`](docs/adr/006-agent.md).
+
+What exists now: the loop (`plan → act → verify → reflect → finish|give up`) with
+budgets, repeated-call detection, truncated tool output wrapped as untrusted data,
+and a **durable turn log** — `llm_calls` holds one row per `(run, turn)` with the
+request hash and the full response, and a resumed run replays committed turns and
+only calls the model for the tail. The crash test kills a worker mid-turn, resumes,
+and asserts three things: two model calls, not five; committed rows byte-identical;
+tool effects derived from committed arguments. A resume whose request no longer
+hashes the same is refused rather than answered from the stale row.
+
+What does not exist yet, and is not claimed: real tool execution against the
+targets, the guardrails (protected paths, AST bans, secret scan, hidden case set),
+the approval UI and the task set. Those are checkpoints 14 and 15. Until then the
+honest statement is: the loop and its durability are tested, the refactoring claim
+is not.
 
 ## Architecture
 
@@ -257,6 +284,7 @@ Stage 2 changes a command line, so its cases run a program. `pycodestyle` 2.15.0
 | verify-change, 2 rounds × 79 | **142 identical, 16 different (8 approved), 0 unapproved**, 0 unsupported, 0 flaky |
 | Upstream suite on the migrated tree | 4 failures: 3 usage-text assertions, 1 `add_option` API break |
 | Mutation, 100 mutants seed 21, both oracles | harness **62/100 = 62 %**, suite **74/100 = 74 %**, **4 kills the suite misses**, 22 the pair misses |
+| Cost per mutant, one run | copy **0.32 s** + pass **42.45 s** + suite **13.88 s** = **56.65 s**; 94.4 min for 100 |
 | Unintended change the cases caught | `--version` printed `pycodestyle 2.15.0` — fixed, **not approved**; pre-fix report kept |
 
 Two numbers here were wrong first and are worth knowing about. The mutation run
@@ -315,6 +343,15 @@ dead-lettered 42 workflows whose 5-attempt step budget was exhausted by 428
 mid-job kills (a murdered job costs an attempt — engine behaviour correct,
 budget wrong for a bombardment); run 3 sizes the retry budget via
 `ENGINE_SANDBOX_STEP_BUDGET`.
+
+The copy roundtrip was **10.146 s on a GitHub runner** for a 238 KB workspace while
+the same copy took 0.14 s here — a fixed wait, not a slow disk. `_LogReader.stop()`
+closed the attach socket before joining the reader, and on Linux `close()` does not
+wake a `recv()` blocked in another thread, so every pass that held a container open
+for copy-out paid the full 10 s join timeout. It now calls `shutdown(SHUT_RDWR)`
+first; the regression test models the Linux semantics (`close()` releases nothing,
+`shutdown()` delivers EOF) and fails on the old code. The numbers above are from
+before the fix and are labelled as such in the report.
 
 The 24-attempt step is a **budget-sizing datum from a bombardment, not an
 operating point**: 553 kills over 200 workflows, and as the pool drains every
