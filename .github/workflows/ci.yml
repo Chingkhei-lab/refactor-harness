@@ -39,10 +39,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
-      - name: Check the committed case sets are reproducible
-        run: |
-          python scripts/build_cases_stage2.py --check
-          python scripts/mccabe_setup.py --check
       - name: Lint
         run: ruff check .
       - name: Type check
@@ -180,6 +176,10 @@ jobs:
         # The case file is generated from the pinned tree; a stale file would
         # silently compare against inputs the report does not describe.
         run: python scripts/build_cases_stage2.py --check
+      - name: Stage-3 case set is not stale
+        # mccabe's setup fetches and unpacks its own pinned sdist, so this also
+        # proves the pin still resolves.
+        run: python scripts/mccabe_setup.py --check
       - name: Install-hostile suite (real pip + Docker)
         # The 6 install-phase cases used to run only on the author's machine.
         # They belong here: they assert the property the whole cache rests on
