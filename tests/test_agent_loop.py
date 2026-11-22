@@ -308,8 +308,9 @@ def test_a_silent_answer_is_nudged_once_then_ends_the_run(clean_db: Any) -> None
     client = ScriptedClient([turn(text="I think it is fine."), turn(text="Still fine.")])
     result = run_agent(run_id=run_id, task="chat", deps=deps(clean_db, client, FakeToolbox()))
 
-    assert result.outcome is Outcome.BUDGET_EXHAUSTED
-    assert "without a tool call" in result.reason
+    # `failed`, not `budget_exhausted`: no budget was consumed beyond the two turns.
+    assert result.outcome is Outcome.FAILED
+    assert result.reason.startswith("silent_turn")
     assert any("You must end with a tool call" in m.get("content", "") for m in result.messages)
 
 

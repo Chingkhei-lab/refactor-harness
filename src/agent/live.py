@@ -296,13 +296,9 @@ class WorkspaceToolbox:
         if path not in self.read_files:
             return ToolResult(ok=False, content="apply_patch refused: read the file first")
         current = self._read(path)
-        if old not in current:
-            return ToolResult(
-                ok=False,
-                content="apply_patch refused: `old` does not occur verbatim in the file",
-            )
-        replaced = current.replace(old, new, 1)
-        start = current[: current.index(old)].count("\n") + 1
+        found = old in current
+        replaced = current.replace(old, new, 1) if found else None
+        start = current[: current.index(old)].count(chr(10)) + 1 if found else 1
         proposal = Proposal(
             files=(
                 FilePatch(
@@ -314,6 +310,10 @@ class WorkspaceToolbox:
             ),
             summary=str(arguments.get("summary") or ""),
         )
+        # The guardrails run BEFORE the verbatim-match check: a patch aimed at the
+        # target's own test file must be refused for touching it, not for failing to
+        # match a line, or the refusal teaches the model to fix its match instead of
+        # its plan. Found by the live-wiring test.
         outcome = check(
             proposal,
             workspace=self._workspace_map(),
@@ -324,6 +324,11 @@ class WorkspaceToolbox:
         )
         if not outcome.ok:
             return ToolResult(ok=False, content=f"guardrail refused: {outcome.render()}")
+        if not found or replaced is None:
+            return ToolResult(
+                ok=False,
+                content="apply_patch refused: `old` does not occur verbatim in the file",
+            )
         updated = apply_patch(proposal, workspace=self._workspace_map())
         (self.workspace / path).write_text(updated[path], encoding="utf-8")
         return ToolResult(ok=True, content=f"applied to {path}")

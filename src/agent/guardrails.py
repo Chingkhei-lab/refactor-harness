@@ -147,19 +147,25 @@ class FilePatch:
     #: Only for a wholesale write. Either hunks or `content`, never both.
     content: str | None = None
 
+    #: The added lines, and nothing else. When a patch carries both `hunks` (what
+    #: changed, for the content checks) and `content` (what to write, for `apply`),
+    #: the hunks are what the guardrails must look at: scanning the whole file
+    #: instead made a one-word edit to `mccabe.py` fail `dangerous_code` because the
+    #: module calls `compile` somewhere else entirely. Measured, on the live-wiring
+    #: test: a false positive that would have refused every real patch to that file.
     @property
     def added_text(self) -> str:
-        if self.content is not None:
-            return self.content
-        return "".join(hunk.added_text for hunk in self.hunks)
+        if self.hunks:
+            return "".join(hunk.added_text for hunk in self.hunks)
+        return self.content or ""
 
     @property
     def added_lines(self) -> list[str]:
-        if self.content is not None:
-            return self.content.splitlines()
-        return [
-            line for hunk in self.hunks for chunk in hunk.added for line in chunk.splitlines()
-        ]
+        if self.hunks:
+            return [
+                line for hunk in self.hunks for chunk in hunk.added for line in chunk.splitlines()
+            ]
+        return (self.content or "").splitlines()
 
 
 @dataclass(frozen=True)
@@ -203,6 +209,13 @@ def _normalise(path: str) -> str:
 
 def _is_protected(path: str) -> bool:
     normalised = _normalise(path)
+    name = normalised.rsplit("/", 1)[-1]
+    # A target's own suite is not always inside a `tests/` directory: mccabe's is
+    # `test_mccabe.py` at the repository root, next to the module it tests. Matching
+    # only directory prefixes let a patch to that file through, which the live
+    # wiring test caught.
+    if name.startswith("test_") or name.endswith("_test.py") or name == "testsuite":
+        return True
     return any(
         normalised == prefix.rstrip("/") or normalised.startswith(prefix)
         for prefix in PROTECTED_PREFIXES
@@ -285,8 +298,12 @@ def _syntax_refusals(proposal: Proposal) -> list[Refusal]:
     for patch in proposal.files:
         if not patch.path.endswith(".py"):
             continue
+        # A wholesale write is checked as a file: parsing it is the same test the
+        # gate applies after writing, so a fragment rule would refuse `def f(x, y=1):`
+        # for having no body when the body is the next, unchanged line of the file.
+        subject = patch.content if patch.content is not None else (patch.added_text or "\n")
         try:
-            ast.parse(patch.added_text or "\n")
+            ast.parse(subject)
         except SyntaxError as exc:
             # A hunk is a fragment, so a failure here is not proof the file will not
             # parse; it is proof the added lines do not stand alone. The gate parses
@@ -382,11 +399,22 @@ def shannon_entropy(text: str) -> float:
     )
 
 
-_QUOTED = re.compile(r"""(['"])(?P<body>(?:\\.|(?!\1).)*)\1""")
+# Triple-quoted alternatives come first: without them a `"""def f():\n    return 1\n"""`
+# literal matched as two empty strings, so a patch that special-cased a case by
+# embedding its input in a triple-quoted string passed `copied_case_literal`
+# untouched. Found by the live-wiring test, which used exactly that shape.
+_QUOTED = re.compile(
+    "(?P<triple>'''|\"\"\")(?P<triple_body>.*?)(?P=triple)"
+    r"|(?P<quote>['\"])(?P<body>(?:\\.|(?!\1).)*)(?P=quote)",
+    re.S,
+)
 
 
 def _string_literals(text: str) -> list[str]:
-    return [match.group("body") for match in _QUOTED.finditer(text)]
+    return [
+        match.group("triple_body") if match.group("triple") else match.group("body")
+        for match in _QUOTED.finditer(text)
+    ]
 
 
 def _numbers(text: str) -> list[str]:

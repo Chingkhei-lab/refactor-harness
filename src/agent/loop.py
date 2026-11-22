@@ -263,10 +263,14 @@ def run_agent(
         if not assistant.tool_calls:
             silent_turns += 1
             if silent_turns > 1:
+                # Not budget exhaustion: nothing ran out. The model answered a task
+                # that requires a tool call with prose, twice, after being told. The
+                # pilot showed this is the most common way a run ends, so it gets its
+                # own outcome rather than being filed under a limit it never reached.
                 return finish(
-                    Outcome.BUDGET_EXHAUSTED,
-                    "model produced text without a tool call twice",
-                    status="budget_exhausted",
+                    Outcome.FAILED,
+                    "silent_turn: no tool call after one nudge",
+                    status="failed",
                 )
             messages.append({"role": "user", "content": NUDGE_AFTER_SILENT_TURN})
             state.turn += 1

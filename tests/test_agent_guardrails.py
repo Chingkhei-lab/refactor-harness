@@ -315,3 +315,51 @@ def test_entropy_separates_prose_from_keys() -> None:
     assert shannon_entropy("hello world hello world") < 3.0
     blob = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
     assert shannon_entropy(blob) > 3.0
+
+
+def test_a_patch_that_carries_both_hunks_and_content_is_judged_on_its_hunks() -> None:
+    """The content checks read the added lines, not the whole rewritten file.
+
+    `mccabe.py` calls `compile`; a whole-file scan makes a one-word edit to that file
+    look like a patch that *adds* `compile`. Found by the live-wiring test, which
+    refused a benign threshold change with `dangerous_code`.
+    """
+    current = "import ast" + chr(10) + chr(10) + chr(10) + "def f(x):" + chr(10) + (
+        "    return compile(str(x), '<s>', 'eval')" + chr(10)
+    )
+    rewritten = current.replace("def f(x):", "def f(x, y=1):  # the default is new", 1)
+    # The hunk does NOT contain `compile`: the file does, elsewhere. A whole-file
+    # scan refuses this; a scan of the added lines must not.
+    added = ("def f(x, y=1):  # the default is new" + chr(10),)
+    proposal = Proposal(
+        files=(
+            FilePatch(
+                path="mccabe.py",
+                hunks=(Hunk(start=4, added=added),),
+                before_sha256=sha(current),
+                content=rewritten,
+            ),
+        )
+    )
+    outcome = check(proposal, workspace={"mccabe.py": current}, allowed_prefixes=("mccabe.py",))
+    assert outcome.ok, outcome.codes
+
+    # And the added lines are still inspected: hiding `eval` in the hunk is refused.
+    bad = Proposal(
+        files=(
+            FilePatch(
+                path="mccabe.py",
+                hunks=(
+                    Hunk(
+                        start=4,
+                        added=("def g(x):" + chr(10) + "    return eval(x)" + chr(10),),
+                    ),
+                ),
+                before_sha256=sha(current),
+                content=rewritten,
+            ),
+        )
+    )
+    assert "dangerous_code" in check(
+        bad, workspace={"mccabe.py": current}, allowed_prefixes=("mccabe.py",)
+    ).codes
