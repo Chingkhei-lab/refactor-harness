@@ -85,7 +85,8 @@ the module; the harness kills 62 of 100 and the upstream suite 74. Also carries 
 
 [v0.3](https://github.com/Chingkhei-lab/refactor-harness/releases/tag/v0.3) —
 superseded by v0.3.1: its stage-2 mutation figure of 100/100 is wrong, for the
-reason above. The tag is not moved; the rest of checkpoint 12 is unaffected.
+reason above. The tag is not moved; the rest of checkpoint 12 is unaffected
+([release text](docs/release-notes-v0.3-superseded.md)).
 
 [v0.2.2](https://github.com/Chingkhei-lab/refactor-harness/releases/tag/v0.2.2) —
 checkpoint 9 review rounds 1–2 (corrected concurrency finding, demo/test
