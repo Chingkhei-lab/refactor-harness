@@ -293,7 +293,12 @@ def _posix_parent_death_signal() -> None:
 
 
 def _run_cli_process(
-    command: list[str], *, cwd: Path, env: dict[str, str], stdin_text: str
+    command: list[str],
+    *,
+    cwd: Path,
+    env: dict[str, str],
+    stdin_text: str,
+    timeout: float | None = None,
 ) -> tuple[int | None, str, str, int | None]:
     """Run one CLI case, ending the whole process tree on timeout or parent death."""
     import subprocess
@@ -310,7 +315,9 @@ def _run_cli_process(
     )
     _assign_to_kill_on_close_job(process)
     try:
-        out, err = process.communicate(stdin_text.encode(), timeout=_CLI_TIMEOUT_SECONDS)
+        out, err = process.communicate(
+            stdin_text.encode(), timeout=timeout or _CLI_TIMEOUT_SECONDS
+        )
     except subprocess.TimeoutExpired:
         _kill_process_tree(process)
         try:
@@ -361,6 +368,7 @@ def run_cli_case(
     controls: tuple[str, ...],
     case_set_hash: str,
     shim: Any,
+    case_budget_seconds: float = 0.0,
 ) -> Observation:
     """Run `entry` as a program and observe what a user would see.
 
@@ -405,10 +413,35 @@ def run_cli_case(
     command = [sys.executable, str(program), *argv]
     stdin_text = str(case.get("stdin") or "")
     env = _cli_env(home)
+    # Two runs must fit inside the runner's `stall_seconds` window (it kills a
+    # child that makes no progress for the case budget), or the double-run evidence
+    # never gets recorded and a hang stays "ambiguous". 45 % each leaves a tenth
+    # of the window for the write.
+    budget = (
+        min(_CLI_TIMEOUT_SECONDS, max(1.0, case_budget_seconds * 0.45))
+        if case_budget_seconds > 0
+        else _CLI_TIMEOUT_SECONDS
+    )
     started = time.monotonic()
     exit_code, stdout, stderr, signal_number = _run_cli_process(
-        command, cwd=cwd, env=env, stdin_text=stdin_text
+        command, cwd=cwd, env=env, stdin_text=stdin_text, timeout=budget
     )
+    elapsed = time.monotonic() - started
+    # The declared budget for a case is what the 10 % rule is relative to; the CLI
+    # sub-budget below is deliberately smaller so two runs fit in the stall window.
+    declared = case_budget_seconds if case_budget_seconds > 0 else _CLI_TIMEOUT_SECONDS
+    limits: dict[str, Any] = {
+        "budget_seconds": declared,
+        "elapsed_seconds": round(elapsed, 3),
+    }
+    if exit_code is None and signal_number is None and stderr == "timeout":
+        # One timeout can be a loaded machine, so the evidence is a second run:
+        # only a case that exceeds its budget twice is recorded as non-terminating.
+        again = _run_cli_process(
+            command, cwd=cwd, env=env, stdin_text=stdin_text, timeout=budget
+        )
+        if again[0] is None and again[3] is None and again[2] == "timeout":
+            limits["budget_exceeded_twice"] = True
     after = _file_manifest(cwd)
     written = {
         name: meta for name, meta in after.items() if before.get(name) != meta
@@ -427,6 +460,7 @@ def run_cli_case(
         "stderr": canonicalise_stream(stderr),
         "files": written,
     }
+    unsupported = bool(limits.get("budget_exceeded_twice"))
     _rmtree_hard(cwd)
     encoded, _meta = encode_with_meta(value)
     # The projection is named in the observation, not only in the code: a report
@@ -437,10 +471,16 @@ def run_cli_case(
         case_id=case["id"],
         entry=entry,
         inputs=inputs,
-        outcome="return",
+        # A case that exceeded its budget on two runs did not produce a
+        # comparable value: the value it did print is a prefix of a computation
+        # that never finished. The evidence lives in `limits`, which is metadata
+        # and is what lets the comparison call it non-termination instead of
+        # ambiguity.
+        outcome="unsupported" if unsupported else "return",
         value=EncodedValue(encoded),
         controls=(*controls, "cli_stream_projected"),
         case_set_hash=case_set_hash,
+        limits=limits,
     )
 
 
@@ -639,9 +679,10 @@ def run_case(
     controls: tuple[str, ...],
     case_set_hash: str,
     shim: Any,
+    case_budget_seconds: float = 0.0,
 ) -> Observation:
     if case.get("kind") == "cli":
-        return run_cli_case(case, controls, case_set_hash, shim)
+        return run_cli_case(case, controls, case_set_hash, shim, case_budget_seconds)
     if case.get("kind") == "api":
         return run_api_case(module, case, controls, case_set_hash, shim)
     entry = case["entry"]
@@ -789,7 +830,10 @@ def main(argv: list[str] | None = None) -> int:
             # then the only bound, and the report says so.
             install_cpu_budget(cpu_budget) if cpu_budget > 0 else None
             try:
-                observation = run_case(module, case, controls, case_set_hash, shim)
+                observation = run_case(
+                    module, case, controls, case_set_hash, shim,
+                    float(plan.get("case_budget") or 0.0),
+                )
             except UnknownProjection as exc:
                 observation = Observation(
                     case_id=case["id"],

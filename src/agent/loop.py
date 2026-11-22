@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import time
 from collections.abc import Callable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, Protocol
 
 from .prompts import SYSTEM_PROMPT, system_prompt_sha256
@@ -39,6 +39,7 @@ from .types import (
     ToolCall,
     ToolResult,
     canonical_json,
+    estimate_tokens,
 )
 
 MAX_TOOL_BYTES = 8_000
@@ -231,6 +232,18 @@ def run_agent(
             state.replayed += 1
         else:
             assistant = deps.client.complete(request)
+            if assistant.tokens == 0:
+                # Gemini's OpenAI-compatible endpoint returns `usage: null`, so an
+                # unmeasured turn must still cost something: a local estimate,
+                # labelled, so the report can say which counts were measured and
+                # which were not (ADR 006 D18).
+                prompt_text = "".join(str(item.get("content") or "") for item in messages)
+                assistant = replace(
+                    assistant,
+                    tokens_prompt=estimate_tokens(prompt_text),
+                    tokens_completion=estimate_tokens(assistant.text or ""),
+                    tokens_estimated=True,
+                )
             state.model_calls += 1
             deps.store.append(
                 run_id=run_id,

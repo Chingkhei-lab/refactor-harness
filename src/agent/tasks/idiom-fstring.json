@@ -1,0 +1,11 @@
+{
+  "allowed_paths": [
+    "mccabe.py"
+  ],
+  "expected": "identical_or_approved",
+  "id": "idiom-fstring",
+  "instruction": "Convert the two `%`-formatted messages in `get_code_complexity` to f-strings.",
+  "kind": "idiom",
+  "max_lines": 20,
+  "target": "mccabe"
+}

@@ -316,6 +316,11 @@ class Observation:
     controls: tuple[str, ...] = ()
     flags: dict[str, Any] = field(default_factory=dict)
     case_set_hash: str = ""
+    # How the case spent its budget. Metadata, not behaviour: the compared value
+    # excludes it, so it cannot make two identical runs differ. It exists for the
+    # one decision the value cannot carry — "one tree terminated, the other did
+    # not" — which needs the returning side's elapsed time against its budget.
+    limits: dict[str, Any] = field(default_factory=dict)
 
     def value_body(self) -> Any:
         """The encoded value, encoding it once if it arrived raw."""
@@ -339,6 +344,7 @@ class Observation:
             "controls": list(self.controls),
             "flags": self.flags,
             "case_set_hash": self.case_set_hash,
+            **({"limits": self.limits} if self.limits else {}),
         }
 
     def fingerprint_body(self) -> dict[str, Any]:
@@ -351,6 +357,7 @@ class Observation:
         body = self.body()
         body.pop("controls", None)
         body.pop("case_set_hash", None)
+        body.pop("limits", None)
         return body
 
     @property

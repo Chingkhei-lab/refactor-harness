@@ -1,0 +1,6 @@
+{
+  "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+  "notes": "No masking: every case seeds the target with a string literal, and the shim fixes clock, hash seed, locale and cwd, so an A/A pass over the case set is the noise measurement.",
+  "rules": [],
+  "target": "mccabe"
+}

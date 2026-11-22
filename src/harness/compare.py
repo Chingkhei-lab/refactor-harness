@@ -136,6 +136,61 @@ def _behaviour(observation: Observation) -> dict[str, Any]:
     }
 
 
+# How much of its budget the returning side may have used and still count as
+# "finished quickly" — the review's 10 %. A baseline that used most of its budget
+# is a slow case, and a slow case timing out on the other tree is ambiguous.
+NONTERMINATION_FAST_FRACTION = 0.10
+
+
+def _budget_evidence(observation: Observation) -> dict[str, Any] | None:
+    """The recorded budget facts, or None if the case never hit one."""
+    limits = observation.limits or {}
+    if not limits.get("budget_seconds"):
+        return None
+    return limits
+
+
+def _nontermination(left: Observation, right: Observation) -> Comparison | None:
+    """One tree terminated well inside its budget, the other exceeded it twice.
+
+    A mutant that makes a case loop forever is a behaviour change, not an
+    unobservable one: the suite kills it by timeout, and the harness used to call
+    it `undecidable` because `unsupported` versus `return` says nothing about
+    *what* was unsupported. The two pieces of evidence that make it a difference
+    rather than a guess are both recorded by the child:
+
+      * the side that hit the budget hit it on **two repeated runs** (a single
+        timeout can be a loaded machine), and
+      * the side that returned finished within 10 % of the same budget (a case
+        that used most of its budget is slow, and a slow case timing out on the
+        other tree is genuinely ambiguous).
+
+    Anything else stays `undecidable`, which is what "keep unsupported for
+    ambiguous timeouts" means in practice.
+    """
+    for finished, stuck in ((left, right), (right, left)):
+        if finished.outcome != "return":
+            continue
+        evidence = _budget_evidence(finished)
+        stuck_limits = stuck.limits or {}
+        if not evidence or not stuck_limits.get("budget_exceeded_twice"):
+            continue
+        budget = float(evidence["budget_seconds"])
+        elapsed = float(evidence.get("elapsed_seconds") or 0.0)
+        if budget <= 0 or elapsed > budget * NONTERMINATION_FAST_FRACTION:
+            continue
+        return Comparison(
+            left.case_id,
+            DIFFERENT,
+            reason=(
+                "non-termination: the other side exceeded its "
+                f"{budget:.0f}s budget on two repeated runs while this side "
+                f"returned in {elapsed:.2f}s ({100 * elapsed / budget:.1f}% of budget)"
+            ),
+        )
+    return None
+
+
 def compare(
     left: Observation, right: Observation, rules: RuleSet | None = None
 ) -> Comparison:
@@ -151,6 +206,10 @@ def compare(
             "case-set hash mismatch: the two observations come from different "
             f"case sets ({left.case_set_hash[:12]} != {right.case_set_hash[:12]})"
         )
+
+    nontermination = _nontermination(left, right)
+    if nontermination is not None:
+        return nontermination
 
     # Anything the encoder could not see is undecidable, whatever it contains.
     for observation in (left, right):

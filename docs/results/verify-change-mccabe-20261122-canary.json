@@ -1,0 +1,73 @@
+{
+  "aa_noise": [],
+  "approvals": {
+    "count": 0,
+    "matched_nothing": [],
+    "path": "C:\\Users\\yumkh\\Documents\\Refactor-harness\\harness\\approvals\\mccabe.json",
+    "sha256": "8813ccdca5056dcec2486b54efaffb244572b6b036e6c1d299483573bca0a561",
+    "stale": [],
+    "target": "mccabe 0.7.0"
+  },
+  "approved_differences": [],
+  "budget": {
+    "cpu_seconds_per_case": 0.0,
+    "kind": "wall clock"
+  },
+  "case_count": 34,
+  "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+  "cases_by_source": {
+    "api": 1,
+    "probes": 3,
+    "snippets": 30
+  },
+  "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed"
+  ],
+  "differences": [],
+  "generated_at": "2026-11-22T16:13:01.831364+00:00",
+  "masked": [],
+  "new": {
+    "path": "C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify-trees\\mccabe-canary",
+    "version": "unknown"
+  },
+  "observation_schema_version": 3,
+  "old": {
+    "path": "C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\oracle\\mccabe",
+    "version": "unknown"
+  },
+  "order": "old, new, old, new (alternating)",
+  "rounds": 2,
+  "rules": {
+    "count": 0,
+    "path": "harness\\rules\\mccabe.json",
+    "sha256": "d66f618c50ad0adb161ee0285ff66c94ba19a6c88da138022c93ad4ee6685b3b"
+  },
+  "rules_usage": {},
+  "summary": {
+    "approvals_stale": 0,
+    "different": 0,
+    "different_approved": 0,
+    "different_unapproved": 0,
+    "equivalent": 0,
+    "equivalent_bounded": 0,
+    "flaky": 0,
+    "flaky_cases": [],
+    "identical": 68,
+    "undecidable_reasons": [],
+    "unsupported": 0
+  },
+  "target": "mccabe",
+  "unapproved_differences": [],
+  "unsupported": []
+}

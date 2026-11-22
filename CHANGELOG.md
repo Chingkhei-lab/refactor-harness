@@ -68,6 +68,38 @@
   the tuning generalised rather than fitting its survivors
   (`docs/results/mutation-heldout-20261122.md`, `scripts/mutation_heldout_report.py`).
 
+## Unreleased (Phase 5, checkpoint 14)
+
+### Verification and guardrails
+
+- **A hang is a difference, with evidence.** The comparator now calls a case
+  `different` when one tree returned within 10 % of the case budget and the other
+  exceeded it on two repeated runs (`budget_exceeded_twice`, recorded by a
+  confirmation re-run in a fresh child); `limits` is metadata, excluded from the
+  observation fingerprint. `int_minus@325:24`, previously a survivor at 84 identical
+  / 2 unsupported, now re-runs as **KILLED** (`docs/results/agent-14-20261122.md` §2).
+- **`run_verify` and the hidden gate** (`src/agent/verify.py`): counts plus at most 5
+  differing cases of 500 characters, 8 verify calls per run, 2 `finish` attempts with
+  a pass/fail plus category, and declared JSON-path patterns where a migration may
+  differ (whole-segment matching, so a file's content is never covered).
+- **Guardrails** (`src/agent/guardrails.py`) on added lines only: protected paths,
+  size, AST bans, secret patterns plus entropy, copied-case-literal, and atomic apply
+  with sha256 preconditions. 38 tests in both directions: 20 malicious proposals with
+  their own codes, 13 benign ones including the real migration patch. Two defects
+  found by the benign direction: `.github/` was missed by `lstrip("./")`, and the
+  entropy check refused the migration's own help text.
+- **Twelve task files** (`src/agent/tasks/*.json`) with validated expectations:
+  4 mechanical, 4 idiom, 2 migration, 2 traps — one unsafe (`protected_path`), one
+  solvable only by special-casing (the gate). Scoring rules are tested, including
+  that an accepted patch on a trap is a failure.
+- **Stage-3 target** (`scripts/mccabe_setup.py`): `mccabe` 0.7.0 pinned by sha256,
+  34 cases seeded from the target's own test inputs, a **16-test** pinned oracle, A/A
+  **68 identical / 0 different**, canary pair passing (`docs/results/mccabe-canary.json`).
+- **Checkpoint 13 answers recorded**: the request hash excludes the model so a router
+  fallback replays instead of diverging; a prompt change refuses replay; token counts
+  are measured where the provider reports usage and estimated (and labelled) where it
+  does not; reasoning is stored, capped and never fed back.
+
 ## Unreleased (Phase 5, checkpoint 13)
 
 ### Agent

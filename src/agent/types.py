@@ -84,6 +84,14 @@ class AssistantTurn:
     latency_ms: int
     attempts: int
     raw: Mapping[str, Any] = field(default_factory=dict)
+    # Some providers return reasoning content. It is model output like any other:
+    # stored (capped) so a run can be audited, marked untrusted, and never put back
+    # into the message history or executed.
+    reasoning: str = ""
+    # True when the provider returned no usage and the token counts are a local
+    # estimate; the report must say which. Gemini's OpenAI-compatible endpoint
+    # returns `usage: null`, so this is the normal case for the fallback provider.
+    tokens_estimated: bool = False
 
     @property
     def tokens(self) -> int:
@@ -100,6 +108,8 @@ class AssistantTurn:
             "latency_ms": self.latency_ms,
             "attempts": self.attempts,
             "raw": dict(self.raw),
+            **({"reasoning": self.reasoning} if self.reasoning else {}),
+            **({"tokens_estimated": True} if self.tokens_estimated else {}),
         }
 
     @classmethod
@@ -116,7 +126,33 @@ class AssistantTurn:
             latency_ms=int(raw.get("latency_ms") or 0),
             attempts=int(raw.get("attempts") or 1),
             raw=dict(raw.get("raw") or {}),
+            reasoning=str(raw.get("reasoning") or ""),
+            tokens_estimated=bool(raw.get("tokens_estimated")),
         )
+
+
+REASONING_MAX_CHARS = 64_000
+
+
+def estimate_tokens(*texts: str) -> int:
+    """A local approximation, used only when the provider reports no usage.
+
+    Four characters per token is wrong in both directions on any given string, and
+    that is acceptable for a *budget*: it exists to stop a runaway loop, not to
+    bill anyone. What matters is that the report can say which turns were measured
+    and which were estimated, which is why `tokens_estimated` travels with the turn.
+    """
+    total = sum(len(text) for text in texts)
+    return max(1, total // 4)
+
+
+def cap_reasoning(text: str) -> str:
+    """Reasoning is stored, but not unboundedly: 64 KB with a visible marker."""
+    if len(text) <= REASONING_MAX_CHARS:
+        return text
+    kept = text[:REASONING_MAX_CHARS]
+    dropped = len(text) - REASONING_MAX_CHARS
+    return kept + f"... [truncated: {dropped} chars]"
 
 
 def slack_cap(expected: int) -> int:
@@ -157,13 +193,26 @@ class Budget:
 
 @dataclass(frozen=True)
 class ModelRequest:
-    """What we send. The hash of this is the replay precondition."""
+    """What we send. The hash of this is the replay precondition.
+
+    The hash covers the **logical** request — messages, tool schemas, temperature
+    and the prompt version — and deliberately **not** the model or provider id.
+    Those are recorded on every committed call, because a run that fell back from
+    the primary model to the fallback is a fact about the run, not a different
+    conversation. Hashing the model id instead would make a resume after a router
+    fallback raise DivergenceError for every committed turn, which would turn a
+    recovery mechanism into a data-loss mechanism.
+
+    A *deliberate* change is different: the system prompt's version is in the hash,
+    so editing the prompt changes the hash by design and a resume refuses it. A new
+    prompt is a new run, never a replay of an old one's turns.
+    """
 
     messages: tuple[dict[str, Any], ...]
     tools: tuple[dict[str, Any], ...]
-    model: str
     temperature: float
     system_prompt_version: str
+    model: str = ""  # recorded per call; NOT part of the identity
 
     def sha256(self) -> str:
         return sha256_text(
@@ -171,7 +220,6 @@ class ModelRequest:
                 {
                     "messages": list(self.messages),
                     "tools": list(self.tools),
-                    "model": self.model,
                     "temperature": self.temperature,
                     "system_prompt_version": self.system_prompt_version,
                 }

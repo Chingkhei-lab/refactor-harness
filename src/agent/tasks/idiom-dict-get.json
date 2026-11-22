@@ -1,0 +1,11 @@
+{
+  "allowed_paths": [
+    "mccabe.py"
+  ],
+  "expected": "identical_or_approved",
+  "id": "idiom-dict-get",
+  "instruction": "Replace the `if key in mapping: ... else: ...` pattern in `PathGraphingAstVisitor._subgraph` with `dict.get(key, default)`.",
+  "kind": "idiom",
+  "max_lines": 40,
+  "target": "mccabe"
+}

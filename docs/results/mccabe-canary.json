@@ -1,0 +1,21 @@
+{
+  "aa": {
+    "different": 0,
+    "flaky": 0,
+    "identical": 68,
+    "unsupported": 0
+  },
+  "canary": {
+    "different": 0,
+    "edit": "a comment on the import line plus a blank line (behaviour preserving)",
+    "identical": 68,
+    "passed": true,
+    "unsupported": 0
+  },
+  "case_count": 34,
+  "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+  "generated_at": "2026-11-22T16:13:27+00:00",
+  "note": "A/A over the case set is the noise measurement; the canary pair is the sensitivity check: a behaviour-preserving edit must produce zero differences, so an observation that changes when the target did not fails here rather than in a migration report.",
+  "oracle_tests": 16,
+  "target": "mccabe 0.7.0"
+}

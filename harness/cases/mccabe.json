@@ -1,0 +1,374 @@
+{
+  "case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800",
+  "cases": [
+    {
+      "args": [
+        "def f():\n    return 1\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-plain-5b76d096",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f(x):\n    if x:\n        return 1\n    return 0\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-if-ab28bbed",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f(x):\n    if x:\n        return 1\n    else:\n        return 0\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-if-else-f9aad474",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f(x):\n    if x == 1:\n        pass\n    elif x == 2:\n        pass\n    elif x == 3:\n        pass\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-elif-chain-420f4092",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f(items):\n    for item in items:\n        yield item\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-for-c2c2c482",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f():\n    while True:\n        break\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-while-b615daec",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f(a, b):\n    if a and b:\n        return 1\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-and-9ad20dd2",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f(a, b):\n    if a or b:\n        return 1\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-or-0810d0b7",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f(a, b, c):\n    if a and b or c:\n        return 1\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-and-or-5761d991",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f():\n    try:\n        pass\n    except ValueError:\n        pass\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-try-except-cdb63afc",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f():\n    try:\n        pass\n    finally:\n        pass\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-try-finally-17f840e5",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f(handle):\n    with handle:\n        pass\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-with-2fc81991",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "f = lambda x: x\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-lambda-1ac70f5f",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f(x):\n    assert x\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-assert-fdfcdfab",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f():\n    def g():\n        return 1\n    return g\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-nested-def-08bc8875",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "class C:\n    def m(self):\n        return 1\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-class-method-952f821c",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "import functools\n\n@functools.wraps\ndef f():\n    return 1\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-decorator-7f03a584",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f(items):\n    return [item for item in items if item]\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-comprehension-3910dd2b",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "async def f():\n    return 1\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-async-def-1259bb95",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f(x):\n    match x:\n        case 1:\n            return 1\n        case _:\n            return 0\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-match-e9b861cd",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f(data):\n    if (n := len(data)) > 1:\n        return n\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-walrus-6bc6ed8d",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f():\n    global X\n    X = 1\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-global-1dd13541",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f(x):\n    if not x:\n        raise ValueError('no')\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-raise-ec03e4d5",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f():\n    return None\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-return-none-c73b67a0",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f(x):\n    return x is True and x is not False\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-boolean-const-d9c17fb8",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f(a, b, c):\n    return a < b < c\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-chained-compare-fbec49bf",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f(*args, **kwargs):\n    return len(args) + len(kwargs)\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-star-args-742c02d5",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f(a, b):\n    if a:\n        if b:\n            return 1\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-nested-if-cbe0e94d",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f(items):\n    for item in items:\n        if item:\n            break\n    else:\n        return 0\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-for-else-dc44ca21",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [
+        "def f():\n    try:\n        pass\n    except (TypeError, ValueError):\n        pass\n"
+      ],
+      "entry": "get_code_complexity",
+      "expect": "finite",
+      "id": "fixture-except-multiple-16165f41",
+      "kwargs": {},
+      "source": "snippets"
+    },
+    {
+      "args": [],
+      "argv": [
+        "sample.py"
+      ],
+      "entry": "mccabe.py",
+      "expect": "finite",
+      "files": {
+        "sample.py": "def f():\n    return 1\n"
+      },
+      "id": "probe-cli-exit-zero",
+      "kind": "cli",
+      "kwargs": {},
+      "source": "probes",
+      "stdin": ""
+    },
+    {
+      "args": [],
+      "argv": [
+        "sample.py"
+      ],
+      "entry": "mccabe.py",
+      "expect": "finite",
+      "files": {
+        "sample.py": "def f(x):\n    if x:\n        if x > 1:\n            return 1\n"
+      },
+      "id": "probe-cli-exit-nonzero",
+      "kind": "cli",
+      "kwargs": {},
+      "source": "probes",
+      "stdin": ""
+    },
+    {
+      "args": [],
+      "argv": [],
+      "entry": "mccabe.py",
+      "expect": "finite",
+      "files": {
+        "sample.py": "def f():\n    pass\n"
+      },
+      "id": "probe-cli-stdin",
+      "kind": "cli",
+      "kwargs": {},
+      "source": "probes",
+      "stdin": "def f():\n    pass\n"
+    },
+    {
+      "args": [],
+      "entry": "mccabe",
+      "expect": "finite",
+      "id": "api-module",
+      "kind": "api",
+      "kwargs": {},
+      "module": "mccabe",
+      "source": "api"
+    }
+  ],
+  "counts_by_source": {
+    "api": 1,
+    "probes": 3,
+    "snippets": 30
+  },
+  "oracle": {
+    "name": "mccabe",
+    "sha256": "348e0240c33b60bbdf4e523192ef919f28cb2c3d7d5c7794f74009290f236325",
+    "tests": 16,
+    "version": "0.7.0"
+  },
+  "oracle_tests": 16,
+  "target": "mccabe"
+}

@@ -63,6 +63,7 @@ def run_pass(
     executor: Any | None = None,
     sandbox_image: str = "python:3.12-slim",
     sandbox_limits: Any | None = None,
+    confirm_hangs: bool = True,
 ) -> Pass:
     from harness.cases import case_set_hash as compute_case_set_hash
 
@@ -151,6 +152,10 @@ def run_pass(
                     "module": module,
                     "case_set_hash": set_hash,
                     "cpu_budget": cpu_budget_seconds,
+                    # The per-case budget the CLI runner enforces, carried into
+                    # the child so the observation can record how much of it the
+                    # case used — the evidence the non-termination rule needs.
+                    "case_budget": case_budget_seconds,
                     "cpu_hard_seconds": _hard_cpu_seconds(cpu_budget_seconds, len(remaining)),
                     "cases": [
                         {**case.body(), "program_root": child_sees_checkout}
@@ -284,6 +289,39 @@ def run_pass(
                     }
                 },
             )
+    if confirm_hangs:
+        _confirm_hangs(
+            done,
+            cases,
+            repeat=lambda case: run_pass(
+                python=python,
+                checkout=checkout,
+                shim_dir=shim_dir,
+                src_dir=src_dir,
+                target_paths=target_paths,
+                cases=[case],
+                index=index,
+                module=module,
+                workdir=workdir,
+                coverage=coverage,
+                case_budget_seconds=case_budget_seconds,
+                attempts=1,
+                order="fixed",
+                # No expectation: this pass carries ONE case, so its hash is that
+                # case's, not the full set's. Passing the set's hash here was a
+                # refusal, correctly — the guard exists to stop exactly this
+                # confusion, and it caught this call.
+                expected_case_set_hash="",
+                shim_disable=shim_disable,
+                cpu_budget_seconds=cpu_budget_seconds,
+                executor=executor,
+                sandbox_image=sandbox_image,
+                sandbox_limits=sandbox_limits,
+                confirm_hangs=False,
+            ),
+            case_budget_seconds=case_budget_seconds,
+        )
+
     observations = tuple(done[case.id] for case in cases if case.id in done)
     controls = observations[0].controls if observations else ()
     return Pass(
@@ -467,6 +505,74 @@ def _signal_name(number: int) -> str:
         return f"signal {number}"
 
 
+# How a case ends when it never produced a comparable value.
+_HANG_KINDS = frozenset({"CaseTimeout", "CpuBudget", "NotRun"})
+
+
+def _confirm_hangs(
+    done: dict[str, Observation],
+    cases: list[Case],
+    *,
+    repeat: Any,
+    case_budget_seconds: float,
+) -> None:
+    """Turn "it hung once" into evidence, by making it hang twice.
+
+    A case that exceeded its budget is `unsupported` for a reason, and the reason
+    matters: a mutant that makes a case loop forever is a behaviour change, while
+    a case that is merely slow is ambiguous. The comparator decides between them
+    from recorded facts (ADR: non-termination), and the fact it needs is that the
+    timeout is repeatable. One timeout is a loaded machine; two in a row, in a
+    fresh child, is a hang.
+
+    Only cases that already failed to produce a value are re-run, so this costs
+    nothing on a normal pass: a hang is rare, and paying twice its budget to know
+    that it is a hang is the price of counting it as a difference at all.
+    """
+    import time as _time
+
+    for case in cases:
+        observation = done.get(case.id)
+        if observation is None or observation.limits:
+            continue
+        kind = ((observation.exception or {}).get("__exception__") or {}).get("type")
+        if kind not in _HANG_KINDS:
+            continue
+        hits = 0
+        elapsed_seen: float | None = None
+        for _ in range(2):
+            started = _time.monotonic()
+            again = repeat(case)
+            produced = [
+                item
+                for item in again.observations
+                if item.case_id == case.id and item.outcome == "return"
+            ]
+            if produced:
+                elapsed_seen = _time.monotonic() - started
+                continue
+            hits += 1
+        limits: dict[str, Any] = {"budget_seconds": case_budget_seconds}
+        if elapsed_seen is not None:
+            limits["elapsed_seconds"] = round(elapsed_seen, 3)
+        if hits >= 2:
+            limits["budget_exceeded_twice"] = True
+        done[case.id] = Observation(
+            case_id=observation.case_id,
+            entry=observation.entry,
+            inputs=observation.inputs,
+            outcome=observation.outcome,
+            value=observation.value,
+            exception=observation.exception,
+            stdout=observation.stdout,
+            stderr=observation.stderr,
+            controls=observation.controls,
+            flags=observation.flags,
+            case_set_hash=observation.case_set_hash,
+            limits=limits,
+        )
+
+
 def _death_observation(
     case: Case,
     returncode: int,
@@ -556,6 +662,7 @@ def _to_observation(body: dict[str, Any]) -> Observation:
         controls=tuple(body.get("controls") or ()),
         flags=dict(body.get("flags") or {}),
         case_set_hash=body.get("case_set_hash", ""),
+        limits=dict(body.get("limits") or {}),
     )
 
 

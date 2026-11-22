@@ -1,0 +1,11 @@
+{
+  "allowed_paths": [
+    "mccabe.py"
+  ],
+  "expected": "identical",
+  "id": "mech-dead-branch",
+  "instruction": "Remove the unreachable `else` branch in `get_code_complexity` that can never execute because the preceding condition returns.",
+  "kind": "mechanical",
+  "max_lines": 20,
+  "target": "mccabe"
+}

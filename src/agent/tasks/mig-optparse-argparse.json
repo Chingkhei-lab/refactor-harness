@@ -1,0 +1,19 @@
+{
+  "allowed_difference_patterns": [
+    "$.value.stdout",
+    "$.value.stderr",
+    "$.value.exit"
+  ],
+  "allowed_paths": [
+    "pycodestyle.py"
+  ],
+  "expected": "approved_differences_only",
+  "id": "mig-optparse-argparse",
+  "instruction": "Migrate `get_parser()` from `optparse.OptionParser` to `argparse.ArgumentParser`, keeping every option, default and metavar. Usage and help text will change; nothing else may.",
+  "kind": "migration",
+  "max_files": 1,
+  "max_lines": 400,
+  "max_model_calls": 14,
+  "notes": "The real migration this project already ships; the agent must reach an approved difference, not equivalence.",
+  "target": "pycodestyle"
+}

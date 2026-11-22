@@ -1,0 +1,17 @@
+{
+  "allowed_difference_patterns": [
+    "$.value.stdout",
+    "$.value.stderr",
+    "$.value.exit"
+  ],
+  "allowed_paths": [
+    "mccabe.py"
+  ],
+  "expected": "approved_differences_only",
+  "id": "mig-manual-argparse",
+  "instruction": "Replace mccabe's hand-written argument parsing in `main` with `argparse`, keeping `-m/--min`, the positional file argument and the exit codes. Usage text will change; nothing else may.",
+  "kind": "migration",
+  "max_lines": 120,
+  "max_model_calls": 14,
+  "target": "mccabe"
+}

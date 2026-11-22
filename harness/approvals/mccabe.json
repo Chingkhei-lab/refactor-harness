@@ -1,0 +1,6 @@
+{
+  "approvals": [],
+  "note": "No approved differences yet: mccabe has not been migrated. A migration's output is approved per run by a human, bound to the sha256 of the observed diff, never pre-written here.",
+  "schema": "harness-approvals/1",
+  "target": "mccabe 0.7.0"
+}

@@ -155,11 +155,26 @@ and asserts three things: two model calls, not five; committed rows byte-identic
 tool effects derived from committed arguments. A resume whose request no longer
 hashes the same is refused rather than answered from the stale row.
 
-What does not exist yet, and is not claimed: real tool execution against the
-targets, the guardrails (protected paths, AST bans, secret scan, hidden case set),
-the approval UI and the task set. Those are checkpoints 14 and 15. Until then the
-honest statement is: the loop and its durability are tested, the refactoring claim
-is not.
+**Checkpoint 14 adds the limits that make the loop ungameable, all as code with
+tests:** `run_verify` returns class counts and at most five differing cases cut to
+500 characters, is capped at 8 calls per run; `finish` gets two attempts and answers
+pass/fail with a category, because each submission is a query against a hidden case
+set that lives outside the workspace and sandbox. Guardrails run on the **added
+lines only** — protected paths, size, AST bans, a secret scan, a high-entropy check, a
+literal-copied-from-the-cases check, and atomic application with a sha256
+precondition — and are tested in both directions: **20 malicious proposals**, each
+asserting its own rejection code, and **13 benign ones including the real
+`pycodestyle` argparse migration patch**, because a refusal rate without a
+false-positive rate is propaganda. Twelve task files state their expected outcome
+class up front, and the stage-3 target is set up: `mccabe` 0.7.0, 34 cases seeded
+from its own test inputs, a pinned 16-test oracle, A/A 68 identical / 0 different,
+and a canary that survives a comment-only edit
+([`docs/results/agent-14-20261122.md`](docs/results/agent-14-20261122.md)).
+
+What does not exist yet, and is not claimed: the approval UI, the live wiring from
+`run_verify` to a harness run, and any evaluation run at all — so there is no
+precision number. Checkpoint 15. Until then the honest statement is: the loop, its
+durability and its limits are tested; the refactoring claim is not.
 
 ## Architecture
 

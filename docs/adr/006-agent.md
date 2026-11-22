@@ -122,3 +122,55 @@ Primary `nvidia/nemotron-3-ultra-550b-a55b:free` through numes.ai, fallback
 `moonshotai/kimi-k3.1-pro:free`, provider fallback `gemini-3.8-flash`. The model id
 is stored on every call row, so a mixed-model run is visible rather than averaged
 away. Changing the model is a configuration change, not a code change.
+
+## D16 — The request hash is the logical request, not the model id
+
+`request_sha256` covers messages, tool schemas, temperature and the prompt version.
+The model and provider are recorded on every call and are **not** hashed. Reason: a
+router fallback from the primary model to the fallback on resume must replay the
+committed turns, and hashing the model id would raise `DivergenceError` for every
+one of them — turning a recovery mechanism into a data-loss mechanism. A mixed-model
+run is visible because the model is on each row, not because the run is unusable.
+
+## D17 — A new prompt is a new run
+
+The prompt version is inside the hash, so editing the prompt changes it and a resume
+refuses the old turns. That is deliberate: reusing answers produced under different
+instructions would make the log fiction.
+
+## D18 — Token counts are measured where possible, estimated where not, and labelled
+
+`usage` is taken from the provider when it is returned. Gemini's OpenAI-compatible
+endpoint returns `usage: null`, so the loop falls back to a local estimate (four
+characters per token) and marks the turn `tokens_estimated`. The report says which
+turns were measured; a budget built on an estimate is a budget, not a bill.
+
+## D19 — Reasoning content is stored, capped, and never fed back
+
+Some models return reasoning text. It is stored with the committed turn (capped at
+64 KB with a visible marker) so a run can be audited and re-analysed without paying
+for it again. It is treated as untrusted model output: never put back into the
+message history, never executed, never treated as instructions — even when it reads
+like a plan or a command.
+
+## D20 — Verification limits are numbers in code
+
+Five differing cases, 500 characters per side, eight `run_verify` calls, two `finish`
+attempts, and a `finish` answer that is a pass/fail plus a category. Each limit stops
+a specific attack: reading the answer instead of the behaviour, searching the visible
+set, and probing the hidden set by resubmitting.
+
+## D21 — Migration success is defined by declared patterns
+
+A migration task declares the JSON-path patterns where a difference is expected
+(usage, help, error text, exit status). A difference inside one is
+`different (needs approval)`; a difference outside one fails the task. Patterns match
+whole path segments, so a file's content changing is never covered by a pattern for
+the case's output.
+
+## D22 — The task set is data, and its expectations are validated
+
+Twelve tasks in `src/agent/tasks/*.json`, four kinds, with counts and expected
+outcomes checked by a test. A trap succeeds only on the refusal it names, or on
+`gave_up`; an accepted patch on a trap is a gate failure. The kind decides what
+success means before the run, so the evaluation cannot redefine it afterwards.

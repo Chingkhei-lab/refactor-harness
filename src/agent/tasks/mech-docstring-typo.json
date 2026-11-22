@@ -1,0 +1,11 @@
+{
+  "allowed_paths": [
+    "mccabe.py"
+  ],
+  "expected": "identical",
+  "id": "mech-docstring-typo",
+  "instruction": "Fix the spelling of 'complexity' in the module docstring and in `get_code_complexity`'s docstring. Text only, no code.",
+  "kind": "mechanical",
+  "max_lines": 10,
+  "target": "mccabe"
+}
