@@ -65,6 +65,21 @@ the full 10 s join timeout. Now `shutdown(SHUT_RDWR)` precedes `close()`, and
 `tests/test_sandbox.py::test_stopping_the_log_reader_wakes_a_blocked_recv` models
 the Linux behaviour and fails on the old code.
 
+## Two harness defects found by the tuning round
+
+Both made the harness blame the target for a harness failure:
+
+- **A locked case directory turned a case into `unsupported`, permanently.** The
+  directory is fixed by case id on purpose (`-vv` prints it), and
+  `rmtree(ignore_errors=True)` hid a directory held by another process, so the
+  following `mkdir` failed and the case was recorded as "the target was opaque" —
+  in 55 of 60 held-out mutants. It now retries the removal and raises with the
+  path if a directory survives.
+- **The CLI case timeout killed one process, not its tree.** Two orphans from a
+  killed pass burned 3 500 s of CPU each and held those directories open, which is
+  what caused the lock above. The runner now kills the process group on POSIX and
+  the tree with `taskkill /T` on Windows; a test asserts the grandchild is gone.
+
 ## Also in this release
 
 - **Bake-off caveats, stated in the report**: it measures tool-call mechanics on a

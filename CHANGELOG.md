@@ -36,6 +36,23 @@
   or on error; 690 turns produced 0 × 429 and 32 retries (4.6 %), all recovered
   within 4 attempts. Gemini's 503 body is quoted verbatim in the report.
 
+### Fixed
+
+- **A leftover case directory made a case permanently `unsupported`.** A CLI
+  case's directory is fixed by case id (`-vv` prints it, so a random name made the
+  case disagree with itself). `rmtree(ignore_errors=True)` hid a directory it could
+  not remove, the following `mkdir` raised `FileExistsError`, and the outer handler
+  recorded the case as `unsupported` — so 55 of 60 held-out mutants carried two
+  "the target was opaque" rows and nothing said otherwise. Removal is now retried
+  (clearing the read-only bit) and a directory that survives raises with its path.
+- **A timed-out CLI case killed one process, not its tree.** Two orphans left by a
+  killed pass each burned 3 500 s of CPU and held those directories open — they
+  were the lock behind the bug above. The case timeout now kills the process group
+  (POSIX) or the tree via `taskkill /T` (Windows), and both are pinned by tests.
+- `harness/rules/pycodestyle.json` re-pinned to the 86-case set: no rule content
+  changed, only the hash rules are bound to. `verify_change.py` refused to run
+  until it was, which is the guardrail working.
+
 ### Added
 
 - `docs/results/harness-20261122.md`, `docs/release-notes-v0.3.1.md`.
@@ -44,7 +61,10 @@
 - Tuning round for stage 2: 7 content fixtures (blank lines, E721, E12x, BOM, a
   two-hunk `--diff`) take the case set to **86** (hash `9ddc0ae083a5`), and the
   held-out round draws 60 mutants from the 2 005 sites the published sample never
-  touched.
+  touched: harness **44/60 = 73.3 %** (CI 61.0-82.9), suite **50/60 = 83.3 %**
+  (72.0-90.7), and **84.0 %** of suite kills also caught against 78.4 % published —
+  the tuning generalised rather than fitting its survivors
+  (`docs/results/mutation-heldout-20261122.md`, `scripts/mutation_heldout_report.py`).
 
 ## Unreleased (Phase 5, checkpoint 13)
 

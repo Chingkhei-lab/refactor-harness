@@ -278,10 +278,10 @@ Stage 2 changes a command line, so its cases run a program. `pycodestyle` 2.15.0
 
 | Measurement | Value |
 | --- | --- |
-| Case set | **79** (42 fixture excerpts + 35 option probes + 2 api snapshots), hash `8f04551c…` |
+| Case set | **86** (42 fixture excerpts + 42 option probes + 2 api snapshots), hash `9ddc0ae0…` — the 79-case set the first pass used, plus 7 tuning fixtures (§ below) |
 | A/A over that set | **0 differences, 5 fixed + 5 shuffled passes** |
-| Coverage incl. subprocess | lines **89.74 %**, branches **82.62 %**, combined **87.11 %**; `get_parser` 23/23 |
-| verify-change, 2 rounds × 79 | **142 identical, 16 different (8 approved), 0 unapproved**, 0 unsupported, 0 flaky |
+| Coverage incl. subprocess | lines **89.97 %**, branches **83.0 %**, combined **87.4 %**; `get_parser` 25/25 |
+| verify-change, 2 rounds × 86 | **156 identical, 16 different (8 distinct cases, all approved), 0 unapproved**, 0 unsupported, 0 flaky |
 | Upstream suite on the migrated tree | 4 failures: 3 usage-text assertions, 1 `add_option` API break |
 | Mutation, 100 mutants seed 21, both oracles | harness **62/100 = 62 %**, suite **74/100 = 74 %**, **4 kills the suite misses**, 22 the pair misses |
 | Cost per mutant, one run | copy **0.32 s** + pass **42.45 s** + suite **13.88 s** = **56.65 s**; 94.4 min for 100 |
@@ -297,6 +297,28 @@ API nobody calls, so the `api` case kind snapshots the module's public surface a
 the object `get_parser()` returns. That row is now seen by both oracles, as an
 approved difference with a witness. A snapshot still cannot *exercise* a contract,
 which is why two `register_check` behaviours remain the suite's alone.
+
+The tuning round closed the input-shape gap rather than the number: **86 cases**,
+seven more fixtures for blank lines before defs (E301/E306), `type(x) == int`
+(E721), continuation indentation (E12x), a BOM file and a two-hunk `--diff`. The
+held-out round that keeps it honest runs **60 mutants from the 2 005 sites the
+published sample never touched** (seed 77): harness **44/60 = 73.3 %** (CI
+61.0–82.9), suite **50/60 = 83.3 %** (72.0–90.7). The raw rates are higher because
+this sample is more killable for both oracles, so the comparison that means
+something is the share of suite kills the harness also gets — **84.0 % held-out
+against 78.4 % published** — which says the tuning generalised instead of fitting
+the survivors it was written for
+([`docs/results/mutation-heldout-20261122.md`](docs/results/mutation-heldout-20261122.md)).
+
+Two harness defects were found by running this round, both of the "silent
+infrastructure failure" kind the audit was about. A CLI case's directory is fixed
+by case id so that `-vv` prints a stable path; a directory left locked by a killed
+run made `mkdir` fail and the case was recorded as **`unsupported`** — forever, and
+invisibly: 55 of the 60 held-out mutants had exactly two unsupported cases until it
+was traced. And the case timeout killed only the direct child: two orphans each
+burned 3 500 s of CPU, held those directories open, and were the reason the first
+was locked. The timeout now kills the process tree, and a directory that will not
+clear raises with its path instead of turning the target opaque.
 
 ### Known target bugs (not harness bugs)
 

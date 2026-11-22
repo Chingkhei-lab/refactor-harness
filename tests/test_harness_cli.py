@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -318,3 +319,127 @@ def test_an_api_snapshot_does_not_contain_the_path_it_was_imported_from() -> Non
     pairs = [("/a", "<short>"), ("/a/b", "<long>")]
     assert _project_paths("/a/b/c", pairs) == "<long>/c"
 
+
+
+def test_a_leftover_case_directory_is_an_error_not_an_unsupported_case(tmp_path: Any) -> None:
+    """A stale directory must not silently make a case unobservable.
+
+    The defect this pins: `rmtree(ignore_errors=True)` hid a locked directory, the
+    following `mkdir` raised `FileExistsError`, and the outer handler recorded the
+    case as `unsupported` — so a spinner left by a killed run turned `fixture-e25`
+    and `fixture-e30not` into "the target was opaque" in every later run, forever,
+    with nothing in the report saying otherwise.
+    """
+    from harness import child as child_module
+
+    stuck = tmp_path / "case"
+    stuck.mkdir()
+    (stuck / "file.py").write_text("x = 1\n", encoding="utf-8")
+    (stuck / "file.py").chmod(0o444)  # read-only: the Windows failure mode
+
+    child_module._rmtree_hard(stuck)
+    assert not stuck.exists(), "a read-only file must not block the removal"
+    child_module._rmtree_hard(stuck)  # already gone: no error
+
+
+def test_a_timed_out_cli_case_ends_its_whole_process_tree(tmp_path: Any) -> None:
+    """`subprocess.run(timeout=)` kills one process; a case may leave a tree.
+
+    Two orphans from a killed mutation pass each burned 3 500 s of CPU and held
+    their case directories open, which is how the leftover-directory bug above was
+    triggered in the first place. The grandchild writes its pid, so the assertion
+    is about that process, not about the direct child.
+    """
+    import sys
+    import time
+
+    import psutil
+
+    from harness import child as child_module
+
+    pid_file = tmp_path / "grandchild.pid"
+    script = tmp_path / "spinner.py"
+    body = (
+        "import subprocess, sys, time\n"
+        "child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(600)'])\n"
+        f"open({str(pid_file)!r}, 'w').write(str(child.pid))\n"
+        "time.sleep(600)\n"
+    )
+    script.write_text(body, encoding="utf-8")
+
+    original = child_module._CLI_TIMEOUT_SECONDS
+    child_module._CLI_TIMEOUT_SECONDS = 5.0
+    try:
+        started = time.monotonic()
+        exit_code, _out, err, signal_number = child_module._run_cli_process(
+            [sys.executable, str(script)], cwd=tmp_path, env=dict(), stdin_text=""
+        )
+        elapsed = time.monotonic() - started
+    finally:
+        child_module._CLI_TIMEOUT_SECONDS = original
+
+    assert exit_code is None and signal_number is None and err == "timeout"
+    assert elapsed < 60, f"the timeout took {elapsed:.1f}s"
+    grandchild = int(pid_file.read_text(encoding="utf-8"))
+    assert not psutil.pid_exists(grandchild), (
+        "the grandchild survived the case timeout; it would spin until the machine "
+        "is rebooted and hold its case directory open"
+    )
+
+
+def test_a_case_dies_with_its_parent_even_when_the_parent_is_killed(tmp_path: Any) -> None:
+    """The timeout is not the only way a case ends: the pass can be killed.
+
+    A mutant that loops forever is stopped by the pass-wide CPU budget, which kills
+    the harness process mid-case — no Python code runs afterwards, so no timeout
+    cleanup either. Two such orphans each burned 3 500 s of CPU and kept their case
+    directories locked, which is how a case turned into `unsupported` (§5.1 of the
+    corrected report). This asserts the *kernel-level* guarantee: kill the process
+    that runs the case, and the case's own child dies too.
+    """
+    import subprocess
+    import sys
+    import time
+
+    import psutil
+
+    repo = Path(__file__).resolve().parents[1]
+    pid_file = tmp_path / "grandchild.pid"
+    runner = tmp_path / "runner.py"
+    body = (
+        "import sys\n"
+        f"sys.path.insert(0, {str(repo / 'src')!r})\n"
+        "from pathlib import Path\n"
+        "from harness import child\n"
+        f"pidfile = Path({str(pid_file)!r})\n"
+        "spinner = Path(sys.argv[1])\n"
+        "child._CLI_TIMEOUT_SECONDS = 600\n"
+        "child._run_cli_process([sys.executable, str(spinner)], cwd=pidfile.parent,\n"
+        "                       env=dict(), stdin_text='')\n"
+    )
+    runner.write_text(body, encoding="utf-8")
+    spinner = tmp_path / "spinner.py"
+    spinner.write_text(
+        "import subprocess, sys, time\n"
+        "kid = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(600)'])\n"
+        f"open({str(pid_file)!r}, 'w').write(str(kid.pid))\n"
+        "time.sleep(600)\n",
+        encoding="utf-8",
+    )
+
+    parent = subprocess.Popen([sys.executable, str(runner), str(spinner)])
+    deadline = time.monotonic() + 30
+    while time.monotonic() < deadline and not pid_file.exists():
+        time.sleep(0.1)
+    assert pid_file.exists(), "the case never started"
+    grandchild = int(pid_file.read_text(encoding="utf-8"))
+
+    psutil.Process(parent.pid).kill()  # what the CPU budget does to the harness
+    parent.wait(timeout=30)
+    deadline = time.monotonic() + 30
+    while time.monotonic() < deadline and psutil.pid_exists(grandchild):
+        time.sleep(0.1)
+    assert not psutil.pid_exists(grandchild), (
+        "the case's child outlived the harness process; it would spin and hold its "
+        "case directory until the machine is rebooted"
+    )

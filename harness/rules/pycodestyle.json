@@ -1,6 +1,1 @@
-{
-  "target": "pycodestyle",
-  "case_set_hash": "8f04551c95d70c5f7618c6388df5de90d995d7534549e52588394ff7f9109dc9",
-  "notes": "No CLI case needs masking under the shim: four passes (two fixed, two shuffled) over the 61-case set produced 0 A/A noise. Paths in stderr would need a rule if they leaked; the environment controls (empty HOME/XDG_CONFIG_HOME, project config pinned to the case dir) keep them out.",
-  "rules": []
-}
+{"case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043", "notes": "No CLI case needs masking under the shim: the A/A passes over the case set produced 0 noise. Paths in stderr would need a rule if they leaked; the environment controls (empty HOME/XDG_CONFIG_HOME, project config pinned to the case dir) keep them out. Re-pinned to the 86-case set when the seven tuning fixtures were added (blank lines, E721, E12x, BOM, a two-hunk --diff): no rule content changed, only the hash the rules are bound to.", "rules": [], "target": "pycodestyle"}

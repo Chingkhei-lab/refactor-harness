@@ -1,0 +1,596 @@
+{
+  "aa_noise": [],
+  "approvals": {
+    "count": 8,
+    "matched_nothing": [],
+    "path": "C:\\Users\\yumkh\\Documents\\Refactor-harness\\harness\\approvals\\pycodestyle.json",
+    "sha256": "ab36d861e93b883d05c42a2ef62793f44dffb6a7dbc706b77baf5fe8906824cd",
+    "stale": [],
+    "target": "pycodestyle 2.15.0"
+  },
+  "approved_differences": [
+    {
+      "case_id": "api-module",
+      "date": "2026-11-21",
+      "expected": "840776a7ed67b8a08d95ed0070249a883783ebf5a2d5a18b3d31f2218f1035a9",
+      "observed": "840776a7ed67b8a08d95ed0070249a883783ebf5a2d5a18b3d31f2218f1035a9",
+      "path": "$.value.classes.OptionParser",
+      "reason": "The module stops exporting `OptionParser` and starts exporting `argparse`: the migration replaces optparse's OptionParser with argparse's ArgumentParser, and the class surface (`add_option`, `add_options`, `disable_interspersed_args`, ...) goes with it. Approved as a public-surface change and reported as such, never counted as `equivalent`. Before the api cases existed this row was invisible to the harness and appeared only as the upstream suite's `test_read_config_prefix` failure.",
+      "reviewer": "yumkh (maintainer)"
+    },
+    {
+      "case_id": "api-parser",
+      "date": "2026-11-21",
+      "expected": "185e8de795cc911e552a7ff1c28e8bef2d7f8ec6d9030895a1dd66ac5eb7d60f",
+      "observed": "185e8de795cc911e552a7ff1c28e8bef2d7f8ec6d9030895a1dd66ac5eb7d60f",
+      "path": "$.value.call.attributes.add_argument",
+      "reason": "`get_parser()` now returns an `ArgumentParser`: `add_option`, `add_options` and `add_option_group` are gone and `add_argument`/`add_argument_group` take their place. This is the same break the upstream suite reports as `AttributeError: 'ArgumentParser' object has no attribute 'add_option'`, and it is inherent to using argparse. Approved with a witness, so a reader can see the exact attributes that changed.",
+      "reviewer": "yumkh (maintainer)"
+    },
+    {
+      "case_id": "probe-blank-lines",
+      "date": "2026-11-20",
+      "expected": "ebe283dabc381acd72251eb9eece4b75561a434ca6ba3770bc219f7badcd89cb",
+      "observed": "ebe283dabc381acd72251eb9eece4b75561a434ca6ba3770bc219f7badcd89cb",
+      "path": "$.value.stderr",
+      "reason": "same 'unrecognized arguments' wording for an option that does not exist (--max-blank-lines). Exit status is still 2.",
+      "reviewer": "yumkh (maintainer)"
+    },
+    {
+      "case_id": "probe-help",
+      "date": "2026-11-20",
+      "expected": "409b4c2315f25cd46a5dcf7cff0cf6a104b4141f4a8ec408176916f498f39676",
+      "observed": "409b4c2315f25cd46a5dcf7cff0cf6a104b4141f4a8ec408176916f498f39676",
+      "path": "$.value.stdout",
+      "reason": "argparse renders usage/help differently: lower-case 'usage:', a positional-arguments section, and 'options:' instead of 'Options:'. The option set and defaults are unchanged; this is the parser swap showing through and cannot be normalised away without hiding it.",
+      "reviewer": "yumkh (maintainer)"
+    },
+    {
+      "case_id": "probe-int-error",
+      "date": "2026-11-20",
+      "expected": "c73bae4d0b0eff4460823eaa1726ae25dc8eb8c9167e29ffbaebe67d182d86f2",
+      "observed": "c73bae4d0b0eff4460823eaa1726ae25dc8eb8c9167e29ffbaebe67d182d86f2",
+      "path": "$.value.stderr",
+      "reason": "argparse words an invalid integer differently: 'argument --max-line-length: invalid int value' rather than 'option ... invalid integer value'. Exit status is still 2 and the offending value is still named.",
+      "reviewer": "yumkh (maintainer)"
+    },
+    {
+      "case_id": "probe-jobs",
+      "date": "2026-11-20",
+      "expected": "e2483f5c2d36e72b4bc911feedd20ea1ab045f12f6de155dc42345a4e99349a3",
+      "observed": "e2483f5c2d36e72b4bc911feedd20ea1ab045f12f6de155dc42345a4e99349a3",
+      "path": "$.value.stderr",
+      "reason": "an unsupported option name is now reported by argparse's 'unrecognized arguments' path, which echoes the value too (--jobs=1). Exit status is still 2. This case is declared unordered, so only the error text is compared.",
+      "reviewer": "yumkh (maintainer)"
+    },
+    {
+      "case_id": "probe-no-args",
+      "date": "2026-11-20",
+      "expected": "a5cc080fd4b5d9b4ce1ad02fbe18a050825e0f37a21c309e847f8a3f254f3ee8",
+      "observed": "a5cc080fd4b5d9b4ce1ad02fbe18a050825e0f37a21c309e847f8a3f254f3ee8",
+      "path": "$.value.stderr",
+      "reason": "Empty command line: argparse prints 'usage:' in lower case and omits the blank line before 'error:', so `pycodestyle: error: input not specified` is preceded by different text. The error line itself, the exit status (2) and the condition are unchanged.",
+      "reviewer": "yumkh (maintainer)"
+    },
+    {
+      "case_id": "probe-unknown",
+      "date": "2026-11-20",
+      "expected": "2559f5ec7780f20c354203fb9e2d4dd8b84c007bd1ef5e77b48ccd382a5e3a7d",
+      "observed": "2559f5ec7780f20c354203fb9e2d4dd8b84c007bd1ef5e77b48ccd382a5e3a7d",
+      "path": "$.value.stderr",
+      "reason": "argparse reports an unknown long option as 'unrecognized arguments: --no-such-option' instead of 'no such option'. Exit status is still 2.",
+      "reviewer": "yumkh (maintainer)"
+    },
+    {
+      "case_id": "api-module",
+      "date": "2026-11-21",
+      "expected": "840776a7ed67b8a08d95ed0070249a883783ebf5a2d5a18b3d31f2218f1035a9",
+      "observed": "840776a7ed67b8a08d95ed0070249a883783ebf5a2d5a18b3d31f2218f1035a9",
+      "path": "$.value.classes.OptionParser",
+      "reason": "The module stops exporting `OptionParser` and starts exporting `argparse`: the migration replaces optparse's OptionParser with argparse's ArgumentParser, and the class surface (`add_option`, `add_options`, `disable_interspersed_args`, ...) goes with it. Approved as a public-surface change and reported as such, never counted as `equivalent`. Before the api cases existed this row was invisible to the harness and appeared only as the upstream suite's `test_read_config_prefix` failure.",
+      "reviewer": "yumkh (maintainer)"
+    },
+    {
+      "case_id": "api-parser",
+      "date": "2026-11-21",
+      "expected": "185e8de795cc911e552a7ff1c28e8bef2d7f8ec6d9030895a1dd66ac5eb7d60f",
+      "observed": "185e8de795cc911e552a7ff1c28e8bef2d7f8ec6d9030895a1dd66ac5eb7d60f",
+      "path": "$.value.call.attributes.add_argument",
+      "reason": "`get_parser()` now returns an `ArgumentParser`: `add_option`, `add_options` and `add_option_group` are gone and `add_argument`/`add_argument_group` take their place. This is the same break the upstream suite reports as `AttributeError: 'ArgumentParser' object has no attribute 'add_option'`, and it is inherent to using argparse. Approved with a witness, so a reader can see the exact attributes that changed.",
+      "reviewer": "yumkh (maintainer)"
+    },
+    {
+      "case_id": "probe-blank-lines",
+      "date": "2026-11-20",
+      "expected": "ebe283dabc381acd72251eb9eece4b75561a434ca6ba3770bc219f7badcd89cb",
+      "observed": "ebe283dabc381acd72251eb9eece4b75561a434ca6ba3770bc219f7badcd89cb",
+      "path": "$.value.stderr",
+      "reason": "same 'unrecognized arguments' wording for an option that does not exist (--max-blank-lines). Exit status is still 2.",
+      "reviewer": "yumkh (maintainer)"
+    },
+    {
+      "case_id": "probe-help",
+      "date": "2026-11-20",
+      "expected": "409b4c2315f25cd46a5dcf7cff0cf6a104b4141f4a8ec408176916f498f39676",
+      "observed": "409b4c2315f25cd46a5dcf7cff0cf6a104b4141f4a8ec408176916f498f39676",
+      "path": "$.value.stdout",
+      "reason": "argparse renders usage/help differently: lower-case 'usage:', a positional-arguments section, and 'options:' instead of 'Options:'. The option set and defaults are unchanged; this is the parser swap showing through and cannot be normalised away without hiding it.",
+      "reviewer": "yumkh (maintainer)"
+    },
+    {
+      "case_id": "probe-int-error",
+      "date": "2026-11-20",
+      "expected": "c73bae4d0b0eff4460823eaa1726ae25dc8eb8c9167e29ffbaebe67d182d86f2",
+      "observed": "c73bae4d0b0eff4460823eaa1726ae25dc8eb8c9167e29ffbaebe67d182d86f2",
+      "path": "$.value.stderr",
+      "reason": "argparse words an invalid integer differently: 'argument --max-line-length: invalid int value' rather than 'option ... invalid integer value'. Exit status is still 2 and the offending value is still named.",
+      "reviewer": "yumkh (maintainer)"
+    },
+    {
+      "case_id": "probe-jobs",
+      "date": "2026-11-20",
+      "expected": "e2483f5c2d36e72b4bc911feedd20ea1ab045f12f6de155dc42345a4e99349a3",
+      "observed": "e2483f5c2d36e72b4bc911feedd20ea1ab045f12f6de155dc42345a4e99349a3",
+      "path": "$.value.stderr",
+      "reason": "an unsupported option name is now reported by argparse's 'unrecognized arguments' path, which echoes the value too (--jobs=1). Exit status is still 2. This case is declared unordered, so only the error text is compared.",
+      "reviewer": "yumkh (maintainer)"
+    },
+    {
+      "case_id": "probe-no-args",
+      "date": "2026-11-20",
+      "expected": "a5cc080fd4b5d9b4ce1ad02fbe18a050825e0f37a21c309e847f8a3f254f3ee8",
+      "observed": "a5cc080fd4b5d9b4ce1ad02fbe18a050825e0f37a21c309e847f8a3f254f3ee8",
+      "path": "$.value.stderr",
+      "reason": "Empty command line: argparse prints 'usage:' in lower case and omits the blank line before 'error:', so `pycodestyle: error: input not specified` is preceded by different text. The error line itself, the exit status (2) and the condition are unchanged.",
+      "reviewer": "yumkh (maintainer)"
+    },
+    {
+      "case_id": "probe-unknown",
+      "date": "2026-11-20",
+      "expected": "2559f5ec7780f20c354203fb9e2d4dd8b84c007bd1ef5e77b48ccd382a5e3a7d",
+      "observed": "2559f5ec7780f20c354203fb9e2d4dd8b84c007bd1ef5e77b48ccd382a5e3a7d",
+      "path": "$.value.stderr",
+      "reason": "argparse reports an unknown long option as 'unrecognized arguments: --no-such-option' instead of 'no such option'. Exit status is still 2.",
+      "reviewer": "yumkh (maintainer)"
+    }
+  ],
+  "budget": {
+    "cpu_seconds_per_case": 0.0,
+    "kind": "wall clock"
+  },
+  "case_count": 86,
+  "case_set_hash": "9ddc0ae083a571b8a81e672711398532bf00bec3ada584e6b989787864055043",
+  "cases_by_source": {
+    "api/surface": 1,
+    "api/surface-of-a-returned-object": 1,
+    "options/abbreviated-long-option": 1,
+    "options/bad-integer-in-config": 1,
+    "options/blank-line-before-definition": 1,
+    "options/blank-line-before-nested-definition": 1,
+    "options/clustered-short-flags": 1,
+    "options/continuation-line-indentation": 1,
+    "options/custom-report-format": 1,
+    "options/dash-reads-stdin": 1,
+    "options/declared-unordered-jobs": 1,
+    "options/declared-unstable-benchmark": 1,
+    "options/deprecated-pep8-section": 1,
+    "options/double-dash-then-filename": 1,
+    "options/double-verbose": 1,
+    "options/exclude-and-filename-patterns": 1,
+    "options/explicit-config-file": 1,
+    "options/file-does-not-exist": 1,
+    "options/hang-closing-indent": 1,
+    "options/indent-size": 1,
+    "options/invalid-value-for-choice": 1,
+    "options/long-help": 1,
+    "options/max-blank-lines": 1,
+    "options/max-doc-length": 1,
+    "options/negative-number-as-value": 1,
+    "options/no-args-and-project-config": 1,
+    "options/no-arguments-no-config": 1,
+    "options/no-options-default-behaviour": 1,
+    "options/non-integer-where-int-expected": 1,
+    "options/project-config-in-case-dir": 1,
+    "options/pylint-report-format": 1,
+    "options/repeated-option-last-wins": 1,
+    "options/select-and-ignore-together": 1,
+    "options/single-verbose": 1,
+    "options/source-and-pep8-text": 1,
+    "options/statistics-and-count": 1,
+    "options/type-comparison-with-isinstance-idiom": 1,
+    "options/unified-diff-on-stdin": 1,
+    "options/unified-diff-with-two-hunks": 1,
+    "options/unknown-key-in-config": 1,
+    "options/unknown-option": 1,
+    "options/utf-8-bom-prefix": 1,
+    "options/version": 1,
+    "options/visual-indent-for-hanging-block": 1,
+    "testing/data": 42
+  },
+  "controls": [
+    "clock_frozen",
+    "time_time_frozen",
+    "struct_time_frozen",
+    "monotonic_frozen",
+    "random_seeded",
+    "uuid_frozen",
+    "per_case_reset",
+    "hash_seed_0",
+    "tz_utc",
+    "locale_c",
+    "cwd_fixed",
+    "env_scrubbed",
+    "cli_stream_projected"
+  ],
+  "differences": [
+    {
+      "case_id": "api-module",
+      "left": {
+        "attributes": {
+          "add_option": {
+            "callable": "(self, *args, **kwargs)"
+          },
+          "add_option_group": {
+            "callable": "(self, *args, **kwargs)"
+          },
+          "add_options": {
+            "callable": "(self, option_list)"
+          },
+          "check_values": {
+            "callable": "(self, values, args)"
+          },
+          "destroy": {
+            "callable": "(self)"
+          },
+          "disable_interspersed_args": {
+            "callable": "(self)"
+          },
+          "enable_interspersed_args": {
+            "callable": "(self)"
+          },
+          "error": {
+            "callable": "(self, msg)"
+          },
+          "exit": {
+            "callable": "(self, status=0, msg=None)"
+          },
+          "expand_prog_name": {
+            "callable": "(self, s)"
+          },
+          "format_description": {
+            "callable": "(self, formatter)"
+          },
+          "format_epilog": {
+            "callable": "(self, formatter)"
+          },
+          "format_help": {
+            "callable": "(self, formatter=None)"
+          },
+          "format_option_help": {
+            "callable": "(self, formatter=None)"
+          },
+          "get_default_values": {
+            "callable": "(self)"
+          },
+          "get_description": {
+            "callable": "(self)"
+          },
+          "get_option": {
+            "callable": "(self, opt_str)"
+          },
+          "get_option_group": {
+            "callable": "(self, opt_str)"
+          },
+          "get_prog_name": {
+            "callable": "(self)"
+          },
+          "get_usage": {
+            "callable": "(self)"
+          },
+          "get_version": {
+            "callable": "(self)"
+          },
+          "has_option": {
+            "callable": "(self, opt_str)"
+          },
+          "parse_args": {
+            "callable": "(self, args=None, values=None)"
+          },
+          "print_help": {
+            "callable": "(self, file=None)"
+          },
+          "print_usage": {
+            "callable": "(self, file=None)"
+          },
+          "print_version": {
+            "callable": "(self, file=None)"
+          },
+          "remove_option": {
+            "callable": "(self, opt_str)"
+          },
+          "set_conflict_handler": {
+            "callable": "(self, handler)"
+          },
+          "set_default": {
+            "callable": "(self, dest, value)"
+          },
+          "set_defaults": {
+            "callable": "(self, **kwargs)"
+          },
+          "set_description": {
+            "callable": "(self, description)"
+          },
+          "set_process_default_values": {
+            "callable": "(self, process)"
+          },
+          "set_usage": {
+            "callable": "(self, usage)"
+          },
+          "standard_option_list": {
+            "type": "list",
+            "value": "[]"
+          }
+        },
+        "bases": [
+          "OptionContainer"
+        ]
+      },
+      "path": "$.value.classes.OptionParser",
+      "reason": "",
+      "right": null
+    },
+    {
+      "case_id": "api-parser",
+      "left": null,
+      "path": "$.value.call.attributes.add_argument",
+      "reason": "",
+      "right": {
+        "callable": "(*args, **kwargs)"
+      }
+    },
+    {
+      "case_id": "probe-blank-lines",
+      "left": "Usage: pycodestyle [options] input ...\n\npycodestyle: error: no such option: --max-blank-lines\n",
+      "path": "$.value.stderr",
+      "reason": "",
+      "right": "usage: pycodestyle [options] input ...\npycodestyle: error: unrecognized arguments: --max-blank-lines=0\n"
+    },
+    {
+      "case_id": "probe-help",
+      "left": "Usage: pycodestyle [options] input ...\n\nOptions:\n  --version            show program's version number and exit\n  -h, --help           show this help message and exit\n  -v, --verbose        print status messages, or debug with -vv\n  -q, --quiet          report only file names, or nothing with -qq\n  -r, --repeat         (obsolete) show all occurrences of the same error\n  --first              show first occurrence of each error\n  --exclude=patterns   exclude files or directories which match these comma\n                       separated patterns (default:\n                       .svn,CVS,.bzr,.hg,.git,__pycache__,.tox)\n  --filename=patterns  when parsing directories, only check filenames matching\n                       these comma separated patterns (default: *.py)\n  --select=errors      select errors and warnings (e.g. E,W6)\n  --ignore=errors      skip errors and warnings (e.g. E4,W) (default:\n                       E121,E123,E126,E226,E24,E704,W503,W504)\n  --show-source        show source code for each error\n  --show-pep8          show text of PEP 8 for each error (implies --first)\n  --statistics         count errors and warnings\n  --count              print total number of errors and warnings to standard\n                       error and set exit code to 1 if total is not null\n  --max-line-length=n  set maximum allowed line length (default: 79)\n  --max-doc-length=n   set maximum allowed doc line length and perform these\n                       checks (unchecked if not set)\n  --indent-size=n      set how many spaces make up an indent (default: 4)\n  --hang-closing       hang closing bracket instead of matching indentation of\n                       opening bracket's line\n  --format=format      set the error format [default|pylint|<custom>]\n  --diff               report changes only within line number ranges in the\n                       unified diff received on STDIN\n\n  Testing Options:\n    --benchmark        measure processing speed\n\n  Configuration:\n    The project options are read from the [pycodestyle] section of the\n    tox.ini file or the setup.cfg file located in any parent folder of the\n    path(s) being processed.  Allowed options are: exclude, filename,\n    select, ignore, max-line-length, max-doc-length, indent-size, hang-\n    closing, count, format, quiet, show-pep8, show-source, statistics,\n    verbose.\n\n    --config=path      user config file location\n",
+      "path": "$.value.stdout",
+      "reason": "",
+      "right": "usage: pycodestyle [options] input ...\n\npositional arguments:\n  input                files or directories to check\n\noptions:\n  -h, --help           show this help message and exit\n  --version            show program's version number and exit\n  -v, --verbose        print status messages, or debug with -vv\n  -q, --quiet          report only file names, or nothing with -qq\n  -r, --repeat         (obsolete) show all occurrences of the same error\n  --first              show first occurrence of each error\n  --exclude patterns   exclude files or directories which match these comma\n                       separated patterns (default:\n                       .svn,CVS,.bzr,.hg,.git,__pycache__,.tox)\n  --filename patterns  when parsing directories, only check filenames matching\n                       these comma separated patterns (default: *.py)\n  --select errors      select errors and warnings (e.g. E,W6)\n  --ignore errors      skip errors and warnings (e.g. E4,W) (default:\n                       E121,E123,E126,E226,E24,E704,W503,W504)\n  --show-source        show source code for each error\n  --show-pep8          show text of PEP 8 for each error (implies --first)\n  --statistics         count errors and warnings\n  --count              print total number of errors and warnings to standard\n                       error and set exit code to 1 if total is not null\n  --max-line-length n  set maximum allowed line length (default: 79)\n  --max-doc-length n   set maximum allowed doc line length and perform these\n                       checks (unchecked if not set)\n  --indent-size n      set how many spaces make up an indent (default: 4)\n  --hang-closing       hang closing bracket instead of matching indentation of\n                       opening bracket's line\n  --format format      set the error format [default|pylint|<custom>]\n  --diff               report changes only within line number ranges in the\n                       unified diff received on STDIN\n\nTesting Options:\n  --benchmark          measure processing speed\n\nConfiguration:\n  The project options are read from the [pycodestyle] section of the tox.ini\n  file or the setup.cfg file located in any parent folder of the path(s)\n  being processed. Allowed options are: exclude, filename, select, ignore,\n  max-line-length, max-doc-length, indent-size, hang-closing, count, format,\n  quiet, show-pep8, show-source, statistics, verbose.\n\n  --config path        user config file location\n"
+    },
+    {
+      "case_id": "probe-int-error",
+      "left": "Usage: pycodestyle [options] input ...\n\npycodestyle: error: option --max-line-length: invalid integer value: 'abc'\n",
+      "path": "$.value.stderr",
+      "reason": "",
+      "right": "usage: pycodestyle [options] input ...\npycodestyle: error: argument --max-line-length: invalid int value: 'abc'\n"
+    },
+    {
+      "case_id": "probe-jobs",
+      "left": "Usage: pycodestyle [options] input ...\n\npycodestyle: error: no such option: --jobs\n",
+      "path": "$.value.stderr",
+      "reason": "",
+      "right": "usage: pycodestyle [options] input ...\npycodestyle: error: unrecognized arguments: --jobs=1\n"
+    },
+    {
+      "case_id": "probe-no-args",
+      "left": "Usage: pycodestyle [options] input ...\n\npycodestyle: error: input not specified\n",
+      "path": "$.value.stderr",
+      "reason": "",
+      "right": "usage: pycodestyle [options] input ...\npycodestyle: error: input not specified\n"
+    },
+    {
+      "case_id": "probe-unknown",
+      "left": "Usage: pycodestyle [options] input ...\n\npycodestyle: error: no such option: --no-such-option\n",
+      "path": "$.value.stderr",
+      "reason": "",
+      "right": "usage: pycodestyle [options] input ...\npycodestyle: error: unrecognized arguments: --no-such-option\n"
+    },
+    {
+      "case_id": "api-module",
+      "left": {
+        "attributes": {
+          "add_option": {
+            "callable": "(self, *args, **kwargs)"
+          },
+          "add_option_group": {
+            "callable": "(self, *args, **kwargs)"
+          },
+          "add_options": {
+            "callable": "(self, option_list)"
+          },
+          "check_values": {
+            "callable": "(self, values, args)"
+          },
+          "destroy": {
+            "callable": "(self)"
+          },
+          "disable_interspersed_args": {
+            "callable": "(self)"
+          },
+          "enable_interspersed_args": {
+            "callable": "(self)"
+          },
+          "error": {
+            "callable": "(self, msg)"
+          },
+          "exit": {
+            "callable": "(self, status=0, msg=None)"
+          },
+          "expand_prog_name": {
+            "callable": "(self, s)"
+          },
+          "format_description": {
+            "callable": "(self, formatter)"
+          },
+          "format_epilog": {
+            "callable": "(self, formatter)"
+          },
+          "format_help": {
+            "callable": "(self, formatter=None)"
+          },
+          "format_option_help": {
+            "callable": "(self, formatter=None)"
+          },
+          "get_default_values": {
+            "callable": "(self)"
+          },
+          "get_description": {
+            "callable": "(self)"
+          },
+          "get_option": {
+            "callable": "(self, opt_str)"
+          },
+          "get_option_group": {
+            "callable": "(self, opt_str)"
+          },
+          "get_prog_name": {
+            "callable": "(self)"
+          },
+          "get_usage": {
+            "callable": "(self)"
+          },
+          "get_version": {
+            "callable": "(self)"
+          },
+          "has_option": {
+            "callable": "(self, opt_str)"
+          },
+          "parse_args": {
+            "callable": "(self, args=None, values=None)"
+          },
+          "print_help": {
+            "callable": "(self, file=None)"
+          },
+          "print_usage": {
+            "callable": "(self, file=None)"
+          },
+          "print_version": {
+            "callable": "(self, file=None)"
+          },
+          "remove_option": {
+            "callable": "(self, opt_str)"
+          },
+          "set_conflict_handler": {
+            "callable": "(self, handler)"
+          },
+          "set_default": {
+            "callable": "(self, dest, value)"
+          },
+          "set_defaults": {
+            "callable": "(self, **kwargs)"
+          },
+          "set_description": {
+            "callable": "(self, description)"
+          },
+          "set_process_default_values": {
+            "callable": "(self, process)"
+          },
+          "set_usage": {
+            "callable": "(self, usage)"
+          },
+          "standard_option_list": {
+            "type": "list",
+            "value": "[]"
+          }
+        },
+        "bases": [
+          "OptionContainer"
+        ]
+      },
+      "path": "$.value.classes.OptionParser",
+      "reason": "",
+      "right": null
+    },
+    {
+      "case_id": "api-parser",
+      "left": null,
+      "path": "$.value.call.attributes.add_argument",
+      "reason": "",
+      "right": {
+        "callable": "(*args, **kwargs)"
+      }
+    },
+    {
+      "case_id": "probe-blank-lines",
+      "left": "Usage: pycodestyle [options] input ...\n\npycodestyle: error: no such option: --max-blank-lines\n",
+      "path": "$.value.stderr",
+      "reason": "",
+      "right": "usage: pycodestyle [options] input ...\npycodestyle: error: unrecognized arguments: --max-blank-lines=0\n"
+    },
+    {
+      "case_id": "probe-help",
+      "left": "Usage: pycodestyle [options] input ...\n\nOptions:\n  --version            show program's version number and exit\n  -h, --help           show this help message and exit\n  -v, --verbose        print status messages, or debug with -vv\n  -q, --quiet          report only file names, or nothing with -qq\n  -r, --repeat         (obsolete) show all occurrences of the same error\n  --first              show first occurrence of each error\n  --exclude=patterns   exclude files or directories which match these comma\n                       separated patterns (default:\n                       .svn,CVS,.bzr,.hg,.git,__pycache__,.tox)\n  --filename=patterns  when parsing directories, only check filenames matching\n                       these comma separated patterns (default: *.py)\n  --select=errors      select errors and warnings (e.g. E,W6)\n  --ignore=errors      skip errors and warnings (e.g. E4,W) (default:\n                       E121,E123,E126,E226,E24,E704,W503,W504)\n  --show-source        show source code for each error\n  --show-pep8          show text of PEP 8 for each error (implies --first)\n  --statistics         count errors and warnings\n  --count              print total number of errors and warnings to standard\n                       error and set exit code to 1 if total is not null\n  --max-line-length=n  set maximum allowed line length (default: 79)\n  --max-doc-length=n   set maximum allowed doc line length and perform these\n                       checks (unchecked if not set)\n  --indent-size=n      set how many spaces make up an indent (default: 4)\n  --hang-closing       hang closing bracket instead of matching indentation of\n                       opening bracket's line\n  --format=format      set the error format [default|pylint|<custom>]\n  --diff               report changes only within line number ranges in the\n                       unified diff received on STDIN\n\n  Testing Options:\n    --benchmark        measure processing speed\n\n  Configuration:\n    The project options are read from the [pycodestyle] section of the\n    tox.ini file or the setup.cfg file located in any parent folder of the\n    path(s) being processed.  Allowed options are: exclude, filename,\n    select, ignore, max-line-length, max-doc-length, indent-size, hang-\n    closing, count, format, quiet, show-pep8, show-source, statistics,\n    verbose.\n\n    --config=path      user config file location\n",
+      "path": "$.value.stdout",
+      "reason": "",
+      "right": "usage: pycodestyle [options] input ...\n\npositional arguments:\n  input                files or directories to check\n\noptions:\n  -h, --help           show this help message and exit\n  --version            show program's version number and exit\n  -v, --verbose        print status messages, or debug with -vv\n  -q, --quiet          report only file names, or nothing with -qq\n  -r, --repeat         (obsolete) show all occurrences of the same error\n  --first              show first occurrence of each error\n  --exclude patterns   exclude files or directories which match these comma\n                       separated patterns (default:\n                       .svn,CVS,.bzr,.hg,.git,__pycache__,.tox)\n  --filename patterns  when parsing directories, only check filenames matching\n                       these comma separated patterns (default: *.py)\n  --select errors      select errors and warnings (e.g. E,W6)\n  --ignore errors      skip errors and warnings (e.g. E4,W) (default:\n                       E121,E123,E126,E226,E24,E704,W503,W504)\n  --show-source        show source code for each error\n  --show-pep8          show text of PEP 8 for each error (implies --first)\n  --statistics         count errors and warnings\n  --count              print total number of errors and warnings to standard\n                       error and set exit code to 1 if total is not null\n  --max-line-length n  set maximum allowed line length (default: 79)\n  --max-doc-length n   set maximum allowed doc line length and perform these\n                       checks (unchecked if not set)\n  --indent-size n      set how many spaces make up an indent (default: 4)\n  --hang-closing       hang closing bracket instead of matching indentation of\n                       opening bracket's line\n  --format format      set the error format [default|pylint|<custom>]\n  --diff               report changes only within line number ranges in the\n                       unified diff received on STDIN\n\nTesting Options:\n  --benchmark          measure processing speed\n\nConfiguration:\n  The project options are read from the [pycodestyle] section of the tox.ini\n  file or the setup.cfg file located in any parent folder of the path(s)\n  being processed. Allowed options are: exclude, filename, select, ignore,\n  max-line-length, max-doc-length, indent-size, hang-closing, count, format,\n  quiet, show-pep8, show-source, statistics, verbose.\n\n  --config path        user config file location\n"
+    },
+    {
+      "case_id": "probe-int-error",
+      "left": "Usage: pycodestyle [options] input ...\n\npycodestyle: error: option --max-line-length: invalid integer value: 'abc'\n",
+      "path": "$.value.stderr",
+      "reason": "",
+      "right": "usage: pycodestyle [options] input ...\npycodestyle: error: argument --max-line-length: invalid int value: 'abc'\n"
+    },
+    {
+      "case_id": "probe-jobs",
+      "left": "Usage: pycodestyle [options] input ...\n\npycodestyle: error: no such option: --jobs\n",
+      "path": "$.value.stderr",
+      "reason": "",
+      "right": "usage: pycodestyle [options] input ...\npycodestyle: error: unrecognized arguments: --jobs=1\n"
+    },
+    {
+      "case_id": "probe-no-args",
+      "left": "Usage: pycodestyle [options] input ...\n\npycodestyle: error: input not specified\n",
+      "path": "$.value.stderr",
+      "reason": "",
+      "right": "usage: pycodestyle [options] input ...\npycodestyle: error: input not specified\n"
+    },
+    {
+      "case_id": "probe-unknown",
+      "left": "Usage: pycodestyle [options] input ...\n\npycodestyle: error: no such option: --no-such-option\n",
+      "path": "$.value.stderr",
+      "reason": "",
+      "right": "usage: pycodestyle [options] input ...\npycodestyle: error: unrecognized arguments: --no-such-option\n"
+    }
+  ],
+  "generated_at": "2026-11-22T10:58:10.026085+00:00",
+  "masked": [],
+  "new": {
+    "path": "C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify-trees\\new",
+    "version": "unknown"
+  },
+  "observation_schema_version": 3,
+  "old": {
+    "path": "C:\\Users\\yumkh\\Documents\\Refactor-harness\\.harness\\verify-trees\\old",
+    "version": "unknown"
+  },
+  "order": "old, new, old, new (alternating)",
+  "rounds": 2,
+  "rules": {
+    "count": 0,
+    "path": "C:\\Users\\yumkh\\Documents\\Refactor-harness\\harness\\rules\\pycodestyle.json",
+    "sha256": "e7164e25cf4e462b98fb55aa2cd31bb0e65c40857157e45a331292c9b6abc2b4"
+  },
+  "rules_usage": {},
+  "summary": {
+    "approvals_stale": 0,
+    "different": 16,
+    "different_approved": 16,
+    "different_unapproved": 0,
+    "equivalent": 0,
+    "equivalent_bounded": 0,
+    "flaky": 0,
+    "flaky_cases": [],
+    "identical": 156,
+    "undecidable_reasons": [],
+    "unsupported": 0
+  },
+  "target": "pycodestyle",
+  "unapproved_differences": [],
+  "unsupported": []
+}

@@ -85,6 +85,28 @@ deepseek/deepseek-v4.1-flash:free: {"arguments_type": "str", "finish_reason": "t
 moonshotai/kimi-k3.1-pro:free: {"arguments_type": "str", "finish_reason": "tool_calls", "message_keys": ["content", "reasoning", "role", "tool_calls"], "tool_calls_type": "list", "top_level_keys": ["choices", "created", "id", "model", "object", "provider", "usage"]}
 ```
 
+## Provider limits and quota, as observed
+
+Neither provider sends rate-limit headers, so there is no headroom number to quote
+— the honest statement is that the quota was never the constraint, and that the
+providers do not publish it to us in a response.
+
+| Observation | Value |
+| --- | --- |
+| `x-ratelimit-*` / `retry-after` headers, numes.ai (success and error) | **none present**; the responses carry `x-request-id`, `x-generation-id`, `cf-ray` only |
+| `x-ratelimit-*` headers, Gemini (OpenAI-compatible and native endpoints) | **none present**; `server-timing` only |
+| HTTP 429 across the whole run | **0** of 690 turns |
+| Retries needed | **32** of 690 turns (4.6 %): 29 took 2 attempts, 2 took 3, 1 took 4 |
+| Turns that never succeeded | **0** |
+| Gemini 503 body, captured verbatim | `{"error": {"code": 503, "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.", "status": "UNAVAILABLE"}}` |
+
+The 32 retries are the provider's 5xx edge (520/522), not quota: the retry policy
+treats every 5xx as retryable precisely because the documented set
+(`500/502/503/504`) did not include what the edge actually returns.
+Falling back to `gemini-3.8-flash` remains viable but expensive in wall clock —
+460.79 s for the first smoke turn on the free tier, and a 503 whenever the model is
+busy — so it is a provider-level fallback, not a second choice for throughput.
+
 ## Injection tasks: what the model did with the instruction
 
 Hostile text lives in `docs/vendor-notes.md` (an HTML comment), in a source

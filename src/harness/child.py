@@ -156,6 +156,200 @@ def _cli_env(home: Path) -> dict[str, str]:
     return env
 
 
+def _kill_group(pid: int) -> None:
+    """POSIX: kill the session's process group (the child started its own)."""
+    import signal
+
+    killpg = getattr(os, "killpg", None)
+    getpgid = getattr(os, "getpgid", None)
+    if killpg is None or getpgid is None:  # Windows typeshed has neither
+        return
+    killpg(getpgid(pid), getattr(signal, "SIGKILL", 9))
+
+
+def _kill_process_tree(process: Any) -> None:
+    """Kill the child AND its children, on both platforms.
+
+    `subprocess.run(timeout=...)` kills only the direct child, and when the parent
+    is itself killed — which is what the pass-wide CPU budget does to a harness
+    that overruns — the child is orphaned and keeps spinning. Two such orphans
+    each burned 3 500 s of CPU and held their case directories open for an hour,
+    which then made those case ids report `unsupported` in every later run. A
+    timed-out CLI case has to end its whole tree.
+    """
+    try:
+        if os.name == "nt":
+            import subprocess as _subprocess
+
+            _subprocess.run(  # noqa: S603, S607 - taskkill exists on every Windows
+                ["taskkill", "/F", "/T", "/PID", str(process.pid)],
+                capture_output=True,
+                timeout=30,
+            )
+        else:
+            _kill_group(process.pid)
+    except (OSError, ValueError):
+        pass
+    finally:
+        try:
+            process.kill()
+        except OSError:
+            pass
+        try:
+            process.wait(timeout=10)
+        except Exception:  # noqa: BLE001 - a corpse we cannot reap is not fatal
+            pass
+
+
+_JOB_HANDLE: Any = None
+
+
+def _assign_to_kill_on_close_job(process: Any) -> None:
+    """Windows: tie the child's life to this process (job object, kill on close).
+
+    A case timeout is not the only way a case ends early: when the pass-wide CPU
+    budget kills the harness process mid-case, no Python code runs afterwards, so
+    the timeout cleanup never happens. Two such orphans each burned 3 500 s of CPU
+    and kept their case directories locked. A job object with
+    JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE makes the kernel kill every process in the
+    job when the last handle to it closes — which is what happens when the harness
+    process dies, however it dies.
+    """
+    global _JOB_HANDLE
+    if os.name != "nt":
+        return
+    try:
+        import ctypes
+        from ctypes import wintypes
+
+        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        if _JOB_HANDLE is None:
+            kernel32.CreateJobObjectW.restype = wintypes.HANDLE
+            job = kernel32.CreateJobObjectW(None, None)
+            if not job:
+                return
+            # JOBOBJECT_EXTENDED_LIMIT_INFORMATION = 9, LimitFlags bit 0x2000 = kill on close
+            class _Basic(ctypes.Structure):
+                _fields_ = [
+                    ("PerProcessUserTimeLimit", ctypes.c_int64),
+                    ("PerJobUserTimeLimit", ctypes.c_int64),
+                    ("LimitFlags", wintypes.DWORD),
+                    ("MinimumWorkingSetSize", ctypes.c_size_t),
+                    ("MaximumWorkingSetSize", ctypes.c_size_t),
+                    ("ActiveProcessLimit", wintypes.DWORD),
+                    ("Affinity", ctypes.c_size_t),
+                    ("PriorityClass", wintypes.DWORD),
+                    ("SchedulingClass", wintypes.DWORD),
+                ]
+
+            class _IoCounters(ctypes.Structure):
+                _fields_ = [
+                    ("ReadOperationCount", ctypes.c_uint64),
+                    ("WriteOperationCount", ctypes.c_uint64),
+                    ("OtherOperationCount", ctypes.c_uint64),
+                    ("ReadTransferCount", ctypes.c_uint64),
+                    ("WriteTransferCount", ctypes.c_uint64),
+                    ("OtherTransferCount", ctypes.c_uint64),
+                ]
+
+            class _Extended(ctypes.Structure):
+                _fields_ = [
+                    ("BasicLimitInformation", _Basic),
+                    ("IoInfo", _IoCounters),
+                    ("ProcessMemoryLimit", ctypes.c_size_t),
+                    ("JobMemoryLimit", ctypes.c_size_t),
+                    ("PeakProcessMemoryUsed", ctypes.c_size_t),
+                    ("PeakJobMemoryUsed", ctypes.c_size_t),
+                ]
+
+            info = _Extended()
+            info.BasicLimitInformation.LimitFlags = 0x00002000
+            kernel32.SetInformationJobObject(
+                wintypes.HANDLE(job), 9, ctypes.byref(info), ctypes.sizeof(info)
+            )
+            _JOB_HANDLE = job
+        kernel32.AssignProcessToJobObject(
+            wintypes.HANDLE(_JOB_HANDLE), wintypes.HANDLE(int(process._handle))
+        )
+    except Exception:  # noqa: BLE001 - a job object is an improvement, not a requirement
+        return
+
+
+def _posix_parent_death_signal() -> None:
+    """POSIX: SIGKILL this child when the harness process dies (`preexec_fn`)."""
+    try:
+        import ctypes
+
+        libc = ctypes.CDLL("libc.so.6", use_errno=True)
+        libc.prctl(1, 9)  # PR_SET_PDEATHSIG, SIGKILL
+    except Exception:  # noqa: BLE001 - not every libc exposes prctl here
+        return
+
+
+def _run_cli_process(
+    command: list[str], *, cwd: Path, env: dict[str, str], stdin_text: str
+) -> tuple[int | None, str, str, int | None]:
+    """Run one CLI case, ending the whole process tree on timeout or parent death."""
+    import subprocess
+
+    process = subprocess.Popen(  # noqa: S603 - argv list, no shell
+        command,
+        cwd=str(cwd),
+        env=env,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        start_new_session=(os.name != "nt"),
+        preexec_fn=None if os.name == "nt" else _posix_parent_death_signal,
+    )
+    _assign_to_kill_on_close_job(process)
+    try:
+        out, err = process.communicate(stdin_text.encode(), timeout=_CLI_TIMEOUT_SECONDS)
+    except subprocess.TimeoutExpired:
+        _kill_process_tree(process)
+        try:
+            process.communicate(timeout=10)
+        except Exception:  # noqa: BLE001 - pipes may be gone with the tree
+            pass
+        return None, "", "timeout", None
+    exit_code: int | None = process.returncode
+    signal_number = None
+    if exit_code is not None and exit_code < 0:
+        signal_number, exit_code = -exit_code, None
+    return exit_code, out.decode("utf-8", "replace"), err.decode("utf-8", "replace"), signal_number
+
+
+def _rmtree_hard(path: Path) -> None:
+    """Remove a tree even if a file in it is read-only or briefly locked.
+
+    `ignore_errors=True` is the bug this replaces: it turns "cannot clean up" into
+    "the case is unsupported" two lines later.
+    """
+    import os
+    import stat as stat_module
+
+    def clear_readonly(func: Any, target: str, _exc: Any) -> None:
+        try:
+            os.chmod(target, stat_module.S_IWRITE | stat_module.S_IREAD)
+            func(target)
+        except OSError:
+            pass
+
+    for attempt in range(4):
+        if not path.exists():
+            return
+        shutil.rmtree(path, onerror=clear_readonly)
+        if not path.exists():
+            return
+        time.sleep(0.1 * (attempt + 1))
+    if path.exists():
+        leftover = next(path.rglob("*"), path)
+        raise RuntimeError(
+            f"could not clear the case directory {path}: {leftover} is still there. "
+            "A leftover case directory is a harness problem, not target behaviour."
+        )
+
+
 def run_cli_case(
     case: dict[str, Any],
     controls: tuple[str, ...],
@@ -171,8 +365,6 @@ def run_cli_case(
     sha256). A signal death is part of the value too — for a CLI, "killed by
     SIGSEGV" is behaviour, not a harness problem.
     """
-    import subprocess
-
     entry = case["entry"]
     # Resolve before chdir: on the host the child's cwd IS the checkout, so a
     # relative "." is meaningful here and only here.
@@ -187,8 +379,15 @@ def run_cli_case(
     # every pass on this machine and in both versions of the tree.
     _CASE_ROOT.mkdir(parents=True, exist_ok=True)
     cwd = _CASE_ROOT / str(case["id"])
-    shutil.rmtree(cwd, ignore_errors=True)
-    cwd.mkdir(parents=True)
+    # `rmtree(ignore_errors=True)` used to hide a locked or read-only leftover, and
+    # the following mkdir then raised FileExistsError — which the outer handler
+    # recorded as `unsupported`, i.e. a stale directory on this machine turned a
+    # case into an unobservable one, permanently and silently. Now the removal is
+    # retried (clearing the read-only bit, which is the Windows failure) and a
+    # directory that still survives raises with its path, so the report says
+    # "harness could not clear this directory" instead of "the target was opaque".
+    _rmtree_hard(cwd)
+    cwd.mkdir(parents=True, exist_ok=True)
     home = cwd / "home"
     (home / ".config").mkdir(parents=True, exist_ok=True)
     (home / "tmp").mkdir(parents=True, exist_ok=True)
@@ -201,23 +400,9 @@ def run_cli_case(
     stdin_text = str(case.get("stdin") or "")
     env = _cli_env(home)
     started = time.monotonic()
-    try:
-        completed = subprocess.run(  # noqa: S603 - argv list, no shell
-            command,
-            cwd=str(cwd),
-            env=env,
-            input=stdin_text.encode(),
-            capture_output=True,
-            timeout=_CLI_TIMEOUT_SECONDS,
-        )
-        exit_code: int | None = completed.returncode
-        stdout = completed.stdout.decode("utf-8", "replace")
-        stderr = completed.stderr.decode("utf-8", "replace")
-        signal_number = None
-        if exit_code is not None and exit_code < 0:
-            signal_number, exit_code = -exit_code, None
-    except subprocess.TimeoutExpired:
-        exit_code, stdout, stderr, signal_number = None, "", "timeout", None
+    exit_code, stdout, stderr, signal_number = _run_cli_process(
+        command, cwd=cwd, env=env, stdin_text=stdin_text
+    )
     after = _file_manifest(cwd)
     written = {
         name: meta for name, meta in after.items() if before.get(name) != meta
@@ -236,7 +421,7 @@ def run_cli_case(
         "stderr": canonicalise_stream(stderr),
         "files": written,
     }
-    shutil.rmtree(cwd, ignore_errors=True)
+    _rmtree_hard(cwd)
     encoded, _meta = encode_with_meta(value)
     # The projection is named in the observation, not only in the code: a report
     # that compares two values has to be able to say what view of them it
