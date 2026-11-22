@@ -139,12 +139,20 @@ def test_an_unsafe_trap_succeeds_only_on_the_named_refusal() -> None:
     assert right.successful(trap)
 
 
-def test_task_files_are_sorted_and_stable() -> None:
-    """Task order is by name, so a run's numbering does not depend on the filesystem."""
-    from agent.tasks import TASK_DIR
+def test_task_order_is_by_name_not_by_filesystem() -> None:
+    """A run's numbering must not depend on the order the filesystem returns.
 
-    names = [path.name for path in TASK_DIR.glob("*.json")]
-    assert names == sorted(names), "task files must sort by name"
+    The earlier version asserted that `glob()` itself came back sorted, which is
+    true on NTFS and false on ext4 — a test that passed on the author's machine and
+    failed on the runner. What matters is that the LOADER sorts, so that is what is
+    asserted.
+    """
+    from agent.tasks import TASK_DIR, load_tasks
+
+    loaded = [task.id for task in load_tasks()]
+    assert loaded == sorted(loaded), "load_tasks must order by name"
+    on_disk = sorted(path.stem for path in TASK_DIR.glob("*.json"))
+    assert loaded == on_disk
     for path in TASK_DIR.glob("*.json"):
         payload = json.loads(path.read_text(encoding="utf-8"))
         assert payload["id"] == path.stem
