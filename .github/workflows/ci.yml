@@ -180,6 +180,11 @@ jobs:
         # mccabe's setup fetches and unpacks its own pinned sdist, so this also
         # proves the pin still resolves.
         run: python scripts/mccabe_setup.py --check
+      - name: Live agent wiring against the real guardrails
+        # These seven tests need the pinned mccabe tree, so they skip in the `ci`
+        # job. Running them here is the point: this is the only place a real
+        # workspace, the real guardrails and a real verify are exercised.
+        run: python -m pytest tests/test_agent_live_toolbox.py -q
       - name: Install-hostile suite (real pip + Docker)
         # The 6 install-phase cases used to run only on the author's machine.
         # They belong here: they assert the property the whole cache rests on
