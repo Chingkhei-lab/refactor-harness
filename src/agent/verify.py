@@ -92,6 +92,24 @@ def truncate_diff(text: str) -> str:
     return text[:MAX_DIFF_CHARS] + f"…[truncated: {dropped} chars]"
 
 
+#: What a verify compared. Every result says it, because a count without its subject
+#: is the reading error this whole tool is careful about.
+COMPARISON_LABEL = "candidate vs original"
+
+#: `verified` — the candidate differs from the original and was compared against it.
+#: `no_changes` — nothing to compare, and saying "identical" here was read by every
+#: pilot run as "the task is done". Measured: five of six runs called `run_verify` on
+#: an untouched tree, saw `identical=34 different=0`, and finished without patching.
+STATE_VERIFIED = "verified"
+STATE_NO_CHANGES = "no_changes"
+
+NO_CHANGES_MESSAGE = (
+    "no changes: your candidate is identical to the original source, so nothing has "
+    "been verified. Apply a change with apply_patch first, or call give_up if no "
+    "change is warranted."
+)
+
+
 @dataclass
 class VerifyResult:
     """What `run_verify` hands back: counts, and a bounded sample of differences."""
@@ -102,15 +120,28 @@ class VerifyResult:
     unsupported: int
     differences: tuple[CaseDifference, ...] = ()
     truncated: bool = False
+    state: str = STATE_VERIFIED
+    changed_files: tuple[str, ...] = ()
 
     @property
     def ok(self) -> bool:
         return self.different == 0
 
+    @property
+    def verified(self) -> bool:
+        """Whether a real change was compared. A no-change call is not a verify."""
+        return self.state == STATE_VERIFIED
+
     def render(self) -> str:
+        if self.state == STATE_NO_CHANGES:
+            return NO_CHANGES_MESSAGE
         lines = [
+            f"{COMPARISON_LABEL}: "
             f"identical={self.identical} different={self.different} "
             f"approved={self.approved} unsupported={self.unsupported}",
+            # "changed:" not "changed files:" — the fixture set is not a manifest of
+            # the workspace, and a test asserts the word does not appear at all.
+            "changed: " + (", ".join(self.changed_files) if self.changed_files else "none"),
         ]
         if self.differences:
             lines.append(

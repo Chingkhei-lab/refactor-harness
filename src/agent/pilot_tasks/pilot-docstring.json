@@ -1,0 +1,14 @@
+{
+ "allowed_paths": [
+  "mccabe.py"
+ ],
+ "expected": "identical",
+ "id": "pilot-docstring",
+ "instruction": "In `PathGraphingAstVisitor._subgraph`, the docstring starts with a lowercase letter. Capitalise its first word. Change nothing else. Work on the file, then run `run_verify`: it checks a change you have made, so it is a check on your change, never the goal. If no change is warranted, say so with `give_up` and the evidence, rather than submitting unchanged code.",
+ "kind": "mechanical",
+ "max_files": 2,
+ "max_lines": 40,
+ "max_model_calls": 12,
+ "notes": "Pilot only: the smallest possible change that still exercises read, patch, verify and finish.",
+ "target": "mccabe"
+}

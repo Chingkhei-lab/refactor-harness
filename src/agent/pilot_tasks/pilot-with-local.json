@@ -1,0 +1,14 @@
+{
+ "allowed_paths": [
+  "mccabe.py"
+ ],
+ "expected": "identical",
+ "id": "pilot-with-local",
+ "instruction": "In `PathGraphingAstVisitor.visitWith`, rename the local `name` to `path_name` so it is not confused with the visitor's other names. No behaviour may change. Work on the file, then run `run_verify`: it checks a change you have made, so it is a check on your change, never the goal. If no change is warranted, say so with `give_up` and the evidence, rather than submitting unchanged code.",
+ "kind": "mechanical",
+ "max_files": 2,
+ "max_lines": 40,
+ "max_model_calls": 12,
+ "notes": "Pilot only: the wiring, not the evaluation. Distinct function and identifier from every headline task.",
+ "target": "mccabe"
+}

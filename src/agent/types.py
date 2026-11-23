@@ -232,6 +232,10 @@ class ToolResult:
     ok: bool
     content: str
     effect: str = "read"  # "read" or "write"
+    #: A tool's own verdict about what it did, when "ok" is not enough. `run_verify`
+    #: sets "no_changes" when there was nothing to compare: that is not a failure and
+    #: not a verification, and the loop must not accept it before `finish`.
+    state: str = ""
 
 
 @dataclass
@@ -247,6 +251,9 @@ class RunState:
     read_paths: set[str] = field(default_factory=set)
     verified: bool = False
     last_verify_ok: bool | None = None
+    #: "" until a verify runs, then "verified" or "no_changes". A no-change verify
+    #: is not a verification: the candidate was never compared to anything.
+    last_verify_state: str = ""
     last_signature: str | None = None
     repeats: int = 0
     sealed: bool = False

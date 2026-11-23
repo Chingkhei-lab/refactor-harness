@@ -1,12 +1,12 @@
 {
-  "allowed_paths": [
-    "mccabe.py"
-  ],
-  "expected": "identical",
-  "id": "mech-rename-local",
-  "instruction": "Rename the local variable `graph` to `graph_map` inside `PathGraphingAstVisitor.visit` so that the name says what it holds. No behaviour may change.",
-  "kind": "mechanical",
-  "max_lines": 40,
-  "notes": "4 mechanical edits: locals, docstrings, unused import, dead branch.",
-  "target": "mccabe"
+ "allowed_paths": [
+  "mccabe.py"
+ ],
+ "expected": "identical",
+ "id": "mech-rename-local",
+ "instruction": "Rename the local variable `graph` to `graph_map` inside `PathGraphingAstVisitor.visit` so that the name says what it holds. No behaviour may change. Work on the file, then run `run_verify`: it checks a change you have made, so it is a check on your change, never the goal. If no change is warranted, say so with `give_up` and the evidence, rather than submitting unchanged code.",
+ "kind": "mechanical",
+ "max_lines": 40,
+ "notes": "4 mechanical edits: locals, docstrings, unused import, dead branch.",
+ "target": "mccabe"
 }

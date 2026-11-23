@@ -1,11 +1,11 @@
 {
-  "allowed_paths": [
-    "mccabe.py"
-  ],
-  "expected": "identical_or_approved",
-  "id": "idiom-sorted-key",
-  "instruction": "Replace the lambda in `sorted(..., key=lambda item: item.name)` with `operator.attrgetter('name')`.",
-  "kind": "idiom",
-  "max_lines": 20,
-  "target": "mccabe"
+ "allowed_paths": [
+  "mccabe.py"
+ ],
+ "expected": "identical_or_approved",
+ "id": "idiom-sorted-key",
+ "instruction": "Replace the lambda in `sorted(..., key=lambda item: item.name)` with `operator.attrgetter('name')`. Work on the file, then run `run_verify`: it checks a change you have made, so it is a check on your change, never the goal. If no change is warranted, say so with `give_up` and the evidence, rather than submitting unchanged code.",
+ "kind": "idiom",
+ "max_lines": 20,
+ "target": "mccabe"
 }

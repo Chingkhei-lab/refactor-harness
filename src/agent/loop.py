@@ -344,8 +344,12 @@ def run_agent(
             if call.name in READ_TOOLS and result.ok:
                 state.read_paths.add(str(call.arguments.get("path") or ""))
             if call.name == VERIFY_TOOL:
-                state.verified = True
-                state.last_verify_ok = result.ok
+                state.last_verify_state = result.state
+                # A verify on an unchanged tree proves nothing. Counting it as a
+                # verify is how five of six pilot runs reached `finish` without
+                # applying a patch: the tool said "identical, 0 different".
+                state.verified = result.state != "no_changes"
+                state.last_verify_ok = result.ok if result.state != "no_changes" else None
             messages.append(_tool_message(call, result))
 
         state.turn += 1
@@ -359,6 +363,12 @@ def run_agent(
 
 def _finish_refusal(state: RunState, call: ToolCall) -> str | None:
     """The two rules a model may not talk its way past (design §3)."""
+    if state.last_verify_state == "no_changes" and not state.verified:
+        return (
+            "refused: your candidate is identical to the original source, so nothing "
+            "was verified. Apply a change with apply_patch and run `run_verify` again, "
+            "or call `give_up` if no change is warranted."
+        )
     if not state.verified:
         return "refused: run `run_verify` at least once before finishing"
     if state.last_verify_ok is False:

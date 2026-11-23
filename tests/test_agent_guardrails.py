@@ -363,3 +363,25 @@ def test_a_patch_that_carries_both_hunks_and_content_is_judged_on_its_hunks() ->
     assert "dangerous_code" in check(
         bad, workspace={"mccabe.py": current}, allowed_prefixes=("mccabe.py",)
     ).codes
+
+
+#: The other ways a patch can make a suite pass without changing behaviour: the
+#: files pytest itself reads. `addopts = --deselect ...` in `setup.cfg` is a one-line
+#: change that turns a failing suite green, and it is not a test file.
+SUITE_CONFIGURATION = (
+    "conftest.py",
+    "pytest.ini",
+    "tox.ini",
+    "setup.cfg",
+    "pyproject.toml",
+    "setup.py",
+    "Makefile",
+)
+
+
+@pytest.mark.parametrize("path", SUITE_CONFIGURATION)
+def test_the_suite_configuration_is_protected_too(path: str) -> None:
+    """A green suite must mean the code works, not that the runner was told to skip."""
+    proposal = one(patch("addopts = --deselect test_everything\n", path=path))
+    outcome = check(proposal, workspace={path: ""}, allowed_prefixes=(path,))
+    assert PROTECTED_PATH in outcome.codes, outcome.codes

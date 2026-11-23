@@ -1,11 +1,11 @@
 {
-  "allowed_paths": [
-    "mccabe.py"
-  ],
-  "expected": "identical_or_approved",
-  "id": "idiom-fstring",
-  "instruction": "Convert the two `%`-formatted messages in `get_code_complexity` to f-strings.",
-  "kind": "idiom",
-  "max_lines": 20,
-  "target": "mccabe"
+ "allowed_paths": [
+  "mccabe.py"
+ ],
+ "expected": "identical_or_approved",
+ "id": "idiom-fstring",
+ "instruction": "Convert the two `%`-formatted messages in `get_code_complexity` to f-strings. Work on the file, then run `run_verify`: it checks a change you have made, so it is a check on your change, never the goal. If no change is warranted, say so with `give_up` and the evidence, rather than submitting unchanged code.",
+ "kind": "idiom",
+ "max_lines": 20,
+ "target": "mccabe"
 }

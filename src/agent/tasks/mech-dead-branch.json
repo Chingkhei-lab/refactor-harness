@@ -1,11 +1,11 @@
 {
-  "allowed_paths": [
-    "mccabe.py"
-  ],
-  "expected": "identical",
-  "id": "mech-dead-branch",
-  "instruction": "Remove the unreachable `else` branch in `get_code_complexity` that can never execute because the preceding condition returns.",
-  "kind": "mechanical",
-  "max_lines": 20,
-  "target": "mccabe"
+ "allowed_paths": [
+  "mccabe.py"
+ ],
+ "expected": "identical",
+ "id": "mech-dead-branch",
+ "instruction": "Remove the unreachable `else` branch in `get_code_complexity` that can never execute because the preceding condition returns. Work on the file, then run `run_verify`: it checks a change you have made, so it is a check on your change, never the goal. If no change is warranted, say so with `give_up` and the evidence, rather than submitting unchanged code.",
+ "kind": "mechanical",
+ "max_lines": 20,
+ "target": "mccabe"
 }

@@ -169,3 +169,43 @@ def test_truncation_says_how_much_it_cut() -> None:
     cut = truncate_diff(long)
     assert cut.startswith("z" * MAX_DIFF_CHARS)
     assert "truncated: 120 chars" in cut
+
+
+def test_a_verify_on_an_unchanged_candidate_reports_no_changes_not_counts() -> None:
+    """The most expensive reading error in the pilot, fixed at the tool.
+
+    Five of six pilot runs called `run_verify` on a tree they had not touched and were
+    told `identical=34 different=0`. Every one of them then finished without patching,
+    because a model reading counts takes zero differences as "done". The tool now
+    refuses to report counts about nothing.
+    """
+    from agent.verify import (
+        NO_CHANGES_MESSAGE,
+        STATE_NO_CHANGES,
+        STATE_VERIFIED,
+        VerifyResult,
+    )
+
+    unchanged = VerifyResult(
+        identical=0, different=0, approved=0, unsupported=0, state=STATE_NO_CHANGES
+    )
+    rendered = unchanged.render()
+    assert rendered == NO_CHANGES_MESSAGE
+    assert "identical=" not in rendered
+    assert "apply_patch" in rendered
+    assert "give_up" in rendered
+    assert not unchanged.verified
+
+    changed = VerifyResult(
+        identical=33,
+        different=1,
+        approved=0,
+        unsupported=0,
+        state=STATE_VERIFIED,
+        changed_files=("mccabe.py",),
+    )
+    text = changed.render()
+    assert changed.verified
+    # Every result says what is being compared, and to what.
+    assert text.startswith("candidate vs original:")
+    assert "changed: mccabe.py" in text

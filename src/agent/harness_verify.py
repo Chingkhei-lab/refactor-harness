@@ -40,7 +40,12 @@ from harness.observation import Observation
 from harness.rules import load_rules
 from harness.runner import Pass, run_pass
 
-from .verify import CaseDifference, VerifyResult
+from .verify import (
+    STATE_NO_CHANGES,
+    STATE_VERIFIED,
+    CaseDifference,
+    VerifyResult,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -97,6 +102,32 @@ class Golden:
         )
 
 
+def file_manifest(root: Path) -> dict[str, str]:
+    """sha256 of every Python file under `root`, keyed by relative path.
+
+    The candidate's diff is computed from this, not from git: a workspace is a copy
+    of the pinned tree with no history, and a manifest is smaller than a repository
+    and cannot be edited by the patch it is measuring.
+    """
+    manifest: dict[str, str] = {}
+    for path in sorted(root.rglob("*.py")):
+        if "__pycache__" in path.parts:
+            continue
+        manifest[str(path.relative_to(root)).replace("\\", "/")] = hashlib.sha256(
+            path.read_bytes()
+        ).hexdigest()
+    return manifest
+
+
+def changed_paths(before: dict[str, str], after: dict[str, str]) -> list[str]:
+    """Files added, removed or changed between two manifests."""
+    return sorted(
+        name
+        for name in set(before) | set(after)
+        if before.get(name) != after.get(name)
+    )
+
+
 def stage(tree: Path, dest: Path) -> Path:
     """Copy a candidate tree to one fixed path.
 
@@ -141,6 +172,10 @@ class HarnessVerifier:
     cpu_budget_seconds: float = 0.0
     timings: list[float] = field(default_factory=list)
     calls: int = 0
+    #: The pristine tree's manifest. When set, a verify on an unchanged candidate
+    #: reports `no_changes` instead of counts, because "identical, 0 different" on an
+    #: untouched tree reads as "the task is done" to the model reading it.
+    source_manifest: dict[str, str] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         computed = case_set_hash(self.cases)
@@ -155,6 +190,18 @@ class HarnessVerifier:
     def run(self, *, differences: int = 5) -> VerifyResult:
         started = time.monotonic()
         self.calls += 1
+        changed: list[str] = []
+        if self.source_manifest:
+            changed = changed_paths(self.source_manifest, file_manifest(self.workspace))
+            if not changed:
+                self.timings.append(time.monotonic() - started)
+                return VerifyResult(
+                    identical=0,
+                    different=0,
+                    approved=0,
+                    unsupported=0,
+                    state=STATE_NO_CHANGES,
+                )
         index = 1000 + self.calls
         staged = stage(self.workspace, self.workdir / "tree")
         pass_ = run_pass(
@@ -208,6 +255,8 @@ class HarnessVerifier:
             unsupported=unsupported,
             differences=tuple(shown),
             truncated=different > len(shown),
+            state=STATE_VERIFIED,
+            changed_files=tuple(changed),
         )
 
     @property

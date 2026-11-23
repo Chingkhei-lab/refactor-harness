@@ -60,6 +60,7 @@ PROTECTED_PREFIXES: tuple[str, ...] = (
     "pytest.ini",
     "tox.ini",
     "setup.cfg",
+    "setup.py",
     "pyproject.toml",
     "poetry.lock",
     "Pipfile.lock",

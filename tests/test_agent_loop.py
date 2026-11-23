@@ -343,3 +343,34 @@ def test_run_result_is_a_value_not_a_state(clean_db: Any) -> None:
 def test_every_outcome_has_a_reported_reason(outcome: Outcome) -> None:
     assert outcome.value in {"finished", "gave_up", "budget_exhausted"}
     assert Outcome.FAILED.value == "failed"
+
+
+def test_a_no_change_verify_does_not_unlock_finish(clean_db: Any) -> None:
+    """A verify that compared nothing cannot be the reason to submit."""
+    run_id = str(uuid4())
+
+    class NoChangeToolbox(FakeToolbox):
+        def call(self, name: str, arguments: Mapping[str, Any], *, replayed: bool) -> ToolResult:
+            if name == "run_verify":
+                return ToolResult(
+                    ok=False,
+                    content="no changes: your candidate is identical to the original source",
+                    state="no_changes",
+                )
+            return super().call(name, arguments, replayed=replayed)
+
+    client = ScriptedClient(
+        [
+            turn(call("read_file", path="mccabe.py")),
+            turn(call("run_verify")),
+            turn(call("finish", summary="nothing to do")),
+            turn(call("give_up", reason="no change is warranted")),
+        ]
+    )
+    result = run_agent(
+        run_id=run_id, task="rename", deps=deps(clean_db, client, NoChangeToolbox())
+    )
+
+    assert result.outcome is Outcome.GAVE_UP, result.reason
+    refusals = [m["content"] for m in result.messages if m.get("role") == "tool"]
+    assert any("identical to the original source" in text for text in refusals), refusals

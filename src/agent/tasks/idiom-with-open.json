@@ -1,11 +1,11 @@
 {
-  "allowed_paths": [
-    "mccabe.py"
-  ],
-  "expected": "identical_or_approved",
-  "id": "idiom-with-open",
-  "instruction": "Rewrite the manual file open/close in `main` as a `with` block, keeping the same encoding and error handling.",
-  "kind": "idiom",
-  "max_lines": 30,
-  "target": "mccabe"
+ "allowed_paths": [
+  "mccabe.py"
+ ],
+ "expected": "identical_or_approved",
+ "id": "idiom-with-open",
+ "instruction": "Rewrite the manual file open/close in `main` as a `with` block, keeping the same encoding and error handling. Work on the file, then run `run_verify`: it checks a change you have made, so it is a check on your change, never the goal. If no change is warranted, say so with `give_up` and the evidence, rather than submitting unchanged code.",
+ "kind": "idiom",
+ "max_lines": 30,
+ "target": "mccabe"
 }

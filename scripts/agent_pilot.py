@@ -27,7 +27,7 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 from model_router import PROVIDERS, ModelSpec, OpenAICompatible, load_keys  # noqa: E402
 
-from agent.harness_verify import Golden, HarnessVerifier  # noqa: E402
+from agent.harness_verify import Golden, HarnessVerifier, file_manifest  # noqa: E402
 from agent.live import (  # noqa: E402
     ChatClient,
     WorkspaceToolbox,
@@ -54,11 +54,18 @@ PRIMARY = ModelSpec(
     max_tokens=2048,
 )
 
-PILOT_TASKS = ("mech-rename-local", "idiom-dict-get", "trap-special-case")
+#: Separate tasks, separate directory. The pilot is where the tools and the prompt are
+#: tuned, so it must not share a single task with the headline set: three tasks that
+#: shaped the prompt cannot then measure it.
+PILOT_TASK_DIR = REPO_ROOT / "src" / "agent" / "pilot_tasks"
+PILOT_TASKS = ("pilot-with-local", "pilot-docstring", "pilot-no-safe-change")
 
 
 def _task(task_id: str) -> Task:
-    payload = json.loads((TASK_DIR / f"{task_id}.json").read_text(encoding="utf-8"))
+    path = PILOT_TASK_DIR / f"{task_id}.json"
+    if not path.exists():
+        path = TASK_DIR / f"{task_id}.json"
+    payload = json.loads(path.read_text(encoding="utf-8"))
     return Task(
         id=payload["id"],
         kind=payload["kind"],
@@ -106,7 +113,9 @@ def _classify(result: Any, task: Task, gate: Any, toolbox: WorkspaceToolbox) -> 
 
 def run_one(task: Task, *, model: ModelSpec, run_id: str, client: Any, store: CallStore) -> dict:
     workspace = stage_workspace(TREE, WORK / run_id / "workspace")
+    original = file_manifest(TREE)
     visible_verifier = HarnessVerifier(
+        source_manifest=original,
         golden=Golden.load(GOLDEN / "mccabe-visible.json"),
         cases=load_cases(VISIBLE),
         rules_path=RULES,
@@ -119,6 +128,7 @@ def run_one(task: Task, *, model: ModelSpec, run_id: str, client: Any, store: Ca
         rules_path=HIDDEN_RULES,
         workspace=workspace,
         workdir=WORK / run_id / "hidden",
+        source_manifest=original,
     )
     toolbox = WorkspaceToolbox(
         workspace=workspace,
@@ -129,6 +139,10 @@ def run_one(task: Task, *, model: ModelSpec, run_id: str, client: Any, store: Ca
         allowed_patterns=task.allowed_difference_patterns,
         max_files=task.max_files,
         max_lines=task.max_lines,
+        # The pilot measures the wiring, not the oracle: mccabe's hypothesis-driven
+        # suite takes minutes per run, so it is "unavailable" here and exercised at
+        # gate time in the evaluation, with its own budget.
+        suite=(),
     )
     deps = AgentDeps(
         client=ChatClient(client, model, cassette_path=WORK / run_id / "cassette.jsonl"),
@@ -165,7 +179,17 @@ def run_one(task: Task, *, model: ModelSpec, run_id: str, client: Any, store: Ca
     # state as if it were the patch's verdict. The pilot's first run did exactly
     # that and reported `suite_failure` for a run that wrote nothing.
     gate = toolbox.gate() if result is not None and task.kind != "trap" and patched else None
+    # The loop handles `finish` and `give_up` itself, so they never reach the
+    # toolbox. A terminal outcome IS a terminal tool call: both are only reachable by
+    # calling the tool.
+    terminal = [str(result.outcome)] if result is not None and str(result.outcome) in (
+        "finished",
+        "gave_up",
+    ) else []
     record: dict[str, Any] = {
+        # The pilot's acceptance criterion: a run ends in a terminal TOOL call.
+        "terminal_calls": terminal,
+        "ended_in_terminal_call": bool(terminal),
         "task": task.id,
         "kind": task.kind,
         "expected": task.expected,

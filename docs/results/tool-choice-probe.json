@@ -1,0 +1,33 @@
+{
+ "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+ "probes": [
+  {
+   "content": "\n\n",
+   "error_detail": "",
+   "error_type": "",
+   "ok": true,
+   "tool_calls": [
+    "reply"
+   ],
+   "tool_choice": null
+  },
+  {
+   "content": "",
+   "error_detail": "",
+   "error_type": "",
+   "ok": true,
+   "tool_calls": [
+    "reply"
+   ],
+   "tool_choice": "required"
+  },
+  {
+   "content": "2 + 2 equals 4.",
+   "error_detail": "",
+   "error_type": "",
+   "ok": true,
+   "tool_calls": [],
+   "tool_choice": "none"
+  }
+ ]
+}

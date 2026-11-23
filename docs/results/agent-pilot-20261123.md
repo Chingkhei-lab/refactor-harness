@@ -170,3 +170,66 @@ carrying both hunks and content is judged on its hunks.
 No precision number, no injection compliance rate, no per-target harness precision:
 there is no evaluation yet. The verify wiring, the hidden sets, the gate and the
 provider-failure path are tested; the refactoring claim is not.
+
+## 5. Third pilot: separate tasks, `tool_choice`, no-change verify
+
+Three fixes went in before this run, in the order the review asked for.
+
+1. **`run_verify` on an unchanged candidate reports no changes, not counts.** The
+   tool compares the candidate's file manifest with the pinned tree's; when they are
+   equal it returns `no changes: your candidate is identical to the original source,
+   so nothing has been verified. Apply a change with apply_patch first, or call
+   give_up if no change is warranted.` A no-change call **does not satisfy the
+   `finish` precondition**, so it cannot be the reason to submit. Every result now
+   starts `candidate vs original:` and names the changed files.
+2. **`tool_choice: "required"` is honoured**, proved with a control: with
+   `"none"` the same prompt returns prose and no tool call; with `"required"` it
+   returns `reply`. (`docs/results/tool-choice-probe.json`.) Prose is now a protocol
+   impossibility, not something a nudge has to discourage.
+3. **Task instructions** now state that `run_verify` checks a change, never the goal,
+   and name `give_up` as the route when no change is warranted.
+
+Pilot hygiene: the three pilot tasks are **new and separate** (`src/agent/pilot_tasks/`:
+`pilot-with-local`, `pilot-docstring`, `pilot-no-safe-change`), on different
+functions from every headline task. The twelve are untouched by the tuning.
+
+| task | outcome | terminal call | tokens | calls | gate |
+| --- | --- | --- | --- | --- | --- |
+| `pilot-with-local` | `finished` | **yes** | 15 833 | 5 | `pass` |
+| `pilot-docstring` | `finished` | **yes** | 15 661 | 4 | `pass` |
+| `pilot-no-safe-change` | `budget_exhausted` | **no** | 87 082 | 14 | not reached |
+
+**118 576 tokens, 198 s. Two of three. The acceptance criterion is not met.**
+
+What the two clean runs show: read → patch → verify → finish, with the hidden gate
+answering `pass`, and a verify that now costs 3–5 s on mccabe. The wiring works end
+to end, including the gate.
+
+What the third run shows: asked to add a `--json` mode (a real behaviour change,
+which cannot be behaviour-preserving and whose test would be a protected path), the
+model applied **four patches** and ran **five verifies**, and hit the model-call
+budget without calling `finish` or `give_up`. It never chose to give up, and no rule
+stopped it from looping over patches. That is the remaining wiring gap, and it is not
+prompt wording: the loop has no "you have spent N calls without a terminal call"
+pressure, and `give_up` competes against an apparently-progressing patch loop.
+
+The candidate fixes, none applied yet: a loop nudge at a stated fraction of the model
+budget that names `give_up` explicitly, or a rule that refuses a fourth `apply_patch`
+in one run. Either changes the prompt/loop, so it is a decision, not a tweak.
+
+## 6. Answers recorded here
+
+**Hidden-set overlap.** pycodestyle: **103 cases**, hash `9ef6ef97b0d4`, overlap
+**1/104 = 0.96 %**, perturbation share **79/103 = 76.7 %** (24 grammar). mccabe:
+**28 cases**, hash `81eb16895602`, overlap **11/39 = 28.2 %**, perturbation share
+**22/28 = 78.6 %** (6 grammar). The high mccabe overlap is because ten snippets
+perturb back into a body the visible set already has.
+
+**The 38 guardrail tests** are **20 malicious + 13 benign + 5 unit tests**: code
+coverage of the malicious list, the structured refusal shape, atomic apply, stale
+precondition abort, entropy prose-vs-key.
+
+**Token growth.** ~52k tokens per pilot task is consistent with the full history being
+re-sent every turn; the cheap fix is to keep only the latest read of each file and
+replace older ones with a one-line marker. It changes the request hash, so it waits
+until the pilot passes.

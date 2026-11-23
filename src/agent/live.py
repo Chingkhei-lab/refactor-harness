@@ -153,10 +153,18 @@ def sha256_text(text: str) -> str:
 class ChatClient:
     """One turn per call. Retries and cassettes live in the router, not here."""
 
-    def __init__(self, client: Any, model: Any, cassette_path: Path | None = None) -> None:
+    def __init__(
+        self,
+        client: Any,
+        model: Any,
+        cassette_path: Path | None = None,
+        *,
+        tool_choice: str | None = "required",
+    ) -> None:
         self._client = client
         self._model = model
         self.cassette_path = cassette_path
+        self.tool_choice = tool_choice
         self.turns = 0
         if cassette_path is not None:
             cassette_path.parent.mkdir(parents=True, exist_ok=True)
@@ -167,6 +175,11 @@ class ChatClient:
             self._model,
             list(request.messages),
             tools=list(request.tools) or None,
+            # "required": the provider honours `tool_choice` (proved by the "none"
+            # control in scripts/tool_choice_probe.py), so a turn cannot end in prose.
+            # That makes the silent-turn failure a protocol impossibility rather than
+            # a nudge the model can ignore.
+            tool_choice=self.tool_choice,
             temperature=request.temperature,
         )
         if self.cassette_path is not None:
@@ -175,6 +188,7 @@ class ChatClient:
                     json.dumps(
                         {
                             "turn": self.turns,
+                            "tool_choice": self.tool_choice,
                             "request_sha256": request.sha256(),
                             "ok": result.ok,
                             "error_type": result.error_type,
@@ -234,11 +248,25 @@ class WorkspaceToolbox:
     allowed_patterns: tuple[str, ...] = ()
     max_files: int = 5
     max_lines: int = 400
-    suite: tuple[str, ...] = ("-m", "pytest", "-q")
+    #: `-p no:cacheprovider`: a workspace is thrown away, so a cache is noise. The
+    #: deselected test is mccabe's hypothesis-driven idempotence property, which takes
+    #: ~6 minutes on this machine; it stays in the pinned oracle count and is named in
+    #: the report rather than silently dropped.
+    suite: tuple[str, ...] = (
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--deselect",
+        "test_mccabe.py::test_idempotent_any_syntatically_valid_python",
+    )
     suite_cwd_globs: tuple[str, ...] = ("test_*.py",)
     #: Lines per `read_file` page. The loop truncates at 200 lines as well; paging
     #: keeps the whole file reachable, which a 700-line module needs.
     read_lines: int = 180
+    #: The suite's wall clock. A timeout is reported as "unavailable", not a failure.
+    suite_timeout_seconds: float = 180.0
     read_files: set[str] = field(default_factory=set)
     calls: list[dict[str, Any]] = field(default_factory=list)
 
@@ -335,22 +363,47 @@ class WorkspaceToolbox:
 
     def _tool_run_verify(self, arguments: Mapping[str, Any]) -> ToolResult:
         result = self.verifier.run()
-        return ToolResult(ok=True, content=result.render())
+        # `state` is what the loop needs: a no-change call is neither a failure nor a
+        # verification, and only the tool knows which it was.
+        return ToolResult(ok=result.ok, content=result.render(), state=result.state)
 
     def _tool_run_tests(self, arguments: Mapping[str, Any]) -> ToolResult:
-        proc = subprocess.run(
-            [sys.executable, *self.suite, *sorted(
-                str(p.name) for pattern in self.suite_cwd_globs
-                for p in self.workspace.glob(pattern)
-            )],
-            cwd=self.workspace,
-            capture_output=True,
-            text=True,
-            timeout=600,
-        )
+        """Run the target's own suite, bounded. A timeout is "unavailable", not a fail.
+
+        mccabe's suite is hypothesis-driven and takes minutes; a gate that can hang is
+        worse than a gate that says the suite was not checked. The pinned oracle for
+        precision runs outside the loop with its own budget.
+        """
+        if not self.suite:
+            return ToolResult(ok=False, content="suite: not configured for this run")
+        try:
+            proc = subprocess.run(
+                [
+                    sys.executable,
+                    *self.suite,
+                    *sorted(
+                        str(path.name)
+                        for pattern in self.suite_cwd_globs
+                        for path in self.workspace.glob(pattern)
+                    ),
+                ],
+                cwd=self.workspace,
+                capture_output=True,
+                text=True,
+                timeout=self.suite_timeout_seconds,
+            )
+        except subprocess.TimeoutExpired:
+            return ToolResult(
+                ok=False,
+                content=f"timeout: the suite exceeded {self.suite_timeout_seconds:.0f}s",
+            )
+        except OSError as exc:
+            return ToolResult(ok=False, content=f"unavailable: {type(exc).__name__}: {exc}")
         return ToolResult(
             ok=proc.returncode == 0,
-            content=f"exit {proc.returncode}\n{proc.stdout[-4000:]}\n{proc.stderr[-2000:]}",
+            content=chr(10).join(
+                [f"exit {proc.returncode}", proc.stdout[-4000:], proc.stderr[-2000:]]
+            ),
         )
 
     def _tool_finish(self, arguments: Mapping[str, Any]) -> ToolResult:
@@ -384,8 +437,23 @@ class WorkspaceToolbox:
         )
 
     def _suite_summary(self) -> int:
-        result = self._tool_run_tests({})
-        return 0 if result.ok else 1
+        """Failures only. A suite that cannot run is not the patch's fault."""
+        return 0 if self.suite_status in ("passed", "unavailable") else 1
+
+    @property
+    def suite_status(self) -> str:
+        if not hasattr(self, "_suite_status"):
+            result = self._tool_run_tests({})
+            # pytest exits 2 (usage), 3 (internal) and 4 (usage) when it cannot run;
+            # 1 is a test failure. Conflating them made the first pilot's gate report
+            # `suite_failure` for a pristine tree whose suite could not even collect.
+            if result.ok:
+                self._suite_status = "passed"
+            elif "exit 1" in result.content:
+                self._suite_status = "failed"
+            else:
+                self._suite_status = "unavailable"
+        return str(self._suite_status)
 
 
 def stage_workspace(source: Path, dest: Path) -> Path:
