@@ -107,7 +107,8 @@ were chosen by one trait each — availability, generation speed, and raw capabi
 | Stage 2: 20 tasks × 3 runs, top two | **nemotron 93.3 %** (95 % CI 84.1–97.4), **kimi 80.0 %** (68.2–88.2) |
 | Valid tool calls | **100 %** for all three, 639 calls, no malformed arguments |
 | Decision | **primary `nvidia/nemotron-3-ultra-550b-a55b:free`**, fallback `moonshotai/kimi-k3.1-pro:free` |
-| Provider fallback | `gemini-3.8-flash` passes both smoke turns; its free tier took **460 s** for one call |
+| Provider fallback | **not currently usable**: `gemini-3.8-flash` answered the smoke turns, then returned 503 and `HTTP 429: You exceeded your current quota` on the next probes. It is **not** promised as a working fallback until a `tool_choice` + usage probe completes. `moonshotai/kimi-k3.1-pro:free` is the only fallback actually exercised — and it **ignores `tool_choice`**, so its runs are reported separately. |
+| Candidate providers | OpenRouter and Coarena-hosted models (`gemini-3.8-flash`, `deepseek-4.1`) are candidates; each needs a `tool_choice` and usage probe first, because both change the protocol and the accounting |
 
 What separated them was not correctness but finishing: kimi used 341 tool calls
 where nemotron used 298 for the same 60 runs, and spent its budget on exploration

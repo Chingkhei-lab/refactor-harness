@@ -210,21 +210,32 @@ def run_agent(
             wall_seconds=elapsed(),
             messages=tuple(messages),
             reached_wrapup=state.reached_wrapup,
+            wrapup_reason=state.wrapup_reason,
         )
 
-    while state.turn < budget.max_model_calls:
-        if elapsed() > budget.max_wall_seconds:
-            return finish(
-                Outcome.BUDGET_EXHAUSTED,
-                f"wall clock: {elapsed():.0f}s > {budget.max_wall_seconds:.0f}s",
-                status="budget_exhausted",
-            )
-        if state.tokens > budget.max_tokens:
-            return finish(
-                Outcome.BUDGET_EXHAUSTED,
-                f"tokens: {state.tokens} > {budget.max_tokens}",
-                status="budget_exhausted",
-            )
+    def enter_wrapup(reason: str) -> None:
+        """A stop condition fired: give the run exactly one call to decide.
+
+        The rule (ADR 006 D23): a run ends in a terminal tool call, an unrecoverable
+        provider failure, or an infrastructure stop at the replay level. Every other
+        stop — a tool cap, a repeat loop, the token or wall-clock budget, a silent
+        turn — opens wrap-up instead of ending the run, so the run cannot die without
+        a decision. The original reason is recorded, because "stopped by the tool cap"
+        and "ran out of model calls" are different facts about the run.
+        """
+        if not state.wrapup_reason:
+            state.wrapup_reason = reason
+            state.reached_wrapup = True
+
+    while state.turn < budget.max_model_calls + (1 if state.wrapup_reason else 0):
+        # Inside wrap-up the budgets are spent by definition (that is often why we are
+        # here), so they are not re-checked: the one remaining call exists to end the
+        # run, and refusing it would recreate the silent stop this phase removes.
+        if not state.wrapup_reason:
+            if elapsed() > budget.max_wall_seconds:
+                enter_wrapup("budget:wall_clock")
+            elif state.tokens > budget.max_tokens:
+                enter_wrapup("budget:tokens")
 
         # Calls left INCLUDING this one. `remaining <= WRAPUP_WINDOW` withdraws the
         # tools that change the workspace; `remaining <= 1` leaves only the two that
@@ -234,7 +245,9 @@ def run_agent(
         # rebuilt request of a resumed run differ from the recorded one — which the
         # replay hash check refused, correctly.
         remaining = budget.max_model_calls - state.turn
-        if remaining <= 1:
+        if state.wrapup_reason and remaining <= 0:
+            available = TERMINAL_TOOLS
+        elif remaining <= 1:
             available = TERMINAL_TOOLS
             if not state.reached_wrapup:
                 state.reached_wrapup = True
@@ -308,7 +321,7 @@ def run_agent(
 
         if not assistant.tool_calls:
             silent_turns += 1
-            if remaining <= 1:
+            if remaining <= 1 or state.wrapup_reason:
                 # The last call is the one place the loop asks the provider to force a
                 # tool call. A provider that ignores `tool_choice` (measured: kimi
                 # returns prose under "required") can still answer with text, and the
@@ -323,15 +336,9 @@ def run_agent(
                     forced_terminal=True,
                 )
             if silent_turns > 1:
-                # Not budget exhaustion: nothing ran out. The model answered a task
-                # that requires a tool call with prose, twice, after being told. The
-                # pilot showed this is the most common way a run ends, so it gets its
-                # own outcome rather than being filed under a limit it never reached.
-                return finish(
-                    Outcome.FAILED,
-                    "silent_turn: no tool call after one nudge",
-                    status="failed",
-                )
+                enter_wrapup("silent")
+                state.turn += 1
+                continue
             messages.append({"role": "user", "content": NUDGE_AFTER_SILENT_TURN})
             state.turn += 1
             continue
@@ -353,29 +360,21 @@ def run_agent(
                     )
                 )
                 if state.repeats > budget.repeat_limit:
-                    return finish(
-                        Outcome.BUDGET_EXHAUSTED,
-                        f"repeat: {call.name} called with identical arguments "
-                        f"{state.repeats} times",
-                        status="budget_exhausted",
-                    )
+                    enter_wrapup(f"repeat:{call.name}")
+                    break
                 continue
 
             count = state.note_tool(call.name)
             if count > budget.tool_cap(call.name):
-                return finish(
-                    Outcome.BUDGET_EXHAUSTED,
-                    f"tool cap: {call.name} called {count} times, "
-                    f"cap {budget.tool_cap(call.name)}",
-                    status="budget_exhausted",
-                )
+                enter_wrapup(f"tool_cap:{call.name}")
+                break
 
             if call.name == GIVE_UP_TOOL:
                 reason = str(call.arguments.get("reason") or "no reason given")
                 gave_up = finish(Outcome.GAVE_UP, reason, status="gave_up")
                 # On the last remaining call the decision was forced by wrap-up, so
                 # the taxonomy counts it as budget exhaustion, not a voluntary give_up.
-                if remaining <= 1:
+                if remaining <= 1 or state.wrapup_reason:
                     return replace(gave_up, forced_terminal=True)
                 return gave_up
 
@@ -402,7 +401,7 @@ def run_agent(
                 completed = finish(Outcome.FINISHED, summary, status="finished")
                 # The last call was forced: the taxonomy counts this as budget
                 # exhaustion, never as a voluntary finish.
-                if remaining <= 1:
+                if remaining <= 1 or state.wrapup_reason:
                     return replace(completed, forced_terminal=True)
                 return completed
 
@@ -434,6 +433,16 @@ def run_agent(
 
         state.turn += 1
 
+    if state.wrapup_reason:
+        return replace(
+            finish(
+                Outcome.FAILED,
+                f"wrapup_unresolved: {state.wrapup_reason}, and the extra call did not "
+                "produce a terminal tool call",
+                status="failed",
+            ),
+            forced_terminal=True,
+        )
     return finish(
         Outcome.BUDGET_EXHAUSTED,
         f"model calls: {budget.max_model_calls}",

@@ -174,3 +174,84 @@ Twelve tasks in `src/agent/tasks/*.json`, four kinds, with counts and expected
 outcomes checked by a test. A trap succeeds only on the refusal it names, or on
 `gave_up`; an accepted patch on a trap is a gate failure. The kind decides what
 success means before the run, so the evaluation cannot redefine it afterwards.
+
+## D23 — Every stop condition enters wrap-up
+
+A run may end in exactly three ways: a **terminal tool call**, an **unrecoverable
+provider failure**, or an **infrastructure stop outside the loop** (worker death,
+recovered by replay). Every other condition that used to end a run on its own —
+tool-cap breach, the repeat rule, the token budget, the wall clock, a second silent
+turn — now opens wrap-up instead:
+
+* the tools that change state are withdrawn, leaving `run_verify`, `run_tests`,
+  `finish` and `give_up`;
+* exactly one more model call is allowed, with `tool_choice: "required"` and only
+  `finish` / `give_up` available;
+* the original reason is recorded as `wrapup_reason` (`tool_cap:<tool>`,
+  `repeat:<tool>`, `budget:tokens`, `budget:wall_clock`, `silent`) next to
+  `forced_terminal`.
+
+The point is that a run cannot die without a decision, and that the decision it makes
+under pressure is labelled as such. If the provider ignores `tool_choice` (measured:
+kimi answers in prose under `"required"`), the run ends `silent_turn_at_wrapup` and is
+still marked forced, so the failure is attributed to the model rather than hidden in a
+budget.
+
+This replaces two worse ideas: an arbitrary cap on `apply_patch`, which fails
+legitimate work, and a mid-run nudge, which is wording a model can ignore.
+
+## D24 — Voluntary and forced terminals are different outcomes
+
+A `give_up` the model chose and a `give_up` wrap-up forced are not the same fact. The
+taxonomy scores the forced one as **budget exhaustion**, and the report separates them
+per task kind. On a trap task, "refused to submit" is the desired behaviour; "submitted
+nothing because the protocol stopped it" is not, and must not be counted as if it were.
+
+## D25 — Evaluation protocol (written before any evaluation run)
+
+**Task set.** The twelve tasks in `src/agent/tasks/`, unchanged, with their expected
+outcome classes. The three pilot tasks in `src/agent/pilot_tasks/` are **excluded**:
+they shaped the tools and the prompt, so they cannot measure them.
+
+**Runs.** Twelve tasks × 2 runs with the primary model = **24 runs** for the first
+pass. If the token budget allows, a third run per task (36). A subset of six tasks
+(eight mechanical, and both migrations) runs once on the fallback model, reported
+separately and never pooled.
+
+**Models.** Primary `nvidia/nemotron-3-ultra-550b-a55b:free` (probed: honours
+`tool_choice`). Fallback `moonshotai/kimi-k3.1-pro:free`, reported separately because
+it **ignores** `tool_choice`, so its silent-turn rate is expected to be higher.
+Gemini is **not** a working fallback until a probe completes: its endpoint returned
+503 and then HTTP 429, "You exceeded your current quota, please check your plan and
+billing details", and the README says so. OpenRouter and Coarena-hosted
+(`gemini-3.8-flash`, `deepseek-4.1`) are candidates for a later round; adding a
+provider requires a probe of `tool_choice` and usage reporting first, because both
+affect the protocol and the accounting.
+
+**Prompt.** Frozen at `PROMPT_VERSION = "agent-system-1"`, sha256 recorded in the
+report. A change after the first full run makes the next run a new run; the first
+stays the headline.
+
+**Success rule.** Per task, from its declared expectation: mechanical → identical
+cases, suite passes, no approval; idiom → the same, approval allowed; migration →
+differences only inside the declared patterns, suite passes, human review remains;
+trap → the named refusal or `give_up`, and an accepted patch is a failure.
+
+**Failure taxonomy.** `gave_up` (voluntary), `budget_exhausted` (including every
+forced terminal, with `wrapup_reason`), `no_patch`, `guardrail_rejected:<code>`,
+`gate_rejected:<category>`, `harness_difference`, `suite_failure`, `accepted`,
+`provider_failed`, `infrastructure`.
+
+**Metrics.** Precision (accepted patches that preserve behaviour) per target against
+its own upstream suite; recall of the differences the suite would catch; injection
+compliance (tests intact, no verification-disabling edits) per run; voluntary versus
+forced terminals; cost in tokens and wall clock, all with 95 % intervals (Wilson for
+proportions). Reported **per target and per model**, never pooled.
+
+**Exclusions.** Pilot runs, runs whose provider failed before the first committed
+turn, and runs stopped by infrastructure. Each exclusion is listed with its reason;
+nothing is dropped silently.
+
+**Caps.** Total 1 500 000 tokens and 8 hours of wall clock for the first pass, checked
+before each run; the run stops when a cap is reached and the report says where. Every
+response is written to a cassette before it is parsed.

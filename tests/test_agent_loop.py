@@ -239,21 +239,29 @@ def test_model_call_budget_is_counted_and_reported(clean_db: Any) -> None:
 def test_tool_cap_counts_actual_calls_and_has_slack(clean_db: Any) -> None:
     """A cap of expected+slack, not the documented 4 that failed every baked-off model."""
     run_id = str(uuid4())
-    client = ScriptedClient([turn(call("read_file", path=f"f{n}.py")) for n in range(6)])
+    client = ScriptedClient(
+        [turn(call("read_file", path=f"f{n}.py")) for n in range(6)]
+        + [turn(call("give_up", reason="hit the read cap"))]
+    )
     budget = Budget.with_tool_slack({"read_file": 1}, max_model_calls=6)
     assert budget.tool_cap("read_file") == 3  # 1 + max(2, ceil(0.5))
 
+    # The cap no longer ends the run: it opens wrap-up, which prompts for one more
+    # call whose only options are the terminal tools (ADR 006 D23).
     result = run_agent(
         run_id=run_id, task="reads", deps=deps(clean_db, client, FakeToolbox(), budget)
     )
-    assert result.outcome is Outcome.BUDGET_EXHAUSTED
-    assert result.reason.startswith("tool cap: read_file called 4 times")
+    assert result.outcome is Outcome.GAVE_UP
+    assert result.wrapup_reason == "tool_cap:read_file"
+    assert result.forced_terminal
 
 
 def test_repeated_identical_calls_are_refused_then_end_the_run(clean_db: Any) -> None:
     run_id = str(uuid4())
     same = call("read_file", path="a.py")
-    client = ScriptedClient([turn(same), turn(same), turn(same), turn(same)])
+    client = ScriptedClient(
+        [turn(same), turn(same), turn(same), turn(same), turn(call("give_up", reason="loop"))]
+    )
     toolbox = FakeToolbox()
     result = run_agent(
         run_id=run_id,
@@ -261,8 +269,11 @@ def test_repeated_identical_calls_are_refused_then_end_the_run(clean_db: Any) ->
         deps=deps(clean_db, client, toolbox, Budget(max_model_calls=6, repeat_limit=3)),
     )
 
-    assert result.outcome is Outcome.BUDGET_EXHAUSTED
-    assert "identical arguments" in result.reason
+    # The fourth identical call opens wrap-up instead of ending the run, and the run
+    # is recorded as forced rather than voluntary.
+    assert result.outcome is Outcome.GAVE_UP
+    assert result.wrapup_reason == "repeat:read_file"
+    assert result.forced_terminal
     assert toolbox.names == ["read_file", "read_file"], "only the first two are executed"
     # repeat_limit=3 means the third identical call is refused and the fourth ends
     # the run (ADR 006 D6): one repeat is a legitimate retry, a loop is not.
@@ -305,14 +316,22 @@ def test_truncation_leaves_short_output_untouched() -> None:
     )
 
 
-def test_a_silent_answer_is_nudged_once_then_ends_the_run(clean_db: Any) -> None:
+def test_a_silent_answer_is_nudged_once_then_enters_wrapup(clean_db: Any) -> None:
     run_id = str(uuid4())
-    client = ScriptedClient([turn(text="I think it is fine."), turn(text="Still fine.")])
+    client = ScriptedClient(
+        [
+            turn(text="I think it is fine."),
+            turn(text="Still fine."),
+            turn(call("give_up", reason="no tool call available")),
+        ]
+    )
     result = run_agent(run_id=run_id, task="chat", deps=deps(clean_db, client, FakeToolbox()))
 
-    # `failed`, not `budget_exhausted`: no budget was consumed beyond the two turns.
-    assert result.outcome is Outcome.FAILED
-    assert result.reason.startswith("silent_turn")
+    # A second silent turn opens wrap-up; the run then ends on a terminal call, and
+    # the reason says the protocol had to ask twice.
+    assert result.outcome is Outcome.GAVE_UP
+    assert result.wrapup_reason == "silent"
+    assert result.forced_terminal
     assert any("You must end with a tool call" in m.get("content", "") for m in result.messages)
 
 
@@ -499,3 +518,79 @@ def test_a_provider_that_ignores_tool_choice_still_ends_the_run(clean_db: Any) -
     assert result.reason.startswith("silent_turn_at_wrapup")
     assert result.forced_terminal
     assert result.reached_wrapup
+
+
+#: One row per way a run used to end without a decision. Each must now open wrap-up
+#: and end on a terminal call, with the original reason recorded (ADR 006 D23).
+STOP_CONDITIONS = (
+    ("tool_cap", "tool_cap:read_file"),
+    ("repeat", "repeat:read_file"),
+    ("silent", "silent"),
+    ("budget:tokens", "budget:tokens"),
+    ("budget:wall_clock", "budget:wall_clock"),
+)
+
+
+def _stalled_run(stop: str, clean_db: Any) -> RunResult:
+    """Set up each stop condition, then let the model take the forced call."""
+    run_id = str(uuid4())
+    same = call("read_file", path="a.py")
+    terminal = turn(call("give_up", reason="forced"))
+
+    if stop == "tool_cap":
+        script = [turn(call("read_file", path=f"f{n}.py")) for n in range(6)] + [terminal]
+        budget = Budget.with_tool_slack({"read_file": 1}, max_model_calls=8)
+    elif stop == "repeat":
+        script = [turn(same), turn(same), turn(same), turn(same), terminal]
+        budget = Budget(max_model_calls=8, repeat_limit=3)
+    elif stop == "silent":
+        script = [turn(text="nothing"), turn(text="still nothing"), terminal]
+        budget = Budget(max_model_calls=8)
+    elif stop == "budget:tokens":
+        script = [turn(call("read_file", path="a.py")), terminal]
+        budget = Budget(max_model_calls=8, max_tokens=1)
+    elif stop == "budget:wall_clock":
+        script = [turn(call("read_file", path="a.py")), terminal]
+        budget = Budget(max_model_calls=8, max_wall_seconds=0.0)
+    else:  # pragma: no cover - the table is the source of truth
+        raise AssertionError(stop)
+
+    return run_agent(
+        run_id=run_id,
+        task="stall",
+        deps=deps(clean_db, ScriptedClient(script), FakeToolbox(), budget),
+    )
+
+
+@pytest.mark.parametrize(
+    ("stop", "expected_reason"), STOP_CONDITIONS, ids=[row[0] for row in STOP_CONDITIONS]
+)
+def test_every_stop_condition_ends_in_a_forced_terminal_call(
+    stop: str, expected_reason: str, clean_db: Any
+) -> None:
+    """A run may end in a terminal call, a provider failure, or nothing at all."""
+    result = _stalled_run(stop, clean_db)
+
+    assert result.outcome is Outcome.GAVE_UP, result.reason
+    assert result.wrapup_reason == expected_reason, result.wrapup_reason
+    assert result.forced_terminal
+    assert result.reached_wrapup
+
+
+def test_a_provider_that_ignores_the_final_required_call_is_recorded(clean_db: Any) -> None:
+    """The wrap-up call can still come back as prose (measured: kimi). Then the run
+    ends `wrapup_unresolved`, which the taxonomy counts as budget exhaustion."""
+    run_id = str(uuid4())
+    same = call("read_file", path="a.py")
+    client = ScriptedClient(
+        [turn(same), turn(same), turn(same), turn(same), turn(text="I am done, really.")]
+    )
+    result = run_agent(
+        run_id=run_id,
+        task="stall",
+        deps=deps(clean_db, client, FakeToolbox(), Budget(max_model_calls=8, repeat_limit=3)),
+    )
+    assert result.outcome is Outcome.FAILED
+    assert result.reason.startswith("silent_turn_at_wrapup")
+    assert result.wrapup_reason == "repeat:read_file"
+    assert result.forced_terminal

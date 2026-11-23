@@ -260,6 +260,11 @@ class RunState:
     last_verify_state: str = ""
     #: The wrap-up phase was entered (tools withdrawn as the budget ran down).
     reached_wrapup: bool = False
+    #: Why wrap-up was entered: "" for the ordinary budget window, otherwise
+    #: "tool_cap:<tool>", "repeat:<tool>", "budget:tokens", "budget:wall_clock",
+    #: "silent". Recorded because "stopped by the tool cap" and "ran out of calls" are
+    #: different facts about a run.
+    wrapup_reason: str = ""
     last_signature: str | None = None
     repeats: int = 0
     sealed: bool = False
@@ -287,6 +292,8 @@ class RunResult:
     messages: tuple[dict[str, Any], ...]
     #: The run entered the wrap-up phase (tools withdrawn as the budget ran down).
     reached_wrapup: bool = False
+    #: Why wrap-up was entered ("" when it was the ordinary end-of-budget window).
+    wrapup_reason: str = ""
     #: The terminal call was made on the last remaining model call, so wrap-up forced
     #: the decision. Counted as budget exhaustion by the taxonomy, never as a
     #: voluntary `give_up`.

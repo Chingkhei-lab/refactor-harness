@@ -298,3 +298,80 @@ Reconstructed from its cassette and workspace (`.harness/agent-pilot/<run>/`):
   overlap is reported, and the duplicates were removed rather than counted as power.
 * The pandas-style caveat from the earlier rounds still applies: a run that ends
   without a terminal call is a **wiring** fact, not a capability measurement.
+
+## 8. Fifth pilot: every stop enters wrap-up
+
+A run can now end only in a terminal tool call, an unrecoverable provider failure, or
+an infrastructure stop (ADR 006 D23). Tool-cap, repeat, token, wall-clock and silent
+stops all open wrap-up: state-changing tools withdrawn, one more call, `tool_choice:
+"required"`, and the original reason recorded as `wrapup_reason`.
+
+A table-driven test covers one row per stop condition (`tool_cap`, `repeat`, `silent`,
+`budget:tokens`, `budget:wall_clock`), asserting a forced terminal call in each case,
+plus one test for a provider that answers the required call with prose.
+
+| task | outcome | terminal | wrap-up reason | forced | tokens | calls |
+| --- | --- | --- | --- | --- | --- | --- |
+| `pilot-with-local` | `finished`, gate `pass` | **yes** | — | no | 21 165 | 6 |
+| `pilot-docstring` | `finished`, gate `pass` | **yes** | — | no | 20 261 | 5 |
+| `pilot-no-safe-change` | `failed` — `wrapup_unresolved` | **no** | `budget:tokens` | **yes** | 175 384 | 17 |
+
+**216 810 tokens, 195 s. Two of three.** The third is the known limitation and is
+documented rather than tuned again.
+
+### Transcript summary of the failing run (the one you asked for)
+
+Seventeen tool calls, thirteen model calls:
+
+* calls 1–6: `list_files`, `read_file` × 2 — then the **same three calls again**;
+* call 7: `run_verify` → **`no changes`** (the new state working: it verified before
+  patching, and was told nothing had been verified);
+* call 8: `apply_patch` → **applied**; calls 9–11: three more patches →
+  **refused**, twice `dangerous_code` (the `--json` implementation calls `compile`)
+  and once `precondition_mismatch` (a stale `before_sha256` after its own edit);
+* calls 12–13: re-read both files; call 14: `apply_patch` → **applied**; call 15:
+  another patch → **`dangerous_code`**;
+* calls 16–17: `run_verify` → `candidate vs original: identical=33 different=1`.
+
+Then the token budget (120 000) opened wrap-up, the required call came back without a
+terminal tool, and the run ended `wrapup_unresolved` — recorded forced, with
+`budget:tokens` as the reason. **This is the first pilot in which the live guardrails
+fired on a model's own patches**, which was the missing evidence from checkpoint 14.
+
+### The limitation, stated
+
+A model that neither finishes nor gives up, and keeps proposing refused patches, will
+exhaust the token budget. Wrap-up then asks it once more; if it again does not decide,
+the run ends `wrapup_unresolved`. That is a **deterministic stop**, the one shape of
+ending the criterion forbids — but it is now an explicit, labelled stop rather than a
+budget expiring silently, and it is attributable to the model. Further tuning on three
+pilot tasks would be overfitting to them, so it is recorded and the work proceeds.
+
+## 9. Local and CI test counts
+
+The earlier mismatch (local 516 + 33 = 549 against CI 552) was a **stale local
+figure**, not an environment difference: the 516 was measured before that commit's
+five new tests existed. The chain, from the CI annotations and the local summary lines:
+
+| commit | local | CI collected |
+| --- | --- | --- |
+| `567f0f9` | 514 + 33 = **547** | **547** |
+| `1af9048` | 519 + 33 = **552** | **552** |
+| this tree | 525 + 33 = **558** | (next push) |
+
+No test is collected in one environment and not the other. The two environments differ
+in *outcome*, not in *count*: 29 skipped in CI against 33 locally, because
+`test_worker.py::test_sigterm_drains_the_current_job_and_exits_0` and three
+`tests/test_harness_sandbox_hostile.py` cases run on Linux and skip on Windows.
+
+## 10. Fallback providers
+
+`tool_choice` probe, with the `"none"` control: nemotron **honours** it; kimi
+**ignores** it (prose in all three arms), so fallback runs are expected to have a
+higher silent-turn rate and are reported separately; Gemini is **undetermined** — its
+endpoint returned 503 and then `HTTP 429: You exceeded your current quota, please check
+your plan and billing details`, which is recorded verbatim in
+`docs/results/tool-choice-probe.json`. The README does not promise Gemini as a working
+fallback until a probe completes. OpenRouter and Coarena-hosted models are noted as
+candidates; each needs a `tool_choice` and usage probe before it can be added, because
+both affect the protocol and the accounting.
