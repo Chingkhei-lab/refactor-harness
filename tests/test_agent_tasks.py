@@ -156,3 +156,35 @@ def test_task_order_is_by_name_not_by_filesystem() -> None:
     for path in TASK_DIR.glob("*.json"):
         payload = json.loads(path.read_text(encoding="utf-8"))
         assert payload["id"] == path.stem
+
+
+def test_a_forced_terminal_call_is_budget_exhaustion_not_a_give_up() -> None:
+    """Wrap-up forcing the decision must not be recorded as the model's choice.
+
+    Otherwise a run that was stopped by the protocol looks like a run that judged the
+    task impossible, and the failure taxonomy flatters the model.
+    """
+    from agent.tasks import classify
+
+    forced = classify(
+        patch_proposed=False,
+        refusal_codes=(),
+        verify_different=0,
+        suite_failures=0,
+        gate_category="",
+        gave_up_reason="ran out of room",
+        forced_terminal=True,
+    )
+    assert forced.outcome == "budget_exhausted"
+    assert "wrap-up" in forced.reason
+
+    voluntary = classify(
+        patch_proposed=False,
+        refusal_codes=(),
+        verify_different=0,
+        suite_failures=0,
+        gate_category="",
+        gave_up_reason="the constraints cannot both hold",
+    )
+    assert voluntary.outcome == "gave_up"
+    assert voluntary.reason == "the constraints cannot both hold"

@@ -1,33 +1,96 @@
 {
- "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
- "probes": [
-  {
-   "content": "\n\n",
-   "error_detail": "",
-   "error_type": "",
-   "ok": true,
-   "tool_calls": [
-    "reply"
-   ],
-   "tool_choice": null
-  },
-  {
-   "content": "",
-   "error_detail": "",
-   "error_type": "",
-   "ok": true,
-   "tool_calls": [
-    "reply"
-   ],
-   "tool_choice": "required"
-  },
-  {
-   "content": "2 + 2 equals 4.",
-   "error_detail": "",
-   "error_type": "",
-   "ok": true,
-   "tool_calls": [],
-   "tool_choice": "none"
-  }
- ]
+ "gemini-fallback": {
+  "honoured": false,
+  "model": "gemini-3.8-flash",
+  "probes": [
+   {
+    "content": "",
+    "error_detail": "HTTP 503: [{\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABL",
+    "error_type": "server",
+    "ok": false,
+    "tool_calls": [],
+    "tool_choice": null
+   },
+   {
+    "content": "",
+    "error_detail": "HTTP 429: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.go",
+    "error_type": "rate_limit",
+    "ok": false,
+    "tool_calls": [],
+    "tool_choice": "required"
+   },
+   {
+    "content": "",
+    "error_detail": "HTTP 429: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.go",
+    "error_type": "rate_limit",
+    "ok": false,
+    "tool_calls": [],
+    "tool_choice": "none"
+   }
+  ]
+ },
+ "kimi-fallback": {
+  "honoured": false,
+  "model": "moonshotai/kimi-k3.1-pro:free",
+  "probes": [
+   {
+    "content": "2 + 2 equals 4.",
+    "error_detail": "",
+    "error_type": "",
+    "ok": true,
+    "tool_calls": [],
+    "tool_choice": null
+   },
+   {
+    "content": "2 + 2 equals 4.",
+    "error_detail": "",
+    "error_type": "",
+    "ok": true,
+    "tool_calls": [],
+    "tool_choice": "required"
+   },
+   {
+    "content": "2 + 2 = 4.",
+    "error_detail": "",
+    "error_type": "",
+    "ok": true,
+    "tool_calls": [],
+    "tool_choice": "none"
+   }
+  ]
+ },
+ "nemotron-primary": {
+  "honoured": true,
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "probes": [
+   {
+    "content": "\n\n",
+    "error_detail": "",
+    "error_type": "",
+    "ok": true,
+    "tool_calls": [
+     "reply"
+    ],
+    "tool_choice": null
+   },
+   {
+    "content": "",
+    "error_detail": "",
+    "error_type": "",
+    "ok": true,
+    "tool_calls": [
+     "reply"
+    ],
+    "tool_choice": "required"
+   },
+   {
+    "content": "2 + 2 equals 4.",
+    "error_detail": "",
+    "error_type": "",
+    "ok": true,
+    "tool_calls": [],
+    "tool_choice": "none"
+   }
+  ]
+ }
 }

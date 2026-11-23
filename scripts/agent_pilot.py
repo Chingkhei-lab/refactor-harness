@@ -103,6 +103,7 @@ def _classify(result: Any, task: Task, gate: Any, toolbox: WorkspaceToolbox) -> 
         gate_category="" if gate is None else gate.category,
         gave_up_reason=result.reason if str(result.outcome) == "gave_up" else "",
         budget_reason=result.reason if str(result.outcome) == "budget_exhausted" else "",
+        forced_terminal=bool(getattr(result, "forced_terminal", False)),
     )
     return {
         "outcome": outcome.outcome,
@@ -187,6 +188,8 @@ def run_one(task: Task, *, model: ModelSpec, run_id: str, client: Any, store: Ca
         "gave_up",
     ) else []
     record: dict[str, Any] = {
+        "reached_wrapup": bool(getattr(result, "reached_wrapup", False)),
+        "forced_terminal": bool(getattr(result, "forced_terminal", False)),
         # The pilot's acceptance criterion: a run ends in a terminal TOOL call.
         "terminal_calls": terminal,
         "ended_in_terminal_call": bool(terminal),
@@ -202,6 +205,10 @@ def run_one(task: Task, *, model: ModelSpec, run_id: str, client: Any, store: Ca
         "hidden_seconds": [round(value, 1) for value in hidden_verifier.timings],
         "gate": None if gate is None else {"passed": gate.passed, "category": gate.category},
     }
+    (WORK / run_id / "tools.jsonl").write_text(
+        chr(10).join(json.dumps(call, sort_keys=True) for call in toolbox.calls) + chr(10),
+        encoding="utf-8",
+    )
     if result is not None:
         record.update(
             {

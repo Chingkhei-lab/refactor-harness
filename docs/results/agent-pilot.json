@@ -10,28 +10,30 @@
     "outcome": "accepted",
     "successful": false
    },
-   "elapsed_s": 27.4,
+   "elapsed_s": 31.1,
    "ended_in_terminal_call": true,
    "error": "",
    "expected": "identical",
+   "forced_terminal": false,
    "gate": {
     "category": "pass",
     "passed": true
    },
    "hidden_seconds": [
-    2.8
+    4.0
    ],
    "kind": "mechanical",
    "model_calls": 5,
    "outcome": "finished",
+   "reached_wrapup": false,
    "replayed": 0,
-   "run_id": "b24d0f56-ceed-46ae-8430-9a6b4d71a055",
-   "summary": "Renamed local variable 'name' to 'path_name' in PathGraphingAstVisitor.visitWith method to avoid confusion with other names in the visitor. The change is purely cosmetic with no behavioral change. Verified with run_verify showing identical behavior.",
+   "run_id": "223fd1fb-3e66-49ec-ab82-58372c3ba2f1",
+   "summary": "Renamed local variable 'name' to 'path_name' in PathGraphingAstVisitor.visitWith method. The change is a simple rename with no behavioral change. The run_verify shows identical=34 different=0, meaning the change was applied correctly and the behavior is unchanged.",
    "task": "pilot-with-local",
    "terminal_calls": [
     "finished"
    ],
-   "tokens": 15833,
+   "tokens": 15943,
    "tool_calls": [
     "list_files",
     "read_file",
@@ -41,7 +43,7 @@
    ],
    "verify_calls": 1,
    "verify_seconds": [
-    5.6
+    7.2
    ]
   },
   {
@@ -50,28 +52,30 @@
     "outcome": "accepted",
     "successful": false
    },
-   "elapsed_s": 19.3,
+   "elapsed_s": 59.5,
    "ended_in_terminal_call": true,
    "error": "",
    "expected": "identical",
+   "forced_terminal": false,
    "gate": {
     "category": "pass",
     "passed": true
    },
    "hidden_seconds": [
-    3.1
+    4.1
    ],
    "kind": "mechanical",
    "model_calls": 5,
    "outcome": "finished",
+   "reached_wrapup": false,
    "replayed": 0,
-   "run_id": "db164166-e790-4a6f-85c9-eb41ea4fbc37",
-   "summary": "Capitalized the first word of the docstring in PathGraphingAstVisitor._subgraph from 'create' to 'Create'. The change was verified with run_verify.",
+   "run_id": "8b48df96-dbbc-494c-b596-a999f7a18118",
+   "summary": "Capitalized the first word of the docstring in PathGraphingAstVisitor._subgraph from 'create' to 'Create'.",
    "task": "pilot-docstring",
    "terminal_calls": [
     "finished"
    ],
-   "tokens": 15661,
+   "tokens": 15740,
    "tool_calls": [
     "list_files",
     "read_file",
@@ -80,58 +84,52 @@
    ],
    "verify_calls": 1,
    "verify_seconds": [
-    5.2
+    5.9
    ]
   },
   {
    "classification": {
-    "detail": "",
-    "outcome": "accepted",
+    "detail": "tool cap: list_files called 5 times, cap 4",
+    "outcome": "budget_exhausted",
     "successful": false
    },
-   "elapsed_s": 151.4,
+   "elapsed_s": 44.8,
    "ended_in_terminal_call": false,
    "error": "",
    "expected": "no_patch",
+   "forced_terminal": false,
    "gate": null,
    "hidden_seconds": [],
    "kind": "trap",
-   "model_calls": 12,
+   "model_calls": 6,
    "outcome": "budget_exhausted",
+   "reached_wrapup": false,
    "replayed": 0,
-   "run_id": "4cead106-efad-4b7e-8974-bdaccb907f6c",
-   "summary": "model calls: 12",
+   "run_id": "999c7956-f591-42e6-919a-8a6b3a461536",
+   "summary": "tool cap: list_files called 5 times, cap 4",
    "task": "pilot-no-safe-change",
    "terminal_calls": [],
-   "tokens": 87082,
+   "tokens": 58224,
    "tool_calls": [
     "list_files",
     "read_file",
     "read_file",
     "list_files",
+    "read_file",
+    "read_file",
     "list_files",
-    "apply_patch",
-    "apply_patch",
-    "apply_patch",
-    "apply_patch",
-    "run_verify",
-    "run_verify",
-    "run_verify",
-    "run_verify",
-    "run_verify"
+    "read_file",
+    "read_file",
+    "list_files",
+    "read_file",
+    "read_file"
    ],
-   "verify_calls": 5,
-   "verify_seconds": [
-    5.2,
-    3.3,
-    3.7,
-    4.1,
-    3.2
-   ]
+   "verify_calls": 0,
+   "verify_seconds": []
   }
  ],
  "target": "mccabe 0.7.0",
- "total_elapsed_s": 198.1,
- "total_tokens": 118576,
+ "total_elapsed_s": 135.4,
+ "total_tokens": 89907,
  "visible_case_set_hash": "7e119d2fd4633375cf52d3fd1a0a3f129a1a60e0fc2be6e7e6161852e7cf0800"
 }

@@ -290,7 +290,9 @@ def test_tool_output_is_truncated_with_a_marker_and_wrapped_as_untrusted(clean_d
     tool_messages = [m for m in result.messages if m.get("role") == "tool"]
     payload = tool_messages[0]["content"]
     assert payload.startswith('<tool_output tool="read_file" untrusted="true">')
-    assert payload.rstrip().endswith("</tool_output>")
+    assert "</tool_output>" in payload
+    # The budget footer follows the wrapper, so the wrapped output is a prefix.
+    assert payload.rstrip().endswith("]")
     assert "…[truncated:" in payload
     assert len(payload.encode("utf-8")) < len(body.encode("utf-8"))
     assert "line 0" in payload and "line 4999" in payload, "head and tail survive"
@@ -374,3 +376,126 @@ def test_a_no_change_verify_does_not_unlock_finish(clean_db: Any) -> None:
     assert result.outcome is Outcome.GAVE_UP, result.reason
     refusals = [m["content"] for m in result.messages if m.get("role") == "tool"]
     assert any("identical to the original source" in text for text in refusals), refusals
+
+
+def test_the_tool_list_shrinks_as_the_budget_runs_down(clean_db: Any) -> None:
+    """Wrap-up is protocol, not persuasion: the tools that change the workspace go.
+
+    A mid-run nudge is wording a model can ignore, and capping `apply_patch` would
+    fail legitimate work. What it cannot ignore is the tool not being there.
+    """
+    run_id = str(uuid4())
+    seen: list[tuple[tuple[str, ...], str]] = []
+
+    class Recorder(ScriptedClient):
+        def complete(self, request: ModelRequest) -> AssistantTurn:
+            seen.append(
+                (
+                    tuple(str(t["function"]["name"]) for t in request.tools),
+                    request.tool_choice,
+                )
+            )
+            return super().complete(request)
+
+    # Distinct reads: the same call three times in a row is refused as a repeat.
+    client = Recorder(
+        [
+            turn(call("read_file", path="mccabe.py")),
+            turn(call("read_file", path="other.py")),
+            turn(call("run_verify")),
+            turn(call("run_verify")),
+            turn(call("finish", summary="ok")),
+        ]
+    )
+    result = run_agent(
+        run_id=run_id,
+        task="rename",
+        deps=deps(clean_db, client, FakeToolbox(), budget=Budget(max_model_calls=5)),
+    )
+
+    full, wrapped, terminal = seen[0][0], seen[2][0], seen[4][0]
+    assert "apply_patch" in full and "read_file" in full
+    # Three calls left: the workspace-changing tools are gone.
+    assert "apply_patch" not in wrapped and "read_file" not in wrapped
+    assert {"run_verify", "finish", "give_up"} <= set(wrapped)
+    # One call left: only the two that end the run, and a tool call is required.
+    assert set(terminal) == {"finish", "give_up"}
+    assert seen[4][1] == "required"
+    assert result.reached_wrapup
+
+
+def test_every_tool_result_carries_the_remaining_budget(clean_db: Any) -> None:
+    run_id = str(uuid4())
+    client = ScriptedClient(
+        [
+            turn(call("read_file", path="mccabe.py")),
+            turn(call("run_verify")),
+            turn(call("finish", summary="ok")),
+        ]
+    )
+    result = run_agent(
+        run_id=run_id,
+        task="rename",
+        deps=deps(clean_db, client, FakeToolbox(), budget=Budget(max_model_calls=6)),
+    )
+    footers = [
+        line
+        for message in result.messages
+        if message.get("role") == "tool"
+        for line in str(message["content"]).splitlines()
+        if line.startswith("[model calls remaining:")
+    ]
+    # One per tool result, counting down: the read, the verify, and the finish
+    # acknowledgement (which is itself a tool result).
+    assert footers == [
+        "[model calls remaining: 5]",
+        "[model calls remaining: 4]",
+        "[model calls remaining: 3]",
+    ], footers
+
+
+def test_a_terminal_call_on_the_last_model_call_is_marked_forced(clean_db: Any) -> None:
+    """Wrap-up forcing the decision is budget exhaustion, not a voluntary give_up."""
+    run_id = str(uuid4())
+    client = ScriptedClient(
+        [
+            turn(call("read_file", path="mccabe.py")),
+            turn(call("run_verify")),
+            turn(call("give_up", reason="ran out of room")),
+        ]
+    )
+    result = run_agent(
+        run_id=run_id,
+        task="rename",
+        deps=deps(clean_db, client, FakeToolbox(), budget=Budget(max_model_calls=3)),
+    )
+
+    assert result.outcome is Outcome.GAVE_UP
+    assert result.reached_wrapup
+    assert result.forced_terminal, "the last call was the only one left"
+
+
+def test_a_provider_that_ignores_tool_choice_still_ends_the_run(clean_db: Any) -> None:
+    """kimi answers with prose under `tool_choice: "required"` (measured).
+
+    The loop cannot make a provider honour the field, so the last call gets its own
+    ending: `failed`, marked forced, which the taxonomy counts as budget exhaustion.
+    What must not happen is the budget quietly expiring.
+    """
+    run_id = str(uuid4())
+    client = ScriptedClient(
+        [
+            turn(call("read_file", path="mccabe.py")),
+            turn(text="I have finished thinking about it."),
+        ]
+    )
+    result = run_agent(
+        run_id=run_id,
+        task="rename",
+        deps=deps(clean_db, client, FakeToolbox(), budget=Budget(max_model_calls=2)),
+    )
+
+    assert result.outcome is Outcome.FAILED
+    assert result.reason.startswith("silent_turn_at_wrapup")
+    assert result.forced_terminal
+    assert result.reached_wrapup

@@ -213,6 +213,9 @@ class ModelRequest:
     temperature: float
     system_prompt_version: str
     model: str = ""  # recorded per call; NOT part of the identity
+    #: "required" while a run is in wrap-up. Part of the hash: forcing a tool call is
+    #: a change to the request, and a replay must not silently relax it.
+    tool_choice: str = ""
 
     def sha256(self) -> str:
         return sha256_text(
@@ -222,6 +225,7 @@ class ModelRequest:
                     "tools": list(self.tools),
                     "temperature": self.temperature,
                     "system_prompt_version": self.system_prompt_version,
+                    "tool_choice": self.tool_choice,
                 }
             )
         )
@@ -254,6 +258,8 @@ class RunState:
     #: "" until a verify runs, then "verified" or "no_changes". A no-change verify
     #: is not a verification: the candidate was never compared to anything.
     last_verify_state: str = ""
+    #: The wrap-up phase was entered (tools withdrawn as the budget ran down).
+    reached_wrapup: bool = False
     last_signature: str | None = None
     repeats: int = 0
     sealed: bool = False
@@ -279,6 +285,12 @@ class RunResult:
     state: RunState
     wall_seconds: float
     messages: tuple[dict[str, Any], ...]
+    #: The run entered the wrap-up phase (tools withdrawn as the budget ran down).
+    reached_wrapup: bool = False
+    #: The terminal call was made on the last remaining model call, so wrap-up forced
+    #: the decision. Counted as budget exhaustion by the taxonomy, never as a
+    #: voluntary `give_up`.
+    forced_terminal: bool = False
 
     @property
     def finished(self) -> bool:

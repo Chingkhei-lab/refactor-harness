@@ -233,3 +233,68 @@ precondition abort, entropy prose-vs-key.
 re-sent every turn; the cheap fix is to keep only the latest read of each file and
 replace older ones with a one-line marker. It changes the request hash, so it waits
 until the pilot passes.
+
+## 7. Wrap-up: the fourth pilot
+
+The loop now reserves a wrap-up phase instead of capping `apply_patch` or asking the
+model nicely. With **3 model calls left** the tools that change the workspace go
+(`apply_patch`, `read_file`, `list_files`); with **1 left** only `finish` and
+`give_up` remain and the request carries `tool_choice: "required"`. Every tool result
+ends with `[model calls remaining: N]` — a fact, not an instruction. `reached_wrapup`
+and `forced_terminal` are recorded per run, and a terminal call on the last call is
+scored **budget exhaustion** by the taxonomy, never a voluntary `give_up`.
+
+`tool_choice` support was probed on all three models, with the `"none"` control:
+
+| model | auto | required | none | honoured |
+| --- | --- | --- | --- | --- |
+| nemotron (primary) | call | call | prose | **yes** |
+| kimi (fallback) | prose | prose | prose | **no** |
+| gemini (fallback) | — | — | — | **undetermined** (503, then 429 quota) |
+
+So the protocol cannot assume `required` works. The loop now handles a silent final
+turn explicitly: `silent_turn_at_wrapup` ends the run as `failed`, marked forced, and
+the taxonomy counts it as budget exhaustion. A test covers the provider that ignores
+the field.
+
+### Fourth pilot
+
+| task | outcome | terminal | wrap-up | tokens | calls |
+| --- | --- | --- | --- | --- | --- |
+| `pilot-with-local` | `finished`, gate `pass` | **yes** | no | 15 943 | 5 |
+| `pilot-docstring` | `finished`, gate `pass` | **yes** | no | 15 740 | 4 |
+| `pilot-no-safe-change` | `budget_exhausted` (`list_files` cap) | **no** | no | 58 224 | 12 |
+
+**89 907 tokens, 135 s. Two of three. The criterion is still not met**, and the reason
+is now precise: the third run never reached the wrap-up window. After six model calls
+it had produced the same cycle — `list_files`, two reads of the same two files, again —
+and the per-tool cap (`list_files` 5 > 4) ended it. The wrap-up would have forced a
+terminal call at call 9; the run died at call 6.
+
+That makes the remaining defect a *tool-cap* end, not a budget end: a deterministic
+stop with no terminal call. Two candidate fixes, neither applied: treat a tool-cap end
+as entering wrap-up immediately (one final terminal-only call even if the call budget
+remains), or let the repeat rule's fourth call be a forced `give_up`. Both change the
+protocol, so this is a decision.
+
+### Forensics on the third run (the 87 k one)
+
+Reconstructed from its cassette and workspace (`.harness/agent-pilot/<run>/`):
+
+* **Four patches**: `import json` to `mccabe.py` (**applied**); a `--json` option in
+  `main()`; and two patches to `test_mccabe.py` (**refused** — `protected_path`).
+  The final candidate differs from the original by exactly one line, `+import json`.
+* **Verify**: the candidate was behaviourally identical, then the run cycled
+  `run_verify` → `finish` → refused → `run_verify`; the finish refusals are in the
+  transcript, the verify outputs were not recorded — a gap now closed by writing
+  `tools.jsonl` per run.
+* **Tokens**: 12 turns, prompt tokens 1 248 → 9 397, completion 16–2 020. The growth
+  is the history being re-sent, ~150–200 tokens a turn after the first full read.
+
+### Limits to state plainly
+
+* The **mccabe hidden set is 28 cases**: enough to catch gross special-casing (a patch
+  keyed on a visible snippet's exact text), not subtle ones. The 28.2 % pre-dedupe
+  overlap is reported, and the duplicates were removed rather than counted as power.
+* The pandas-style caveat from the earlier rounds still applies: a run that ends
+  without a terminal call is a **wiring** fact, not a capability measurement.

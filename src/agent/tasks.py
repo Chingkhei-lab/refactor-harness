@@ -195,8 +195,14 @@ def classify(
     gate_category: str,
     budget_reason: str = "",
     gave_up_reason: str = "",
+    forced_terminal: bool = False,
 ) -> TaskOutcome:
     """The classification ladder, in one place so the report cannot improvise it."""
+    if forced_terminal:
+        # Wrap-up forced the decision on the last model call. That is budget
+        # exhaustion in the taxonomy, never a voluntary `give_up`: the run did not
+        # choose to stop, the protocol stopped it.
+        return TaskOutcome("", "budget_exhausted", "wrap-up forced the decision")
     if not patch_proposed and gave_up_reason:
         return TaskOutcome("", "gave_up", gave_up_reason)
     if not patch_proposed and budget_reason:

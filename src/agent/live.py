@@ -291,6 +291,9 @@ class WorkspaceToolbox:
 
     def call(self, name: str, arguments: Mapping[str, Any], *, replayed: bool) -> ToolResult:
         self.calls.append({"tool": name, "arguments": dict(arguments), "replayed": replayed})
+        # The transcript must be reconstructable: a run whose tool OUTPUT was not
+        # recorded cannot be explained afterwards, and the third pilot's verify
+        # results were exactly that gap.
         if replayed:
             # An effect is derived from committed arguments, never re-performed: a
             # resumed run must not apply the same patch twice (ADR 006 D4).
@@ -298,6 +301,8 @@ class WorkspaceToolbox:
         try:
             handler = getattr(self, f"_tool_{name}")
             result: ToolResult = handler(arguments)
+            self.calls[-1]["result"] = {"ok": result.ok, "state": result.state,
+                                        "content": result.content[:4000]}
             return result
         except KeyError:
             return ToolResult(ok=False, content=f"unknown tool {name!r}")

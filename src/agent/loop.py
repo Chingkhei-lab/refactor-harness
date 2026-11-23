@@ -46,6 +46,18 @@ from .types import (
 # in one read. The pilot's first two runs spent all twelve model calls paging a file
 # they could have read once, and never reached the function they were asked to
 # rename - a truncation budget set for test output, not for source.
+#: Wrap-up: with this many model calls left, the tools that change the workspace are
+#: withdrawn, so the run has to start deciding. With one call left, only the two
+#: terminal tools remain and the provider is told a tool call is required. The point
+#: is protocol, not persuasion: a mid-run nudge is wording a model can ignore, and an
+#: arbitrary cap on `apply_patch` would fail legitimate work.
+WRAPUP_WINDOW = 3
+
+#: The tools that survive wrap-up. Reading and patching are what a run does; verifying
+#: and finishing are what it must still be able to do.
+WRAPUP_TOOLS = frozenset({"run_verify", "run_tests", "finish", "give_up"})
+TERMINAL_TOOLS = frozenset({"finish", "give_up"})
+
 MAX_TOOL_BYTES = 24_000
 MAX_TOOL_LINES = 600
 
@@ -131,10 +143,14 @@ def _assistant_message(assistant: AssistantTurn) -> dict[str, Any]:
     return message
 
 
-def _tool_message(call: ToolCall, result: ToolResult) -> dict[str, Any]:
+def _tool_message(
+    call: ToolCall, result: ToolResult, *, calls_left: int | None = None
+) -> dict[str, Any]:
     body = wrap_untrusted(call.name, truncate(result.content))
-    if not result.ok:
-        body = 'error="true"\n' + body if False else body
+    if calls_left is not None:
+        # A fact in the footer, not an instruction in the prompt: the model can plan
+        # against it, and it is the same for every tool on a turn.
+        body += chr(10) + f"[model calls remaining: {calls_left}]"
     return {"role": "tool", "tool_call_id": call.call_id, "content": body}
 
 
@@ -193,6 +209,7 @@ def run_agent(
             state=state,
             wall_seconds=elapsed(),
             messages=tuple(messages),
+            reached_wrapup=state.reached_wrapup,
         )
 
     while state.turn < budget.max_model_calls:
@@ -209,12 +226,41 @@ def run_agent(
                 status="budget_exhausted",
             )
 
+        # Calls left INCLUDING this one. `remaining <= WRAPUP_WINDOW` withdraws the
+        # tools that change the workspace; `remaining <= 1` leaves only the two that
+        # end the run and requires a tool call.
+        # Counted from the TURN, not from `model_calls`: a replayed turn consumes a
+        # slot in the sequence without calling the model, and counting calls made the
+        # rebuilt request of a resumed run differ from the recorded one — which the
+        # replay hash check refused, correctly.
+        remaining = budget.max_model_calls - state.turn
+        if remaining <= 1:
+            available = TERMINAL_TOOLS
+            if not state.reached_wrapup:
+                state.reached_wrapup = True
+        elif remaining <= WRAPUP_WINDOW:
+            available = WRAPUP_TOOLS
+            state.reached_wrapup = True
+        else:
+            available = None
+        tools_for_turn = (
+            tools_spec
+            if available is None
+            else tuple(
+                item
+                for item in tools_spec
+                if str(item.get("function", {}).get("name", "")) in available
+            )
+        )
+        tool_choice = "required" if remaining <= 1 else ""
+
         request = ModelRequest(
             messages=tuple(messages),
-            tools=tools_spec,
+            tools=tools_for_turn,
             model=deps.model,
             temperature=deps.temperature,
             system_prompt_version=prompt_sha,
+            tool_choice=tool_choice,
         )
         request_hash = request.sha256()
 
@@ -262,6 +308,20 @@ def run_agent(
 
         if not assistant.tool_calls:
             silent_turns += 1
+            if remaining <= 1:
+                # The last call is the one place the loop asks the provider to force a
+                # tool call. A provider that ignores `tool_choice` (measured: kimi
+                # returns prose under "required") can still answer with text, and the
+                # loop must end the run honestly rather than let the budget expire.
+                return replace(
+                    finish(
+                        Outcome.FAILED,
+                        "silent_turn_at_wrapup: no tool call on the final model call, "
+                        "with tool_choice=required",
+                        status="failed",
+                    ),
+                    forced_terminal=True,
+                )
             if silent_turns > 1:
                 # Not budget exhaustion: nothing ran out. The model answered a task
                 # that requires a tool call with prose, twice, after being told. The
@@ -312,19 +372,39 @@ def run_agent(
 
             if call.name == GIVE_UP_TOOL:
                 reason = str(call.arguments.get("reason") or "no reason given")
-                return finish(Outcome.GAVE_UP, reason, status="gave_up")
+                gave_up = finish(Outcome.GAVE_UP, reason, status="gave_up")
+                # On the last remaining call the decision was forced by wrap-up, so
+                # the taxonomy counts it as budget exhaustion, not a voluntary give_up.
+                if remaining <= 1:
+                    return replace(gave_up, forced_terminal=True)
+                return gave_up
 
             if call.name == FINISH_TOOL:
                 refusal = _finish_refusal(state, call)
                 if refusal is not None:
-                    messages.append(_tool_message(call, ToolResult(ok=False, content=refusal)))
+                    messages.append(
+                        _tool_message(
+                            call,
+                            ToolResult(ok=False, content=refusal),
+                            calls_left=max(0, remaining - 1),
+                        )
+                    )
                     continue
                 summary = str(call.arguments.get("summary") or "")
                 messages.append(
-                    _tool_message(call, ToolResult(ok=True, content="submitted for the gate"))
+                    _tool_message(
+                        call,
+                        ToolResult(ok=True, content="submitted for the gate"),
+                        calls_left=max(0, remaining - 1),
+                    )
                 )
                 state.sealed = True
-                return finish(Outcome.FINISHED, summary, status="finished")
+                completed = finish(Outcome.FINISHED, summary, status="finished")
+                # The last call was forced: the taxonomy counts this as budget
+                # exhaustion, never as a voluntary finish.
+                if remaining <= 1:
+                    return replace(completed, forced_terminal=True)
+                return completed
 
             if call.name == PATCH_TOOL:
                 path = str(call.arguments.get("path") or "")
@@ -350,7 +430,7 @@ def run_agent(
                 # applying a patch: the tool said "identical, 0 different".
                 state.verified = result.state != "no_changes"
                 state.last_verify_ok = result.ok if result.state != "no_changes" else None
-            messages.append(_tool_message(call, result))
+            messages.append(_tool_message(call, result, calls_left=max(0, remaining - 1)))
 
         state.turn += 1
 

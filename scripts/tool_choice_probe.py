@@ -56,36 +56,55 @@ def probe(spec: ModelSpec, *, choice: str | None) -> dict[str, object]:
     }
 
 
-def main() -> int:
-    spec = ModelSpec(
+MODELS = (
+    ModelSpec(
         provider="numes",
         model_id="nvidia/nemotron-3-ultra-550b-a55b:free",
-        label="nemotron",
+        label="nemotron-primary",
         max_tokens=256,
-    )
-    # Three probes, because "required" alone proves nothing: a provider that ignores
-    # the field returns a tool call under "auto" too. "none" is the control — if it is
-    # honoured, no tool call comes back, and then "required" means something.
-    probes = [
-        probe(spec, choice=None),
-        probe(spec, choice="required"),
-        probe(spec, choice="none"),
-    ]
-    payload = {"model": spec.model_id, "probes": probes}
+    ),
+    # The fallback models on the same provider, plus Gemini's compatible endpoint:
+    # the loop must not assume that a control which works for one vendor works for
+    # all of them.
+    ModelSpec(
+        provider="numes",
+        model_id="moonshotai/kimi-k3.1-pro:free",
+        label="kimi-fallback",
+        max_tokens=256,
+    ),
+    ModelSpec(
+        provider="gemini",
+        model_id="gemini-3.8-flash",
+        label="gemini-fallback",
+        max_tokens=256,
+    ),
+)
+
+
+def main() -> int:
+    results: dict[str, object] = {}
+    failures = 0
+    for spec in MODELS:
+        probes = [probe(spec, choice=c) for c in (None, "required", "none")]
+        honoured = (
+            probes[1]["ok"]
+            and bool(probes[1]["tool_calls"])
+            and probes[2]["ok"]
+            and not probes[2]["tool_calls"]
+        )
+        results[spec.label] = {"model": spec.model_id, "probes": probes, "honoured": honoured}
+        print(
+            f"{spec.label:18} auto={bool(probes[0]['tool_calls'])} "
+            f"required={bool(probes[1]['tool_calls'])} none={bool(probes[2]['tool_calls'])} "
+            f"honoured={honoured}"
+        )
+        failures += 0 if honoured else 1
     out = REPO_ROOT / "docs/results/tool-choice-probe.json"
-    out.write_text(json.dumps(payload, indent=1, sort_keys=True) + "\n", encoding="utf-8")
-    for item in probes:
-        print(json.dumps(item, sort_keys=True))
-    honoured = (
-        probes[1]["ok"]
-        and bool(probes[1]["tool_calls"])
-        and probes[2]["ok"]
-        and not probes[2]["tool_calls"]
+    out.write_text(
+        json.dumps(results, indent=1, sort_keys=True) + chr(10), encoding="utf-8"
     )
-    print("none honoured (control):", probes[2]["ok"] and not probes[2]["tool_calls"])
-    supported = honoured
-    print("required supported:", supported)
-    return 0 if supported else 1
+    print("models without tool_choice support:", failures)
+    return 0 if failures == 0 else 1
 
 
 if __name__ == "__main__":
