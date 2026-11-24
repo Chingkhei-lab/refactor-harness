@@ -263,13 +263,13 @@ and hashes it. The record is `docs/results/agent-freeze-20261124.json`; `--check
 fails when the tree no longer matches it. The hash does **not** cover the runner script
 or the report, only the surface below.
 
-**Freeze at commit `b35e360` (2026-11-24):**
-`5afe8e9e3df5ff29e2dccb9db329030626d4b225be05d6eff07b03ae2af00c9d`
+**Freeze at commit `86a4da8` (2026-11-24):**
+`b8125f7c7da4203f8ef6580c40486e19497121484724f2116dcc0961f816dd23`
 
 | surface | recorded value |
 | --- | --- |
 | system prompt | `agent-system-1`, 1 677 chars, sha256 `11bd5ed0f1872f4a2da26fd0541aa7009ad8e8fb94e09c4f3e545a5c778cbaab` |
-| tools | 7 schemas, sha256 `5fc3630c18fa661374b33db95fe78cb1771dfe2055c3ac8d99f1c3fc1fbf635c` |
+| tools | 7 schemas, sha256 `5fc3630c18fa661374b33db95fe78cb1771dfe2055c3ac8d99f1c3fc1fbf635c`; implementation (`src/agent/live.py`) sha256 `624ff06dc9f6251a81ba00a2dc405ae277f0251c8443891643b5368e56c700a1` |
 | wrap-up | window 3; tools `run_verify`, `run_tests`, `finish`, `give_up`; terminal `finish`, `give_up`; one reserved call with `tool_choice: "required"`; loop sha256 `9310e9fc87c79f9b877d1dc80d76540c46f09cab296db8c8f283170fb704cb8d` |
 | budgets | run defaults: 12 model calls, 120 000 tokens, 900 s; evaluation caps: 24 runs, 1 500 000 tokens, 28 800 s |
 | guardrails | `src/agent/guardrails.py` sha256 `cb7a88b943a88520740e520fe3f4406654ee3d02676a64eb2cf68fea027f136f` |

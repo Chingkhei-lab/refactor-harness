@@ -1,6 +1,6 @@
 {
- "freeze_sha256": "5afe8e9e3df5ff29e2dccb9db329030626d4b225be05d6eff07b03ae2af00c9d",
- "git_commit": "b35e3609d165f0b9cdc720a14807e1145d8f0f78",
+ "freeze_sha256": "b8125f7c7da4203f8ef6580c40486e19497121484724f2116dcc0961f816dd23",
+ "git_commit": "86a4da8cfb080aa641b9a86b8c446464c2d1b7a6",
  "manifest": {
   "budgets": {
    "evaluation_caps": {
@@ -52,6 +52,7 @@
   },
   "tools": {
    "count": 7,
+   "implementation_sha256": "624ff06dc9f6251a81ba00a2dc405ae277f0251c8443891643b5368e56c700a1",
    "names": [
     "list_files",
     "read_file",

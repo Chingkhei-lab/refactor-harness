@@ -29,6 +29,7 @@ from agent.types import Budget, canonical_json, sha256_text  # noqa: E402
 
 GUARDRAILS = REPO_ROOT / "src" / "agent" / "guardrails.py"
 LOOP = REPO_ROOT / "src" / "agent" / "loop.py"
+LIVE = REPO_ROOT / "src" / "agent" / "live.py"
 CASES = REPO_ROOT / "harness" / "cases"
 RULES = REPO_ROOT / "harness" / "rules"
 GOLDEN = REPO_ROOT / "harness" / "golden"
@@ -70,6 +71,8 @@ def manifest() -> dict[str, Any]:
             "sha256": sha256_text(canonical_json(list(TOOL_SCHEMAS))),
             "names": [str(tool["function"]["name"]) for tool in TOOL_SCHEMAS],
             "count": len(TOOL_SCHEMAS),
+            # What the tools DO is code: the schemas alone do not freeze a run.
+            "implementation_sha256": _file_sha256(LIVE),
         },
         "wrapup": {
             "window": WRAPUP_WINDOW,
