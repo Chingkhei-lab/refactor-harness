@@ -189,7 +189,15 @@ class ChatClient:
                     json.dumps(
                         {
                             "turn": self.turns,
-                            "tool_choice": self.tool_choice,
+                            # What was sent, not the client's default: the loop
+                            # forces a tool call in wrap-up, and a cassette that
+                            # records the default cannot answer what the provider
+                            # was asked for.
+                            "tool_choice": request.tool_choice or self.tool_choice,
+                            "tools": [
+                                str(tool.get("function", {}).get("name") or "")
+                                for tool in request.tools
+                            ],
                             "request_sha256": request.sha256(),
                             "ok": result.ok,
                             "error_type": result.error_type,
@@ -199,6 +207,12 @@ class ChatClient:
                                 {"name": call.name, "arguments": call.arguments_raw}
                                 for call in result.tool_calls
                             ],
+                            # Kept because an outcome is not reproducible from the
+                            # parsed turn: `finish_reason` says whether the provider
+                            # stopped for a tool call or ran out, and reasoning is
+                            # output that costs tokens.
+                            "finish_reason": str(getattr(result, "finish_reason", "") or ""),
+                            "reasoning": str(getattr(result, "reasoning", "") or ""),
                             "usage": result.usage,
                             "latency_s": result.latency_s,
                             "attempts": result.attempts,
