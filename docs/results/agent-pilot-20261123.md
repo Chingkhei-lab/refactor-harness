@@ -333,19 +333,68 @@ Seventeen tool calls, thirteen model calls:
   another patch → **`dangerous_code`**;
 * calls 16–17: `run_verify` → `candidate vs original: identical=33 different=1`.
 
-Then the token budget (120 000) opened wrap-up, the required call came back without a
-terminal tool, and the run ended `wrapup_unresolved` — recorded forced, with
+Then the token budget (120 000) opened wrap-up, the required call came back with
+`finish` — twice — and the run ended `wrapup_unresolved`, recorded forced, with
 `budget:tokens` as the reason. **This is the first pilot in which the live guardrails
 fired on a model's own patches**, which was the missing evidence from checkpoint 14.
+
+#### What the cassette actually says (correction)
+
+The two required calls *did* produce a terminal tool call. Turns 12 and 13 each
+returned `finish` with a summary; the loop refused both because the last `run_verify`
+reported `different=1` and `last_verify_ok` was False. No call remained to ask again,
+so the run ended `wrapup_unresolved`. The recorded sentence "the extra call did not
+produce a terminal tool call" is therefore wrong: the model decided, and the refusal
+could not be acted on.
+
+The loop now accepts a finish the model itself issues on the reserved call
+(`forced_submission`), leaving the gate as the authority on the difference. That is a
+change from the recorded run, not a description of it. The loop still never
+synthesizes a terminal call of its own.
+
+#### The 175 384 against a 120 000 budget, in numbers
+
+| where | tokens this call | cumulative |
+| --- | --- | --- |
+| through turn 10 | — | 117 120 |
+| turn 11 | 19 285 | 136 405 |
+| turn 12 (wrap-up opens) | 19 402 | 155 807 |
+| turn 13 (reserved extra call) | 19 577 | 175 384 |
+
+The check was `state.tokens > max_tokens` at the top of the loop. Turn 11 began at
+117 120, under the cap, so it was paid for; it crossed to 136 405. Wrap-up then spends
+its calls without re-checking the budget (by design: the budget is spent), and every
+call re-sends the full history, so two more calls added 38 979. The overshoot is the
+crossing call plus the wrap-up calls.
+
+The forward-looking check now opens wrap-up at turn 11 instead of turn 12, but it does
+not by itself reduce the number of calls: the loop still allows `max_model_calls + 1`,
+so the same three calls happen and the total is the same. **What bounds a run is the
+call count, not the token number.** A hard token bound would have to refuse a call
+whose projected prompt does not fit and end with a recorded forced `give_up` — a
+protocol change, not this fix.
+
+#### Refusals in this run, by code
+
+| code | refusals | hand-checked correct | what the hand check found |
+| --- | --- | --- | --- |
+| `dangerous_code` | 3 | 0 | each patch added `compile(..., ast.PyCF_ONLY_AST)`, a parse-only call; the whole-replacement scan flagged it. After the added-lines and AST-only fixes these are allowed |
+| `precondition_mismatch` | 3 | 3 | every patch named `83f901…`, the version before the model's own first patch (`cd3c62…`); the precondition did exactly its job |
+| `syntax_error`, `protected_path`, `secret_literal`, `high_entropy_blob`, `copied_case_literal`, size/path | 0 | — | not exercised by this run |
+
+Calls 9 and 11 each carried two codes (dangerous and stale), so the columns count codes,
+not events. Hand check: each refusal was replayed against the patch arguments and the
+workspace hash; the sample is 4 of 4 events.
 
 ### The limitation, stated
 
 A model that neither finishes nor gives up, and keeps proposing refused patches, will
-exhaust the token budget. Wrap-up then asks it once more; if it again does not decide,
-the run ends `wrapup_unresolved`. That is a **deterministic stop**, the one shape of
-ending the criterion forbids — but it is now an explicit, labelled stop rather than a
-budget expiring silently, and it is attributable to the model. Further tuning on three
-pilot tasks would be overfitting to them, so it is recorded and the work proceeds.
+exhaust the token budget. Wrap-up then asks it once more; if the finish it produces is
+refused (here: an unapproved difference) and no call remains, the run ends
+`wrapup_unresolved`. That is a **deterministic stop**, the one shape of ending the
+criterion forbids — but it is now an explicit, labelled stop rather than a budget
+expiring silently, and it is attributable to the model. Further tuning on three pilot
+tasks would be overfitting to them, so it is recorded and the work proceeds.
 
 ## 9. Local and CI test counts
 

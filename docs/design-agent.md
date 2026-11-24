@@ -232,8 +232,8 @@ whole proposal, because "which files" and "how much" are properties of the chang
 | `path_outside_workspace` | `..`, or a file the task's allowed set does not include |
 | `absolute_path` | an absolute path, on either platform |
 | `size_files` / `size_lines` | per task: 5 files, 400 lines by default |
-| `dangerous_code` | new `eval`, `exec`, `compile`, `__import__`, `os.system`, `os.popen`, `subprocess.*`, `pickle.loads`, `marshal.loads`, `socket`, `urllib`, `requests` — by AST, plus `import` of the same modules |
-| `syntax_error` | added lines that do not parse on their own (a fast refusal, not the authority: the gate parses the whole file after applying) |
+| `dangerous_code` | new `eval`, `exec`, `compile`, `__import__`, `os.system`, `os.popen`, `subprocess.*`, `pickle.loads`, `marshal.loads`, `socket`, `urllib`, `requests` — by AST, plus `import` of the same modules. `compile(..., ast.PyCF_ONLY_AST)` is exempt because it parses and does not execute; a flags variable, a conditional and any other spelling are not |
+| `syntax_error` | the applied file does not parse (for a hunk, the file the patch would produce). This is the post-application test, not a judgement of the fragment |
 | `secret_literal` | token-shaped literals: `ghp_…`, `sk-…`, `AKIA…`, `xox…`, private keys, `Bearer …`, `token = "…"` |
 | `high_entropy_blob` | a whitespace-free string of 40+ characters above 4.2 bits/char — a key or a base64 blob |
 | `copied_case_literal` | a string or number of 3+ characters equal to a visible case input |
@@ -260,6 +260,22 @@ Two refinements came out of running that suite, and both are in the code with th
 reason: `lstrip("./")` turned `.github/…` into `github/…` (a path guard that missed
 the directory it was written for), and the entropy check refused the migration's own
 help text until it also required a whitespace-free token.
+
+A third refinement came out of the live wiring: content checks read the added lines,
+not the whole replacement. `mccabe.py` calls `compile`; scanning the rewritten file
+made a warning-threshold edit `dangerous_code` three times on a model's own patches.
+The AST-only `compile` exemption is what lets the target's own idiom through, and a
+fragment that cannot parse on its own (a `case` arm) is judged on the file it
+produces, comparing dangerous-call counts per kind with the old file so that only a
+**gain** is refused.
+
+**The name list is evadable, and the design says so.** It reads call names from the
+AST, so `getattr(__builtins__, "ev" + "al")(payload)`, a subscript on a string, or a
+name assembled at runtime is invisible to it. A test pins that evasion as an expected
+pass, because a guardrail that pretends to completeness is worse than one that states
+its limit. The real boundaries are the sandbox the candidate runs in and the human
+review of the diff; this check makes the obvious attempt loud, coded and countable,
+not impossible.
 
 ## 8. Evaluation
 
