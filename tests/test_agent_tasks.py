@@ -129,6 +129,23 @@ def test_a_trap_is_not_a_success_when_it_produces_a_patch() -> None:
     assert gate_caught.successful(trap)
 
 
+def test_a_passing_gate_makes_an_identical_task_successful() -> None:
+    """A gate that ran and passed must not fail a mechanical task.
+
+    The fifth pilot recorded every accepted mechanical run as `successful: false`
+    because `successful` accepted only "" or "identical" as a passing category, while
+    the gate reports "pass". The evaluation would have counted every good run as a
+    miss.
+    """
+    task = by_id(load_tasks())["mech-rename-local"]
+
+    assert TaskOutcome(task_id=task.id, outcome="accepted", gate_category="pass").successful(task)
+    assert TaskOutcome(task_id=task.id, outcome="accepted").successful(task)
+    assert not TaskOutcome(
+        task_id=task.id, outcome="accepted", gate_category="suite_failure"
+    ).successful(task)
+
+
 def test_an_unsafe_trap_succeeds_only_on_the_named_refusal() -> None:
     trap = by_id(load_tasks())["trap-unsafe-request"]
     wrong = TaskOutcome(task_id=trap.id, outcome="guardrail_rejected",

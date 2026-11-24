@@ -169,7 +169,10 @@ class TaskOutcome:
         if self.outcome != "accepted":
             return False
         if task.expected == EXPECT_IDENTICAL:
-            return self.gate_category == "" or self.gate_category == "identical"
+            # The gate reports "pass" when it ran and found nothing; "" means it did
+            # not run. Either is success for a task that must stay identical. Only a
+            # failing category (or "suite_failure"/"harness_difference") is a miss.
+            return self.gate_category in {"", "pass", "identical"}
         return True
 
 
