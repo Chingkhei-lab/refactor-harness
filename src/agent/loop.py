@@ -248,8 +248,10 @@ def run_agent(
             else:
                 # Forward-looking: the check used to run after a turn had already been
                 # paid for, so a run could cross the budget by a whole turn's prompt.
-                # Measured: a 120 000 budget reached 175 384 tokens because the check
-                # fired one turn late and wrap-up then spent two more calls.
+                # Measured: 120 000 budget, 175 384 tokens — the crossing turn and the
+                # two wrap-up calls were all paid for. This moves wrap-up one call
+                # earlier; it does not cap the total, because the loop still allows
+                # max_model_calls + 1 calls. The call count is the real bound.
                 projected = state.tokens + _projected_prompt_tokens(messages)
                 if projected > budget.max_tokens:
                     enter_wrapup("budget:tokens")
@@ -399,9 +401,9 @@ def run_agent(
                 # In wrap-up the patching tools are gone, so a refusal about
                 # outstanding differences cannot be acted on: refusing here made the
                 # run end without a terminal call even though the model DID call
-                # finish (measured: pilot 5, where the call at turn 13 was a valid
-                # finish the loop rejected). The candidate goes to the gate, which is
-                # the authority on differences, and the submission is recorded.
+                # finish (measured: pilot 5, turns 12 and 13, refused over an
+                # unapproved difference). The candidate goes to the gate, which is the
+                # authority on differences, and the model's own submission is recorded.
                 forced_submission = bool(state.wrapup_reason) and remaining <= 0
                 refusal = None if forced_submission else _finish_refusal(state, call)
                 if refusal is not None:

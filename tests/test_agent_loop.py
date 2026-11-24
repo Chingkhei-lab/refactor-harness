@@ -520,6 +520,31 @@ def test_a_provider_that_ignores_tool_choice_still_ends_the_run(clean_db: Any) -
     assert result.reached_wrapup
 
 
+def test_a_silent_final_call_is_never_turned_into_a_finish(clean_db: Any) -> None:
+    """The rule for a forced ending: give_up/wrapup_unresolved, never finish.
+
+    A candidate may only be submitted by the model. When wrap-up's required call comes
+    back as prose, the loop has nothing to submit; manufacturing a `finish` would put a
+    candidate forward that the model never confirmed. The run ends failed and forced,
+    with no terminal tool call in its history.
+    """
+    run_id = str(uuid4())
+    client = ScriptedClient([turn(text="Nothing to do here.")])
+    result = run_agent(
+        run_id=run_id,
+        task="rename",
+        deps=deps(clean_db, client, FakeToolbox(), budget=Budget(max_model_calls=1)),
+    )
+
+    assert result.outcome is Outcome.FAILED
+    assert not result.finished, "the loop submitted a finish the model never made"
+    assert result.reason.startswith("silent_turn_at_wrapup"), result.reason
+    assert result.forced_terminal
+    assert not [m for m in result.messages if m.get("role") == "tool"], (
+        "a terminal tool call was manufactured"
+    )
+
+
 #: One row per way a run used to end without a decision. Each must now open wrap-up
 #: and end on a terminal call, with the original reason recorded (ADR 006 D23).
 STOP_CONDITIONS = (
