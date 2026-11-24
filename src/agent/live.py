@@ -277,12 +277,6 @@ class WorkspaceToolbox:
         "test_mccabe.py::test_idempotent_any_syntatically_valid_python",
     )
     suite_cwd_globs: tuple[str, ...] = ("test_*.py",)
-    #: Lines per `read_file` page. The loop truncates at 200 lines as well; paging
-    #: keeps the whole file reachable, which a 700-line module needs.
-    #: Lines per read. 600 matches the loop's own truncation cap, so a module under
-    #: 24 KB arrives in one call: the pilot showed the model re-reading both files
-    #: because a 180-line page hid the rest, and a re-read is tokens.
-    read_lines: int = 600
     #: The suite's wall clock. A timeout is reported as "unavailable", not a failure.
     suite_timeout_seconds: float = 180.0
     read_files: set[str] = field(default_factory=set)

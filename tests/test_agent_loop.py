@@ -309,6 +309,19 @@ def test_tool_output_is_truncated_with_a_marker_and_wrapped_as_untrusted(clean_d
     assert "line 0" in payload and "line 4999" in payload, "head and tail survive"
 
 
+def test_the_line_budget_is_sized_for_source_not_test_output() -> None:
+    """600 lines: a 500-line module arrives in one read, and 601 still truncates.
+
+    The fifth pilot paged a 15 KB file across its whole budget because the cap was
+    set for test output. The byte cap alone would not catch a file of short lines,
+    so the line cap is asserted at its boundary rather than only by a huge body.
+    """
+    at_cap = "\n".join(f"line {n}" for n in range(600))
+    assert truncate(at_cap) == at_cap
+    over_cap = "\n".join(f"line {n}" for n in range(601))
+    assert "…[truncated:" in truncate(over_cap)
+
+
 def test_truncation_leaves_short_output_untouched() -> None:
     assert truncate("short") == "short"
     assert wrap_untrusted("read_file", "x") == (
@@ -582,6 +595,41 @@ def test_a_silent_final_call_is_never_turned_into_a_finish(clean_db: Any) -> Non
     assert not [m for m in result.messages if m.get("role") == "tool"], (
         "a terminal tool call was manufactured"
     )
+
+
+def test_the_models_own_finish_on_the_reserved_call_is_accepted(clean_db: Any) -> None:
+    """Forced submission is still the model's submission, recorded as forced.
+
+    In wrap-up the patching tools are gone, so an outstanding difference cannot be
+    fixed. On the reserved call the loop accepts the `finish` the model actually made
+    and sends the candidate to the gate. It records the ending as forced, because the
+    protocol, not the model, chose the moment.
+    """
+    run_id = str(uuid4())
+    client = ScriptedClient(
+        [
+            turn(call("run_verify")),
+            turn(call("finish", summary="one difference remains")),
+            turn(call("finish", summary="one difference remains")),
+        ]
+    )
+    result = run_agent(
+        run_id=run_id,
+        task="rename",
+        deps=deps(
+            clean_db, client, FakeToolbox(verify_ok=False), Budget(max_model_calls=2, max_tokens=1)
+        ),
+    )
+
+    assert result.outcome is Outcome.FINISHED
+    assert result.reason == "one difference remains"
+    assert result.forced_terminal, "the reserved call is a forced ending"
+    assert result.state.wrapup_reason == "budget:tokens"
+    refusals = [
+        m for m in result.messages
+        if m.get("role") == "tool" and "a difference is not yours to approve" in m["content"]
+    ]
+    assert len(refusals) == 1, "the first finish was refused; the reserved call accepted it"
 
 
 #: One row per way a run used to end without a decision. Each must now open wrap-up
