@@ -143,6 +143,17 @@ def _assistant_message(assistant: AssistantTurn) -> dict[str, Any]:
     return message
 
 
+def _projected_prompt_tokens(messages: Sequence[dict[str, Any]]) -> int:
+    """What the next call will cost, before making it: 4 characters per token.
+
+    The same approximation the token estimate uses (ADR 006 D18). It is a budget, not
+    a bill: the point is to enter wrap-up *before* paying for a prompt that would
+    exceed the cap, not to predict the provider's count.
+    """
+    size = sum(len(str(message.get("content") or "")) for message in messages)
+    return max(1, size // 4)
+
+
 def _tool_message(
     call: ToolCall, result: ToolResult, *, calls_left: int | None = None
 ) -> dict[str, Any]:
@@ -234,8 +245,14 @@ def run_agent(
         if not state.wrapup_reason:
             if elapsed() > budget.max_wall_seconds:
                 enter_wrapup("budget:wall_clock")
-            elif state.tokens > budget.max_tokens:
-                enter_wrapup("budget:tokens")
+            else:
+                # Forward-looking: the check used to run after a turn had already been
+                # paid for, so a run could cross the budget by a whole turn's prompt.
+                # Measured: a 120 000 budget reached 175 384 tokens because the check
+                # fired one turn late and wrap-up then spent two more calls.
+                projected = state.tokens + _projected_prompt_tokens(messages)
+                if projected > budget.max_tokens:
+                    enter_wrapup("budget:tokens")
 
         # Calls left INCLUDING this one. `remaining <= WRAPUP_WINDOW` withdraws the
         # tools that change the workspace; `remaining <= 1` leaves only the two that
@@ -379,7 +396,14 @@ def run_agent(
                 return gave_up
 
             if call.name == FINISH_TOOL:
-                refusal = _finish_refusal(state, call)
+                # In wrap-up the patching tools are gone, so a refusal about
+                # outstanding differences cannot be acted on: refusing here made the
+                # run end without a terminal call even though the model DID call
+                # finish (measured: pilot 5, where the call at turn 13 was a valid
+                # finish the loop rejected). The candidate goes to the gate, which is
+                # the authority on differences, and the submission is recorded.
+                forced_submission = bool(state.wrapup_reason) and remaining <= 0
+                refusal = None if forced_submission else _finish_refusal(state, call)
                 if refusal is not None:
                     messages.append(
                         _tool_message(
