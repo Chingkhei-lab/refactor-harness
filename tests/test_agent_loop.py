@@ -494,6 +494,45 @@ def test_a_terminal_call_on_the_last_model_call_is_marked_forced(clean_db: Any) 
     assert result.forced_terminal, "the last call was the only one left"
 
 
+def test_the_token_budget_is_checked_against_the_next_prompt(clean_db: Any) -> None:
+    """A budget that only looked at spent tokens bought one more full prompt.
+
+    The probe run measures what the first prompt costs; the second run's cap is that
+    plus fifty tokens, and its first turn costs a hundred. Spent alone is under the
+    cap, so the old check would have made the next call; spent plus the next prompt is
+    over it, so wrap-up opens and the give_up is recorded as forced.
+    """
+    probe = ScriptedClient(
+        [turn(call("read_file", path="mccabe.py")), turn(call("give_up"))]
+    )
+    run_agent(
+        run_id=str(uuid4()),
+        task="rename",
+        deps=deps(clean_db, probe, FakeToolbox(), Budget(max_model_calls=8)),
+    )
+    first_prompt = (
+        sum(len(str(m.get("content") or "")) for m in probe.requests[0].messages) // 4
+    )
+
+    client = ScriptedClient(
+        [turn(call("read_file", path="mccabe.py"), tokens=100), turn(call("give_up"))]
+    )
+    result = run_agent(
+        run_id=str(uuid4()),
+        task="rename",
+        deps=deps(
+            clean_db,
+            client,
+            FakeToolbox(),
+            Budget(max_model_calls=8, max_tokens=first_prompt + 50),
+        ),
+    )
+
+    assert result.outcome is Outcome.GAVE_UP
+    assert result.wrapup_reason == "budget:tokens", result.wrapup_reason
+    assert result.forced_terminal, "the give_up was made under a budget stop"
+
+
 def test_a_provider_that_ignores_tool_choice_still_ends_the_run(clean_db: Any) -> None:
     """kimi answers with prose under `tool_choice: "required"` (measured).
 
