@@ -407,6 +407,7 @@ five new tests existed. The chain, from the CI annotations and the local summary
 | `567f0f9` | 514 + 33 = **547** | **547** |
 | `1af9048` | 519 + 33 = **552** | **552** |
 | `dfd1a95` | 539 + 33 = **572** | **572** |
+| `a09bf45` | 540 + 33 = **573** | **573** |
 
 No test is collected in one environment and not the other. The two environments differ
 in *outcome*, not in *count*. On `dfd1a95` the local run was 539 passed and 33 skipped;
