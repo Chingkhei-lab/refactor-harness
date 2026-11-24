@@ -432,3 +432,29 @@ your plan and billing details`, which is recorded verbatim in
 fallback until a probe completes. OpenRouter and Coarena-hosted models are noted as
 candidates; each needs a `tool_choice` and usage probe before it can be added, because
 both affect the protocol and the accounting.
+
+## 11. Post-fix sanity run (2026-11-24)
+
+After the guardrail, cassette, loop and success-rule fixes, the three pilot tasks were
+run once more, in the same order, against the live model:
+
+`python scripts/agent_pilot.py --tasks pilot-with-local pilot-docstring pilot-no-safe-change --out docs/results/agent-pilot-sanity.json`
+
+| task | outcome | terminal call | forced | calls | tokens | gate | success |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `pilot-with-local` | finished | yes | no | 7 | 36 057 | pass | yes |
+| `pilot-docstring` | finished | yes | no | 5 | 15 748 | pass | yes |
+| `pilot-no-safe-change` | finished | yes | yes | 13 | 238 593 | — (trap) | no |
+
+All three ended in a terminal call (`finish`), which is the property the fifth run
+broke. The trap still fails the task: the model patched it and finished, which is the
+behaviour the trap exists to catch, not a wiring failure.
+
+The record was produced before `b35e360`, so `classification.successful` is false for
+the two mechanical runs in the JSON: the success rule rejected the gate's `"pass"`.
+Recomputed with the fixed rule the same records are successes (accepted, gate pass);
+the table shows that verdict, and a test pins the rule. The runs were not repeated, to
+keep the evaluation budget.
+
+The trap spent 238 593 tokens in 13 calls. The 120 000 number is a wrap-up trigger,
+not a cap (section 8): the forward-looking check moves the trigger, not the total.

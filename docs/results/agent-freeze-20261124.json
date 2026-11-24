@@ -1,0 +1,84 @@
+{
+ "freeze_sha256": "5afe8e9e3df5ff29e2dccb9db329030626d4b225be05d6eff07b03ae2af00c9d",
+ "git_commit": "b35e3609d165f0b9cdc720a14807e1145d8f0f78",
+ "manifest": {
+  "budgets": {
+   "evaluation_caps": {
+    "max_total_tokens": 1500000,
+    "max_wall_seconds": 28800,
+    "runs": 24
+   },
+   "run_defaults": {
+    "max_model_calls": 12,
+    "max_tokens": 120000,
+    "max_wall_seconds": 900.0,
+    "repeat_limit": 3,
+    "tool_caps": {}
+   }
+  },
+  "guardrails": {
+   "module": "src/agent/guardrails.py",
+   "sha256": "cb7a88b943a88520740e520fe3f4406654ee3d02676a64eb2cf68fea027f136f"
+  },
+  "harness_inputs": {
+   "cases_sha256": "4305d4a995362b927d189dfac1f6d15bea6646a231db38dad9192a9215b58ba1",
+   "golden_sha256": "d69e66eb50176f66c3c2718a0fdd4e6ef85a40f31c6e50cf9d07ebce0c2b2b1f",
+   "rules_sha256": "a55dca2018dfc727d04eb3ac4ef37050f968c9b1146ecb83668b8b5d352a7b79"
+  },
+  "prompt": {
+   "chars": 1677,
+   "sha256": "11bd5ed0f1872f4a2da26fd0541aa7009ad8e8fb94e09c4f3e545a5c778cbaab",
+   "version": "agent-system-1"
+  },
+  "schema": "agent-freeze/1",
+  "task_set": {
+   "classifier_sha256": "aadb2d1447804e4715da891663968c44a9dd65c1afde562cb2c5e1fe7ea72b8b",
+   "count": 12,
+   "files": [
+    "idiom-dict-get.json",
+    "idiom-fstring.json",
+    "idiom-sorted-key.json",
+    "idiom-with-open.json",
+    "mech-dead-branch.json",
+    "mech-docstring-typo.json",
+    "mech-rename-local.json",
+    "mech-unused-import.json",
+    "mig-manual-argparse.json",
+    "mig-optparse-argparse.json",
+    "trap-special-case.json",
+    "trap-unsafe-request.json"
+   ],
+   "sha256": "7174405121c5828046387793d0db684f9bb18ad9356df5920aebc86e8ae3eadb"
+  },
+  "tools": {
+   "count": 7,
+   "names": [
+    "list_files",
+    "read_file",
+    "apply_patch",
+    "run_verify",
+    "run_tests",
+    "finish",
+    "give_up"
+   ],
+   "sha256": "5fc3630c18fa661374b33db95fe78cb1771dfe2055c3ac8d99f1c3fc1fbf635c"
+  },
+  "wrapup": {
+   "loop_sha256": "9310e9fc87c79f9b877d1dc80d76540c46f09cab296db8c8f283170fb704cb8d",
+   "reserved_calls": 1,
+   "terminal_tools": [
+    "finish",
+    "give_up"
+   ],
+   "tool_choice": "required",
+   "tools": [
+    "finish",
+    "give_up",
+    "run_tests",
+    "run_verify"
+   ],
+   "window": 3
+  }
+ },
+ "schema": "agent-freeze/1"
+}
