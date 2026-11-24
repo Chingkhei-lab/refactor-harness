@@ -408,6 +408,7 @@ five new tests existed. The chain, from the CI annotations and the local summary
 | `1af9048` | 519 + 33 = **552** | **552** |
 | `dfd1a95` | 539 + 33 = **572** | **572** |
 | `a09bf45` | 540 + 33 = **573** | **573** |
+| `afc98e7` | 542 + 33 = **575** | **575** |
 
 No test is collected in one environment and not the other. The two environments differ
 in *outcome*, not in *count*. On `dfd1a95` the local run was 539 passed and 33 skipped;
@@ -418,9 +419,11 @@ wiring against the real tree), while `test_worker.py::test_sigterm_drains_the_cu
 and three `tests/test_harness_sandbox_hostile.py` cases run on Linux and skip on
 Windows. Seven down, four up: net three more skips in `ci`.
 
-`sandbox-hostile` on `dfd1a95`: 28 collected, 28 passed, 0 skipped, including the
-300-mutant sandbox gate (30/30 verdicts, byte-identical) and the live agent wiring
-against the real guardrails.
+`sandbox-hostile` on `dfd1a95` and on `afc98e7`: 28 collected, 28 passed, 0 skipped,
+including the 300-mutant sandbox gate (30/30 verdicts, byte-identical) and the live
+agent wiring against the real guardrails. On `afc98e7`, `ci` collected 575 (539 passed
++ 36 skipped): four more tests than `dfd1a95` (the success rule, two wrap-up tests, and
+the 600-line boundary), with the same skip split.
 
 ## 10. Fallback providers
 
