@@ -295,26 +295,44 @@ def _size_refusals(
     return refusals
 
 
-def _syntax_refusals(proposal: Proposal) -> list[Refusal]:
+def _patched_text(patch: FilePatch, current: str) -> str:
+    """The file the patch produces, computed without touching the workspace."""
+    if patch.content is not None:
+        return patch.content
+    lines = current.splitlines(keepends=True)
+    for hunk in sorted(patch.hunks, key=lambda item: item.start, reverse=True):
+        index = max(0, hunk.start - 1)
+        lines[index:index] = [
+            line if line.endswith(chr(10)) else line + chr(10) for line in hunk.added
+        ]
+    return "".join(lines)
+
+
+def _syntax_refusals(
+    proposal: Proposal, *, workspace: Mapping[str, str]
+) -> list[Refusal]:
     refusals: list[Refusal] = []
     for patch in proposal.files:
         if not patch.path.endswith(".py"):
             continue
-        # A wholesale write is checked as a file: parsing it is the same test the
-        # gate applies after writing, so a fragment rule would refuse `def f(x, y=1):`
-        # for having no body when the body is the next, unchanged line of the file.
-        subject = patch.content if patch.content is not None else (patch.added_text or "\n")
+        # Parse the file the patch produces, not the fragment. A `def` header's body
+        # is the next, unchanged line, and a `case` arm is only valid inside a match:
+        # judging the fragment refused valid patches (the gate is the authority on
+        # the applied file anyway).
+        if patch.content is not None:
+            subject = patch.content
+        else:
+            current = workspace.get(patch.path)
+            if current is None:
+                continue
+            subject = _patched_text(patch, current)
         try:
             ast.parse(subject)
         except SyntaxError as exc:
-            # A hunk is a fragment, so a failure here is not proof the file will not
-            # parse; it is proof the added lines do not stand alone. The gate parses
-            # the whole file after application, so this is a fast refusal, not the
-            # authority.
             refusals.append(
                 Refusal(
                     SYNTAX_ERROR,
-                    f"added lines do not parse on their own: {exc.msg} (line {exc.lineno})",
+                    f"the applied file does not parse: {exc.msg} (line {exc.lineno})",
                     patch.path,
                     exc.lineno or 0,
                 )
@@ -336,6 +354,25 @@ def _dangerous_call_name(node: ast.AST) -> str | None:
     return None
 
 
+def _is_ast_only_flag(node: ast.AST) -> bool:
+    """Only the exact constant is proof; a name or an expression is not.
+
+    `flags = ast.PyCF_ONLY_AST if cond else 0; compile(..., flags)` is not provably
+    parse-only, and `other.PyCF_ONLY_AST` is not the flag at all. A computed value
+    hides whether the mode executes, so the only forms allowed are the literal
+    attribute and its literal value (1024).
+    """
+    if isinstance(node, ast.Attribute):
+        return (
+            node.attr == "PyCF_ONLY_AST"
+            and isinstance(node.value, ast.Name)
+            and node.value.id == "ast"
+        )
+    if isinstance(node, ast.Constant):
+        return type(node.value) is int and node.value == 1024
+    return False
+
+
 def _is_ast_only_compile(node: ast.AST) -> bool:
     """`compile(src, name, "exec", ast.PyCF_ONLY_AST)` parses, it does not execute.
 
@@ -345,10 +382,7 @@ def _is_ast_only_compile(node: ast.AST) -> bool:
     """
     if not isinstance(node, ast.Call):
         return False
-    return any(
-        isinstance(arg, ast.Attribute) and arg.attr == "PyCF_ONLY_AST"
-        for arg in node.args
-    )
+    return any(_is_ast_only_flag(arg) for arg in node.args)
 
 
 def _parse_added(text: str) -> ast.AST | None:
@@ -379,25 +413,97 @@ def _parse_added(text: str) -> ast.AST | None:
     return None
 
 
-def _dangerous_refusals(proposal: Proposal) -> list[Refusal]:
+_DANGEROUS_IMPORTS = frozenset({"subprocess", "socket", "urllib", "requests", "pty"})
+
+
+def _dangerous_kind(node: ast.AST) -> str | None:
+    """The kind a call contributes to, or None. AST-only `compile` contributes none."""
+    name = _dangerous_call_name(node)
+    if name is None:
+        return None
+    if name == "compile" and _is_ast_only_compile(node):
+        return None
+    return DANGEROUS_CALLS.get(name)
+
+
+def _import_kind(node: ast.AST) -> str | None:
+    if isinstance(node, ast.Import):
+        modules = [alias.name.split(".")[0] for alias in node.names]
+    elif isinstance(node, ast.ImportFrom) and node.module:
+        modules = [node.module.split(".")[0]]
+    else:
+        return None
+    return next((module for module in modules if module in _DANGEROUS_IMPORTS), None)
+
+
+def _dangerous_counts(tree: ast.AST) -> dict[str, int]:
+    """Dangerous-call and dangerous-import counts, per kind."""
+    counts: dict[str, int] = {}
+    for node in ast.walk(tree):
+        kind = _dangerous_kind(node) or _import_kind(node)
+        if kind is not None:
+            counts[kind] = counts.get(kind, 0) + 1
+    return counts
+
+
+def _dangerous_increases(patch: FilePatch, current: str) -> list[tuple[str, int, int]]:
+    """Kinds whose count the applied file increases, with old and new counts.
+
+    This is the fallback for a fragment that does not parse on its own (`case 1:` is
+    only valid inside a `match`). Judging the whole new file without the comparison
+    would re-refuse every patch to a module that already calls `compile`; comparing
+    per kind refuses only a *gain*.
+    """
+    try:
+        old_tree = ast.parse(current)
+    except SyntaxError:
+        return []
+    try:
+        new_tree = ast.parse(_patched_text(patch, current))
+    except SyntaxError:
+        return []  # the syntax check owns that refusal
+    old = _dangerous_counts(old_tree)
+    new = _dangerous_counts(new_tree)
+    return [
+        (kind, old.get(kind, 0), count)
+        for kind, count in sorted(new.items())
+        if count > old.get(kind, 0)
+    ]
+
+
+def _dangerous_refusals(
+    proposal: Proposal, *, workspace: Mapping[str, str]
+) -> list[Refusal]:
     refusals: list[Refusal] = []
     for patch in proposal.files:
         if not patch.path.endswith(".py"):
             continue
         tree = _parse_added(patch.added_text)
         if tree is None:
-            continue  # unparsable as a fragment; the gate parses the applied file
+            # A fragment that does not parse on its own is judged on the file it
+            # produces: the applied tree, compared with the old one per kind.
+            current = workspace.get(patch.path)
+            if current is None:
+                continue
+            for kind, before, after in _dangerous_increases(patch, current):
+                refusals.append(
+                    Refusal(
+                        DANGEROUS_CODE,
+                        f"the added lines do not parse on their own, and the applied "
+                        f"file gains {kind} calls ({before} -> {after}); a refactoring "
+                        "patch may not gain process execution, dynamic evaluation or "
+                        "network access",
+                        patch.path,
+                    )
+                )
+            continue
         for node in ast.walk(tree):
-            name = _dangerous_call_name(node)
-            if name is None:
-                continue
-            if name == "compile" and _is_ast_only_compile(node):
-                continue
-            code = DANGEROUS_CALLS.get(name)
+            code = _dangerous_kind(node)
             if code is None:
                 # `import subprocess` then `subprocess.run` in a later hunk: the
                 # call is covered, and the import is caught by the name check below.
                 continue
+            name = _dangerous_call_name(node) or code
             refusals.append(
                 Refusal(
                     DANGEROUS_CODE,
@@ -411,7 +517,7 @@ def _dangerous_refusals(proposal: Proposal) -> list[Refusal]:
             if isinstance(node, ast.Import):
                 for alias in node.names:
                     module = alias.name.split(".")[0]
-                    if module in {"subprocess", "socket", "urllib", "requests", "pty"}:
+                    if module in _DANGEROUS_IMPORTS:
                         refusals.append(
                             Refusal(
                                 DANGEROUS_CODE,
@@ -423,7 +529,7 @@ def _dangerous_refusals(proposal: Proposal) -> list[Refusal]:
                         )
             elif isinstance(node, ast.ImportFrom) and node.module:
                 module = node.module.split(".")[0]
-                if module in {"subprocess", "socket", "urllib", "requests", "pty"}:
+                if module in _DANGEROUS_IMPORTS:
                     refusals.append(
                         Refusal(
                             DANGEROUS_CODE,
@@ -593,8 +699,8 @@ def check(
     outcome.refusals.extend(_size_refusals(proposal, max_files=max_files, max_lines=max_lines))
     if outcome.refusals:
         return outcome
-    outcome.refusals.extend(_syntax_refusals(proposal))
-    outcome.refusals.extend(_dangerous_refusals(proposal))
+    outcome.refusals.extend(_syntax_refusals(proposal, workspace=workspace))
+    outcome.refusals.extend(_dangerous_refusals(proposal, workspace=workspace))
     outcome.refusals.extend(_secret_refusals(proposal))
     outcome.refusals.extend(_copied_literal_refusals(proposal, case_inputs=case_inputs))
     outcome.refusals.extend(_precondition_refusals(proposal, workspace=workspace))

@@ -473,6 +473,103 @@ def test_a_patch_judging_only_new_lines_does_not_refuse_the_file_it_edits() -> N
     assert outcome.ok, outcome.codes
 
 
+@pytest.mark.parametrize(
+    "flags",
+    [
+        "flags",
+        "ast.PyCF_ONLY_AST if guard else 0",
+        "other.PyCF_ONLY_AST",
+        "ast.PyCF_ONLY_AST | 0",
+    ],
+)
+def test_compile_with_a_computed_flag_is_refused(flags: str) -> None:
+    """Only the exact constant is provably parse-only; a name or expression is not.
+
+    `compile(src, name, mode, flags)` with `flags` assigned by a branch can execute,
+    and `other.PyCF_ONLY_AST` is not the flag at all. The allowance is the literal
+    `ast.PyCF_ONLY_AST` (or 1024), never a value that merely arrives at the call.
+    """
+    added = (
+        "flags = ast.PyCF_ONLY_AST" + chr(10)
+        + f"tree = compile(code, '<s>', 'exec', {flags})" + chr(10)
+    )
+    outcome = check(one(patch(added)), workspace=workspace())
+    assert DANGEROUS_CODE in outcome.codes, outcome.codes
+
+
+def test_the_literal_ast_flag_value_is_allowed() -> None:
+    added = "tree = compile(code, '<s>', 'exec', 1024)" + chr(10)
+    assert DANGEROUS_CODE not in codes(one(patch(added)))
+
+
+#: A `case` arm is valid only inside its `match`, so the added lines cannot parse
+#: alone. The applied file can, and the comparison is per kind.
+MATCH_BEFORE = (
+    "def f(x):" + chr(10)
+    + "    match x:" + chr(10)
+    + "        case 0:" + chr(10)
+    + "            return 1" + chr(10)
+)
+
+
+def match_patch(added: str) -> Proposal:
+    return one(
+        FilePatch(
+            path=TARGET,
+            hunks=(Hunk(start=5, added=(added,)),),
+            before_sha256=sha(MATCH_BEFORE),
+        )
+    )
+
+
+def test_an_unparseable_fragment_that_adds_a_dangerous_call_is_refused() -> None:
+    """The fragment is judged on the file it produces, compared with the old file."""
+    outcome = check(
+        match_patch("        case 1:" + chr(10) + "            exec(payload)" + chr(10)),
+        workspace={TARGET: MATCH_BEFORE},
+    )
+    assert outcome.codes == [DANGEROUS_CODE], outcome.codes
+
+
+def test_an_unparseable_fragment_that_adds_nothing_dangerous_is_allowed() -> None:
+    """The false-positive half: a new `case` arm is a legitimate patch to a match."""
+    outcome = check(
+        match_patch("        case 2:" + chr(10) + "            return 2" + chr(10)),
+        workspace={TARGET: MATCH_BEFORE},
+    )
+    assert outcome.ok, outcome.codes
+
+
+def test_a_name_based_check_is_evadable_and_that_is_the_known_limit() -> None:
+    """Pinned as an expected pass, not as a gap we did not notice.
+
+    The check reads call names from the AST, so `getattr(__builtins__, 'ev' + 'al')`
+    and names assembled from strings are invisible to it. The real boundaries are the
+    sandbox the patch runs in and the human review of the diff; a name list is a
+    speed bump, and pretending otherwise would be worse than saying it.
+    """
+    before = "def f(payload):" + chr(10) + "    return 1" + chr(10)
+    outcome = check(
+        one(
+            FilePatch(
+                path=TARGET,
+                hunks=(
+                    Hunk(
+                        start=2,
+                        added=(
+                            "    return getattr(__builtins__, 'ev' + 'al')(payload)"
+                            + chr(10),
+                        ),
+                    ),
+                ),
+                before_sha256=sha(before),
+            )
+        ),
+        workspace={TARGET: before},
+    )
+    assert outcome.ok, outcome.codes
+
+
 def test_a_genuinely_new_compile_call_is_still_refused() -> None:
     """The false-negative check for the above: a patch whose *added* line executes."""
     exec_line = "    exec(compile(payload, '<x>', 'exec'))"
