@@ -385,3 +385,115 @@ def test_the_suite_configuration_is_protected_too(path: str) -> None:
     proposal = one(patch("addopts = --deselect test_everything\n", path=path))
     outcome = check(proposal, workspace={path: ""}, allowed_prefixes=(path,))
     assert PROTECTED_PATH in outcome.codes, outcome.codes
+
+
+def test_the_ast_only_compile_is_allowed() -> None:
+    """`compile(src, name, "exec", ast.PyCF_ONLY_AST)` parses; it does not execute.
+
+    mccabe reads a module exactly this way, so refusing the builtin `compile`
+    unconditionally rejected the target's own idiom — measured, three times, on a
+    model's real patches in the fifth pilot. The flag is the line between "read code"
+    and "run code".
+    """
+    added_line = "    tree = compile(code, args[0], 'exec', ast.PyCF_ONLY_AST)"
+    with_read = BEFORE.replace(
+        "    return 1",
+        added_line + chr(10) + "    return 1",
+        1,
+    )
+    allowed = Proposal(
+        files=(
+            FilePatch(
+                path=TARGET,
+                hunks=(
+                    Hunk(
+                        start=2,
+                        added=(
+                            "    tree = compile(code, args[0], 'exec', ast.PyCF_ONLY_AST)"
+                            + chr(10),
+                        ),
+                    ),
+                ),
+                before_sha256=sha(BEFORE),
+                content=with_read,
+            ),
+        )
+    )
+    assert codes(allowed) == [], codes(allowed)
+
+    # The bare builtin still refuses: it executes whatever it is handed.
+    exec_line = "    exec(compile(user_input, '<input>', 'exec'))"
+    with_exec = BEFORE.replace(
+        "    return 1",
+        exec_line + chr(10) + "    return 1",
+        1,
+    )
+    executing = Proposal(
+        files=(
+            FilePatch(
+                path=TARGET,
+                hunks=(
+                    Hunk(
+                        start=2,
+                        added=("    exec(compile(user_input, '<input>', 'exec'))" + chr(10),),
+                    ),
+                ),
+                before_sha256=sha(BEFORE),
+                content=with_exec,
+            ),
+        )
+    )
+    assert DANGEROUS_CODE in codes(executing), codes(executing)
+
+
+def test_a_patch_judging_only_new_lines_does_not_refuse_the_file_it_edits() -> None:
+    """A rewrite of a block that already calls `compile` adds nothing dangerous.
+
+    The model rewrote a whole function that contains `compile(..., PyCF_ONLY_AST)`;
+    with the *replacement* counted as added, every such patch is refused. Only lines
+    the patch genuinely introduces are new.
+    """
+    with_compile = BEFORE.replace(
+        "    return 1",
+        "    tree = compile(code, '<s>', 'exec')" + chr(10) + "    return 1",
+        1,
+    )
+    rewritten = with_compile.replace("    return 1", "    return 1, None", 1)
+    proposal = Proposal(
+        files=(
+            FilePatch(
+                path=TARGET,
+                hunks=(Hunk(start=3, added=("    return 1, None" + chr(10),)),),
+                before_sha256=sha(with_compile),
+                content=rewritten,
+            ),
+        )
+    )
+    outcome = check(proposal, workspace={TARGET: with_compile})
+    assert outcome.ok, outcome.codes
+
+
+def test_a_genuinely_new_compile_call_is_still_refused() -> None:
+    """The false-negative check for the above: a patch whose *added* line executes."""
+    exec_line = "    exec(compile(payload, '<x>', 'exec'))"
+    with_exec = BEFORE.replace(
+        "    return 1",
+        exec_line + chr(10) + "    return 1",
+        1,
+    )
+    proposal = Proposal(
+        files=(
+            FilePatch(
+                path=TARGET,
+                hunks=(
+                    Hunk(
+                        start=2,
+                        added=("    exec(compile(payload, '<x>', 'exec'))" + chr(10),),
+                    ),
+                ),
+                before_sha256=sha(BEFORE),
+                content=with_exec,
+            ),
+        )
+    )
+    assert DANGEROUS_CODE in codes(proposal), codes(proposal)

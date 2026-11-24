@@ -23,6 +23,7 @@ import ast
 import hashlib
 import math
 import re
+import textwrap
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any
@@ -335,18 +336,62 @@ def _dangerous_call_name(node: ast.AST) -> str | None:
     return None
 
 
+def _is_ast_only_compile(node: ast.AST) -> bool:
+    """`compile(src, name, "exec", ast.PyCF_ONLY_AST)` parses, it does not execute.
+
+    mccabe does exactly this to read a module, so refusing the builtin `compile`
+    unconditionally rejects the target's own idiom. The flag is the difference between
+    "read code" and "run code", and it is the only form allowed through.
+    """
+    if not isinstance(node, ast.Call):
+        return False
+    return any(
+        isinstance(arg, ast.Attribute) and arg.attr == "PyCF_ONLY_AST"
+        for arg in node.args
+    )
+
+
+def _parse_added(text: str) -> ast.AST | None:
+    """Parse a hunk in the contexts a fragment can land in, or return None.
+
+    The content checks read the ADDED LINES, never the whole file they land in: a
+    whole-file scan makes a one-word edit to a module that already calls `compile`
+    look like a patch that adds it (found by the live-wiring test, then measured
+    three times on a model's own patches).
+
+    A hunk is a fragment, not a file. `    return x` is only valid inside a
+    function, and a `def` header's body is the next, unchanged line. So try the
+    fragment as written, dedented, and as a function body, and judge the first
+    context that parses. A fragment that fits none of them is left to the gate, which
+    parses the whole file after application and is the authority on syntax.
+    """
+    dedented = textwrap.dedent(text)
+    candidates = (
+        text,
+        dedented,
+        "def _guardrail_probe():\n" + textwrap.indent(dedented, "    "),
+    )
+    for subject in candidates:
+        try:
+            return ast.parse(subject)
+        except SyntaxError:
+            continue
+    return None
+
+
 def _dangerous_refusals(proposal: Proposal) -> list[Refusal]:
     refusals: list[Refusal] = []
     for patch in proposal.files:
         if not patch.path.endswith(".py"):
             continue
-        try:
-            tree = ast.parse(patch.added_text or "\n")
-        except SyntaxError:
-            continue  # already refused as syntax_error
+        tree = _parse_added(patch.added_text)
+        if tree is None:
+            continue  # unparsable as a fragment; the gate parses the applied file
         for node in ast.walk(tree):
             name = _dangerous_call_name(node)
             if name is None:
+                continue
+            if name == "compile" and _is_ast_only_compile(node):
                 continue
             code = DANGEROUS_CALLS.get(name)
             if code is None:
