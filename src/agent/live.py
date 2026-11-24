@@ -23,6 +23,7 @@ Two rules that are easy to get wrong and are enforced here:
 
 from __future__ import annotations
 
+import difflib
 import hashlib
 import json
 import shutil
@@ -179,7 +180,7 @@ class ChatClient:
             # control in scripts/tool_choice_probe.py), so a turn cannot end in prose.
             # That makes the silent-turn failure a protocol impossibility rather than
             # a nudge the model can ignore.
-            tool_choice=self.tool_choice,
+            tool_choice=request.tool_choice or self.tool_choice,
             temperature=request.temperature,
         )
         if self.cassette_path is not None:
@@ -264,7 +265,10 @@ class WorkspaceToolbox:
     suite_cwd_globs: tuple[str, ...] = ("test_*.py",)
     #: Lines per `read_file` page. The loop truncates at 200 lines as well; paging
     #: keeps the whole file reachable, which a 700-line module needs.
-    read_lines: int = 180
+    #: Lines per read. 600 matches the loop's own truncation cap, so a module under
+    #: 24 KB arrives in one call: the pilot showed the model re-reading both files
+    #: because a 180-line page hid the rest, and a re-read is tokens.
+    read_lines: int = 600
     #: The suite's wall clock. A timeout is reported as "unavailable", not a failure.
     suite_timeout_seconds: float = 180.0
     read_files: set[str] = field(default_factory=set)
@@ -332,11 +336,27 @@ class WorkspaceToolbox:
         found = old in current
         replaced = current.replace(old, new, 1) if found else None
         start = current[: current.index(old)].count(chr(10)) + 1 if found else 1
+        # Genuinely new lines: a line diff of what the patch replaces, not a set
+        # difference (which drops a second, identical added line and so misses new
+        # code). Judging the whole replacement instead makes a patch that rewrites a
+        # 40-line function "add" every line in it, and a pre-existing
+        # `compile(..., ast.PyCF_ONLY_AST)` reads as a newly added call. Measured:
+        # three false `dangerous_code` refusals on a model's own patches.
+        replacement = new.splitlines()
+        matcher = difflib.SequenceMatcher(
+            a=old.splitlines(), b=replacement, autojunk=False
+        )
+        added = tuple(
+            line + chr(10)
+            for tag, _i1, _i2, j1, j2 in matcher.get_opcodes()
+            if tag in {"insert", "replace"}
+            for line in replacement[j1:j2]
+        )
         proposal = Proposal(
             files=(
                 FilePatch(
                     path=path,
-                    hunks=(Hunk(start=start, added=tuple(new.splitlines(keepends=True))),),
+                    hunks=(Hunk(start=start, added=added),),
                     before_sha256=str(arguments.get("before_sha256") or ""),
                     content=replaced,
                 ),
