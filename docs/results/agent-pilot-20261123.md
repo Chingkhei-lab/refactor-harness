@@ -406,12 +406,20 @@ five new tests existed. The chain, from the CI annotations and the local summary
 | --- | --- | --- |
 | `567f0f9` | 514 + 33 = **547** | **547** |
 | `1af9048` | 519 + 33 = **552** | **552** |
-| this tree | 525 + 33 = **558** | (next push) |
+| `dfd1a95` | 539 + 33 = **572** | **572** |
 
 No test is collected in one environment and not the other. The two environments differ
-in *outcome*, not in *count*: 29 skipped in CI against 33 locally, because
-`test_worker.py::test_sigterm_drains_the_current_job_and_exits_0` and three
-`tests/test_harness_sandbox_hostile.py` cases run on Linux and skip on Windows.
+in *outcome*, not in *count*. On `dfd1a95` the local run was 539 passed and 33 skipped;
+the `ci` job was 536 passed and 36 skipped, still 572 collected. Two sets move in
+opposite directions: seven `tests/test_agent_live_toolbox.py` tests skip in `ci` because
+that job does not fetch the pinned mccabe tree (the `sandbox-hostile` job runs that
+wiring against the real tree), while `test_worker.py::test_sigterm_drains_the_current_job_and_exits_0`
+and three `tests/test_harness_sandbox_hostile.py` cases run on Linux and skip on
+Windows. Seven down, four up: net three more skips in `ci`.
+
+`sandbox-hostile` on `dfd1a95`: 28 collected, 28 passed, 0 skipped, including the
+300-mutant sandbox gate (30/30 verdicts, byte-identical) and the live agent wiring
+against the real guardrails.
 
 ## 10. Fallback providers
 
