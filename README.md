@@ -76,6 +76,12 @@ idempotency keys and 0 duplicate effects appeared.
 
 ## Releases
 
+[v0.4](https://github.com/Chingkhei-lab/refactor-harness/releases/tag/v0.4) —
+the added-lines guardrail fix, the hard token cap, `finished_open_difference` and
+the first evaluation pass (14 of 24 runs: 4 accepted, 8 budget, 2 gate-rejected).
+The approval UI is still not shipped; it is specified only
+([`docs/release-notes-v0.4.md`](docs/release-notes-v0.4.md)).
+
 [v0.3.1](https://github.com/Chingkhei-lab/refactor-harness/releases/tag/v0.3.1) —
 **corrects v0.3's stage-2 mutation result**: 100/100 was a mutator that re-printed
 the module; the harness kills 62 of 100 and the upstream suite 74. Also carries the
