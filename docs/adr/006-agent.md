@@ -256,22 +256,26 @@ nothing is dropped silently.
 before each run; the run stops when a cap is reached and the report says where. Every
 response is written to a cassette before it is parsed.
 
-**The token cap is soft, by decision (2026-11-24).** The loop opens wrap-up when the
-next projected prompt would cross the cap, but it does not refuse a call: the trigger
-is a prompt to decide, and `max_model_calls + 1` calls remain the hard bound. Each
-wrap-up call re-sends the whole history. Measured overshoot: 175 384 tokens against
-120 000 in the fifth pilot (1.46×), and 238 593 (1.99×) in the sanity trap. The
-projection also undercounts because it sums message `content` only and ignores
+**The token cap is hard (revised 2026-11-24 after the wiring runs).** When the next
+projected prompt would cross `max_tokens`, the loop refuses that call, records a
+forced `give_up` (`budget_exhausted` in the taxonomy) and returns. It does not open
+wrap-up, because wrap-up still permits every remaining call, and each one re-sends
+the whole history. The soft version was measured first: a pycodestyle migration run
+with a 120 000 cap crossed at turn 7 (135 843 tokens) and then spent seven wrap-up
+calls, ending at **436 572 tokens (3.64×)**. The 238 593-token sanity trap (1.99×)
+and the pilot's 175 384 (1.46×) were the same failure at smaller call counts. The
+projection still undercounts because it sums message `content` only and ignores
 tool-call arguments and tool schemas (3 971 projected against 27 300 actual at the
-trap's turn 10), so the trigger can fire a turn late.
+trap's turn 10), so the stop can fire a turn late; the call that would cross is the
+last one made.
 
-A hard cap was considered and rejected for this pass: it would end runs without the
-terminal call D23 requires and would need a new taxonomy entry before the first
-evaluation. Instead the total cap is the cost bound and the runner stops before the
-next run when it is reached; at the measured mean (96 799 tokens/run over the three
-sanity runs) 1 500 000 covers about 15 of the 24 planned runs, and the report names
-the tasks that did not run instead of extrapolating. A candidate protocol for the
-next pass is recorded in D27.
+This is a protocol change and required a new freeze. It also changes D23's
+"every run ends in a terminal call" invariant: a token stop has no room for one, so
+it records the refusal itself as the forced ending. Every other stop still opens
+wrap-up. The total cap remains the cost bound: the runner checks it before each run
+and names the tasks that did not run rather than extrapolating. At the old measured
+mean (96 799 tokens/run) 1 500 000 covered about 15 of 24; with the hard stop the
+mean should fall, and the report uses the measured count.
 
 ## D26 — The evaluation surface is frozen by one hash
 
@@ -280,24 +284,26 @@ and hashes it. The record is `docs/results/agent-freeze-20261124.json`; `--check
 fails when the tree no longer matches it. The hash does **not** cover the runner script
 or the report, only the surface below.
 
-**Freeze regenerated 2026-11-24 after the open-difference outcome:**
-`e1855d13d775b0026b194ca86699dac2d3f56d42425fb9f09a3772606cd8e43e`
+**Freeze regenerated 2026-11-24 after the hard token cap:**
+`97fac66ccc2468d993a13ee980f4125ba28e3fa9d207f6215e6ccf1e99acbf81`
 
-This supersedes `1b07549e…`, `134289c5…`, `7f200a31…` and `b8125f7c…`: `loop.py`,
-the task classifier, and the toolbox changed. The second change came from the real pycodestyle wiring run:
+This supersedes `e1855d13…`, `1b07549e…`, `134289c5…`, `7f200a31…` and
+`b8125f7c…`: `loop.py`, the task classifier, and the toolbox changed. The second change came from the real pycodestyle wiring run:
 `list_files` decoded every `.py` file, and one legacy-encoded fixture in that tree
 ended the run with `UnicodeDecodeError`. Listing is now name-only and reads replace
 undecodable bytes. The third hides `run_tests` from the model while leaving the gate's
 suite intact: the mccabe suite takes 512s, and a model that spends its wall clock there
 cannot patch. The fourth makes a forced, no-patch `give_up` a trap success: the trap
 asks for no patch, and the terminal's provenance is not the submission. Earlier records
-remain in git history; the evaluation uses this hash.
+remain in git history; the evaluation uses this hash. The fifth refuses the call that
+would cross the token cap; the 436 572-token migration run is the measurement that
+forced it.
 
 | surface | recorded value |
 | --- | --- |
 | system prompt | `agent-system-1`, 1 677 chars, sha256 `11bd5ed0f1872f4a2da26fd0541aa7009ad8e8fb94e09c4f3e545a5c778cbaab` |
 | tools | 7 schemas, sha256 `5fc3630c18fa661374b33db95fe78cb1771dfe2055c3ac8d99f1c3fc1fbf635c`; implementation (`src/agent/live.py`) sha256 `7537829355bc2065c9174a2ce76bf37628fddab6d70f644e627f0ad7932ee2b7` |
-| wrap-up | window 3; tools `run_verify`, `run_tests`, `finish`, `give_up`; terminal `finish`, `give_up`; one reserved call with `tool_choice: "required"`; loop sha256 `39bbd689ba4f0e8cad7a9e8b48cca856ab076f6ca414592e0a9703a5ac8b5853` |
+| wrap-up | window 3; tools `run_verify`, `run_tests`, `finish`, `give_up`; terminal `finish`, `give_up`; one reserved call with `tool_choice: "required"`; loop sha256 `031e39e9dd51eae4d3dd7cfdc69895d3b0d07ebb7da53d61f971c5945f15dfcc` |
 | budgets | run defaults: 12 model calls, 120 000 tokens, 900 s; evaluation caps: 24 runs, 1 500 000 tokens, 28 800 s |
 | guardrails | `src/agent/guardrails.py` sha256 `cb7a88b943a88520740e520fe3f4406654ee3d02676a64eb2cf68fea027f136f` |
 | task set | 12 tasks, sha256 `7174405121c5828046387793d0db684f9bb18ad9356df5920aebc86e8ae3eadb`; success ladder (`src/agent/tasks.py`) sha256 `7eb5e6fc4101cad701554a97ea42df86cb77677cd80d6c1c2b328ae3f776cb2e` |
@@ -307,11 +313,12 @@ A change to any of these is a new freeze and a new evaluation; the first pass st
 headline. The evaluator must run with `python scripts/agent_freeze.py --check
 docs/results/agent-freeze-20261124.json` before it starts and record the result.
 
-## D27 — A hard token cap, for the next pass
+## D27 — Hard token cap (implemented in the fifth freeze)
 
-Not implemented, not frozen. Stop before a call once provider-reported spending has
-reached `max_tokens`; record `gave_up` with `wrapup_unresolved: budget:tokens` and
-`forced_terminal`. That bounds a run at the cap plus the call that crossed it
-(measured worst: 27 300 tokens) and removes the post-trigger calls. It needs its own
-tests for the stop shape and a revision of D23's terminal-call invariant, so it is a
-new freeze, never an edit under the first evaluation.
+Implemented 2026-11-24 after the migration wiring run spent 436 572 tokens against a
+120 000 cap. The loop refuses the call that would cross `max_tokens` and records a
+forced `gave_up` with `wrapup_reason: budget:tokens`; `_stalled_run` and the token
+test cover the stop shape, and D23 now says a token stop is the one ending without a
+terminal tool call. The earlier soft-cap proposal (stop on provider-reported spending,
+record `wrapup_unresolved`) was not used: the projection is the trigger, so the refused
+call is never sent.

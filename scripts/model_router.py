@@ -182,7 +182,10 @@ def _retry_after_seconds(headers: httpx.Headers) -> float | None:
         if not raw:
             continue
         try:
-            return max(0.0, float(str(raw).rstrip("s")))
+            # A provider can send a 15-minute reset. Honouring that per attempt
+            # turns one rate-limited run into a silent wall-clock sink; retry soon
+            # and let the caller record the failure instead.
+            return min(60.0, max(0.0, float(str(raw).rstrip("s"))))
         except ValueError:
             continue
     return None

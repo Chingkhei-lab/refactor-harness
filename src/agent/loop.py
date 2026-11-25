@@ -254,7 +254,23 @@ def run_agent(
                 # max_model_calls + 1 calls. The call count is the real bound.
                 projected = state.tokens + _projected_prompt_tokens(messages)
                 if projected > budget.max_tokens:
-                    enter_wrapup("budget:tokens")
+                    # A hard stop, not a wrap-up. Entering wrap-up used to leave as
+                    # many calls as the task had left, each re-sending the whole
+                    # history: one migration run with a 120k cap spent 436,572 tokens
+                    # across seven wrap-up calls. The next call is refused and the
+                    # refusal is recorded as a forced terminal, because there is no
+                    # room to ask the model for one.
+                    state.wrapup_reason = "budget:tokens"
+                    state.reached_wrapup = True
+                    reason = (
+                        "budget:tokens: the projected next prompt "
+                        f"({projected} tokens) exceeds the {budget.max_tokens}-token "
+                        "budget; the call was refused"
+                    )
+                    return replace(
+                        finish(Outcome.GAVE_UP, reason, status="gave_up"),
+                        forced_terminal=True,
+                    )
 
         # Calls left INCLUDING this one. `remaining <= WRAPUP_WINDOW` withdraws the
         # tools that change the workspace; `remaining <= 1` leaves only the two that

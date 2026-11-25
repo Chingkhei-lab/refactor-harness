@@ -544,6 +544,8 @@ def test_the_token_budget_is_checked_against_the_next_prompt(clean_db: Any) -> N
     assert result.outcome is Outcome.GAVE_UP
     assert result.wrapup_reason == "budget:tokens", result.wrapup_reason
     assert result.forced_terminal, "the give_up was made under a budget stop"
+    assert result.state.model_calls == 1, "the call that would cross the cap was refused"
+    assert "call was refused" in result.reason
 
 
 def test_a_provider_that_ignores_tool_choice_still_ends_the_run(clean_db: Any) -> None:
@@ -610,14 +612,16 @@ def test_the_models_own_finish_on_the_reserved_call_is_accepted(clean_db: Any) -
         [
             turn(call("run_verify")),
             turn(call("finish", summary="one difference remains")),
-            turn(call("finish", summary="one difference remains")),
         ]
     )
     result = run_agent(
         run_id=run_id,
         task="rename",
         deps=deps(
-            clean_db, client, FakeToolbox(verify_ok=False), Budget(max_model_calls=2, max_tokens=1)
+            clean_db,
+            client,
+            FakeToolbox(verify_ok=False),
+            Budget(max_model_calls=1, max_wall_seconds=-1.0),
         ),
     )
 
@@ -625,12 +629,7 @@ def test_the_models_own_finish_on_the_reserved_call_is_accepted(clean_db: Any) -
     assert result.reason == "one difference remains"
     assert result.forced_terminal, "the reserved call is a forced ending"
     assert result.finished_open_difference, "the difference was still open at submission"
-    assert result.state.wrapup_reason == "budget:tokens"
-    refusals = [
-        m for m in result.messages
-        if m.get("role") == "tool" and "a difference is not yours to approve" in m["content"]
-    ]
-    assert len(refusals) == 1, "the first finish was refused; the reserved call accepted it"
+    assert result.state.wrapup_reason == "budget:wall_clock"
 
 
 #: One row per way a run used to end without a decision. Each must now open wrap-up

@@ -23,10 +23,14 @@ function. A target missing any field is a configuration error, raised before sta
 
 ## One run record (JSON Lines)
 
-`run_key` (task, repeat, model), `run_id`, seed, model id, target, outcome, taxonomy
-class and reason, tokens, wall seconds, `reached_wrapup`, `wrapup_reason`,
-`forced_terminal`, `finished_open_difference`, gate category and pass, suite status,
-hidden result, guardrail refusal codes, and the cassette directory.
+`run_key` (task, repeat, model), `run_id`, seed, model id, `max_output_tokens`,
+target, outcome, taxonomy class and reason, tokens, wall seconds, `reached_wrapup`,
+`wrapup_reason`, `forced_terminal`, `finished_open_difference`, gate category and pass,
+suite status, `truncated_turns`, guardrail refusal codes, and the cassette directory.
+
+`truncated_turns` counts responses whose provider `finish_reason` was `length`: a
+run that never submitted a parseable tool call because its patch did not fit the
+output cap is visible in the record, not hidden inside "silent turn".
 
 The cassette directory is `.harness/agent-eval/<run_id>/`; `cassette.jsonl` is written
 before a response is parsed.
@@ -55,6 +59,8 @@ For each of the 12 tasks, drive the scoring path with a scripted observation and
    rejected, failure.
 4. empty candidate: no patch → `no_patch`.
 5. migration patch: allowed differences, gate `pass` → accepted, success.
+6. open-difference finish, failing gate → `finished_open_difference`, failure.
+7. open-difference finish, gate `pass` on an allowed migration → success.
 
 No provider is called in this step. The runner exposes `--validate` and exits nonzero
 on the first mismatch.
@@ -63,8 +69,15 @@ on the first mismatch.
 
 Three real-model runs, one each: a mechanical mccabe task, the pycodestyle migration,
 and the special-casing trap. They are tagged `wiring`, excluded from the headline, and
-must each end in a terminal call before the evaluation starts. Their records go to
-`docs/results/agent-wiring.jsonl`.
+their records go to `docs/results/agent-wiring.jsonl`.
+
+Wiring is allowed to fail, and did: it found three things the scoring ladder could
+not. `list_files` decoded every `.py` file and died on a legacy-encoded pycodestyle
+fixture; the mccabe suite is 512s, so the 180s tool timeout made a healthy suite look
+unavailable; and the pilot's 2,048-token output cap made a pycodestyle migration patch
+arrive as a truncated JSON call. The fixes are name-only listing, a 600s suite gate
+with `run_tests` hidden from the model, and a 12,288-token output cap. Failed wiring
+records are kept beside the passing ones; they are evidence, not a rehearsal to hide.
 
 ## Launch
 
