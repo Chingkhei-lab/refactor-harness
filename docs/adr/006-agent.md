@@ -275,8 +275,12 @@ This is a protocol change and required a new freeze. It also changes D23's
 it records the refusal itself as the forced ending. Every other stop still opens
 wrap-up. The total cap remains the cost bound: the runner checks it before each run
 and names the tasks that did not run rather than extrapolating. At the old measured
-mean (96 799 tokens/run) 1 500 000 covered about 15 of 24; with the hard stop the
-mean should fall, and the report uses the measured count.
+mean (96 799 tokens/run) 1 500 000 covered about 15 of 24. The first pass covered
+**14 of 24** at a mean of 113 831 and a largest run of 197 457; it stopped at
+1 593 630, because the cap is checked before a run. Four runs were accepted, eight
+stopped on the budget and two were rejected by the gate. The per-run evaluation
+override is 200 000, measured from runs that passed the gate at 116 704 and 142 525
+and were refused at 120 000 and 150 000.
 
 ## D26 — The evaluation surface is frozen by one hash
 

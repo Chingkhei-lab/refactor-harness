@@ -172,10 +172,24 @@ from its own test inputs, a pinned 16-test oracle, A/A 68 identical / 0 differen
 and a canary that survives a comment-only edit
 ([`docs/results/agent-14-20261122.md`](docs/results/agent-14-20261122.md)).
 
-What does not exist yet, and is not claimed: the approval UI, the live wiring from
-`run_verify` to a harness run, and any evaluation run at all — so there is no
-precision number. Checkpoint 15. Until then the honest statement is: the loop, its
-durability and its limits are tested; the refactoring claim is not.
+The loop is now wired to a real target: `run_verify` runs the case set, `finish`
+queries a hidden gate, and the gate, suite and guardrails are the same code the
+unit tests exercise. The live toolbox ran end to end against `mccabe` (mechanical
+rename accepted at 21 419 tokens; the special-case trap refused at 75 312).
+
+**The first evaluation pass is in
+[`docs/results/agent-eval-20261124.md`](docs/results/agent-eval-20261124.md).**
+It completed 14 of 24 planned runs before the 1 500 000-token cap: **4 accepted**,
+8 `budget_exhausted`, 2 `gate_rejected`. The token cap is the dominant stop: three
+budget-exhausted runs had a passing hidden gate but never submitted a terminal
+answer. Five tasks, including both traps, were not reached, so this is a coverage
+result, not a precision number.
+
+What does not exist yet, and is not claimed: the approval UI and its durable
+`agent_approvals` flow (the specification is
+[`docs/design-agent-approvals.md`](docs/design-agent-approvals.md)). The honest
+statement is: the loop, its durability, its limits and one end-to-end evaluation
+pass are tested and reported; a production approval workflow is not.
 
 ## Architecture
 

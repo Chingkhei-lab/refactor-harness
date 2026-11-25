@@ -499,7 +499,13 @@ and ended at **436 572 (3.64×)** after seven wrap-up calls, each re-sending the
 history. That measurement is why the current freeze implements D27: the call that would
 cross the cap is refused, recorded as a forced `give_up`, and no wrap-up calls follow.
 The table above is the measurement of the old protocol, not a description of the loop
-that produces the evaluation.
+that produces the evaluation. The first hard-cap version then skipped the token check
+while wrap-up was already open, and a migration run spent 367 865 tokens against the
+same cap before that was fixed; the check now runs on every iteration. The evaluation
+also found that 120 000 was below the cost of a run that had already passed the gate
+(116 704), and 150 000 was still below the terminal call (142 525 spent, next prompt
+156 459). The evaluation therefore uses a 200 000 hard cap per run and reports how many
+of the 24 runs the 1 500 000 total actually covered.
 
 **The accepted finish is now its own class.** When the model's own `finish` is accepted
 on the reserved call while `run_verify` still reports a difference, the run records

@@ -47,6 +47,12 @@ before a response is parsed.
   obviously exceed the token cap.
 - The total cap stays 1 500 000 for the first pass. At the measured mean it may cover
   about 15 of 24 runs; coverage is reported, not extrapolated.
+- Per-run token cap: **200 000**, hard. The frozen default is 120 000, but the first
+  evaluation attempts measured what that buys: a migration run passed the hidden gate
+  at 116 704 and was refused at 120 213; another passed at 142 525 and was refused at
+  150 000 with a 156 459-token terminal prompt. 200 000 is measured headroom for the
+  terminal call, not a soft target. The worst case is 200 000 per run, and the total
+  cap still stops the pass.
 
 ## Validation before any model tokens
 

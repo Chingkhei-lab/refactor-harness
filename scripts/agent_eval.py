@@ -290,11 +290,17 @@ def run_one(
     suite_status = toolbox.suite_status if patched else "unavailable"
     refusals = tuple(str(call["code"]) for call in toolbox.calls if call.get("code"))
     truncated = 0
+    terminal: list[str] = []
     cassette = run_dir / "cassette.jsonl"
     if cassette.exists():
         for line in cassette.read_text(encoding="utf-8").splitlines():
-            if json.loads(line).get("finish_reason") == "length":
+            turn = json.loads(line)
+            if turn.get("finish_reason") == "length":
                 truncated += 1
+            for call in turn.get("tool_calls") or ():
+                name = str(call.get("name") or "")
+                if name in ("finish", "give_up"):
+                    terminal.append(name)
     classification = score(
         task,
         patch_proposed=patched,
@@ -312,11 +318,6 @@ def run_one(
     )
     # An outcome of `gave_up` can be the loop's hard token stop, not a tool call.
     # Only an actual terminal tool call means the model ended the run.
-    terminal = [
-        str(call["tool"])
-        for call in toolbox.calls
-        if str(call["tool"]) in ("finish", "give_up")
-    ]
     return _run_record(
         task,
         target,
@@ -334,7 +335,20 @@ def run_one(
         forced_terminal=bool(getattr(result, "forced_terminal", False)),
         finished_open_difference=bool(getattr(result, "finished_open_difference", False)),
         terminal_calls=terminal,
-        ended_in_terminal_call=bool(terminal),
+        # A terminal call can be refused (finish with an open difference, or a
+        # repeat) and the run can still end on the token stop. Only the outcome
+        # says whether the run actually ended on the call: a hard token stop is
+        # `give_up` with a reason beginning `budget:tokens`.
+        ended_in_terminal_call=bool(
+            result is not None
+            and (
+                str(result.outcome) == "finished"
+                or (
+                    str(result.outcome) == "gave_up"
+                    and not str(result.reason).startswith("budget:tokens")
+                )
+            )
+        ),
         suite_status=suite_status,
         gate=None if gate is None else {"passed": gate.passed, "category": gate.category},
         refusals=list(refusals),
