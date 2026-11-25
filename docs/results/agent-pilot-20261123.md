@@ -460,8 +460,10 @@ Recomputed with the fixed rule the same records are successes (accepted, gate pa
 the table shows that verdict, and a test pins the rule. The runs were not repeated, to
 keep the evaluation budget.
 
-The trap spent 238 593 tokens in 13 calls. The 120 000 number is a wrap-up trigger,
-not a cap (section 8): the forward-looking check moves the trigger, not the total.
+The trap spent 238 593 tokens in 13 calls. The 120 000 number was a wrap-up trigger
+under the soft protocol, not a cap (section 8): the forward-looking check moved the
+trigger, not the total. Under the current hard cap the call that would cross is
+refused and the run ends as a forced `give_up`.
 
 ### Where the trap's 238 593 tokens went
 
