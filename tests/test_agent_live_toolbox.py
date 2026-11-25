@@ -217,6 +217,23 @@ def test_a_replayed_tool_call_derives_its_effect_instead_of_repeating_it() -> No
     assert _sha(workspace / "mccabe.py") == before, "a replay must not write"
 
 
+def test_listing_and_reading_survive_a_non_utf8_fixture() -> None:
+    # pycodestyle's real tree contains legacy-encoded test fixtures. Listing is a
+    # name-only operation, and reading one is a view with replacement characters;
+    # neither may turn an unrelated fixture into a failed run.
+    workspace = _workspace("encodings")
+    (workspace / "legacy_fixture.py").write_bytes(b"x = '\xff'\n")
+    toolbox = _toolbox(workspace, "encodings")
+
+    listed = toolbox.call("list_files", {}, replayed=False)
+    assert listed.ok, listed.content
+    assert "legacy_fixture.py" in listed.content
+
+    read = toolbox.call("read_file", {"path": "legacy_fixture.py"}, replayed=False)
+    assert read.ok, read.content
+    assert "\ufffd" in read.content
+
+
 def test_the_staging_directory_is_not_the_pinned_tree() -> None:
     workspace = _workspace("staging")
     assert workspace.resolve() != TREE.resolve()

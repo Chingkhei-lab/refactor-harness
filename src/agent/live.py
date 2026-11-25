@@ -287,12 +287,25 @@ class WorkspaceToolbox:
         target = (self.workspace / path).resolve()
         if self.workspace.resolve() not in target.parents and target != self.workspace.resolve():
             raise ValueError(f"{path} is outside the workspace")
-        return target.read_text(encoding="utf-8")
+        # A read is a view, not a decode assertion: pycodestyle's pinned tree has
+        # fixture files in legacy encodings, and a model asking to read one must get
+        # a replacement character, not a UnicodeDecodeError that ends the run.
+        return target.read_text(encoding="utf-8", errors="replace")
+
+    def _workspace_paths(self) -> list[str]:
+        return [
+            str(path.relative_to(self.workspace)).replace("\\", "/")
+            for path in sorted(self.workspace.rglob("*.py"))
+            if "__pycache__" not in path.parts
+        ]
 
     def _workspace_map(self) -> dict[str, str]:
+        # The guardrail compares added lines against the tree. One undecodable
+        # fixture must not make every patch impossible; replacement characters are
+        # identical before and after, so they cannot create a phantom added line.
         return {
             str(path.relative_to(self.workspace)).replace("\\", "/"): path.read_text(
-                encoding="utf-8"
+                encoding="utf-8", errors="replace"
             )
             for path in sorted(self.workspace.rglob("*.py"))
             if "__pycache__" not in path.parts
@@ -323,8 +336,9 @@ class WorkspaceToolbox:
 
     # -- tools ---------------------------------------------------------------
     def _tool_list_files(self, arguments: Mapping[str, Any]) -> ToolResult:
-        names = sorted(self._workspace_map())
-        return ToolResult(ok=True, content="\n".join(names))
+        # Names only: listing a tree must not read every file, both for speed and
+        # because a fixture may not decode as UTF-8.
+        return ToolResult(ok=True, content="\n".join(self._workspace_paths()))
 
     def _tool_read_file(self, arguments: Mapping[str, Any]) -> ToolResult:
         path = str(arguments.get("path") or "")
