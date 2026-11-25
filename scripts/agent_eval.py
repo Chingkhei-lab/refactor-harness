@@ -147,8 +147,15 @@ def score(
     result: Any | None,
     forced_terminal: bool,
     finished_open_difference: bool = False,
+    error: str = "",
 ) -> dict[str, Any]:
     """The one scoring path: validation and real runs both call this."""
+    if error:
+        return {
+            "outcome": "error",
+            "successful": False,
+            "detail": error[:200],
+        }
     gave_up = result is not None and str(result.outcome) == "gave_up"
     budget = result is not None and str(result.outcome) == "budget_exhausted"
     reason = "" if result is None else str(result.reason)
@@ -258,6 +265,12 @@ def run_one(
                 "run_tests": 2,
             },
             max_model_calls=task.max_model_calls,
+            # The frozen default is 120,000. A good migration run reached a
+            # passing gate at 116,704 and needed one more call; at 120,000 it
+            # was refused at 120,213. 150,000 is the evaluation override, still
+            # a hard stop, chosen from that measurement rather than from the
+            # old soft-cap mean.
+            max_tokens=150_000,
         ),
     )
     started = time.monotonic()
@@ -289,6 +302,7 @@ def run_one(
         result=result,
         forced_terminal=bool(getattr(result, "forced_terminal", False)),
         finished_open_difference=bool(getattr(result, "finished_open_difference", False)),
+        error=error,
     )
     (run_dir / "tools.jsonl").write_text(
         "\n".join(json.dumps(call, sort_keys=True) for call in toolbox.calls) + "\n",

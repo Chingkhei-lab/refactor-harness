@@ -38,6 +38,26 @@ def test_every_task_has_a_target_config() -> None:
         assert target.visible_cases.name != target.hidden_cases.name
 
 
+def test_a_provider_error_is_an_error_not_a_success() -> None:
+    runner = _runner()
+    task = runner.load_tasks()[0]
+
+    record = runner.score(
+        task,
+        patch_proposed=False,
+        refusal_codes=(),
+        gate_category="",
+        suite_status="unavailable",
+        result=None,
+        forced_terminal=False,
+        error="ModelCallFailed: server: HTTP 502",
+    )
+
+    assert record["outcome"] == "error"
+    assert record["successful"] is False
+    assert "HTTP 502" in record["detail"]
+
+
 def test_the_plan_interleaves_the_two_rounds_and_is_seeded() -> None:
     runner = _runner()
     tasks = runner.load_tasks()
