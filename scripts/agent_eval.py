@@ -267,10 +267,12 @@ def run_one(
             max_model_calls=task.max_model_calls,
             # The frozen default is 120,000. A good migration run reached a
             # passing gate at 116,704 and needed one more call; at 120,000 it
-            # was refused at 120,213. 150,000 is the evaluation override, still
-            # a hard stop, chosen from that measurement rather than from the
+            # was refused at 120,213. At 150,000 the next run passed the gate at
+            # 142,525 with 12 calls made and was still refused: the terminal
+            # prompt was 156,459. 200,000 leaves room for that final call, still
+            # as a hard stop. It is an evaluation override, measured, not the
             # old soft-cap mean.
-            max_tokens=150_000,
+            max_tokens=200_000,
         ),
     )
     started = time.monotonic()
