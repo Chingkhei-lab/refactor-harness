@@ -425,6 +425,13 @@ def run_agent(
                 )
                 state.sealed = True
                 completed = finish(Outcome.FINISHED, summary, status="finished")
+                if forced_submission:
+                    # The candidate is the model's, but a difference it could not
+                    # approve is still open. The gate decides success; this flag only
+                    # says the submission happened under that condition.
+                    completed = replace(
+                        completed, finished_open_difference=state.last_verify_ok is False
+                    )
                 # The last call was forced: the taxonomy counts this as budget
                 # exhaustion, never as a voluntary finish.
                 if remaining <= 1 or state.wrapup_reason:

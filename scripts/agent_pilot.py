@@ -104,6 +104,7 @@ def _classify(result: Any, task: Task, gate: Any, toolbox: WorkspaceToolbox) -> 
         gave_up_reason=result.reason if str(result.outcome) == "gave_up" else "",
         budget_reason=result.reason if str(result.outcome) == "budget_exhausted" else "",
         forced_terminal=bool(getattr(result, "forced_terminal", False)),
+        finished_open_difference=bool(getattr(result, "finished_open_difference", False)),
     )
     return {
         "outcome": outcome.outcome,
@@ -190,6 +191,7 @@ def run_one(task: Task, *, model: ModelSpec, run_id: str, client: Any, store: Ca
     record: dict[str, Any] = {
         "reached_wrapup": bool(getattr(result, "reached_wrapup", False)),
         "forced_terminal": bool(getattr(result, "forced_terminal", False)),
+        "finished_open_difference": bool(getattr(result, "finished_open_difference", False)),
         # The pilot's acceptance criterion: a run ends in a terminal TOOL call.
         "terminal_calls": terminal,
         "ended_in_terminal_call": bool(terminal),

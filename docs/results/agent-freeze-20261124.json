@@ -1,6 +1,6 @@
 {
- "freeze_sha256": "b8125f7c7da4203f8ef6580c40486e19497121484724f2116dcc0961f816dd23",
- "git_commit": "86a4da8cfb080aa641b9a86b8c446464c2d1b7a6",
+ "freeze_sha256": "7f200a31c5eb8ef0496b0d241dc9e83e1142dfa800d8596d53245f455db8c4c0",
+ "git_commit": "a81e7b4b6d8276976a686c3ec42e5471c7100ed4",
  "manifest": {
   "budgets": {
    "evaluation_caps": {
@@ -32,7 +32,7 @@
   },
   "schema": "agent-freeze/1",
   "task_set": {
-   "classifier_sha256": "aadb2d1447804e4715da891663968c44a9dd65c1afde562cb2c5e1fe7ea72b8b",
+   "classifier_sha256": "3dcf2d6309ab6ccb0eb12920da3edeab6a02c69682ffbe018ab5d909adf1c0fe",
    "count": 12,
    "files": [
     "idiom-dict-get.json",
@@ -65,7 +65,7 @@
    "sha256": "5fc3630c18fa661374b33db95fe78cb1771dfe2055c3ac8d99f1c3fc1fbf635c"
   },
   "wrapup": {
-   "loop_sha256": "9310e9fc87c79f9b877d1dc80d76540c46f09cab296db8c8f283170fb704cb8d",
+   "loop_sha256": "39bbd689ba4f0e8cad7a9e8b48cca856ab076f6ca414592e0a9703a5ac8b5853",
    "reserved_calls": 1,
    "terminal_tools": [
     "finish",

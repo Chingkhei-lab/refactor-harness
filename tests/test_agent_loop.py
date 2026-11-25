@@ -624,6 +624,7 @@ def test_the_models_own_finish_on_the_reserved_call_is_accepted(clean_db: Any) -
     assert result.outcome is Outcome.FINISHED
     assert result.reason == "one difference remains"
     assert result.forced_terminal, "the reserved call is a forced ending"
+    assert result.finished_open_difference, "the difference was still open at submission"
     assert result.state.wrapup_reason == "budget:tokens"
     refusals = [
         m for m in result.messages

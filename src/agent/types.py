@@ -298,6 +298,10 @@ class RunResult:
     #: the decision. Counted as budget exhaustion by the taxonomy, never as a
     #: voluntary `give_up`.
     forced_terminal: bool = False
+    #: The model's own finish was accepted on the reserved call while `run_verify`
+    #: still reported a difference. A distinct label for the review UI; success is
+    #: still decided by the gate, never by this flag.
+    finished_open_difference: bool = False
 
     @property
     def finished(self) -> bool:
