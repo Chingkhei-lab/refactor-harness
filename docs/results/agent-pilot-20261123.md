@@ -493,9 +493,13 @@ but it is too low by roughly 7×: it sums message `content` only (15 886 chars a
 the provider billed 27 300. Turns 3–8 repeated the same two reads; the repeat guard
 refused them without a tool call but each still cost a full prompt.
 
-The firewall is the call count, not the token number. A hard cap would have to stop
-before turn 10 and end the run without a terminal call; D27 records that as the next
-protocol, deliberately not adopted under this freeze.
+The firewall in this record is the call count, not the token number. That was the old
+soft protocol. The pycodestyle wiring run then crossed a 120 000-token cap at 135 843
+and ended at **436 572 (3.64×)** after seven wrap-up calls, each re-sending the whole
+history. That measurement is why the current freeze implements D27: the call that would
+cross the cap is refused, recorded as a forced `give_up`, and no wrap-up calls follow.
+The table above is the measurement of the old protocol, not a description of the loop
+that produces the evaluation.
 
 **The accepted finish is now its own class.** When the model's own `finish` is accepted
 on the reserved call while `run_verify` still reports a difference, the run records

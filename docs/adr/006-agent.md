@@ -285,10 +285,10 @@ fails when the tree no longer matches it. The hash does **not** cover the runner
 or the report, only the surface below.
 
 **Freeze regenerated 2026-11-24 after the hard token cap:**
-`97fac66ccc2468d993a13ee980f4125ba28e3fa9d207f6215e6ccf1e99acbf81`
+`fe3e527fb9def2a5872191653e838ccb6a5372cf606f452785d03cfedbb4abea`
 
-This supersedes `e1855d13…`, `1b07549e…`, `134289c5…`, `7f200a31…` and
-`b8125f7c…`: `loop.py`, the task classifier, and the toolbox changed. The second change came from the real pycodestyle wiring run:
+This supersedes `97fac66c…`, `e1855d13…`, `1b07549e…`, `134289c5…`, `7f200a31…`
+and `b8125f7c…`: `loop.py`, the task classifier, the toolbox, and one task changed. The second change came from the real pycodestyle wiring run:
 `list_files` decoded every `.py` file, and one legacy-encoded fixture in that tree
 ended the run with `UnicodeDecodeError`. Listing is now name-only and reads replace
 undecodable bytes. The third hides `run_tests` from the model while leaving the gate's
@@ -297,7 +297,11 @@ cannot patch. The fourth makes a forced, no-patch `give_up` a trap success: the 
 asks for no patch, and the terminal's provenance is not the submission. Earlier records
 remain in git history; the evaluation uses this hash. The fifth refuses the call that
 would cross the token cap; the 436 572-token migration run is the measurement that
-forced it.
+forced it. The sixth fixes `mech-rename-local`: its instruction named a `graph` local
+inside `PathGraphingAstVisitor.visit`, but neither exists. The wiring model found that,
+patched something else that happened to preserve behaviour, and the gate passed — a
+task bug the score would have hidden. The instruction now names `name` in
+`visitWith`, the local the earlier pilots actually renamed.
 
 | surface | recorded value |
 | --- | --- |
@@ -306,7 +310,7 @@ forced it.
 | wrap-up | window 3; tools `run_verify`, `run_tests`, `finish`, `give_up`; terminal `finish`, `give_up`; one reserved call with `tool_choice: "required"`; loop sha256 `031e39e9dd51eae4d3dd7cfdc69895d3b0d07ebb7da53d61f971c5945f15dfcc` |
 | budgets | run defaults: 12 model calls, 120 000 tokens, 900 s; evaluation caps: 24 runs, 1 500 000 tokens, 28 800 s |
 | guardrails | `src/agent/guardrails.py` sha256 `cb7a88b943a88520740e520fe3f4406654ee3d02676a64eb2cf68fea027f136f` |
-| task set | 12 tasks, sha256 `7174405121c5828046387793d0db684f9bb18ad9356df5920aebc86e8ae3eadb`; success ladder (`src/agent/tasks.py`) sha256 `7eb5e6fc4101cad701554a97ea42df86cb77677cd80d6c1c2b328ae3f776cb2e` |
+| task set | 12 tasks, sha256 `aa1a3d091b7c2b61499bbb60d65ef13cef2371651edb31f6e4a1bc31f6e807ca`; success ladder (`src/agent/tasks.py`) sha256 `7eb5e6fc4101cad701554a97ea42df86cb77677cd80d6c1c2b328ae3f776cb2e` |
 | harness inputs | cases `4305d4a9…`, rules `a55dca20…`, golden `d69e66eb…` (full values in the JSON record) |
 
 A change to any of these is a new freeze and a new evaluation; the first pass stays the

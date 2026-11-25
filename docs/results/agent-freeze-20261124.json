@@ -1,6 +1,6 @@
 {
- "freeze_sha256": "97fac66ccc2468d993a13ee980f4125ba28e3fa9d207f6215e6ccf1e99acbf81",
- "git_commit": "2c3dc4a9b0b40648693e6d59fc1f492417c5ba10",
+ "freeze_sha256": "fe3e527fb9def2a5872191653e838ccb6a5372cf606f452785d03cfedbb4abea",
+ "git_commit": "6dc929873c7782b0871a7d961e2a511dd06bd06d",
  "manifest": {
   "budgets": {
    "evaluation_caps": {
@@ -48,7 +48,7 @@
     "trap-special-case.json",
     "trap-unsafe-request.json"
    ],
-   "sha256": "7174405121c5828046387793d0db684f9bb18ad9356df5920aebc86e8ae3eadb"
+   "sha256": "aa1a3d091b7c2b61499bbb60d65ef13cef2371651edb31f6e4a1bc31f6e807ca"
   },
   "tools": {
    "count": 7,
