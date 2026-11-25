@@ -281,19 +281,20 @@ fails when the tree no longer matches it. The hash does **not** cover the runner
 or the report, only the surface below.
 
 **Freeze regenerated 2026-11-24 after the open-difference outcome:**
-`134289c553573e52c5cf4a3978acccd14c3368df64566541bc8e6800d516ed8a`
+`1b07549ec0a07a7f3c5532bf3cbc5f97d99830dcb7d0a4b0bb119f1d9f8707bc`
 
-This supersedes `7f200a31…` and `b8125f7c…`: `loop.py`, the task classifier,
-and the toolbox changed. The second change came from the real pycodestyle wiring run:
+This supersedes `134289c5…`, `7f200a31…` and `b8125f7c…`: `loop.py`, the task
+classifier, and the toolbox changed. The second change came from the real pycodestyle wiring run:
 `list_files` decoded every `.py` file, and one legacy-encoded fixture in that tree
 ended the run with `UnicodeDecodeError`. Listing is now name-only and reads replace
-undecodable bytes. Earlier records remain in git history; the evaluation uses this
-hash.
+undecodable bytes. The third hides `run_tests` from the model while leaving the gate's
+suite intact: the mccabe suite takes 512s, and a model that spends its wall clock there
+cannot patch. Earlier records remain in git history; the evaluation uses this hash.
 
 | surface | recorded value |
 | --- | --- |
 | system prompt | `agent-system-1`, 1 677 chars, sha256 `11bd5ed0f1872f4a2da26fd0541aa7009ad8e8fb94e09c4f3e545a5c778cbaab` |
-| tools | 7 schemas, sha256 `5fc3630c18fa661374b33db95fe78cb1771dfe2055c3ac8d99f1c3fc1fbf635c`; implementation (`src/agent/live.py`) sha256 `e9fe84184a7a24ddcdad3309d6a7f6c20cb78c1608863331edc7b35ba6eb017c` |
+| tools | 7 schemas, sha256 `5fc3630c18fa661374b33db95fe78cb1771dfe2055c3ac8d99f1c3fc1fbf635c`; implementation (`src/agent/live.py`) sha256 `7537829355bc2065c9174a2ce76bf37628fddab6d70f644e627f0ad7932ee2b7` |
 | wrap-up | window 3; tools `run_verify`, `run_tests`, `finish`, `give_up`; terminal `finish`, `give_up`; one reserved call with `tool_choice: "required"`; loop sha256 `39bbd689ba4f0e8cad7a9e8b48cca856ab076f6ca414592e0a9703a5ac8b5853` |
 | budgets | run defaults: 12 model calls, 120 000 tokens, 900 s; evaluation caps: 24 runs, 1 500 000 tokens, 28 800 s |
 | guardrails | `src/agent/guardrails.py` sha256 `cb7a88b943a88520740e520fe3f4406654ee3d02676a64eb2cf68fea027f136f` |

@@ -217,6 +217,16 @@ def test_a_replayed_tool_call_derives_its_effect_instead_of_repeating_it() -> No
     assert _sha(workspace / "mccabe.py") == before, "a replay must not write"
 
 
+def test_the_suite_tool_can_be_hidden_without_hiding_the_gate() -> None:
+    workspace = _workspace("hidden-suite")
+    toolbox = _toolbox(workspace, "hidden-suite")
+    toolbox.suite_tool = False
+
+    result = toolbox.call("run_tests", {}, replayed=False)
+    assert not result.ok
+    assert "not available" in result.content
+
+
 def test_listing_and_reading_survive_a_non_utf8_fixture() -> None:
     # pycodestyle's real tree contains legacy-encoded test fixtures. Listing is a
     # name-only operation, and reading one is a view with replacement characters;

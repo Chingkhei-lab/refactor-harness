@@ -39,7 +39,10 @@ PRIMARY = ModelSpec(
     provider="numes",
     model_id="nvidia/nemotron-3-ultra-550b-a55b:free",
     label="nemotron-3-ultra",
-    max_tokens=2048,
+    # 12k, not the pilot's 2,048: the pycodestyle migration needs a patch larger
+    # than the pilot's output cap, and three wiring turns ended at `length` with no
+    # parseable tool call. The cap is part of the model protocol and is recorded.
+    max_tokens=12288,
 )
 WORK = REPO_ROOT / ".harness" / "agent-eval"
 FREEZE = REPO_ROOT / "docs" / "results" / "agent-freeze-20261124.json"
@@ -83,7 +86,9 @@ TARGETS: dict[str, Target] = {
         golden_hidden=REPO_ROOT / "harness" / "golden" / "mccabe-hidden.json",
         suite=MCCABE_SUITE,
         suite_cwd_globs=("test_*.py",),
-        suite_timeout_seconds=180.0,
+        # Measured at 512s on this machine with the idempotence test deselected.
+        # The old 180s turned the trap's `run_tests` into a false suite timeout.
+        suite_timeout_seconds=600.0,
     ),
     "pycodestyle": Target(
         name="pycodestyle",
@@ -182,6 +187,7 @@ def _run_record(
         "expected": task.expected,
         "target": target.name,
         "model": model.model_id,
+        "max_output_tokens": model.max_tokens,
         "kind_of_run": kind,
         "excluded_from_headline": kind != "evaluation",
     }
@@ -229,6 +235,7 @@ def run_one(
         max_files=task.max_files,
         max_lines=task.max_lines,
         suite=target.suite,
+        suite_tool=False,
         suite_cwd_globs=target.suite_cwd_globs,
         suite_timeout_seconds=target.suite_timeout_seconds,
     )
@@ -263,6 +270,12 @@ def run_one(
     # on it, and never report the baseline's state as its verdict.
     suite_status = toolbox.suite_status if patched else "unavailable"
     refusals = tuple(str(call["code"]) for call in toolbox.calls if call.get("code"))
+    truncated = 0
+    cassette = run_dir / "cassette.jsonl"
+    if cassette.exists():
+        for line in cassette.read_text(encoding="utf-8").splitlines():
+            if json.loads(line).get("finish_reason") == "length":
+                truncated += 1
     classification = score(
         task,
         patch_proposed=patched,
@@ -303,6 +316,7 @@ def run_one(
         suite_status=suite_status,
         gate=None if gate is None else {"passed": gate.passed, "category": gate.category},
         refusals=list(refusals),
+        truncated_turns=truncated,
         tool_calls=[call["tool"] for call in toolbox.calls],
         classification=classification,
         summary="" if result is None else result.reason[:600],
@@ -546,7 +560,7 @@ def main(argv: list[str] | None = None) -> int:
 def _model(name: str) -> ModelSpec:
     if name == PRIMARY.model_id:
         return PRIMARY
-    return ModelSpec(provider=PRIMARY.provider, model_id=name, label=name, max_tokens=2048)
+    return ModelSpec(provider=PRIMARY.provider, model_id=name, label=name, max_tokens=12288)
 
 
 _CLIENT: Any = None

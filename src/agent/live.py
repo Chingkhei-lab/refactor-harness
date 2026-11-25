@@ -279,6 +279,11 @@ class WorkspaceToolbox:
     suite_cwd_globs: tuple[str, ...] = ("test_*.py",)
     #: The suite's wall clock. A timeout is reported as "unavailable", not a failure.
     suite_timeout_seconds: float = 180.0
+    #: Whether the model may run the target's whole suite. The gate always can (it
+    #: calls `_tool_run_tests` directly); a model that spends its 900s on an
+    #: eight-minute suite cannot also patch. The evaluation hides the tool, not the
+    #: oracle.
+    suite_tool: bool = True
     read_files: set[str] = field(default_factory=set)
     calls: list[dict[str, Any]] = field(default_factory=list)
 
@@ -323,6 +328,13 @@ class WorkspaceToolbox:
             # An effect is derived from committed arguments, never re-performed: a
             # resumed run must not apply the same patch twice (ADR 006 D4).
             return ToolResult(ok=True, content=f"{name}: replayed from the committed log")
+        if name == "run_tests" and not self.suite_tool:
+            return ToolResult(
+                ok=False,
+                content=(
+                    "run_tests: not available in this run; use run_verify for the visible cases"
+                ),
+            )
         try:
             handler = getattr(self, f"_tool_{name}")
             result: ToolResult = handler(arguments)
