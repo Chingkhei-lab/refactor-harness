@@ -1,6 +1,6 @@
 {
  "freeze_sha256": "e1855d13d775b0026b194ca86699dac2d3f56d42425fb9f09a3772606cd8e43e",
- "git_commit": "7764a029a82ea28f76f7246d64f6d030b560a93b",
+ "git_commit": "79491bb45106ac598bd4152b9f162eb0a25892c7",
  "manifest": {
   "budgets": {
    "evaluation_caps": {
