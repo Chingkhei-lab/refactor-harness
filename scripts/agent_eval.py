@@ -247,11 +247,15 @@ def run_one(
         model=model.model_id,
         budget=Budget.with_tool_slack(
             {
-                "read_file": 12,
-                "list_files": 4,
-                "apply_patch": 6,
-                "run_verify": 8,
-                "run_tests": 4,
+                # Enough to find the file and the target, not enough to reread
+                # the whole tree until the token cap fires. The earlier 12/4/6/8/4
+                # let one mechanical run spend 114,715 tokens on eight turns of
+                # `read_file` and never patch.
+                "read_file": 4,
+                "list_files": 2,
+                "apply_patch": 4,
+                "run_verify": 4,
+                "run_tests": 2,
             },
             max_model_calls=task.max_model_calls,
         ),
@@ -290,11 +294,13 @@ def run_one(
         "\n".join(json.dumps(call, sort_keys=True) for call in toolbox.calls) + "\n",
         encoding="utf-8",
     )
-    terminal = (
-        [str(result.outcome)]
-        if result is not None and str(result.outcome) in ("finished", "gave_up")
-        else []
-    )
+    # An outcome of `gave_up` can be the loop's hard token stop, not a tool call.
+    # Only an actual terminal tool call means the model ended the run.
+    terminal = [
+        str(call["tool"])
+        for call in toolbox.calls
+        if str(call["tool"]) in ("finish", "give_up")
+    ]
     return _run_record(
         task,
         target,

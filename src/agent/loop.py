@@ -242,35 +242,27 @@ def run_agent(
         # Inside wrap-up the budgets are spent by definition (that is often why we are
         # here), so they are not re-checked: the one remaining call exists to end the
         # run, and refusing it would recreate the silent stop this phase removes.
-        if not state.wrapup_reason:
-            if elapsed() > budget.max_wall_seconds:
-                enter_wrapup("budget:wall_clock")
-            else:
-                # Forward-looking: the check used to run after a turn had already been
-                # paid for, so a run could cross the budget by a whole turn's prompt.
-                # Measured: 120 000 budget, 175 384 tokens — the crossing turn and the
-                # two wrap-up calls were all paid for. This moves wrap-up one call
-                # earlier; it does not cap the total, because the loop still allows
-                # max_model_calls + 1 calls. The call count is the real bound.
-                projected = state.tokens + _projected_prompt_tokens(messages)
-                if projected > budget.max_tokens:
-                    # A hard stop, not a wrap-up. Entering wrap-up used to leave as
-                    # many calls as the task had left, each re-sending the whole
-                    # history: one migration run with a 120k cap spent 436,572 tokens
-                    # across seven wrap-up calls. The next call is refused and the
-                    # refusal is recorded as a forced terminal, because there is no
-                    # room to ask the model for one.
-                    state.wrapup_reason = "budget:tokens"
-                    state.reached_wrapup = True
-                    reason = (
-                        "budget:tokens: the projected next prompt "
-                        f"({projected} tokens) exceeds the {budget.max_tokens}-token "
-                        "budget; the call was refused"
-                    )
-                    return replace(
-                        finish(Outcome.GAVE_UP, reason, status="gave_up"),
-                        forced_terminal=True,
-                    )
+        if not state.wrapup_reason and elapsed() > budget.max_wall_seconds:
+            enter_wrapup("budget:wall_clock")
+        # The token check runs during wrap-up too. Skipping it there re-created
+        # the leak the hard cap was meant to close: a run that entered wrap-up
+        # early (repeat or tool cap) could spend every remaining call at full
+        # history. Measured: 367,865 tokens against a 120,000 cap on a run whose
+        # gate passed. The call that would cross is refused even when it is the
+        # reserved terminal call; the refusal itself is the forced ending.
+        projected = state.tokens + _projected_prompt_tokens(messages)
+        if projected > budget.max_tokens:
+            state.wrapup_reason = "budget:tokens"
+            state.reached_wrapup = True
+            reason = (
+                "budget:tokens: the projected next prompt "
+                f"({projected} tokens) exceeds the {budget.max_tokens}-token "
+                "budget; the call was refused"
+            )
+            return replace(
+                finish(Outcome.GAVE_UP, reason, status="gave_up"),
+                forced_terminal=True,
+            )
 
         # Calls left INCLUDING this one. `remaining <= WRAPUP_WINDOW` withdraws the
         # tools that change the workspace; `remaining <= 1` leaves only the two that

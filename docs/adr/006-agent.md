@@ -267,7 +267,8 @@ and the pilot's 175 384 (1.46×) were the same failure at smaller call counts. T
 projection still undercounts because it sums message `content` only and ignores
 tool-call arguments and tool schemas (3 971 projected against 27 300 actual at the
 trap's turn 10), so the stop can fire a turn late; the call that would cross is the
-last one made.
+last one made. The check runs on every iteration, including wrap-up: skipping it there
+let a run that entered wrap-up early spend 367 865 tokens against the same cap.
 
 This is a protocol change and required a new freeze. It also changes D23's
 "every run ends in a terminal call" invariant: a token stop has no room for one, so
@@ -285,10 +286,11 @@ fails when the tree no longer matches it. The hash does **not** cover the runner
 or the report, only the surface below.
 
 **Freeze regenerated 2026-11-24 after the hard token cap:**
-`fe3e527fb9def2a5872191653e838ccb6a5372cf606f452785d03cfedbb4abea`
+`d8332a00980b4348e57c3147ffd95191e2264b3e155badd58241d8cd541a7f89`
 
-This supersedes `97fac66c…`, `e1855d13…`, `1b07549e…`, `134289c5…`, `7f200a31…`
-and `b8125f7c…`: `loop.py`, the task classifier, the toolbox, and one task changed. The second change came from the real pycodestyle wiring run:
+This supersedes `fe3e527f…`, `97fac66c…`, `e1855d13…`, `1b07549e…`, `134289c5…`,
+`7f200a31…` and `b8125f7c…`: `loop.py`, the task classifier, the toolbox, and one
+task changed. The second change came from the real pycodestyle wiring run:
 `list_files` decoded every `.py` file, and one legacy-encoded fixture in that tree
 ended the run with `UnicodeDecodeError`. Listing is now name-only and reads replace
 undecodable bytes. The third hides `run_tests` from the model while leaving the gate's
@@ -301,13 +303,15 @@ forced it. The sixth fixes `mech-rename-local`: its instruction named a `graph` 
 inside `PathGraphingAstVisitor.visit`, but neither exists. The wiring model found that,
 patched something else that happened to preserve behaviour, and the gate passed — a
 task bug the score would have hidden. The instruction now names `name` in
-`visitWith`, the local the earlier pilots actually renamed.
+`visitWith`, the local the earlier pilots actually renamed. The seventh enforces the
+token cap inside wrap-up as well: the first version checked only outside it, and a run
+that entered wrap-up early spent 367,865 tokens against 120,000.
 
 | surface | recorded value |
 | --- | --- |
 | system prompt | `agent-system-1`, 1 677 chars, sha256 `11bd5ed0f1872f4a2da26fd0541aa7009ad8e8fb94e09c4f3e545a5c778cbaab` |
 | tools | 7 schemas, sha256 `5fc3630c18fa661374b33db95fe78cb1771dfe2055c3ac8d99f1c3fc1fbf635c`; implementation (`src/agent/live.py`) sha256 `7537829355bc2065c9174a2ce76bf37628fddab6d70f644e627f0ad7932ee2b7` |
-| wrap-up | window 3; tools `run_verify`, `run_tests`, `finish`, `give_up`; terminal `finish`, `give_up`; one reserved call with `tool_choice: "required"`; loop sha256 `031e39e9dd51eae4d3dd7cfdc69895d3b0d07ebb7da53d61f971c5945f15dfcc` |
+| wrap-up | window 3; tools `run_verify`, `run_tests`, `finish`, `give_up`; terminal `finish`, `give_up`; one reserved call with `tool_choice: "required"`; loop sha256 `29f7871baa0d5adf64ab012a77e0c848f3d64989a1b5c4a83e0b532f89f6bdd9` |
 | budgets | run defaults: 12 model calls, 120 000 tokens, 900 s; evaluation caps: 24 runs, 1 500 000 tokens, 28 800 s |
 | guardrails | `src/agent/guardrails.py` sha256 `cb7a88b943a88520740e520fe3f4406654ee3d02676a64eb2cf68fea027f136f` |
 | task set | 12 tasks, sha256 `aa1a3d091b7c2b61499bbb60d65ef13cef2371651edb31f6e4a1bc31f6e807ca`; success ladder (`src/agent/tasks.py`) sha256 `7eb5e6fc4101cad701554a97ea42df86cb77677cd80d6c1c2b328ae3f776cb2e` |

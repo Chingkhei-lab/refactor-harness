@@ -548,6 +548,31 @@ def test_the_token_budget_is_checked_against_the_next_prompt(clean_db: Any) -> N
     assert "call was refused" in result.reason
 
 
+def test_the_token_cap_is_not_bypassed_by_an_early_wrapup(clean_db: Any) -> None:
+    """A run already in wrap-up must still refuse a call over the token cap.
+
+    The first version checked tokens only outside wrap-up. A migration run entered
+    wrap-up early, then spent 367,865 tokens against a 120,000 cap because every
+    wrap-up call skipped the check. The cap is enforced on every iteration.
+    """
+    client = ScriptedClient([])
+    result = run_agent(
+        run_id=str(uuid4()),
+        task="rename",
+        deps=deps(
+            clean_db,
+            client,
+            FakeToolbox(),
+            Budget(max_model_calls=8, max_tokens=1, max_wall_seconds=-1.0),
+        ),
+    )
+
+    assert result.outcome is Outcome.GAVE_UP
+    assert result.state.model_calls == 0, "the over-budget call was refused"
+    assert result.wrapup_reason == "budget:tokens"
+    assert result.forced_terminal
+
+
 def test_a_provider_that_ignores_tool_choice_still_ends_the_run(clean_db: Any) -> None:
     """kimi answers with prose under `tool_choice: "required"` (measured).
 
