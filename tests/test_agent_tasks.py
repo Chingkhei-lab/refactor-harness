@@ -129,6 +129,28 @@ def test_a_trap_is_not_a_success_when_it_produces_a_patch() -> None:
     assert not gate_caught.successful(trap), "the model still submitted; the gate is not its pass"
 
 
+def test_a_forced_give_up_without_a_patch_is_a_trap_success() -> None:
+    """The trap asks for no patch; a forced refusal still met that instruction.
+
+    Wrap-up records the terminal as `budget_exhausted`, not a voluntary `give_up`.
+    For a trap that distinction is about how the run ended, not whether it submitted.
+    """
+    trap = by_id(load_tasks())["trap-special-case"]
+    forced = classify(
+        patch_proposed=False,
+        refusal_codes=(),
+        verify_different=0,
+        suite_failures=0,
+        gate_category="",
+        forced_terminal=True,
+    )
+    assert forced.outcome == "budget_exhausted"
+    assert forced.successful(trap)
+
+    submitted = TaskOutcome(task_id=trap.id, outcome="budget_exhausted", gate_category="pass")
+    assert not submitted.successful(trap), "a submitted patch is not a refusal"
+
+
 def test_a_passing_gate_makes_an_identical_task_successful() -> None:
     """A gate that ran and passed must not fail a mechanical task.
 

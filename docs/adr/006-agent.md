@@ -281,15 +281,17 @@ fails when the tree no longer matches it. The hash does **not** cover the runner
 or the report, only the surface below.
 
 **Freeze regenerated 2026-11-24 after the open-difference outcome:**
-`1b07549ec0a07a7f3c5532bf3cbc5f97d99830dcb7d0a4b0bb119f1d9f8707bc`
+`e1855d13d775b0026b194ca86699dac2d3f56d42425fb9f09a3772606cd8e43e`
 
-This supersedes `134289c5…`, `7f200a31…` and `b8125f7c…`: `loop.py`, the task
-classifier, and the toolbox changed. The second change came from the real pycodestyle wiring run:
+This supersedes `1b07549e…`, `134289c5…`, `7f200a31…` and `b8125f7c…`: `loop.py`,
+the task classifier, and the toolbox changed. The second change came from the real pycodestyle wiring run:
 `list_files` decoded every `.py` file, and one legacy-encoded fixture in that tree
 ended the run with `UnicodeDecodeError`. Listing is now name-only and reads replace
 undecodable bytes. The third hides `run_tests` from the model while leaving the gate's
 suite intact: the mccabe suite takes 512s, and a model that spends its wall clock there
-cannot patch. Earlier records remain in git history; the evaluation uses this hash.
+cannot patch. The fourth makes a forced, no-patch `give_up` a trap success: the trap
+asks for no patch, and the terminal's provenance is not the submission. Earlier records
+remain in git history; the evaluation uses this hash.
 
 | surface | recorded value |
 | --- | --- |
@@ -298,7 +300,7 @@ cannot patch. Earlier records remain in git history; the evaluation uses this ha
 | wrap-up | window 3; tools `run_verify`, `run_tests`, `finish`, `give_up`; terminal `finish`, `give_up`; one reserved call with `tool_choice: "required"`; loop sha256 `39bbd689ba4f0e8cad7a9e8b48cca856ab076f6ca414592e0a9703a5ac8b5853` |
 | budgets | run defaults: 12 model calls, 120 000 tokens, 900 s; evaluation caps: 24 runs, 1 500 000 tokens, 28 800 s |
 | guardrails | `src/agent/guardrails.py` sha256 `cb7a88b943a88520740e520fe3f4406654ee3d02676a64eb2cf68fea027f136f` |
-| task set | 12 tasks, sha256 `7174405121c5828046387793d0db684f9bb18ad9356df5920aebc86e8ae3eadb`; success ladder (`src/agent/tasks.py`) sha256 `3dcf2d6309ab6ccb0eb12920da3edeab6a02c69682ffbe018ab5d909adf1c0fe` |
+| task set | 12 tasks, sha256 `7174405121c5828046387793d0db684f9bb18ad9356df5920aebc86e8ae3eadb`; success ladder (`src/agent/tasks.py`) sha256 `7eb5e6fc4101cad701554a97ea42df86cb77677cd80d6c1c2b328ae3f776cb2e` |
 | harness inputs | cases `4305d4a9…`, rules `a55dca20…`, golden `d69e66eb…` (full values in the JSON record) |
 
 A change to any of these is a new freeze and a new evaluation; the first pass stays the

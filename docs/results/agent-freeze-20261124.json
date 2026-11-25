@@ -1,6 +1,6 @@
 {
- "freeze_sha256": "1b07549ec0a07a7f3c5532bf3cbc5f97d99830dcb7d0a4b0bb119f1d9f8707bc",
- "git_commit": "376e5753b327b5f082b1cbffdaf1de332450d1ec",
+ "freeze_sha256": "e1855d13d775b0026b194ca86699dac2d3f56d42425fb9f09a3772606cd8e43e",
+ "git_commit": "7764a029a82ea28f76f7246d64f6d030b560a93b",
  "manifest": {
   "budgets": {
    "evaluation_caps": {
@@ -32,7 +32,7 @@
   },
   "schema": "agent-freeze/1",
   "task_set": {
-   "classifier_sha256": "3dcf2d6309ab6ccb0eb12920da3edeab6a02c69682ffbe018ab5d909adf1c0fe",
+   "classifier_sha256": "7eb5e6fc4101cad701554a97ea42df86cb77677cd80d6c1c2b328ae3f776cb2e",
    "count": 12,
    "files": [
     "idiom-dict-get.json",
